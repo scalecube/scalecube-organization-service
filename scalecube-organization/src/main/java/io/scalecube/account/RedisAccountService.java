@@ -103,7 +103,7 @@ public class RedisAccountService implements AccountService, OrganizationService 
     this.tokenVerifier = tokenVerifier;
   }
 
-  @Override
+  //@Override
   public Mono<User> register(final Token token) {
 
     return Mono.create(result -> {
@@ -128,7 +128,7 @@ public class RedisAccountService implements AccountService, OrganizationService 
     });
   }
 
-  @Override
+  //@Override
   public Mono<FindUserResponse> searchUser(FindUserRequest request) {
     checkNotNull(request);
     checkNotNull(request.fullNameOrEmail());

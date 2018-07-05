@@ -15,7 +15,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class RedisOrganizations {
+public class RedisOrganizations implements OrganizationsRepository {
 
   private static final String ORGANIZATIONS_BY_ID = "organizations_by_id";
   private static final String ORGANIZATION_MEMBERS = "organization_members";
@@ -38,6 +38,7 @@ public class RedisOrganizations {
     users.putIfAbsent(user.id(), user);
   }
 
+  @Override
   public User getUser(String userId) {
     ConcurrentMap<String, User> users = redisson.getMap(USERS);
     return users.get(userId);
@@ -51,6 +52,7 @@ public class RedisOrganizations {
    * @return organization newly created organization
    * @throws AccessPermissionException if user has not permissions.
    */
+  @Override
   public Organization createOrganization(User owner, Organization organization) throws AccessPermissionException {
     ConcurrentMap<String, Organization> organizations = redisson.getMap(ORGANIZATIONS_BY_ID);
     organizations.putIfAbsent(organization.id(), organization);
@@ -68,6 +70,7 @@ public class RedisOrganizations {
    * @param id of the requested organization.
    * @return Organization instance.
    */
+  @Override
   public Organization getOrganization(String id) {
     ConcurrentMap<String, Organization> organizations = redisson.getMap(ORGANIZATIONS_BY_ID);
     return (Organization) organizations.get(id);
@@ -79,6 +82,7 @@ public class RedisOrganizations {
    * @param owner of the requesting user to delete.
    * @param org to delete.
    */
+  @Override
   public void deleteOrganization(User owner, Organization org) {
     if (owner.id().equals(org.ownerId()) 
         && getOrganizationMembers(org.id()).size() == 1 
@@ -95,6 +99,7 @@ public class RedisOrganizations {
    * @param user in subject.
    * @return the organizations this user is memeber in.
    */
+  @Override
   public Collection<Organization> getUserMembership(final User user) {
     ConcurrentMap<String, Organization> organizations = redisson.getMap(ORGANIZATIONS_BY_ID);
     return Collections.unmodifiableCollection(organizations.values().stream()
@@ -128,6 +133,7 @@ public class RedisOrganizations {
    * @param org to be updated.
    * @param newDetails to update with.
    */
+  @Override
   public void updateOrganizationDetails(User owner, Organization org, Organization newDetails) {
     if (org.id().equals(newDetails.id())) {
       ConcurrentMap<String, Organization> organizations = redisson.getMap(ORGANIZATIONS_BY_ID);

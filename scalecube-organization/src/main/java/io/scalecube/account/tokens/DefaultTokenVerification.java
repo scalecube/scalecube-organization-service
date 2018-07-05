@@ -3,7 +3,7 @@ package io.scalecube.account.tokens;
 import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.User;
-import io.scalecube.account.db.RedisOrganizations;
+import io.scalecube.account.db.OrganizationsRepository;
 import io.scalecube.jwt.WebToken;
 
 import io.jsonwebtoken.Claims;
@@ -18,24 +18,26 @@ public class DefaultTokenVerification implements TokenVerifier {
 
   private ConcurrentMap<String, WebToken> jwtProviders = new ConcurrentHashMap<>();
 
-  private final RedisOrganizations organizations;
+  private final OrganizationsRepository repository;
 
-  public DefaultTokenVerification(RedisOrganizations organizations) {
-    this.organizations = organizations;
+  public DefaultTokenVerification(OrganizationsRepository organizations) {
+    this.repository = organizations;
   }
 
   @Override
-  public User verify(Token token) throws Exception {
+  public User verify(Token token) {
     String key = "account-service/" + token.origin();
-    Organization org = organizations.getOrganization(token.origin());
+    Organization org = repository.getOrganization(token.origin());
 
     if (org != null) {
       WebToken jwt = jwtProviders.computeIfAbsent(key, j -> new WebToken("account-service", org.id()));
       Claims claims = jwt.parse(token.token(), org.secretKey());
       Map<String, String> claimsMap = new HashMap<String, String>();
+
       for (Entry<String, Object> entry : claims.entrySet()) {
         claimsMap.put(entry.getKey(), entry.getValue().toString());
       }
+
       if (claims != null) {
         return new User(org.id(), org.email(), true, org.name(), null, null, null, null, claimsMap);
       }

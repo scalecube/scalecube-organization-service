@@ -14,8 +14,6 @@ import io.scalecube.account.api.GetOrganizationResponse;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.User;
-import io.scalecube.test.utils.Await;
-import io.scalecube.test.utils.Await.AwaitLatch;
 import io.scalecube.testlib.BaseTest;
 
 import org.junit.Test;
@@ -41,7 +39,7 @@ public class RedisAccountServiceTest extends BaseTest {
 
   @Test
   public void testRegisterUser() throws Exception {
-    AwaitLatch<User> await = Await.one();
+    Await.AwaitLatch<User> await = Await.one();
     account.register(token).subscribe(await::result, await::error);
     await.timeout(2, TimeUnit.SECONDS);
     assertNotNull(await.result());
@@ -49,7 +47,7 @@ public class RedisAccountServiceTest extends BaseTest {
 
   @Test
   public void testCreateOrganization() throws Exception {
-    AwaitLatch<CreateOrganizationResponse> await = Await.one();
+    Await.AwaitLatch<CreateOrganizationResponse> await = Await.one();
 
     account.register(token)
         .subscribe(user -> organization.createOrganization(new CreateOrganizationRequest("myTestOrg5", token, "email"))
@@ -60,7 +58,7 @@ public class RedisAccountServiceTest extends BaseTest {
 
   @Test
   public void testGetOrganizationDetails() throws Exception {
-    AwaitLatch<GetMembershipResponse> await = Await.one();
+    Await.AwaitLatch<GetMembershipResponse> await = Await.one();
 
     account.register(token)
         .subscribe(user -> organization.getUserOrganizationsMembership(new GetMembershipRequest(token))
@@ -71,7 +69,7 @@ public class RedisAccountServiceTest extends BaseTest {
 
   @Test
   public void testGetOrganization() throws Exception {
-    AwaitLatch<GetOrganizationResponse> await = Await.one();
+    Await.AwaitLatch<GetOrganizationResponse> await = Await.one();
 
     account.register(token)
         .subscribe(user -> organization.createOrganization(new CreateOrganizationRequest("org1", token, "email"))
@@ -85,7 +83,7 @@ public class RedisAccountServiceTest extends BaseTest {
 
   @Test
   public void testDeleteOrganization() throws Exception {
-    AwaitLatch<DeleteOrganizationResponse> await = Await.one();
+    Await.AwaitLatch<DeleteOrganizationResponse> await = Await.one();
 
     account.register(token)
         .subscribe(user -> organization.createOrganization(new CreateOrganizationRequest("org2", token, "email"))

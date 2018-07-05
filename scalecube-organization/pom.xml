@@ -4,11 +4,11 @@
 
 	<parent>
 		<groupId>io.scalecube</groupId>
-		<artifactId>configuration-parent</artifactId>
+		<artifactId>scalecube-organization-service</artifactId>
 		<version>0.0.6-SNAPSHOT</version>
 	</parent>
-	<artifactId>scalecube-account</artifactId>
-	<name>scalecube-account</name>
+	<artifactId>scalecube-organization</artifactId>
+	<name>scalecube-organization</name>
 	<url>http://maven.apache.org</url>
 
 	<properties>
@@ -18,22 +18,14 @@
 	<dependencies>
 		<dependency>
 			<groupId>io.scalecube</groupId>
-			<artifactId>scalecube-account-api</artifactId>
+			<artifactId>scalecube-organization-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>io.scalecube</groupId>
-			<artifactId>scalecube-package-utils</artifactId>
-			<version>${project.version}</version>
+			<artifactId>scalecube-seed</artifactId>
+			<version>0.0.7-SNAPSHOT</version>
 		</dependency>
-
-		<dependency>
-			<groupId>io.scalecube</groupId>
-			<artifactId>scalecube-test-utils</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
 		<!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<checkstyle version="6.11.2">
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\AccountService.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\AddOrganizationApiKeyRequest.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\ApiKey.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\CreateOrganizationRequest.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\CreateOrganizationResponse.java">
+<error line="5" severity="warning" message="First sentence of Javadoc is incomplete (period is missing) or not present." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SummaryJavadocCheck"/>
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\CreateUserResponse.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\DeleteOrganizationApiKeyRequest.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\DeleteOrganizationRequest.java">
+<error line="9" severity="warning" message="First sentence of Javadoc is incomplete (period is missing) or not present." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SummaryJavadocCheck"/>
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\DeleteOrganizationResponse.java">
+<error line="8" severity="warning" message="First sentence of Javadoc is incomplete (period is missing) or not present." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SummaryJavadocCheck"/>
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\EmailNotVerifiedException.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\FindUserRequest.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\FindUserResponse.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\GetMembershipRequest.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\GetMembershipResponse.java">
+<error line="14" severity="warning" message="First sentence of Javadoc is incomplete (period is missing) or not present." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SummaryJavadocCheck"/>
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\GetOrganizationMembersRequest.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\GetOrganizationMembersResponse.java">
+<error line="7" severity="warning" message="First sentence of Javadoc is incomplete (period is missing) or not present." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SummaryJavadocCheck"/>
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\GetOrganizationRequest.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\GetOrganizationResponse.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\InvalidAuthenticationToken.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\InvalidRequestException.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\InviteOrganizationMemberRequest.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\InviteOrganizationMemberResponse.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\KickoutOrganizationMemberRequest.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\KickoutOrganizationMemberResponse.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\LeaveOrganizationRequest.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\LeaveOrganizationResponse.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\MissingOrganizationException.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\NoSuchOrganizationFound.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\Organization.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\OrganizationInfo.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\OrganizationMember.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\OrganizationService.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\Token.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\UpdateOrganizationRequest.java">
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\UpdateOrganizationResponse.java">
+<error line="5" severity="warning" message="First sentence of Javadoc is incomplete (period is missing) or not present." source="com.puppycrawl.tools.checkstyle.checks.javadoc.SummaryJavadocCheck"/>
+</file>
+<file name="C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\User.java">
+</file>
+</checkstyle>
