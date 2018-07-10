@@ -15,7 +15,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class RedisOrganizations implements OrganizationsRepository {
+public class RedisOrganizations {//implements OrganizationsDataAccess {
 
   private static final String ORGANIZATIONS_BY_ID = "organizations_by_id";
   private static final String ORGANIZATION_MEMBERS = "organization_members";
@@ -38,7 +38,7 @@ public class RedisOrganizations implements OrganizationsRepository {
     users.putIfAbsent(user.id(), user);
   }
 
-  @Override
+  //@Override
   public User getUser(String userId) {
     ConcurrentMap<String, User> users = redisson.getMap(USERS);
     return users.get(userId);
@@ -52,14 +52,14 @@ public class RedisOrganizations implements OrganizationsRepository {
    * @return organization newly created organization
    * @throws AccessPermissionException if user has not permissions.
    */
-  @Override
+  //@Override
   public Organization createOrganization(User owner, Organization organization) throws AccessPermissionException {
     ConcurrentMap<String, Organization> organizations = redisson.getMap(ORGANIZATIONS_BY_ID);
     organizations.putIfAbsent(organization.id(), organization);
 
     final ConcurrentMap<String, OrganizationMember> members =
         redisson.getMap(organizationMembersCollection(organization.id()));
-    members.putIfAbsent(owner.id(), new OrganizationMember(owner, "owner"));
+    members.putIfAbsent(owner.id(), new OrganizationMember(organization.id(), owner.id(), "owner"));
 
     return organization;
   }
@@ -70,7 +70,7 @@ public class RedisOrganizations implements OrganizationsRepository {
    * @param id of the requested organization.
    * @return Organization instance.
    */
-  @Override
+  //@Override
   public Organization getOrganization(String id) {
     ConcurrentMap<String, Organization> organizations = redisson.getMap(ORGANIZATIONS_BY_ID);
     return (Organization) organizations.get(id);
@@ -82,7 +82,7 @@ public class RedisOrganizations implements OrganizationsRepository {
    * @param owner of the requesting user to delete.
    * @param org to delete.
    */
-  @Override
+  //@Override
   public void deleteOrganization(User owner, Organization org) {
     if (owner.id().equals(org.ownerId()) 
         && getOrganizationMembers(org.id()).size() == 1 
@@ -99,7 +99,7 @@ public class RedisOrganizations implements OrganizationsRepository {
    * @param user in subject.
    * @return the organizations this user is memeber in.
    */
-  @Override
+  //@Override
   public Collection<Organization> getUserMembership(final User user) {
     ConcurrentMap<String, Organization> organizations = redisson.getMap(ORGANIZATIONS_BY_ID);
     return Collections.unmodifiableCollection(organizations.values().stream()
@@ -133,7 +133,7 @@ public class RedisOrganizations implements OrganizationsRepository {
    * @param org to be updated.
    * @param newDetails to update with.
    */
-  @Override
+  //@Override
   public void updateOrganizationDetails(User owner, Organization org, Organization newDetails) {
     if (org.id().equals(newDetails.id())) {
       ConcurrentMap<String, Organization> organizations = redisson.getMap(ORGANIZATIONS_BY_ID);
@@ -168,9 +168,9 @@ public class RedisOrganizations implements OrganizationsRepository {
           redisson.getMap(organizationMembersCollection(organization.id()));
 
       if (owner.id().equals(user.id())) {
-        members.putIfAbsent(user.id(), new OrganizationMember(user, "owner"));
+        members.putIfAbsent(user.id(), new OrganizationMember(organization.id(), user.id(), "owner"));
       } else {
-        members.putIfAbsent(user.id(), new OrganizationMember(user, "member"));
+        members.putIfAbsent(user.id(), new OrganizationMember(organization.id(), user.id(), "member"));
       }
     } else {
       throw new AccessPermissionException(
@@ -215,7 +215,7 @@ public class RedisOrganizations implements OrganizationsRepository {
 
     return Collections.unmodifiableList(members.values().stream()
         .filter(m -> m.role().equals("owner"))
-        .map(om -> om.user())
+        .map(om -> getUser(om.userId()))
         .collect(Collectors.toList()));
   }
 

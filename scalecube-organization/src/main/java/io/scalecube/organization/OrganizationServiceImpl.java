@@ -1,10 +1,8 @@
 package io.scalecube.organization;
 
 import com.google.common.collect.Lists;
-import io.scalecube.account.RedisAccountService;
 import io.scalecube.account.api.*;
-import io.scalecube.account.db.OrganizationsRepository;
-import io.scalecube.account.db.OrganizationsRepositoryImpl;
+import io.scalecube.organization.repository.*;
 import io.scalecube.account.tokens.IdGenerator;
 import io.scalecube.account.tokens.JwtApiKey;
 import io.scalecube.account.tokens.TokenVerification;
@@ -20,15 +18,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class OrganizationServiceImpl implements OrganizationService {
     private final TokenVerifier tokenVerifier;
-    private final OrganizationsRepository repository;
+    private final OrganizationsDataAccess repository;
 
-    private OrganizationServiceImpl(OrganizationsRepository repository,  TokenVerifier tokenVerifier) {
+    private OrganizationServiceImpl(OrganizationsDataAccess repository, TokenVerifier tokenVerifier) {
         this.repository = repository;
         this.tokenVerifier = tokenVerifier;
     }
 
-    public static RedisAccountService.Builder builder() {
-        return new RedisAccountService.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
     @Override
@@ -354,9 +352,25 @@ public class OrganizationServiceImpl implements OrganizationService {
 
 
     public static class Builder {
+        private OrganizationRepository organizationRepository;
+        private UserRepository userRepository;
+
         public OrganizationService build() {
-            OrganizationsRepository repository = new OrganizationsRepositoryImpl();
+            OrganizationsDataAccess repository = new OrganizationsDataAccessImpl(
+                    organizationRepository,
+                    userRepository
+                    );
             return new OrganizationServiceImpl(repository, new TokenVerification(repository));
+        }
+
+        public Builder organizationRepository(OrganizationRepository organizationRepository) {
+            this.organizationRepository = organizationRepository;
+            return this;
+        }
+
+        public Builder userRepository(UserRepository userRepository) {
+            this.userRepository = userRepository;
+            return this;
         }
     }
 }

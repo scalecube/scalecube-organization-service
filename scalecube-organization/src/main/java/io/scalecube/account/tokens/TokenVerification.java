@@ -2,8 +2,7 @@ package io.scalecube.account.tokens;
 
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.User;
-import io.scalecube.account.db.OrganizationsRepository;
-import io.scalecube.account.db.RedisOrganizations;
+import io.scalecube.organization.repository.OrganizationsDataAccess;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -14,7 +13,7 @@ public class TokenVerification implements TokenVerifier{
   private static final String DEFAULT_TOKEN_PROVIDER = "default";
   private final ConcurrentMap<String, TokenVerifier> providers = new ConcurrentHashMap<>();
 
-  public TokenVerification(OrganizationsRepository repository) {
+  public TokenVerification(OrganizationsDataAccess repository) {
 
     providers.putIfAbsent(GOOGLE, new GoogleTokenVerification());
     providers.putIfAbsent(DEFAULT_TOKEN_PROVIDER, new DefaultTokenVerification(repository));

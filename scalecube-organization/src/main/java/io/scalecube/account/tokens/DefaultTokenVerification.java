@@ -3,7 +3,7 @@ package io.scalecube.account.tokens;
 import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.User;
-import io.scalecube.account.db.OrganizationsRepository;
+import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.jwt.WebToken;
 
 import io.jsonwebtoken.Claims;
@@ -18,9 +18,9 @@ public class DefaultTokenVerification implements TokenVerifier {
 
   private ConcurrentMap<String, WebToken> jwtProviders = new ConcurrentHashMap<>();
 
-  private final OrganizationsRepository repository;
+  private final OrganizationsDataAccess repository;
 
-  public DefaultTokenVerification(OrganizationsRepository organizations) {
+  public DefaultTokenVerification(OrganizationsDataAccess organizations) {
     this.repository = organizations;
   }
 

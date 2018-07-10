@@ -1,118 +1,208 @@
-package io.scalecube.account.db;
+package io.scalecube.organization.repository;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationMember;
+import io.scalecube.account.api.Role;
 import io.scalecube.account.api.User;
+import io.scalecube.account.db.AccessPermissionException;
+import io.scalecube.organization.repository.exception.DuplicateKeyException;
+import io.scalecube.organization.repository.exception.OrganizationNotFoundException;
+import io.scalecube.organization.repository.exception.UserNotFoundException;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
-public class OrganizationsRepositoryImpl implements OrganizationsRepository
-{
-    private final Map<String, User> users = new ConcurrentHashMap<>();
-    private final Map<String, Organization> organizations = new ConcurrentHashMap<>();
-    private final Map<String, Map<String, OrganizationMember>> organizationMembers = new ConcurrentHashMap<>();
+public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
+    private final OrganizationRepository organizations;
+    private final UserRepository users;
 
-    @Override
-    public User getUser(String userId) {
-        return users.get(userId);
+    public OrganizationsDataAccessImpl(
+            OrganizationRepository organizationRepository,
+            UserRepository userRepository) {
+        this.organizations = organizationRepository;
+        this.users = userRepository;
     }
 
     @Override
-    public Organization getOrganization(String id) {
-        return organizations.get(id);
+    public User getUser(String id) throws UserNotFoundException {
+        checkNotNull(id);
+        return users.findById(id).orElseThrow(() -> new UserNotFoundException(id));
     }
 
     @Override
-    public Organization createOrganization(User owner, Organization organization) {
-        organizations.putIfAbsent(organization.id(), organization);
-        organizationMembers.putIfAbsent(organization.id(), new ConcurrentHashMap<>());
-        organizationMembers.get(organization.id()).putIfAbsent(owner.id(), new OrganizationMember(owner, "owner"));
-        return organization;
+    public Organization getOrganization(String id) throws OrganizationNotFoundException {
+        checkNotNull(id);
+        return organizations.findById(id).orElseThrow(() -> new OrganizationNotFoundException(id));
     }
 
     @Override
-    public void deleteOrganization(User owner, Organization org) {
-        if (owner.id().equals(org.ownerId())
-                && organizationMembers.get(org.id()).size() == 1
-                && organizationMembers.get(org.id()).containsKey(owner.id())) {
+    public Organization createOrganization(User owner, Organization organization) throws DuplicateKeyException {
+        checkNotNull(owner);
+        checkNotNull(organization);
+        if (organizations.existsById(organization.id())) {
+            throw new DuplicateKeyException(organization.id());
+        }
+        addMemberToOrg(owner, organization, Role.Owner);
+        return organizations.save(organization);
+    }
 
-            organizations.remove(org.id());
-            organizationMembers.remove(org.id());
+    @Override
+    public void deleteOrganization(User owner, Organization organization)
+            throws OrganizationNotFoundException, AccessPermissionException {
+        checkNotNull(owner);
+        checkNotNull(organization);
+        checkOrganizationExists(organization);
+
+        boolean isCallerOrgOwner = owner.id().equals(organization.ownerId());
+
+        if (isCallerOrgOwner) {
+            organizations.deleteById(organization.id());
+        } else {
+            throwNotOrgOwnerException(owner, organization);
         }
     }
 
     @Override
     public Collection<Organization> getUserMembership(User user) {
-        return Collections.unmodifiableCollection(organizations.values().stream()
-                .filter(org -> isOrganizationMember(user, org))
+        checkNotNull(user);
+        return Collections.unmodifiableCollection(
+                StreamSupport.stream(organizations.findAll().spliterator(), false)
+                .filter(org -> isOrgMember(user.id(), org))
                 .collect(Collectors.toList()));
     }
 
+    private boolean isOrgMember(String userId, Organization org) {
+        return org
+                .members()
+                .values()
+                .stream()
+                .flatMap(Collection::stream)
+                .collect(Collectors.toSet())
+                .stream()
+                .anyMatch(userId::equals);
+    }
+
     @Override
-    public void updateOrganizationDetails(User owner, Organization org, Organization update) {
+    public void updateOrganizationDetails(User owner, Organization org, Organization update)
+            throws AccessPermissionException {
+        checkNotNull(owner);
+        checkNotNull(org);
+        checkNotNull(update);
+
+        if (!org.ownerId().equals(owner.id())) {
+            throwNotOrgOwnerException(owner, org);
+        }
+
         if (org.id().equals(update.id())) {
-            organizations.put(org.id(), update);
+            organizations.save(update);
         }
     }
 
     @Override
-    public Collection<OrganizationMember> getOrganizationMembers(String id) {
-        return organizationMembers.containsKey(id)
-                ? organizationMembers.get(id).values()
-                : Collections.EMPTY_LIST;
+    public Collection<OrganizationMember> getOrganizationMembers(String orgId)
+            throws OrganizationNotFoundException {
+        checkNotNull(orgId);
+
+        return getOrganization(orgId).members()
+                .entrySet()
+                .stream()
+                .map((e) -> getOrganizationMembers(e.getKey(), e.getValue()))
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
     }
 
-    public void invite(User owner, Organization organization, final User user) throws AccessPermissionException {
+    private Collection<OrganizationMember> getOrganizationMembers(String role, List<String> userIds) {
+        return userIds.stream().map((id)-> {
+            try {
+                return new OrganizationMember(getUser(id), role);
+            } catch (UserNotFoundException e) {e.printStackTrace();}
+            return null;
+        }).collect(Collectors.toList());
+    }
+
+    public void invite(User owner, Organization organization, User user)
+            throws AccessPermissionException, OrganizationNotFoundException {
+        checkNotNull(owner);
+        checkNotNull(organization);
+        checkNotNull(user);
+        checkOrganizationExists(organization);
+
         if (isOwner(organization, owner)) {
-            final Map<String, OrganizationMember> members =
-                    organizationMembers.get(organization.id());
-
-            if (owner.id().equals(user.id())) {
-                members.putIfAbsent(user.id(), new OrganizationMember(user, "owner"));
-            } else {
-                members.putIfAbsent(user.id(), new OrganizationMember(user, "member"));
-            }
+            addMemberToOrg(user, organization, owner.id().equals(user.id())
+                    ? Role.Owner
+                    : Role.Member);
+            organizations.save(organization);
         } else {
-            throw new AccessPermissionException(
-                    "user: " + owner.name() + " id: " + owner.id() + " is not an owner of organization: " + organization.id());
+            throwNotOrgOwnerException(owner, organization);
         }
     }
 
+    private void addMemberToOrg(User user, Organization organization, Role role) {
+        if (!isOrgMember(user.id(), organization)) {
+            organization.members().putIfAbsent(role.toString(), new ArrayList<>());
+            organization.members().get(role.toString()).add(user.id());
+        }
+    }
+
+    private void throwNotOrgOwnerException(User owner, Organization org) throws AccessPermissionException {
+        throw new AccessPermissionException(
+                String.format("user: %s, name: %s, is not an owner of organization: %s",
+                        owner.name(), owner.id(), org.id()));
+    }
+
     @Override
-    public void kickout(User owner, Organization organization, User user) {
-        if (isOwner(organization, owner) && isOrganizationMember(user, organization)) {
+    public void kickout(User owner, Organization organization, User user) throws OrganizationNotFoundException {
+        checkNotNull(organization);
+        checkNotNull(user);
+        checkOrganizationExists(organization);
+
+        if (isOwner(organization, owner) && isMember(organization, user)) {
             leave(organization, user);
         }
     }
 
-    @Override
-    public void leave(Organization organization, User user) {
-        final Map<String, OrganizationMember> members = organizationMembers.get(organization.id());
-        members.remove(user.id());
-    }
-
     private boolean isOwner(Organization organization, User user) {
-        return getOwners(organization).stream().anyMatch(u -> u.id().equals(user.id()));
+        return getMembers(organization, Role.Owner)
+                .stream()
+                .anyMatch(u -> u.id().equals(user.id()));
     }
 
-    private List<User> getOwners(Organization organization) {
-        final Map<String, OrganizationMember> members = organizationMembers.get(organization.id());
-        return Collections.unmodifiableList(
-                 members.values()
-                        .stream()
-                        .filter(m -> m.role().equals("owner"))
-                        .map(OrganizationMember::user)
-                        .collect(Collectors.toList()));
+    private boolean isMember(Organization organization, User user) {
+        return getMembers(organization, Role.Member)
+                .stream()
+                .anyMatch(u -> u.id().equals(user.id()));
     }
 
+    @Override
+    public void leave(Organization organization, User user) throws OrganizationNotFoundException {
+        checkNotNull(organization);
+        checkNotNull(user);
+        checkOrganizationExists(organization);
+        getMembersByRole(organization, Role.Member).remove(user.id());
+        organizations.save(organization);
+    }
 
-    private boolean isOrganizationMember(User user, Organization organization) {
-        final Map<String, OrganizationMember> members = organizationMembers.get(organization.id());
-        return members.containsKey(user.id());
+    private void checkOrganizationExists(Organization organization) throws OrganizationNotFoundException {
+        if (!organizations.existsById(organization.id())) {
+            throw new OrganizationNotFoundException(organization.id());
+        }
+    }
+
+    private List<String> getMembersByRole(Organization organization, Role role) {
+        return organization.members().containsKey(role.toString())
+                ? organization.members().get(role.toString())
+                : Collections.EMPTY_LIST;
+    }
+
+    private List<User> getMembers(Organization organization, Role role) {
+        List<String> members = getMembersByRole(organization, role);
+
+        return members.isEmpty()
+                ? Collections.emptyList()
+                : StreamSupport
+                    .stream(users.findAllById(members).spliterator(), false)
+                    .collect(Collectors.toList());
     }
 }

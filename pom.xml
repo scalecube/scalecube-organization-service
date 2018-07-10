@@ -64,7 +64,7 @@
 		<project.docker.repository>scalecube/configuration</project.docker.repository>
 		<argLine>-Xms1024m -Xmx2048m</argLine>
 
-		<scalecube-services.version>2.1.1</scalecube-services.version>
+		<scalecube-services.version>2.0.14</scalecube-services.version>
 		<reactor-core.version>3.1.6.RELEASE</reactor-core.version>
 		<redisson.version>3.4.3</redisson.version>
 		<jackson-databind.version>2.7.6</jackson-databind.version>
@@ -83,7 +83,7 @@
 		<dependency>
 			<groupId>io.scalecube</groupId>
 			<artifactId>scalecube-services</artifactId>
-			<version>2.1.1</version>
+			<version>${scalecube-services.version}</version>
 		</dependency>
 
 		<dependency>

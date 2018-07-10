@@ -1,4 +1,4 @@
-package io.scalecube.account.db;
+package io.scalecube.organization.repository.exception;
 
 public class AccessPermissionException extends Exception {
 

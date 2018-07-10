@@ -85,7 +85,7 @@ public class RedisAccountService implements AccountService, OrganizationService 
     public RedisAccountService build() {
       TokenVerifier tokenVerifier = null;
       if (user == null) {
-        tokenVerifier = new TokenVerification(new RedisOrganizations(redisson));
+        //tokenVerifier = new TokenVerification(new RedisOrganizations(redisson));
       } else {
         tokenVerifier = new MockTokenVerification(user);
       }

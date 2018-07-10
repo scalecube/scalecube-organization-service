@@ -21,11 +21,6 @@
 			<artifactId>scalecube-organization-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>io.scalecube</groupId>
-			<artifactId>scalecube-seed</artifactId>
-			<version>0.0.7-SNAPSHOT</version>
-		</dependency>
 		<!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
@@ -37,6 +32,11 @@
 			<groupId>com.google.api-client</groupId>
 			<artifactId>google-api-client</artifactId>
 			<version>1.22.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-couchbase</artifactId>
+			<version>3.0.8.RELEASE</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -57,7 +57,7 @@
 					<!-- MainClass in mainfest make a executable jar -->
 					<archive>
 						<manifest>
-							<mainClass>io.scalecube.server.Main</mainClass>
+							<mainClass>io.scalecube.server.OrganizationServiceMain</mainClass>
 						</manifest>
 					</archive>
 
