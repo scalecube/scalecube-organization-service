@@ -1,10 +1,15 @@
 package io.scalecube.account.api;
 
+
+import com.couchbase.client.java.repository.annotation.Id;
+
+import java.util.List;
 import java.util.Map;
 
 public class User {
 
   // Get profile information from payload
+  @Id
   private String id;
   private String email;
   private boolean emailVerified;
