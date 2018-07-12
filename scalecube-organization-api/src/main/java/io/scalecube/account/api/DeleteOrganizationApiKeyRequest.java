@@ -2,9 +2,15 @@ package io.scalecube.account.api;
 
 public class DeleteOrganizationApiKeyRequest {
 
-  private Token token;
-  private String organizationId;
-  private String apiKeyName;
+  private final Token token;
+  private final String organizationId;
+  private final String apiKeyName;
+
+  public DeleteOrganizationApiKeyRequest(Token token, String organizationId, String apiKeyName) {
+    this.token = token;
+    this.organizationId = organizationId;
+    this.apiKeyName = apiKeyName;
+  }
 
   public Token token() {
     return this.token;

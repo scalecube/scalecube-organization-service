@@ -4,10 +4,17 @@ import java.util.Map;
 
 public class AddOrganizationApiKeyRequest {
 
-  private Token token;
-  private String organizationId;
-  private String apiKeyName;
-  private Map<String, String> claims;
+  private final Token token;
+  private final String organizationId;
+  private final String apiKeyName;
+  private final Map<String, String> claims;
+
+  public AddOrganizationApiKeyRequest(Token token, String organizationId, String apiKeyName, Map<String, String> claims) {
+    this.token = token;
+    this.organizationId = organizationId;
+    this.apiKeyName = apiKeyName;
+    this.claims = claims;
+  }
 
   public Token token() {
     return this.token;

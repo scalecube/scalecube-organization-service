@@ -7,7 +7,7 @@ import io.scalecube.organization.repository.OrganizationsDataAccess;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class TokenVerification implements TokenVerifier{
+public class TokenVerification implements TokenVerifier {
 
   private static final String GOOGLE = "google";
   private static final String DEFAULT_TOKEN_PROVIDER = "default";

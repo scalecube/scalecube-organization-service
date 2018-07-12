@@ -59,7 +59,7 @@ public class RedisOrganizations {//implements OrganizationsDataAccess {
 
     final ConcurrentMap<String, OrganizationMember> members =
         redisson.getMap(organizationMembersCollection(organization.id()));
-    members.putIfAbsent(owner.id(), new OrganizationMember(organization.id(), owner.id(), "owner"));
+    members.putIfAbsent(owner.id(), new OrganizationMember(owner, "owner"));
 
     return organization;
   }
@@ -168,9 +168,9 @@ public class RedisOrganizations {//implements OrganizationsDataAccess {
           redisson.getMap(organizationMembersCollection(organization.id()));
 
       if (owner.id().equals(user.id())) {
-        members.putIfAbsent(user.id(), new OrganizationMember(organization.id(), user.id(), "owner"));
+        members.putIfAbsent(user.id(), new OrganizationMember(user, "owner"));
       } else {
-        members.putIfAbsent(user.id(), new OrganizationMember(organization.id(), user.id(), "member"));
+        members.putIfAbsent(user.id(), new OrganizationMember(user, "member"));
       }
     } else {
       throw new AccessPermissionException(
@@ -215,7 +215,7 @@ public class RedisOrganizations {//implements OrganizationsDataAccess {
 
     return Collections.unmodifiableList(members.values().stream()
         .filter(m -> m.role().equals("owner"))
-        .map(om -> getUser(om.userId()))
+        .map(om -> getUser(om.user().id()))
         .collect(Collectors.toList()));
   }
 

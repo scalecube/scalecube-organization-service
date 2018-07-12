@@ -1,4 +1,4 @@
-package io.scalecube.account;
+package io.scalecube;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;

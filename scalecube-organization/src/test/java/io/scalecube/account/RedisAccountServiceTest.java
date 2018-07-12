@@ -2,6 +2,7 @@ package io.scalecube.account;
 
 import static org.junit.Assert.assertNotNull;
 
+import io.scalecube.Await;
 import io.scalecube.account.api.AccountService;
 import io.scalecube.account.api.CreateOrganizationRequest;
 import io.scalecube.account.api.CreateOrganizationResponse;
@@ -50,8 +51,8 @@ public class RedisAccountServiceTest extends BaseTest {
     Await.AwaitLatch<CreateOrganizationResponse> await = Await.one();
 
     account.register(token)
-        .subscribe(user -> organization.createOrganization(new CreateOrganizationRequest("myTestOrg5", token, "email"))
-            .subscribe(await::result, await::error));
+                .subscribe(user -> organization.createOrganization(new CreateOrganizationRequest("myTestOrg5", token, "email"))
+                .subscribe(await::result, await::error));
     await.timeout(2, TimeUnit.SECONDS);
     assertNotNull(await.result());
   }

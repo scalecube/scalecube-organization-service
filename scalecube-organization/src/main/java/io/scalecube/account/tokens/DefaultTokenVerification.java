@@ -7,6 +7,7 @@ import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.jwt.WebToken;
 
 import io.jsonwebtoken.Claims;
+import io.scalecube.organization.repository.exception.EntityNotFoundException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,10 +28,16 @@ public class DefaultTokenVerification implements TokenVerifier {
   @Override
   public User verify(Token token) {
     String key = "account-service/" + token.origin();
-    Organization org = repository.getOrganization(token.origin());
+    Organization org = null;
+    try {
+      org = repository.getOrganization(token.origin());
+    } catch (EntityNotFoundException e) {
+      e.printStackTrace();
+    }
 
     if (org != null) {
-      WebToken jwt = jwtProviders.computeIfAbsent(key, j -> new WebToken("account-service", org.id()));
+      String id  = org.id();
+      WebToken jwt = jwtProviders.computeIfAbsent(key, j -> new WebToken("account-service", id));
       Claims claims = jwt.parse(token.token(), org.secretKey());
       Map<String, String> claimsMap = new HashMap<String, String>();
 

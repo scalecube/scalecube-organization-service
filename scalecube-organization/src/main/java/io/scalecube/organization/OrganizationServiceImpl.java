@@ -2,21 +2,27 @@ package io.scalecube.organization;
 
 import com.google.common.collect.Lists;
 import io.scalecube.account.api.*;
-import io.scalecube.organization.repository.*;
 import io.scalecube.account.tokens.IdGenerator;
 import io.scalecube.account.tokens.JwtApiKey;
 import io.scalecube.account.tokens.TokenVerification;
 import io.scalecube.account.tokens.TokenVerifier;
+import io.scalecube.organization.repository.OrganizationsDataAccess;
+import io.scalecube.organization.repository.OrganizationsDataAccessImpl;
+import io.scalecube.organization.repository.Repository;
+import io.scalecube.organization.repository.exception.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class OrganizationServiceImpl implements OrganizationService {
+    private final static Logger LOG = LoggerFactory.getLogger(OrganizationServiceImpl.class);
     private final TokenVerifier tokenVerifier;
     private final OrganizationsDataAccess repository;
 
@@ -68,15 +74,17 @@ public class OrganizationServiceImpl implements OrganizationService {
         checkNotNull(request.token());
 
         return Mono.create(result -> {
-            Collection<Organization> results = new ArrayList<>();
+            Collection<Organization> results;
             try {
                 User user = tokenVerifier.verify(request.token());
                 if (user != null && isUserExists(user)) {
                     results = repository.getUserMembership(user);
-                    final List<OrganizationInfo> infos = new ArrayList<>();
-                    results.forEach(item -> {
-                        infos.add(new OrganizationInfo(item.id(), item.name(), item.apiKeys(), item.email(), item.ownerId()));
-                    });
+                    final List<OrganizationInfo> infos = results.stream().map(item ->
+                            new OrganizationInfo(item.id(),
+                                    item.name(),
+                                    item.apiKeys(),
+                                    item.email(),
+                                    item.ownerId())).collect(Collectors.toList());
                     result.success(new GetMembershipResponse(infos.toArray(new OrganizationInfo[results.size()])));
                 } else {
                     result.error(new InvalidAuthenticationToken());
@@ -88,7 +96,12 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     private boolean isUserExists(User user) {
-        return repository.getUser(user.id()) != null;
+        try {
+            return repository.getUser(user.id()) != null;
+        } catch (EntityNotFoundException e) {
+            LOG.error("Error: user id: '{}', name:'{}' not found", user.id(), user.name());
+        }
+        return false;
     }
 
     @Override
@@ -98,7 +111,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         checkNotNull(request.token());
 
         return Mono.create(result -> {
-            Organization organization = null;
+            Organization organization;
             try {
                 User user = tokenVerifier.verify(request.token());
                 if (user != null && isUserExists(user)) {
@@ -188,7 +201,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         checkNotNull(request.token());
 
         return Mono.create(result -> {
-            Collection<OrganizationMember> organizationMembers = null;
+            Collection<OrganizationMember> organizationMembers;
             try {
                 User user = tokenVerifier.verify(request.token());
                 if (user != null && isUserExists(user)) {
@@ -352,24 +365,32 @@ public class OrganizationServiceImpl implements OrganizationService {
 
 
     public static class Builder {
-        private OrganizationRepository organizationRepository;
-        private UserRepository userRepository;
+        private Repository<Organization, String> organizationRepository;
+        private Repository<User, String> userRepository;
+        private TokenVerifier tokenVerifier;
 
         public OrganizationService build() {
             OrganizationsDataAccess repository = new OrganizationsDataAccessImpl(
                     organizationRepository,
                     userRepository
                     );
-            return new OrganizationServiceImpl(repository, new TokenVerification(repository));
+            return new OrganizationServiceImpl(repository, tokenVerifier == null
+                    ? new TokenVerification(repository)
+                    : tokenVerifier);
         }
 
-        public Builder organizationRepository(OrganizationRepository organizationRepository) {
+        public Builder organizationRepository(Repository<Organization, String> organizationRepository) {
             this.organizationRepository = organizationRepository;
             return this;
         }
 
-        public Builder userRepository(UserRepository userRepository) {
+        public Builder userRepository(Repository<User, String> userRepository) {
             this.userRepository = userRepository;
+            return this;
+        }
+
+        public Builder tokenVerifier(TokenVerifier tokenVerifier) {
+            this.tokenVerifier = tokenVerifier;
             return this;
         }
     }

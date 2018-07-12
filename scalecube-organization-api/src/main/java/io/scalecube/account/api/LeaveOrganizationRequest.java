@@ -2,9 +2,14 @@ package io.scalecube.account.api;
 
 public class LeaveOrganizationRequest {
 
-  private Token token;
+  private final Token token;
 
-  private String organizationId;
+  private final String organizationId;
+
+  public LeaveOrganizationRequest(Token token, String organizationId) {
+    this.token = token;
+    this.organizationId = organizationId;
+  }
 
   public Token token() {
     return this.token;

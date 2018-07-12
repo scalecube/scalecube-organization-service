@@ -2,9 +2,15 @@ package io.scalecube.account.api;
 
 public class InviteOrganizationMemberRequest {
 
-  private Token token;
-  private String organizationId;
-  private String userId;
+  private final Token token;
+  private final String organizationId;
+  private final String userId;
+
+  public InviteOrganizationMemberRequest(Token token, String organizationId, String userId) {
+    this.token = token;
+    this.organizationId = organizationId;
+    this.userId = userId;
+  }
 
   public Token token() {
     return this.token;

@@ -19,6 +19,7 @@ C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\ja
 C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\GetOrganizationRequest.java
 C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\InviteOrganizationMemberResponse.java
 C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\GetOrganizationMembersResponse.java
+C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\Role.java
 C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\DeleteOrganizationApiKeyRequest.java
 C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\KickoutOrganizationMemberResponse.java
 C:\dev\git\scalecube-organization-service\scalecube-organization-api\src\main\java\io\scalecube\account\api\DeleteOrganizationResponse.java

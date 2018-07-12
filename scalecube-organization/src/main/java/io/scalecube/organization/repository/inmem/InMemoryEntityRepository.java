@@ -1,0 +1,50 @@
+package io.scalecube.organization.repository.inmem;
+
+import io.scalecube.organization.repository.Repository;
+import jdk.nashorn.internal.runtime.regexp.joni.constants.OPCode;
+
+import java.util.HashMap;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+public abstract class InMemoryEntityRepository<T, ID>
+        implements Repository<T, ID> {
+    private final HashMap<ID, T> entities
+            = new HashMap<>();
+
+    @Override
+    public Optional<T> findById(ID id) {
+        return entities.containsKey(id)
+                ? Optional.of(entities.get(id))
+                : Optional.empty();
+    }
+
+    @Override
+    public boolean existsById(ID id) {
+        return entities.containsKey(id);
+    }
+
+    @Override
+    public T save(ID id, T t) {
+        entities.put(id, t);
+        return t;
+    }
+
+    @Override
+    public void deleteById(ID id) {
+        entities.remove(id);
+    }
+
+    @Override
+    public Iterable<T> findAll() {
+        return entities.values().stream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Iterable<T> findAllById(Iterable<ID> ids) {
+        return StreamSupport.stream(ids.spliterator(), false)
+                .map(entities::get)
+                .collect(Collectors.toList());
+    }
+}

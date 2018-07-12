@@ -2,9 +2,15 @@ package io.scalecube.account.api;
 
 public class GetOrganizationMembersRequest {
 
-  private String organizationId;
+  private final String organizationId;
 
-  private Token token;
+  private final Token token;
+
+  public GetOrganizationMembersRequest(String organizationId,
+                                       Token token) {
+    this.organizationId = organizationId;
+    this.token = token;
+  }
 
   public Token token() {
     return this.token;

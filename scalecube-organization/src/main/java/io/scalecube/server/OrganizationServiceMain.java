@@ -1,14 +1,20 @@
 package io.scalecube.server;
 
-//import io.scalecube.account.RedisAccountService;
+import io.scalecube.account.api.Organization;
+import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.User;
 import io.scalecube.config.AppConfiguration;
 import io.scalecube.organization.OrganizationServiceImpl;
-import io.scalecube.organization.repository.OrganizationRepository;
-import io.scalecube.organization.repository.UserRepository;
+import io.scalecube.organization.repository.Repository;
+import io.scalecube.organization.repository.couchbase.CouchbaseOrganizationRepository;
+import io.scalecube.organization.repository.couchbase.CouchbaseUserRepository;
+import io.scalecube.organization.repository.couchbase.OrganizationRepository;
+import io.scalecube.organization.repository.couchbase.UserRepository;
 import io.scalecube.services.Microservices;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+import java.io.IOException;
 
 public class OrganizationServiceMain {
 
@@ -23,16 +29,22 @@ public class OrganizationServiceMain {
     OrganizationRepository organizationRepository =
             getBean(context, "organizationRepository");
     UserRepository userRepository = getBean(context, "userRepository");
-    Microservices
+    OrganizationService service = OrganizationServiceImpl
             .builder()
-            .services(OrganizationServiceImpl
-                    .builder()
-                    .organizationRepository(organizationRepository)
-                    .userRepository(userRepository)
-                    .build())
-            //.seeds(seed.cluster().address())
-            .build()
-            .startAwait();
+            .organizationRepository(new CouchbaseOrganizationRepository(organizationRepository))
+            .userRepository(new CouchbaseUserRepository(userRepository))
+            .build();
+//    Microservices
+//            .builder()
+//            .services(service)
+//            //.seeds(seed.cluster().address())
+//            .build()
+//            .startAwait();
+    try {
+      System.in.read();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   static <T> T  getBean(ApplicationContext context, String beanName) {

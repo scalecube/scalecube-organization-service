@@ -1,40 +1,43 @@
 package io.scalecube.organization.repository;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.User;
 import io.scalecube.account.db.AccessPermissionException;
 import io.scalecube.organization.repository.exception.DuplicateKeyException;
-import io.scalecube.organization.repository.exception.OrganizationNotFoundException;
-import io.scalecube.organization.repository.exception.UserNotFoundException;
+import io.scalecube.organization.repository.exception.EntityNotFoundException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
-    private final OrganizationRepository organizations;
-    private final UserRepository users;
+    private final Repository<Organization, String> organizations;
+    private final Repository<User, String> users;
 
     public OrganizationsDataAccessImpl(
-            OrganizationRepository organizationRepository,
-            UserRepository userRepository) {
+            Repository<Organization, String> organizationRepository,
+            Repository<User, String> userRepository) {
         this.organizations = organizationRepository;
         this.users = userRepository;
     }
 
     @Override
-    public User getUser(String id) throws UserNotFoundException {
+    public User getUser(String id) throws EntityNotFoundException {
         checkNotNull(id);
-        return users.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+        return users.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     }
 
     @Override
-    public Organization getOrganization(String id) throws OrganizationNotFoundException {
+    public Organization getOrganization(String id) throws EntityNotFoundException {
         checkNotNull(id);
-        return organizations.findById(id).orElseThrow(() -> new OrganizationNotFoundException(id));
+        return organizations.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     }
 
     @Override
@@ -45,12 +48,12 @@ public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
             throw new DuplicateKeyException(organization.id());
         }
         addMemberToOrg(owner, organization, Role.Owner);
-        return organizations.save(organization);
+        return organizations.save(organization.id(), organization);
     }
 
     @Override
     public void deleteOrganization(User owner, Organization organization)
-            throws OrganizationNotFoundException, AccessPermissionException {
+            throws EntityNotFoundException, AccessPermissionException {
         checkNotNull(owner);
         checkNotNull(organization);
         checkOrganizationExists(organization);
@@ -96,13 +99,13 @@ public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
         }
 
         if (org.id().equals(update.id())) {
-            organizations.save(update);
+            organizations.save(org.id(), update);
         }
     }
 
     @Override
     public Collection<OrganizationMember> getOrganizationMembers(String orgId)
-            throws OrganizationNotFoundException {
+            throws EntityNotFoundException {
         checkNotNull(orgId);
 
         return getOrganization(orgId).members()
@@ -117,13 +120,13 @@ public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
         return userIds.stream().map((id)-> {
             try {
                 return new OrganizationMember(getUser(id), role);
-            } catch (UserNotFoundException e) {e.printStackTrace();}
+            } catch (EntityNotFoundException e) {e.printStackTrace();}
             return null;
         }).collect(Collectors.toList());
     }
 
     public void invite(User owner, Organization organization, User user)
-            throws AccessPermissionException, OrganizationNotFoundException {
+            throws AccessPermissionException, EntityNotFoundException {
         checkNotNull(owner);
         checkNotNull(organization);
         checkNotNull(user);
@@ -133,7 +136,7 @@ public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
             addMemberToOrg(user, organization, owner.id().equals(user.id())
                     ? Role.Owner
                     : Role.Member);
-            organizations.save(organization);
+            organizations.save(organization.id(), organization);
         } else {
             throwNotOrgOwnerException(owner, organization);
         }
@@ -153,7 +156,7 @@ public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
     }
 
     @Override
-    public void kickout(User owner, Organization organization, User user) throws OrganizationNotFoundException {
+    public void kickout(User owner, Organization organization, User user) throws EntityNotFoundException {
         checkNotNull(organization);
         checkNotNull(user);
         checkOrganizationExists(organization);
@@ -176,24 +179,22 @@ public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
     }
 
     @Override
-    public void leave(Organization organization, User user) throws OrganizationNotFoundException {
+    public void leave(Organization organization, User user) throws EntityNotFoundException {
         checkNotNull(organization);
         checkNotNull(user);
         checkOrganizationExists(organization);
-        getMembersByRole(organization, Role.Member).remove(user.id());
-        organizations.save(organization);
+        getMembersByRole(organization, isOwner(organization, user) ? Role.Owner : Role.Member).remove(user.id());
+        organizations.save(organization.id(), organization);
     }
 
-    private void checkOrganizationExists(Organization organization) throws OrganizationNotFoundException {
+    private void checkOrganizationExists(Organization organization) throws EntityNotFoundException {
         if (!organizations.existsById(organization.id())) {
-            throw new OrganizationNotFoundException(organization.id());
+            throw new EntityNotFoundException(organization.id());
         }
     }
 
     private List<String> getMembersByRole(Organization organization, Role role) {
-        return organization.members().containsKey(role.toString())
-                ? organization.members().get(role.toString())
-                : Collections.EMPTY_LIST;
+        return organization.members().getOrDefault(role.toString(), new ArrayList<>());
     }
 
     private List<User> getMembers(Organization organization, Role role) {

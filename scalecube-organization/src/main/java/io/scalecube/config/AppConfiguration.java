@@ -6,8 +6,8 @@ import com.couchbase.client.java.CouchbaseCluster;
 import com.couchbase.client.java.cluster.ClusterInfo;
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.User;
-import io.scalecube.organization.repository.OrganizationRepository;
-import io.scalecube.organization.repository.UserRepository;
+import io.scalecube.organization.repository.couchbase.OrganizationRepository;
+import io.scalecube.organization.repository.couchbase.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -58,26 +58,12 @@ public class AppConfiguration extends AbstractCouchbaseConfiguration {
         return null;
     }
 
-    @Bean
-    public Bucket organizationMembersBucket() throws Exception {
-        return couchbaseCluster().openBucket("organization_members");
-    }
 
     @Bean
     public Bucket usersBucket() throws Exception {
         return couchbaseCluster().openBucket("users");
     }
 
-    @Bean
-    public CouchbaseTemplate organizationMembersTemplate() throws Exception {
-        CouchbaseTemplate template = new CouchbaseTemplate(
-                couchbaseClusterInfo(),
-                organizationMembersBucket(),
-                mappingCouchbaseConverter(),
-                translationService());
-        template.setDefaultConsistency(getDefaultConsistency());
-        return template;
-    }
 
     @Bean
     public CouchbaseTemplate usersTemplate() throws Exception {
@@ -108,7 +94,6 @@ public class AppConfiguration extends AbstractCouchbaseConfiguration {
             RepositoryOperationsMapping baseMapping) {
         try {
             baseMapping.mapEntity(User.class, usersTemplate());
-            baseMapping.mapEntity(OrganizationMember.class, organizationMembersTemplate());
         } catch (Exception e) {
             e.printStackTrace();
         }

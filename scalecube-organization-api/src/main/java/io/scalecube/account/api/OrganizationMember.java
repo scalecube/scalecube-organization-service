@@ -1,5 +1,7 @@
 package io.scalecube.account.api;
 
+import java.util.Objects;
+
 public class OrganizationMember {
 
   private User user;
@@ -18,5 +20,19 @@ public class OrganizationMember {
 
   public String role() {
     return this.role;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof OrganizationMember))
+      return super.equals(obj);
+
+    OrganizationMember other = (OrganizationMember)obj;
+    return Objects.equals(user, other.user) && Objects.equals(role, other.role);
+  }
+
+  @Override
+  public String toString() {
+    return super.toString() + String.format("[user=%s, role=%s]", user, role);
   }
 }
