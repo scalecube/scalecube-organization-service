@@ -1,17 +1,26 @@
 package io.scalecube.account.api;
 
+import com.couchbase.client.java.repository.annotation.Id;
+
 import java.util.Objects;
+import java.util.UUID;
 
 public class OrganizationMember {
+  @Id
+  private final String id;
 
-  private User user;
-  private String role;
+  private final User user;
 
-  public OrganizationMember() {}
+  private final String role;
 
   public OrganizationMember(User user, String role) {
+    this.id = UUID.randomUUID().toString();
     this.user = user;
     this.role = role;
+  }
+
+  public String id() {
+    return this.id;
   }
 
   public User user() {
@@ -28,7 +37,7 @@ public class OrganizationMember {
       return super.equals(obj);
 
     OrganizationMember other = (OrganizationMember)obj;
-    return Objects.equals(user, other.user) && Objects.equals(role, other.role);
+    return Objects.equals(user, other.id);
   }
 
   @Override

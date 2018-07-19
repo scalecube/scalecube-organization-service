@@ -26,14 +26,17 @@ public class OrganizationServiceMain {
   public static void main(String[] args) {
     ApplicationContext context = new AnnotationConfigApplicationContext(AppConfiguration.class);
     //final Microservices seed = Microservices.builder().build().startAwait();
-    OrganizationRepository organizationRepository =
-            getBean(context, "organizationRepository");
-    UserRepository userRepository = getBean(context, "userRepository");
-    OrganizationService service = OrganizationServiceImpl
-            .builder()
-            .organizationRepository(new CouchbaseOrganizationRepository(organizationRepository))
-            .userRepository(new CouchbaseUserRepository(userRepository))
-            .build();
+    AppConfiguration configuration = getBean(context, "config");
+
+//    OrganizationRepository organizationRepository =
+//            getBean(context, "organizationRepository");
+//
+//    UserRepository userRepository = getBean(context, "userRepository");
+//    OrganizationService service = OrganizationServiceImpl
+//            .builder()
+//            .organizationRepository(new CouchbaseOrganizationRepository(organizationRepository))
+//            .userRepository(new CouchbaseUserRepository(userRepository))
+//            .build();
 //    Microservices
 //            .builder()
 //            .services(service)

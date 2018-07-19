@@ -38,10 +38,16 @@ public class AppConfiguration extends AbstractCouchbaseConfiguration {
         return organizationRepository;
     }
 
+    @Bean("config")
+    public AppConfiguration appConfiguration() {
+        return this;
+    }
+
     @Bean("userRepository")
     public UserRepository userRepository() {
         return userRepository;
     }
+
 
     @Override
     protected List<String> getBootstrapHosts() {

@@ -111,12 +111,12 @@ public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
         return getOrganization(orgId).members()
                 .entrySet()
                 .stream()
-                .map((e) -> getOrganizationMembers(e.getKey(), e.getValue()))
+                .map((e) -> getOrganizationMembers(orgId, e.getKey(), e.getValue()))
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
     }
 
-    private Collection<OrganizationMember> getOrganizationMembers(String role, List<String> userIds) {
+    private Collection<OrganizationMember> getOrganizationMembers(String orgId, String role, List<String> userIds) {
         return userIds.stream().map((id)-> {
             try {
                 return new OrganizationMember(getUser(id), role);
