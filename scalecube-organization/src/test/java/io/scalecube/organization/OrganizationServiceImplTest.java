@@ -23,7 +23,6 @@ import java.util.stream.Stream;
 
 import io.scalecube.Await.AwaitLatch;
 
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;

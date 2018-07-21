@@ -27,6 +27,15 @@ public class OrganizationServiceMain {
     ApplicationContext context = new AnnotationConfigApplicationContext(AppConfiguration.class);
     //final Microservices seed = Microservices.builder().build().startAwait();
     AppConfiguration configuration = getBean(context, "config");
+    OrganizationRepository organizationRepository =
+            getBean(context, "organizationRepository");
+
+    UserRepository userRepository = getBean(context, "userRepository");
+
+    User testUser = new User("1", "user1@gmail.com", true, "name 1",
+            "http://picture.jpg", "EN", "fname", "lname", null);
+
+    userRepository.save(testUser);
 
 //    OrganizationRepository organizationRepository =
 //            getBean(context, "organizationRepository");

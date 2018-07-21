@@ -13,11 +13,11 @@ public interface TranslationService {
     <T> String  encode(T source);
 
     /**
-     * Decodes the target format into a {@link CouchbaseDocument}
+     * Decodes the string into the target
      *
      * @param source the source formatted document.
      * @param target the target of the populated data.
-     * @return a properly populated document to work with.
+     * @return a properly populated object to work with.
      */
-    <T> T decode(String source, T target);
+    <T> T decode(String source, Class<T> target);
 }
