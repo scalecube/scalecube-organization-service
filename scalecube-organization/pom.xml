@@ -13,6 +13,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<spring.version>5.0.5.RELEASE</spring.version>
 	</properties>
 
 	<dependencies>
@@ -36,11 +37,6 @@
 			<groupId>com.google.api-client</groupId>
 			<artifactId>google-api-client</artifactId>
 			<version>1.22.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-couchbase</artifactId>
-			<version>3.0.8.RELEASE</version>
 		</dependency>
 	</dependencies>
 	<build>

@@ -14,7 +14,7 @@ public class OrganizationMember {
   private final String role;
 
   public OrganizationMember(User user, String role) {
-    this.id = UUID.randomUUID().toString();
+    this.id = user.id();
     this.user = user;
     this.role = role;
   }

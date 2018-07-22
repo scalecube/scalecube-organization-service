@@ -1,4 +1,4 @@
-package io.scalecube.organization;
+package io.scalecube.organization.repository.couchbase;
 
 import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationMember;
@@ -11,6 +11,12 @@ import org.junit.Test;
 public class CouchbaseUserOrganizationMembershipRepositoryTest extends BaseTest {
     private final User testUser = new User("1", "user1@gmail.com", true, "name 1",
             "http://picture.jpg", "EN", "fname", "lname", null);
+
+    @Test
+    public void testInitSettings() {
+        CouchbaseUserOrganizationMembershipRepository r = new CouchbaseUserOrganizationMembershipRepository();
+        r.init();
+    }
 
     @Test
     public void addMemberToOrganization() {

@@ -5,9 +5,4 @@ import io.scalecube.account.api.User;
 
 public class CouchbaseUserRepository
         extends CouchbaseEntityRepository<User, String> {
-
-    public CouchbaseUserRepository(UserRepository repository) {
-
-        super(repository);
-    }
 }
