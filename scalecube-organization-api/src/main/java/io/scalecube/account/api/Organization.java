@@ -1,7 +1,5 @@
 package io.scalecube.account.api;
 
-import com.couchbase.client.java.repository.annotation.Id;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +10,6 @@ public class Organization {
 
   private ApiKey[] apiKeys;
 
-  @Id
   private String id;
 
   private String ownerId;

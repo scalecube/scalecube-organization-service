@@ -5,7 +5,7 @@ import io.scalecube.account.api.Organization;
 public class CouchbaseOrganizationRepository
         extends CouchbaseEntityRepository<Organization, String> {
 
-    public CouchbaseOrganizationRepository(OrganizationRepository repository) {
-        super(repository);
+    public CouchbaseOrganizationRepository() {
+        super("organizations", Organization.class);
     }
 }

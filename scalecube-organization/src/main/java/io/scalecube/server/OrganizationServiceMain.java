@@ -1,7 +1,6 @@
 package io.scalecube.server;
 
 import io.scalecube.account.api.User;
-import org.springframework.context.ApplicationContext;
 
 public class OrganizationServiceMain {
 
@@ -49,8 +48,8 @@ public class OrganizationServiceMain {
 //    }
   }
 
-  static <T> T  getBean(ApplicationContext context, String beanName) {
-    return (T)context.getBean(beanName);
-  }
+//  static <T> T  getBean(ApplicationContext context, String beanName) {
+//    return (T)context.getBean(beanName);
+//  }
 
 }

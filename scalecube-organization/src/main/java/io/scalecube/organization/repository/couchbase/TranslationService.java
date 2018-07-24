@@ -1,8 +1,5 @@
 package io.scalecube.organization.repository.couchbase;
 
-import org.springframework.data.couchbase.core.mapping.CouchbaseDocument;
-import org.springframework.data.couchbase.core.mapping.CouchbaseStorable;
-
 public interface TranslationService {
     /**
      * Encodes a JSON String into the target format.

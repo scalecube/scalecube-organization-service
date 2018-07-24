@@ -11,8 +11,8 @@ import java.io.IOException;
 import java.util.*;
 
 final class CouchbaseSettings {
-    private static final String COUCHBASE_ADMIN = "couchbase.admin";
-    private static final String COUCHBASE_ADMIN_PASSWORD = "couchbase.password";
+    private static final String COUCHBASE_ADMIN = "couchbase.admin.user";
+    private static final String COUCHBASE_ADMIN_PASSWORD = "couchbase.admin.password";
     private static final String COUCHBASE_CLUSTER_NODES = "couchbase.cluster.nodes";
     private static final String ORG_MEMBERS_BUCKET_SUFFIX = "org.members.bucket.suffix";
     private static final String ORG_MEMBERS_USER_ROLES = "org.members.bucket.user.roles";
@@ -88,7 +88,7 @@ final class CouchbaseSettings {
     }
 
 
-    private String getProperty(String key) {
+    String getProperty(String key) {
         return settings.getProperty(key);
     }
 }

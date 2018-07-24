@@ -193,17 +193,20 @@ public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
         }
     }
 
-    private List<String> getMembersByRole(Organization organization, Role role) {
-        return organization.members().getOrDefault(role.toString(), new ArrayList<>());
-    }
+
 
     private List<User> getMembers(Organization organization, Role role) {
-        List<String> members = getMembersByRole(organization, role);
+//        List<String> members = getMembersByRole(organization, role);
+//
+//        return members.isEmpty()
+//                ? Collections.emptyList()
+//                : StreamSupport
+//                    .stream(users.findAllById(members).spliterator(), false)
+//                    .collect(Collectors.toList());
+        throw new IllegalStateException();
+    }
 
-        return members.isEmpty()
-                ? Collections.emptyList()
-                : StreamSupport
-                    .stream(users.findAllById(members).spliterator(), false)
-                    .collect(Collectors.toList());
+    private List<String> getMembersByRole(Organization organization, Role role) {
+        return organization.members().getOrDefault(role.toString(), new ArrayList<>());
     }
 }
