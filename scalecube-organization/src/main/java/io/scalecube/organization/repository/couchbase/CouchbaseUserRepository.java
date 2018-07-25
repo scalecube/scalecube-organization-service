@@ -2,9 +2,9 @@ package io.scalecube.organization.repository.couchbase;
 
 import io.scalecube.account.api.User;
 
-public class CouchbaseUserRepository
+class CouchbaseUserRepository
         extends CouchbaseEntityRepository<User, String> {
-    public CouchbaseUserRepository() {
+    CouchbaseUserRepository() {
         super("users", User.class);
     }
 }

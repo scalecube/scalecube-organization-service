@@ -26,7 +26,7 @@ final class CouchbaseSettings {
     private List<String> orgMemberUserRoles;
     private final Properties settings;
 
-    public CouchbaseSettings() {
+    private CouchbaseSettings() {
         settings = new Properties();
 
         try {
@@ -90,5 +90,11 @@ final class CouchbaseSettings {
 
     String getProperty(String key) {
         return settings.getProperty(key);
+    }
+
+    static class Builder {
+        public CouchbaseSettings build() {
+            return new CouchbaseSettings();
+        }
     }
 }

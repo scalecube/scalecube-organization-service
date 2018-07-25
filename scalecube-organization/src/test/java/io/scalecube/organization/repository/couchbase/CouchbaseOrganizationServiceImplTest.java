@@ -1,35 +1,39 @@
-package io.scalecube.organization;
+package io.scalecube.organization.repository.couchbase;
 
-import com.sun.media.sound.EmergencySoundbank;
 import io.scalecube.Await;
+import io.scalecube.Await.AwaitLatch;
 import io.scalecube.account.api.*;
-import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
+import io.scalecube.organization.OrganizationServiceImpl;
+import io.scalecube.organization.repository.Repository;
+import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
-import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
-import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
-import io.scalecube.organization.repository.inmem.InMemoryUserRepository;
 import io.scalecube.testlib.BaseTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import io.scalecube.Await.AwaitLatch;
-
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.CoreMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class OrganizationServiceImplTest extends BaseTest {
+public class CouchbaseOrganizationServiceImplTest extends BaseTest {
     private final OrganizationService service;
     private Token token = new Token("google", "user1");
     private final User testUser = new User("1", "user1@gmail.com", true, "name 1",
@@ -43,47 +47,49 @@ public class OrganizationServiceImplTest extends BaseTest {
     private final User testUser5 = new User("5", "user5@gmail.com", true, "name 3",
             "http://picture5.jpg", "EN", "fname5", "lname5", null);
 
-    private final InMemoryUserRepository userRepository = new InMemoryUserRepository();
-    private final InMemoryOrganizationRepository organizationRepository = new InMemoryOrganizationRepository();
-    private InMemoryUserOrganizationMembershipRepository orgMembersRepository = new InMemoryUserOrganizationMembershipRepository();
+    private static Repository<User, String> userRepository;
+    private Repository<Organization, String> organizationRepository;
+    private UserOrganizationMembershipRepository orgMembersRepository;
 
-    public OrganizationServiceImplTest() {
-
+    public CouchbaseOrganizationServiceImplTest() {
+        userRepository = CouchbaseRepositoryFactory.users();
+        organizationRepository = CouchbaseRepositoryFactory.organizations();
+        orgMembersRepository = CouchbaseRepositoryFactory.organizationMembers();
 
         userRepository.save("1", testUser);
         userRepository.save("2", testUser2);
         userRepository.save("4", testUser4);
         userRepository.save("5", testUser5);
 
+
         service = OrganizationServiceImpl
                 .builder()
                 .organizationRepository(organizationRepository)
                 .userRepository(userRepository)
-                .tokenVerifier((t) -> testUser)
                 .organizationMembershipRepository(orgMembersRepository)
-                .organizationMembershipRepositoryAdmin(new OrganizationMembersRepositoryAdmin() {
-                    @Override
-                    public void createRepository(Organization organization) {
-                    }
-
-                    @Override
-                    public void deleteRepository(Organization organization) {
-                    }
-                })
+                .organizationMembershipRepositoryAdmin(CouchbaseRepositoryFactory.organizationMembersRepositoryAdmin())
+                .tokenVerifier((t) -> testUser)
                 .build();
     }
 
     private String organisationId;
 
-    @Before
+    @AfterAll
+    public static void afterAll() {
+        IntStream.range(1,6).filter(i -> i != 3).forEach((i) -> userRepository.deleteById(String.valueOf(i)));
+    }
+
+    @BeforeEach
     public void createOrganizationBeforeTest() {
         organisationId = consume(service.createOrganization(
                 new CreateOrganizationRequest("myTestOrg5", token, "email"))).result().id();
+
     }
 
-    @After
+
+    @AfterEach
     public void deleteOrganizationAfterTest() {
-        organizationRepository.deleteById(organisationId);
+        consume(service.deleteOrganization(new DeleteOrganizationRequest(token, organisationId)));
     }
 
     @Test
@@ -95,7 +101,7 @@ public class OrganizationServiceImplTest extends BaseTest {
                 .expectSubscription()
                 .assertNext((r)-> assertThat(r.id(), is(id)))
         .verifyComplete();
-        organizationRepository.deleteById(id);
+        consume(service.deleteOrganization(new DeleteOrganizationRequest(token, id)));
     }
 
     @Test
@@ -108,22 +114,9 @@ public class OrganizationServiceImplTest extends BaseTest {
     }
 
     @Test
-    public void getOrganizationsOwnerRoleMembership() {
-        addMemberToOrganization(organisationId, service, testUser);
-        assertGetOrganizationsMembership(organisationId, testUser, Role.Owner);
-    }
-
-    @Test
-    public void getOrganizationsMemberRoleMembership() {
+    public void getOrganizationsMember() {
         addMemberToOrganization(organisationId, service, testUser2);
-        assertGetOrganizationsMembership(organisationId, testUser2, Role.Member);
-    }
-
-    private void assertGetOrganizationsMembership(String organisationId, User user, Role role) {
-        List<String> members = orgMembersRepository.getMembers(
-                getOrganizationFromRepository(organisationId)).stream().map(i -> i.user().id())
-                .collect(Collectors.toList());
-        assertThat(members, hasItem(user.id()));
+        assertTrue(orgMembersRepository.isMember(testUser2, getOrganizationFromRepository(organisationId)));
     }
 
     @Test

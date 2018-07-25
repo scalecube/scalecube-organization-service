@@ -8,10 +8,10 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
-public class JacksonTranslationService implements TranslationService {
+class JacksonTranslationService implements TranslationService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public JacksonTranslationService() {
+    JacksonTranslationService() {
         objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
     }
 

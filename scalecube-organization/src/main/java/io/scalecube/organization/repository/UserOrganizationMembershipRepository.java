@@ -4,13 +4,17 @@ import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.User;
 
-import java.util.Set;
+import java.util.Collection;
+import java.util.Optional;
 
-public interface UserOrganizationMembershipRepository extends
-        Repository<Set<OrganizationMember>, String> {
+public interface UserOrganizationMembershipRepository {
+    void addMember(Organization org, OrganizationMember member);
 
-    void addMemberToOrganization(Organization org, OrganizationMember member);
+    boolean isMember(User user, Organization organization);
 
-    Set<String> getUserMembership(User user);
-    void createUserOrganizationMembershipRepository(Organization organization);
+    Collection<OrganizationMember> getMembers(Organization organization);
+
+    void removeMember(User user, Organization organization);
+
+    Optional<OrganizationMember> getMember(User user, Organization organization);
 }

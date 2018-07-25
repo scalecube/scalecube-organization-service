@@ -8,10 +8,7 @@ import io.scalecube.account.db.AccessPermissionException;
 import io.scalecube.organization.repository.exception.DuplicateKeyException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -20,12 +17,18 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
     private final Repository<Organization, String> organizations;
     private final Repository<User, String> users;
+    private final UserOrganizationMembershipRepository organizationMembershipRepository;
+    private final OrganizationMembersRepositoryAdmin organizationMembersRepositoryAdmin;
 
     public OrganizationsDataAccessImpl(
             Repository<Organization, String> organizationRepository,
-            Repository<User, String> userRepository) {
+            Repository<User, String> userRepository,
+            UserOrganizationMembershipRepository membershipRepository,
+            OrganizationMembersRepositoryAdmin repositoryAdmin) {
         this.organizations = organizationRepository;
         this.users = userRepository;
+        this.organizationMembershipRepository = membershipRepository;
+        this.organizationMembersRepositoryAdmin = repositoryAdmin;
     }
 
     @Override
@@ -47,7 +50,7 @@ public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
         if (organizations.existsById(organization.id())) {
             throw new DuplicateKeyException(organization.id());
         }
-        addMemberToOrg(owner, organization, Role.Owner);
+        organizationMembersRepositoryAdmin.createRepository(organization);
         return organizations.save(organization.id(), organization);
     }
 
@@ -58,9 +61,8 @@ public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
         checkNotNull(organization);
         checkOrganizationExists(organization);
 
-        boolean isCallerOrgOwner = owner.id().equals(organization.ownerId());
-
-        if (isCallerOrgOwner) {
+        if (isOwner(organization, owner)) {
+            organizationMembersRepositoryAdmin.deleteRepository(organization);
             organizations.deleteById(organization.id());
         } else {
             throwNotOrgOwnerException(owner, organization);
@@ -72,19 +74,12 @@ public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
         checkNotNull(user);
         return Collections.unmodifiableCollection(
                 StreamSupport.stream(organizations.findAll().spliterator(), false)
-                .filter(org -> isOrgMember(user.id(), org))
+                .filter(org -> isOrgMember(user, org))
                 .collect(Collectors.toList()));
     }
 
-    private boolean isOrgMember(String userId, Organization org) {
-        return org
-                .members()
-                .values()
-                .stream()
-                .flatMap(Collection::stream)
-                .collect(Collectors.toSet())
-                .stream()
-                .anyMatch(userId::equals);
+    private boolean isOrgMember(User user, Organization org) {
+        return organizationMembershipRepository.isMember(user, org);
     }
 
     @Override
@@ -94,11 +89,11 @@ public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
         checkNotNull(org);
         checkNotNull(update);
 
-        if (!org.ownerId().equals(owner.id())) {
+        if (!isOwner(org, owner)){
             throwNotOrgOwnerException(owner, org);
         }
 
-        if (org.id().equals(update.id())) {
+        if (Objects.equals(org.id(), update.id())) {
             organizations.save(org.id(), update);
         }
     }
@@ -107,22 +102,7 @@ public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
     public Collection<OrganizationMember> getOrganizationMembers(String orgId)
             throws EntityNotFoundException {
         checkNotNull(orgId);
-
-        return getOrganization(orgId).members()
-                .entrySet()
-                .stream()
-                .map((e) -> getOrganizationMembers(orgId, e.getKey(), e.getValue()))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
-    }
-
-    private Collection<OrganizationMember> getOrganizationMembers(String orgId, String role, List<String> userIds) {
-        return userIds.stream().map((id)-> {
-            try {
-                return new OrganizationMember(getUser(id), role);
-            } catch (EntityNotFoundException e) {e.printStackTrace();}
-            return null;
-        }).collect(Collectors.toList());
+        return organizationMembershipRepository.getMembers(getOrganization(orgId));
     }
 
     public void invite(User owner, Organization organization, User user)
@@ -136,16 +116,15 @@ public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
             addMemberToOrg(user, organization, owner.id().equals(user.id())
                     ? Role.Owner
                     : Role.Member);
-            organizations.save(organization.id(), organization);
         } else {
             throwNotOrgOwnerException(owner, organization);
         }
     }
 
     private void addMemberToOrg(User user, Organization organization, Role role) {
-        if (!isOrgMember(user.id(), organization)) {
-            organization.members().putIfAbsent(role.toString(), new ArrayList<>());
-            organization.members().get(role.toString()).add(user.id());
+        if (!isOrgMember(user, organization)) {
+            organizationMembershipRepository.addMember(organization,
+                    new OrganizationMember(user, role.toString()));
         }
     }
 
@@ -161,30 +140,26 @@ public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
         checkNotNull(user);
         checkOrganizationExists(organization);
 
-        if (isOwner(organization, owner) && isMember(organization, user)) {
+
+        if (isOwner(organization, owner) && organizationMembershipRepository.isMember(user, organization)) {
             leave(organization, user);
         }
     }
 
-    private boolean isOwner(Organization organization, User user) {
-        return getMembers(organization, Role.Owner)
-                .stream()
-                .anyMatch(u -> u.id().equals(user.id()));
+    private boolean isOwner(Organization org, User user) {
+        return Objects.equals(org.ownerId(), user.id());
     }
 
-    private boolean isMember(Organization organization, User user) {
-        return getMembers(organization, Role.Member)
-                .stream()
-                .anyMatch(u -> u.id().equals(user.id()));
-    }
 
     @Override
     public void leave(Organization organization, User user) throws EntityNotFoundException {
         checkNotNull(organization);
         checkNotNull(user);
         checkOrganizationExists(organization);
-        getMembersByRole(organization, isOwner(organization, user) ? Role.Owner : Role.Member).remove(user.id());
-        organizations.save(organization.id(), organization);
+
+        if (organizationMembershipRepository.isMember(user, organization)) {
+            organizationMembershipRepository.removeMember(user, organization);
+        }
     }
 
     private void checkOrganizationExists(Organization organization) throws EntityNotFoundException {
@@ -196,17 +171,10 @@ public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
 
 
     private List<User> getMembers(Organization organization, Role role) {
-//        List<String> members = getMembersByRole(organization, role);
-//
-//        return members.isEmpty()
-//                ? Collections.emptyList()
-//                : StreamSupport
-//                    .stream(users.findAllById(members).spliterator(), false)
-//                    .collect(Collectors.toList());
-        throw new IllegalStateException();
-    }
-
-    private List<String> getMembersByRole(Organization organization, Role role) {
-        return organization.members().getOrDefault(role.toString(), new ArrayList<>());
+        return organizationMembershipRepository.getMembers(organization)
+                .stream()
+                .filter(m -> Objects.equals(m.role(), role.toString()))
+                .map(m -> m.user())
+                .collect(Collectors.toList());
     }
 }

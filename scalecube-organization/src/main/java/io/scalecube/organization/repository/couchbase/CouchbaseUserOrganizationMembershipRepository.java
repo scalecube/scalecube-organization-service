@@ -2,110 +2,62 @@ package io.scalecube.organization.repository.couchbase;
 
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
-import com.couchbase.client.java.CouchbaseCluster;
-import com.couchbase.client.java.cluster.*;
-import com.couchbase.client.java.document.RawJsonDocument;
 import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.User;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
-import java.util.*;
-import java.util.stream.Collectors;
 
-public class CouchbaseUserOrganizationMembershipRepository
+import java.util.Collection;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+class CouchbaseUserOrganizationMembershipRepository extends CouchbaseEntityRepository<OrganizationMember, String>
         implements UserOrganizationMembershipRepository {
 
-    final CouchbaseSettings settings = new CouchbaseSettings();
+    private final CouchbaseSettings settings = new CouchbaseSettings.Builder().build();
 
-    @Override
-    public void addMemberToOrganization(Organization org, OrganizationMember member) {
-        Cluster cluster = CouchbaseCluster.create();
-        JacksonTranslationService service = new JacksonTranslationService();
-
-        try {
-            Bucket bucket = cluster.openBucket(getBucketName(org.name()), org.id());
-            RawJsonDocument d = RawJsonDocument.create(member.id(), service.encode(member));
-            bucket.insert(d);
-        } finally {
-            cluster.disconnect();
-        }
-
+    public CouchbaseUserOrganizationMembershipRepository() {
+        super(null, OrganizationMember.class);
     }
 
-    private String getBucketName(String orgId) {
-        return String.format(settings.getOrgMembersBucketSuffix(), orgId);
+
+    @Override
+    public void addMember(Organization org, OrganizationMember member) {
+        setCredentials(org);
+        save(member.user().id(), member);
     }
 
     @Override
-    public Set<String> getUserMembership(User user) {
-        return null;
+    public boolean isMember(User user, Organization organization) {
+        setCredentials(organization);
+        return existsById(user.id());
     }
 
     @Override
-    public void createUserOrganizationMembershipRepository(Organization organization) {
-        List<String> nodes = settings.getCouchbaseClusterNodes();
-        String bucketName = getBucketName(organization.name());
-
-        Cluster cluster = nodes.isEmpty()
-                ? CouchbaseCluster.create()
-                : CouchbaseCluster.create(nodes);
-
-        cluster.authenticate(settings.getCouchbaseAdmin(), settings.getCouchbaseAdminPassword());
-
-        try {
-            insertBucket(bucketName, cluster);
-            upsertUser(organization, bucketName, cluster);
-        } finally {
-            cluster.disconnect();
-        }
-    }
-
-    private void upsertUser(Organization organization, String bucketName, Cluster cluster) {
-        cluster.clusterManager().upsertUser(AuthDomain.LOCAL,
-                bucketName,
-                UserSettings.build()
-                        .password(organization.id())
-                        .name(bucketName)
-                        .roles(settings.getOrgMemberUserRoles()
-                                .stream()
-                                .map(role -> new UserRole(role, bucketName))
-                                .collect(Collectors.toList())));
-    }
-
-    private void insertBucket(String bucketName, Cluster cluster) {
-        cluster.clusterManager().insertBucket(new DefaultBucketSettings.Builder()
-                .type(settings.getOrgMembersBucketType())
-                .name(bucketName)
-                .quota(settings.getOrgMembersBucketQuota()) // megabytes
-                .replicas(settings.getOrgMembersBucketReplicas())
-                .indexReplicas(settings.getOrgMembersBucketIndexReplicas())
-                .enableFlush(settings.getOrgMembersBucketEnableFlush())
-                .build());
+    public Collection<OrganizationMember> getMembers(Organization organization) {
+        setCredentials(organization);
+        return StreamSupport.stream(findAll().spliterator(), false).collect(Collectors.toList());
     }
 
     @Override
-    public Optional<Set<OrganizationMember>> findById(String s) {
-        return Optional.empty();
+    public void removeMember(User user, Organization organization) {
+        setCredentials(organization);
+        deleteById(user.id());
     }
 
     @Override
-    public boolean existsById(String s) {
-        return false;
+    public Optional<OrganizationMember> getMember(User user, Organization organization) {
+        setCredentials(organization);
+        return findById(user.id());
     }
 
-    @Override
-    public Set<OrganizationMember> save(String s, Set<OrganizationMember> organizationMembers) {
-        return null;
+    private void setCredentials(Organization org) {
+        this.bucketName = getBucketName(org);
+        this.bucketPassword = org.id();
     }
 
-    @Override
-    public void deleteById(String s) {
-
+    private String getBucketName(Organization organization) {
+        return String.format(settings.getOrgMembersBucketSuffix(), organization.name());
     }
-
-    @Override
-    public Iterable<Set<OrganizationMember>> findAll() {
-        return null;
-    }
-
 }

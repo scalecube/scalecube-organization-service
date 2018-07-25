@@ -33,8 +33,6 @@ public class Organization {
     this.members = members;
   }
 
-  public Map<String, List<String>> members() { return members; }
-
   public String ownerId() {
     return this.ownerId;
   }
