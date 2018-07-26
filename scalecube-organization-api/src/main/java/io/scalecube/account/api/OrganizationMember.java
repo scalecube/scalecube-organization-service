@@ -3,11 +3,13 @@ package io.scalecube.account.api;
 import java.util.Objects;
 
 public class OrganizationMember {
-  private final String id;
+  private String id;
 
-  private final User user;
+  private User user;
 
-  private final String role;
+  private String role;
+
+  public OrganizationMember() {}
 
   public OrganizationMember(User user, String role) {
     this.id = user.id();

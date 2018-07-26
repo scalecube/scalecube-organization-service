@@ -21,7 +21,6 @@ final class CouchbaseSettings {
     private static final String ORG_MEMBERS_BUCKET_REPLICAS = "org.members.bucket.replicas";
     private static final String ORG_MEMBERS_BUCKET_INDEX_REPLICAS = "org.members.bucket.indexReplicas";
     private static final String ORG_MEMBERS_BUCKET_ENABLE_FLUSH = "org.members.bucket.enableFlush";
-
     private List<String> clusterNodes;
     private List<String> orgMemberUserRoles;
     private final Properties settings;

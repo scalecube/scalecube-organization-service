@@ -1,9 +1,7 @@
 package io.scalecube.organization.repository.couchbase;
 
 import com.couchbase.client.java.Bucket;
-import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseCluster;
-import com.couchbase.client.java.cluster.ClusterInfo;
 import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.RawJsonDocument;
 import com.couchbase.client.java.query.N1qlQuery;
@@ -24,11 +22,12 @@ import static com.couchbase.client.java.query.Select.select;
 import static com.couchbase.client.java.query.dsl.Expression.i;
 
 abstract class CouchbaseEntityRepository<T, ID extends String> implements Repository<T, ID> {
-    protected CouchbaseCluster cluster;
-    private Bucket client;
+    private static final String BUCKET_PASSWORD = ".bucket.password";
+    private static final String BUCKET = ".bucket";
+    private CouchbaseCluster cluster;
     private TranslationService translationService = new JacksonTranslationService();
-    String bucketName;
-    String bucketPassword;
+    private String bucketName;
+    private String bucketPassword;
     private final CouchbaseSettings settings;
     private final Class<T> type;
     private final CouchbaseExceptionTranslator exceptionTranslator = new CouchbaseExceptionTranslator();
@@ -40,21 +39,24 @@ abstract class CouchbaseEntityRepository<T, ID extends String> implements Reposi
         this.type = type;
     }
 
-    Bucket client() {
-        return cluster.openBucket(bucketName, bucketPassword);
-    }
-
     private String getBucketName(String alias) {
-        return settings.getProperty(alias + ".bucket");
+        return settings.getProperty(alias + BUCKET);
     }
 
     private String getBucketPassword(String alias) {
-        return settings.getProperty(alias + ".bucket.password");
+        return settings.getProperty(alias + BUCKET_PASSWORD);
     }
 
     @Override
     public Optional<T> findById(ID id) {
-        JsonDocument document = execute(() -> client().get(id));
+        return findById(client(), id);
+    }
+
+    Optional<T> findById(Bucket client, ID id) {
+        return toEntity(execute(() -> client.get(id)));
+    }
+
+    private Optional<T> toEntity(JsonDocument document) {
         T entity = null;
 
         if (document != null) {
@@ -66,42 +68,63 @@ abstract class CouchbaseEntityRepository<T, ID extends String> implements Reposi
 
     @Override
     public boolean existsById(ID id) {
-        return execute(() -> client().exists(id));
+        return existsById(client(), id);
     }
 
+    boolean existsById(Bucket client,  ID id) {
+        return execute(() -> client.exists(id));
+    }
 
     @Override
     public T save(ID id, T t) {
-        execute(()->client().upsert(RawJsonDocument.create(id, translationService.encode(t))));
+        return save(client(), id, t);
+    }
+
+    T save(Bucket client, ID id, T t) {
+        execute(() -> client.upsert(RawJsonDocument.create(id, translationService.encode(t))));
         return t;
     }
 
-
-
     @Override
     public void deleteById(ID id) {
-        execute(() -> client().remove(id));
+        deleteById(client(), id);
+    }
+
+    void deleteById(Bucket client, ID id) {
+        execute(() -> client.remove(id));
     }
 
     @Override
     public Iterable<T> findAll() {
+        return findAll(client());
+    }
+
+    private Bucket client() {
+        return cluster().openBucket(bucketName, bucketPassword);
+    }
+
+    Iterable<T> findAll(Bucket client) {
         final SimpleN1qlQuery query = N1qlQuery.simple(select("*").from(i(bucketName)));
-        return executeAsync(client().async().query(query))
-                .flatMap(result -> result.rows()
-                        .mergeWith(
-                                result
-                                        .errors()
-                                        .flatMap(
-                                                error -> Observable.error(new DataRetrievalFailureException(
-                                                        "N1QL error: " + error.toString())))
-                        )
-                        .flatMap(row ->
-                                Observable.just(translationService.decode(
-                                        row.value().get(bucketName).toString(), type)))
-                        .toList()
-                )
-                .toBlocking()
-                .single();
+        try {
+            return executeAsync(client.async().query(query))
+                    .flatMap(result -> result.rows()
+                            .mergeWith(
+                                    result
+                                            .errors()
+                                            .flatMap(
+                                                    error -> Observable.error(new DataRetrievalFailureException(
+                                                            "N1QL error: " + error.toString())))
+                            )
+                            .flatMap(row ->
+                                    Observable.just(translationService.decode(
+                                            row.value().get(bucketName).toString(), type)))
+                            .toList()
+                    )
+                    .toBlocking()
+                    .single();
+        }finally {
+            disconnect();
+        }
     }
 
     private <R> Observable<R> executeAsync(Observable<R> asyncAction) {
@@ -118,14 +141,15 @@ abstract class CouchbaseEntityRepository<T, ID extends String> implements Reposi
                     } else {
                         return Observable.error(e);
                     }
-                });//.doOnCompleted(() -> cluster.disconnect());
+                });
     }
+
 
     CouchbaseCluster cluster() {
         if (cluster == null) {
             List<String> nodes = settings.getCouchbaseClusterNodes();
 
-            this.cluster = nodes.isEmpty()
+            cluster = nodes.isEmpty()
                     ? CouchbaseCluster.create()
                     : CouchbaseCluster.create(nodes);
         }
@@ -148,7 +172,12 @@ abstract class CouchbaseEntityRepository<T, ID extends String> implements Reposi
         catch (InterruptedException | ExecutionException e) {
             throw new OperationInterruptedException(e.getMessage(), e);
         } finally {
-            //cluster.disconnect();
+            disconnect();
         }
+    }
+
+    private void disconnect() {
+        cluster.disconnect();
+        cluster = null;
     }
 }

@@ -1,5 +1,6 @@
 package io.scalecube.organization.repository.inmem;
 
+import com.couchbase.client.java.Bucket;
 import io.scalecube.organization.repository.Repository;
 
 import java.util.HashMap;

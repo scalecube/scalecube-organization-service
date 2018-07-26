@@ -8,17 +8,13 @@ import io.scalecube.organization.repository.Repository;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.testlib.BaseTest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.Arrays;
-import java.util.HashMap;
+import java.awt.*;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -34,34 +30,40 @@ import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CouchbaseOrganizationServiceImplTest extends BaseTest {
-    private final OrganizationService service;
+    private static OrganizationService service;
     private Token token = new Token("google", "user1");
-    private final User testUser = new User("1", "user1@gmail.com", true, "name 1",
+    private static final User testUser = new User("1", "user1@gmail.com", true, "name 1",
             "http://picture.jpg", "EN", "fname", "lname", null);
-    private final User testUser2 = new User("2", "user2@gmail.com", true, "name 2",
+    private static final User testUser2 = new User("2", "user2@gmail.com", true, "name 2",
             "http://picture2.jpg", "EN", "fname2", "lname2", null);
     private final User invalidUser = new User("3", "user3@gmail.com", true, "name 3",
             "http://picture=3.jpg", "EN", "fname3", "lname3", null);
-    private final User testUser4 = new User("4", "user4@gmail.com", true, "name 3",
+    private static final User testUser4 = new User("4", "user4@gmail.com", true, "name 3",
             "http://picture4.jpg", "EN", "fname4", "lname4", null);
-    private final User testUser5 = new User("5", "user5@gmail.com", true, "name 3",
+    private static final User testUser5 = new User("5", "user5@gmail.com", true, "name 3",
             "http://picture5.jpg", "EN", "fname5", "lname5", null);
 
     private static Repository<User, String> userRepository;
-    private Repository<Organization, String> organizationRepository;
-    private UserOrganizationMembershipRepository orgMembersRepository;
+    private static Repository<Organization, String> organizationRepository;
+    private static UserOrganizationMembershipRepository orgMembersRepository;
+    private static CouchbaseOrganizationMembersRepositoryAdmin membersRepositoryAdmin;
 
     public CouchbaseOrganizationServiceImplTest() {
+    }
+
+    private String organisationId;
+    private Organization organisation;
+
+    @BeforeAll
+    public static void beforeAll() {
         userRepository = CouchbaseRepositoryFactory.users();
         organizationRepository = CouchbaseRepositoryFactory.organizations();
         orgMembersRepository = CouchbaseRepositoryFactory.organizationMembers();
-
+        membersRepositoryAdmin = new CouchbaseOrganizationMembersRepositoryAdmin.Builder().build();
         userRepository.save("1", testUser);
         userRepository.save("2", testUser2);
         userRepository.save("4", testUser4);
         userRepository.save("5", testUser5);
-
-
         service = OrganizationServiceImpl
                 .builder()
                 .organizationRepository(organizationRepository)
@@ -72,8 +74,6 @@ public class CouchbaseOrganizationServiceImplTest extends BaseTest {
                 .build();
     }
 
-    private String organisationId;
-
     @AfterAll
     public static void afterAll() {
         IntStream.range(1,6).filter(i -> i != 3).forEach((i) -> userRepository.deleteById(String.valueOf(i)));
@@ -81,21 +81,33 @@ public class CouchbaseOrganizationServiceImplTest extends BaseTest {
 
     @BeforeEach
     public void createOrganizationBeforeTest() {
-        organisationId = consume(service.createOrganization(
-                new CreateOrganizationRequest("myTestOrg5", token, "email"))).result().id();
-
+        organisation =  Organization.builder()
+                .name("myTestOrg5")
+                .id(UUID.randomUUID().toString())
+                .email("email")
+                .ownerId("1")
+                .build();
+        membersRepositoryAdmin.createRepository(organisation);
+        organisationId = organizationRepository.save(organisation.id(), organisation).id();
     }
 
 
     @AfterEach
     public void deleteOrganizationAfterTest() {
-        consume(service.deleteOrganization(new DeleteOrganizationRequest(token, organisationId)));
+        membersRepositoryAdmin.deleteRepository(organisation);
+        //organizationRepository.deleteById(organisationId);
     }
 
     @Test
+    public void doNothing(){
+
+    }
+    @Test
     public void createOrganizationTest() {
-        String id = consume(service.createOrganization(
-                new CreateOrganizationRequest("myTestOrg5", token, "email"))).result().id();
+        CreateOrganizationResponse result = consume(service.createOrganization(
+                new CreateOrganizationRequest("myTestOrg-" + System.currentTimeMillis(), token, "email"))).result();
+
+        String id = result.id();
         StepVerifier
                 .create(service.getOrganization(new GetOrganizationRequest(token, id)))
                 .expectSubscription()
@@ -104,27 +116,13 @@ public class CouchbaseOrganizationServiceImplTest extends BaseTest {
         consume(service.deleteOrganization(new DeleteOrganizationRequest(token, id)));
     }
 
-    @Test
-    public void createOrganizationTestShouldFailWithInvalidAuthenticationToken() {
-        expectError(
-                createService(invalidUser)
-                        .createOrganization(
-                                new CreateOrganizationRequest("myTestOrg5", token, "email"))
-        , InvalidAuthenticationToken.class);
-    }
 
     @Test
     public void getOrganizationsMember() {
         addMemberToOrganization(organisationId, service, testUser2);
-        assertTrue(orgMembersRepository.isMember(testUser2, getOrganizationFromRepository(organisationId)));
+        assertTrue(orgMembersRepository.isMember(testUser2, organisation));
     }
 
-    @Test
-    public void getOrganizationsMemberMembershipShouldFailWithInvalidAuthenticationToken() {
-        expectError(createService(invalidUser)
-                        .inviteMember(new InviteOrganizationMemberRequest(token, organisationId, invalidUser.id())),
-                InvalidAuthenticationToken.class);
-    }
 
     @Test
     public void getOrganization() {
@@ -149,13 +147,6 @@ public class CouchbaseOrganizationServiceImplTest extends BaseTest {
     }
 
     @Test
-    public void deleteOrganizationShouldFailWithInvalidToken() {
-        expectError(createService(invalidUser).deleteOrganization(
-                new DeleteOrganizationRequest(token, organisationId)), InvalidAuthenticationToken.class);
-
-    }
-
-    @Test
     public void deleteOrganization() {
         StepVerifier.create(service.deleteOrganization(new DeleteOrganizationRequest(token, organisationId)))
                 .expectSubscription()
@@ -174,15 +165,6 @@ public class CouchbaseOrganizationServiceImplTest extends BaseTest {
                 "update@email")),EntityNotFoundException.class);
     }
 
-    @Test
-    public void updateOrganizationShouldFailWithInvalidToken() {
-        expectError(createService(invalidUser).updateOrganization(new UpdateOrganizationRequest(
-                organisationId,
-                token,
-                "update_name",
-                "update@email")), InvalidAuthenticationToken.class);
-
-    }
 
     @Test
     public void updateOrganization() {
@@ -218,14 +200,6 @@ public class CouchbaseOrganizationServiceImplTest extends BaseTest {
                     assertThat(ids, hasItem(testUser5.id()));
 
                 }).verifyComplete();
-    }
-
-    @Test
-    public void getOrganizationMembersShouldFailWithInvalidToken() {
-        expectError(createService(invalidUser)
-                .getOrganizationMembers(new GetOrganizationMembersRequest(organisationId, token))
-        , InvalidAuthenticationToken.class);
-
     }
 
     @Test
@@ -280,12 +254,6 @@ public class CouchbaseOrganizationServiceImplTest extends BaseTest {
                 EntityNotFoundException.class);
     }
 
-    @Test
-    public void inviteMemberShouldFailWithInvalidToken() {
-        expectError(createService(invalidUser).inviteMember(
-                new InviteOrganizationMemberRequest(token, organisationId, testUser5.id())),
-                InvalidAuthenticationToken.class);
-    }
 
     @Test
     public void kickoutMember() {
@@ -314,12 +282,6 @@ public class CouchbaseOrganizationServiceImplTest extends BaseTest {
                 EntityNotFoundException.class);
     }
 
-    @Test
-    public void kickoutMemberShouldFailWithInvalidUser() {
-        expectError(createService(invalidUser).kickoutMember(
-                    new KickoutOrganizationMemberRequest(organisationId, token, testUser5.id())),
-                InvalidAuthenticationToken.class);
-    }
 
     @Test
     public void kickoutMemberShouldFailWithOrgNotFound() {
@@ -420,13 +382,6 @@ public class CouchbaseOrganizationServiceImplTest extends BaseTest {
                             Organization org = getOrganizationFromRepository(organisationId);
                             assertThat(org.apiKeys(), emptyArray());
                         }).verifyComplete()).verifyComplete();
-    }
-
-    @Test
-    public void deleteOrganizationApiKeyWithUserNotFound() {
-        expectError(createService(invalidUser).deleteOrganizationApiKey(
-                new DeleteOrganizationApiKeyRequest(token, organisationId, "")),
-                InvalidAuthenticationToken.class);
     }
 
     @Test

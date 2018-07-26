@@ -47,6 +47,7 @@ public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
     public Organization createOrganization(User owner, Organization organization) throws DuplicateKeyException {
         checkNotNull(owner);
         checkNotNull(organization);
+        // TODO verify that the name is unique
         if (organizations.existsById(organization.id())) {
             throw new DuplicateKeyException(organization.id());
         }

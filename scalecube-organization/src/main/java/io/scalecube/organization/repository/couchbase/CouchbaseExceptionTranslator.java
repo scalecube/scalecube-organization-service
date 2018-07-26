@@ -11,7 +11,7 @@ import io.scalecube.organization.repository.exception.*;
 
 import java.util.concurrent.TimeoutException;
 
-class CouchbaseExceptionTranslator {
+final class CouchbaseExceptionTranslator {
     DataAccessException translateExceptionIfPossible(RuntimeException ex) {
         if (ex instanceof InvalidPasswordException
                 || ex instanceof NotConnectedException

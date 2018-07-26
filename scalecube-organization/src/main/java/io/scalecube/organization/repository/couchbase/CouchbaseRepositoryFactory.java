@@ -6,7 +6,7 @@ import io.scalecube.account.api.User;
 import io.scalecube.organization.repository.Repository;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
 
-public class CouchbaseRepositoryFactory {
+public final class CouchbaseRepositoryFactory {
     public static Repository<Organization, String> organizations() {
         return new CouchbaseOrganizationRepository();
     }
