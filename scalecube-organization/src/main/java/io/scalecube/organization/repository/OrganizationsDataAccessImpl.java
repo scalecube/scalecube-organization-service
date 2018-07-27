@@ -50,14 +50,21 @@ public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
         checkNotNull(owner);
         checkNotNull(organization);
         checkNotNull(organization.id());
-        validateInputs(organization);
+        validateNewOrganizationInputs(organization);
 
         // create members repository for the organization
         organizationMembersRepositoryAdmin.createRepository(organization);
-        return organizations.save(organization.id(), organization);
+
+        try {
+            return organizations.save(organization.id(), organization);
+        } catch (Throwable t) {
+            // rollback
+            organizationMembersRepositoryAdmin.deleteRepository(organization);
+            throw t;
+        }
     }
 
-    private void validateInputs(Organization organization) {
+    private void validateNewOrganizationInputs(Organization organization) {
         if (organization.id() == null || organization.id().length() == 0) {
             throw new InvalidInputException("Organization id cannot be empty");
         }

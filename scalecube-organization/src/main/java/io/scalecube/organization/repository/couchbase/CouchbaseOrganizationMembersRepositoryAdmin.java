@@ -44,6 +44,7 @@ final class CouchbaseOrganizationMembersRepositoryAdmin implements OrganizationM
                 createPrimaryIndex(bucketName, c);
                 insertUser(organization.id(), bucketName);
             } catch (Throwable t) {
+                // rollback
                 c.clusterManager().removeBucket(bucketName);
                 throw t;
             }
