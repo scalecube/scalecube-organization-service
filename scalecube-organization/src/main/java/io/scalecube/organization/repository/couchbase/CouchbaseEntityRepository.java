@@ -5,6 +5,8 @@ import com.couchbase.client.java.CouchbaseCluster;
 import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.RawJsonDocument;
 import com.couchbase.client.java.query.N1qlQuery;
+import com.couchbase.client.java.query.N1qlQueryResult;
+import com.couchbase.client.java.query.N1qlQueryRow;
 import com.couchbase.client.java.query.SimpleN1qlQuery;
 import io.scalecube.organization.repository.Repository;
 import io.scalecube.organization.repository.exception.DataRetrievalFailureException;
@@ -14,6 +16,7 @@ import rx.Observable;
 import rx.functions.Func1;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -26,7 +29,7 @@ abstract class CouchbaseEntityRepository<T, ID extends String> implements Reposi
     private static final String BUCKET = ".bucket";
     private CouchbaseCluster cluster;
     private TranslationService translationService = new JacksonTranslationService();
-    private String bucketName;
+    String bucketName;
     private String bucketPassword;
     private final CouchbaseSettings settings;
     private final Class<T> type;
@@ -45,6 +48,11 @@ abstract class CouchbaseEntityRepository<T, ID extends String> implements Reposi
 
     private String getBucketPassword(String alias) {
         return settings.getProperty(alias + BUCKET_PASSWORD);
+    }
+
+    @Override
+    public boolean existByProperty(String propertyName, Object propertyValue) {
+        return false;
     }
 
     @Override
@@ -99,7 +107,7 @@ abstract class CouchbaseEntityRepository<T, ID extends String> implements Reposi
         return findAll(client());
     }
 
-    private Bucket client() {
+    Bucket client() {
         return cluster().openBucket(bucketName, bucketPassword);
     }
 
@@ -157,7 +165,7 @@ abstract class CouchbaseEntityRepository<T, ID extends String> implements Reposi
     }
 
 
-    private <R> R execute(BucketCallback<R> action) {
+    <R> R execute(BucketCallback<R> action) {
         cluster = cluster();
 
         try {

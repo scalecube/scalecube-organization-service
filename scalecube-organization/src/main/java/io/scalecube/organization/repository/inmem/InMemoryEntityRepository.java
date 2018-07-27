@@ -1,6 +1,5 @@
 package io.scalecube.organization.repository.inmem;
 
-import com.couchbase.client.java.Bucket;
 import io.scalecube.organization.repository.Repository;
 
 import java.util.HashMap;
@@ -11,6 +10,11 @@ public abstract class InMemoryEntityRepository<T, ID>
         implements Repository<T, ID> {
     private final HashMap<ID, T> entities
             = new HashMap<>();
+
+    @Override
+    public boolean existByProperty(String propertyName, Object propertyValue) {
+        return false;
+    }
 
     @Override
     public Optional<T> findById(ID id) {

@@ -7,6 +7,8 @@ import io.scalecube.account.api.User;
 import io.scalecube.account.db.AccessPermissionException;
 import io.scalecube.organization.repository.exception.DuplicateKeyException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
+import io.scalecube.organization.repository.exception.InvalidInputException;
+import io.scalecube.organization.repository.exception.NameAlreadyInUseException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -47,12 +49,36 @@ public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
     public Organization createOrganization(User owner, Organization organization) throws DuplicateKeyException {
         checkNotNull(owner);
         checkNotNull(organization);
-        // TODO verify that the name is unique
+        checkNotNull(organization.id());
+        validateInputs(organization);
+
+        // create members repository for the organization
+        organizationMembersRepositoryAdmin.createRepository(organization);
+        return organizations.save(organization.id(), organization);
+    }
+
+    private void validateInputs(Organization organization) {
+        if (organization.id() == null || organization.id().length() == 0) {
+            throw new InvalidInputException("Organization id cannot be empty");
+        }
+
+        if (organization.name() == null || organization.name().length() == 0) {
+            throw new InvalidInputException("Organization name cannot be empty");
+        }
+
+        if (!organization.name().matches("^[.%a-zA-Z0-9_-]*$")) {
+            throw new InvalidInputException("name can only contain characters in range A-Z, a-z, 0-9 as well as " +
+                    "underscore, period, dash & percent.");
+        }
+
+        if (organizations.existByProperty("name", organization.name())) {
+            throw new NameAlreadyInUseException(String.format("Organization name: '%s' already in use.",
+                    organization.name()));
+        }
+
         if (organizations.existsById(organization.id())) {
             throw new DuplicateKeyException(organization.id());
         }
-        organizationMembersRepositoryAdmin.createRepository(organization);
-        return organizations.save(organization.id(), organization);
     }
 
     @Override
