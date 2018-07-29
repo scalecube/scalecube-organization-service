@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono;
 
 @Service("organizations")
 public interface OrganizationService {
-  @ServiceMethod
+  @ServiceMethod("create")
   Mono<CreateOrganizationResponse> createOrganization(CreateOrganizationRequest request);
 
   @ServiceMethod
@@ -16,7 +16,7 @@ public interface OrganizationService {
   @ServiceMethod
   Mono<GetOrganizationResponse> getOrganization(GetOrganizationRequest request);
 
-  @ServiceMethod
+  @ServiceMethod("delete")
   Mono<DeleteOrganizationResponse> deleteOrganization(DeleteOrganizationRequest request);
 
   @ServiceMethod

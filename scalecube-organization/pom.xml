@@ -15,6 +15,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring.version>5.0.5.RELEASE</spring.version>
 		<scalecube-services.version>2.1.9</scalecube-services.version>
+		<scalecube-gateway-websocket.version>2.0.11</scalecube-gateway-websocket.version>
 	</properties>
 
 	<dependencies>
@@ -27,6 +28,11 @@
 			<groupId>io.scalecube</groupId>
 			<artifactId>scalecube-organization-api</artifactId>
 			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.scalecube</groupId>
+			<artifactId>scalecube-gateway-websocket</artifactId>
+			<version>${scalecube-gateway-websocket.version}</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt -->
 		<dependency>
