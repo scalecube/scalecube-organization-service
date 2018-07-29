@@ -1,5 +1,6 @@
 package io.scalecube.organization.repository.couchbase;
 
+import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
@@ -19,13 +20,14 @@ class CouchbaseOrganizationRepository
 
     @Override
     public boolean existByProperty(String propertyName, Object propertyValue) {
-        return execute(() -> isOrganizationNameExists(propertyValue.toString()));
+        Bucket client = client();
+        return execute(() -> isOrganizationNameExists(propertyValue.toString(), client),client);
     }
 
-    private boolean isOrganizationNameExists(String orgName) {
+    private boolean isOrganizationNameExists(String orgName, Bucket client) {
         N1qlQuery query = N1qlQuery.simple(
-                String.format(QUERY_PATTERN, bucketName, "name", orgName), null);
-        N1qlQueryResult queryResult = client().query(query);
+                String.format(QUERY_PATTERN, getBucketName(), "name", orgName), null);
+        N1qlQueryResult queryResult = client.query(query);
         List<N1qlQueryRow> rows = queryResult.allRows();
         boolean exists = !rows.isEmpty() && Objects.equals(1, rows.get(0).value().get("$1"));
         return exists;
