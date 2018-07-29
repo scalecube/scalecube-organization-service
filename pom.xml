@@ -63,8 +63,8 @@
 		<dockerfile-maven.version>1.3.6</dockerfile-maven.version>
 		<project.docker.repository>scalecube/configuration</project.docker.repository>
 		<argLine>-Xms1024m -Xmx2048m</argLine>
-
-		<scalecube-services.version>2.0.14</scalecube-services.version>
+		<junit.jupiter.version>5.1.0</junit.jupiter.version>
+		<scalecube-services.version>2.1.9</scalecube-services.version>
 		<reactor-core.version>3.1.6.RELEASE</reactor-core.version>
 		<reactor.version>3.1.6.RELEASE</reactor.version>
 		<redisson.version>3.4.3</redisson.version>
@@ -80,6 +80,17 @@
 
 
 	<dependencies>
+		<dependency>
+			<groupId>io.scalecube</groupId>
+			<artifactId>scalecube-services-api</artifactId>
+			<version>${scalecube-services.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>${junit.jupiter.version}</version>
+			<scope>test</scope>
+		</dependency>
 		<!-- https://mvnrepository.com/artifact/io.scalecube/scalecube-services -->
 		<dependency>
 			<groupId>io.scalecube</groupId>

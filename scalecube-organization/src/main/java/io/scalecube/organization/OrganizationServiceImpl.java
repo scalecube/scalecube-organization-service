@@ -6,9 +6,7 @@ import io.scalecube.account.tokens.IdGenerator;
 import io.scalecube.account.tokens.JwtApiKey;
 import io.scalecube.account.tokens.TokenVerification;
 import io.scalecube.account.tokens.TokenVerifier;
-import io.scalecube.organization.repository.OrganizationsDataAccess;
-import io.scalecube.organization.repository.OrganizationsDataAccessImpl;
-import io.scalecube.organization.repository.Repository;
+import io.scalecube.organization.repository.*;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -368,12 +366,15 @@ public class OrganizationServiceImpl implements OrganizationService {
         private Repository<Organization, String> organizationRepository;
         private Repository<User, String> userRepository;
         private TokenVerifier tokenVerifier;
+        private UserOrganizationMembershipRepository organizationMembershipRepository;
+        private OrganizationMembersRepositoryAdmin organizationMembersRepositoryAdmin;
 
         public OrganizationService build() {
             OrganizationsDataAccess repository = new OrganizationsDataAccessImpl(
                     organizationRepository,
-                    userRepository
-                    );
+                    userRepository,
+                    organizationMembershipRepository,
+                    organizationMembersRepositoryAdmin);
             return new OrganizationServiceImpl(repository, tokenVerifier == null
                     ? new TokenVerification(repository)
                     : tokenVerifier);
@@ -386,6 +387,18 @@ public class OrganizationServiceImpl implements OrganizationService {
 
         public Builder userRepository(Repository<User, String> userRepository) {
             this.userRepository = userRepository;
+            return this;
+        }
+
+        public Builder organizationMembershipRepository(
+                UserOrganizationMembershipRepository organizationMembershipRepository) {
+            this.organizationMembershipRepository = organizationMembershipRepository;
+            return this;
+        }
+
+        public Builder organizationMembershipRepositoryAdmin(
+                OrganizationMembersRepositoryAdmin organizationMembersRepositoryAdmin) {
+            this.organizationMembersRepositoryAdmin = organizationMembersRepositoryAdmin;
             return this;
         }
 

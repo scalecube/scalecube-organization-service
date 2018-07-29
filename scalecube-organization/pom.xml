@@ -13,9 +13,16 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<spring.version>5.0.5.RELEASE</spring.version>
+		<scalecube-services.version>2.1.9</scalecube-services.version>
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.couchbase.client</groupId>
+			<artifactId>java-client</artifactId>
+			<version>2.6.0</version>
+		</dependency>
 		<dependency>
 			<groupId>io.scalecube</groupId>
 			<artifactId>scalecube-organization-api</artifactId>
@@ -30,16 +37,12 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
+			<version>2.9.6</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.api-client</groupId>
 			<artifactId>google-api-client</artifactId>
 			<version>1.22.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-couchbase</artifactId>
-			<version>3.0.8.RELEASE</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -60,7 +63,7 @@
 					<!-- MainClass in mainfest make a executable jar -->
 					<archive>
 						<manifest>
-							<mainClass>io.scalecube.server.OrganizationServiceMain</mainClass>
+							<mainClass>io.scalecube.server.OrganizationServiceRunner</mainClass>
 						</manifest>
 					</archive>
 

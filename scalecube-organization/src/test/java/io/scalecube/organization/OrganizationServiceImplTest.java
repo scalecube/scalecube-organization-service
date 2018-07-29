@@ -1,9 +1,12 @@
 package io.scalecube.organization;
 
+import com.sun.media.sound.EmergencySoundbank;
 import io.scalecube.Await;
 import io.scalecube.account.api.*;
+import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
+import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
 import io.scalecube.organization.repository.inmem.InMemoryUserRepository;
 import io.scalecube.testlib.BaseTest;
 import org.junit.After;
@@ -12,10 +15,7 @@ import org.junit.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -23,7 +23,6 @@ import java.util.stream.Stream;
 
 import io.scalecube.Await.AwaitLatch;
 
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -46,6 +45,7 @@ public class OrganizationServiceImplTest extends BaseTest {
 
     private final InMemoryUserRepository userRepository = new InMemoryUserRepository();
     private final InMemoryOrganizationRepository organizationRepository = new InMemoryOrganizationRepository();
+    private InMemoryUserOrganizationMembershipRepository orgMembersRepository = new InMemoryUserOrganizationMembershipRepository();
 
     public OrganizationServiceImplTest() {
 
@@ -60,6 +60,16 @@ public class OrganizationServiceImplTest extends BaseTest {
                 .organizationRepository(organizationRepository)
                 .userRepository(userRepository)
                 .tokenVerifier((t) -> testUser)
+                .organizationMembershipRepository(orgMembersRepository)
+                .organizationMembershipRepositoryAdmin(new OrganizationMembersRepositoryAdmin() {
+                    @Override
+                    public void createRepository(Organization organization) {
+                    }
+
+                    @Override
+                    public void deleteRepository(Organization organization) {
+                    }
+                })
                 .build();
     }
 
@@ -110,8 +120,9 @@ public class OrganizationServiceImplTest extends BaseTest {
     }
 
     private void assertGetOrganizationsMembership(String organisationId, User user, Role role) {
-        Organization organization = getOrganizationFromRepository(organisationId);
-        List<String> members = organization.members().get(role.toString());
+        List<String> members = orgMembersRepository.getMembers(
+                getOrganizationFromRepository(organisationId)).stream().map(i -> i.user().id())
+                .collect(Collectors.toList());
         assertThat(members, hasItem(user.id()));
     }
 
@@ -205,15 +216,10 @@ public class OrganizationServiceImplTest extends BaseTest {
                 .expectSubscription()
                 .assertNext((r) -> {
                     Supplier<Stream<OrganizationMember>> members = () -> Arrays.stream(r.members());
-                    assertThat(r.members().length, is(3));
-                    User owner = members.get()
-                            .filter((m) -> Objects.equals(m.role(), Role.Owner.toString()))
-                            .findFirst().orElseThrow(IllegalStateException::new).user();
-                    assertThat(owner, is(notNullValue()));
-                    assertThat(owner, is(testUser));
+                    assertThat(r.members().length, is(2));
                     long membersCount = members.get()
-                            .filter((m) -> Objects.equals(m.role(), Role.Owner.toString())).count();
-                    assertThat(membersCount, is(1L));
+                            .filter((m) -> Objects.equals(m.role(), Role.Member.toString())).count();
+                    assertThat(membersCount, is(2L));
                     List<String> ids = members.get().map((i) -> i.user().id()).collect(Collectors.toList());
                     assertThat(ids, hasItem(testUser4.id()));
                     assertThat(ids, hasItem(testUser5.id()));

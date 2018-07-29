@@ -1,17 +1,20 @@
 package io.scalecube.organization.repository.inmem;
 
 import io.scalecube.organization.repository.Repository;
-import jdk.nashorn.internal.runtime.regexp.joni.constants.OPCode;
 
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 public abstract class InMemoryEntityRepository<T, ID>
         implements Repository<T, ID> {
     private final HashMap<ID, T> entities
             = new HashMap<>();
+
+    @Override
+    public boolean existByProperty(String propertyName, Object propertyValue) {
+        return false;
+    }
 
     @Override
     public Optional<T> findById(ID id) {
@@ -41,10 +44,4 @@ public abstract class InMemoryEntityRepository<T, ID>
         return entities.values().stream().collect(Collectors.toList());
     }
 
-    @Override
-    public Iterable<T> findAllById(Iterable<ID> ids) {
-        return StreamSupport.stream(ids.spliterator(), false)
-                .map(entities::get)
-                .collect(Collectors.toList());
-    }
 }

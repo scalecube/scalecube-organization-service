@@ -1,28 +1,9 @@
 package io.scalecube.config;
 
-import com.couchbase.client.java.Bucket;
-import com.couchbase.client.java.Cluster;
-import com.couchbase.client.java.CouchbaseCluster;
-import com.couchbase.client.java.cluster.ClusterInfo;
-import io.scalecube.account.api.OrganizationMember;
-import io.scalecube.account.api.User;
-import io.scalecube.organization.repository.couchbase.OrganizationRepository;
-import io.scalecube.organization.repository.couchbase.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.couchbase.config.AbstractCouchbaseConfiguration;
-import org.springframework.data.couchbase.config.BeanNames;
-import org.springframework.data.couchbase.core.CouchbaseTemplate;
-import org.springframework.data.couchbase.repository.config.EnableCouchbaseRepositories;
-import org.springframework.data.couchbase.repository.config.RepositoryOperationsMapping;
-
-import java.util.Arrays;
-import java.util.List;
-
-@Configuration
-@EnableCouchbaseRepositories("io.scalecube.organization.repository")
-public class AppConfiguration extends AbstractCouchbaseConfiguration {
+//@Configuration
+//@EnableCouchbaseRepositories("io.scalecube.organization.repository")
+public class AppConfiguration {//extends AbstractCouchbaseConfiguration {
+    /*
     private static final String CB_USER = "cb_user";
     private static final String CB_PASSWORD = "qazwsx";
 
@@ -110,6 +91,6 @@ public class AppConfiguration extends AbstractCouchbaseConfiguration {
     public Bucket couchbaseClient() throws Exception {
         return couchbaseCluster().openBucket("organizations");
     }
-
+    */
 
 }
