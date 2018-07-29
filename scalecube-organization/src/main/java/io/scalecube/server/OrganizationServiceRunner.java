@@ -31,19 +31,19 @@ public class OrganizationServiceRunner {
 
   private static void start() {
     Microservices.builder()
-            .seeds(seeds())
-            .services(new OrganizationServiceImpl
-                  .Builder()
-                  .organizationRepository(
-                          CouchbaseRepositoryFactory.organizations())
-                  .userRepository(
-                          CouchbaseRepositoryFactory.users())
-                  .organizationMembershipRepository(
-                          CouchbaseRepositoryFactory.organizationMembers())
-                  .organizationMembershipRepositoryAdmin(
-                          CouchbaseRepositoryFactory
-                                  .organizationMembersRepositoryAdmin()))
+            //.seeds(seeds())
+            .services(createOrganizationService())
             .startAwait();
+  }
+
+  private static OrganizationService createOrganizationService() {
+    return new OrganizationServiceImpl
+            .Builder()
+            .organizationRepository(CouchbaseRepositoryFactory.organizations())
+            .userRepository(CouchbaseRepositoryFactory.users())
+            .organizationMembershipRepository(CouchbaseRepositoryFactory.organizationMembers())
+            .organizationMembershipRepositoryAdmin(CouchbaseRepositoryFactory.organizationMembersRepositoryAdmin())
+            .build();
   }
 
   private static Address[] seeds() {
