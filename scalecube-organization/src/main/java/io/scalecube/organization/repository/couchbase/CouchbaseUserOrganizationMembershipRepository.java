@@ -1,7 +1,6 @@
 package io.scalecube.organization.repository.couchbase;
 
 import com.couchbase.client.java.Bucket;
-import com.couchbase.client.java.document.RawJsonDocument;
 import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.User;

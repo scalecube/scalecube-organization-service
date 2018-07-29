@@ -1,5 +1,7 @@
 package io.scalecube.organization.repository.couchbase;
 
+import io.scalecube.testlib.BaseTest;
+//
 //import io.scalecube.Await;
 //import io.scalecube.Await.AwaitLatch;
 //import io.scalecube.account.api.*;
@@ -9,7 +11,6 @@ package io.scalecube.organization.repository.couchbase;
 //import io.scalecube.organization.repository.exception.EntityNotFoundException;
 //import io.scalecube.organization.repository.exception.InvalidInputException;
 //import io.scalecube.organization.repository.exception.NameAlreadyInUseException;
-import io.scalecube.testlib.BaseTest;
 //import org.junit.jupiter.api.*;
 //import reactor.core.publisher.Mono;
 //import reactor.test.StepVerifier;
@@ -49,9 +50,6 @@ public class CouchbaseOrganizationServiceImplTest extends BaseTest {
 //    private static Repository<Organization, String> organizationRepository;
 //    private static UserOrganizationMembershipRepository orgMembersRepository;
 //    private static CouchbaseOrganizationMembersRepositoryAdmin membersRepositoryAdmin;
-//
-//    public CouchbaseOrganizationServiceImplTest() {
-//    }
 //
 //    private String organisationId;
 //    private Organization organisation;
@@ -99,16 +97,40 @@ public class CouchbaseOrganizationServiceImplTest extends BaseTest {
 //        membersRepositoryAdmin.deleteRepository(organisation);
 //        organizationRepository.deleteById(organisationId);
 //    }
-//
+
 //    @Test
-//    public void doNothing(){
+//    public void getOrganizationMembers() {
+//        addMemberToOrganization(organisationId, service, testUser4);
+//        addMemberToOrganization(organisationId, service, testUser5);
 //
+//        StepVerifier.create(service.getOrganizationMembers(
+//                new GetOrganizationMembersRequest(organisationId, token)))
+//                .expectSubscription()
+//                .assertNext((r) -> {
+//                    Supplier<Stream<OrganizationMember>> members = () -> Arrays.stream(r.members());
+//                    assertThat(r.members().length, is(2));
+//                    long membersCount = members.get()
+//                            .filter((m) -> Objects.equals(m.role(), Role.Member.toString())).count();
+//                    assertThat(membersCount, is(2L));
+//                    List<String> ids = members.get().map((i) -> i.user().id()).collect(Collectors.toList());
+//                    assertThat(ids, hasItem(testUser4.id()));
+//                    assertThat(ids, hasItem(testUser5.id()));
+//
+//                }).verifyComplete();
+//    }
+//
+//    private void addMemberToOrganization(String organisationId,
+//                                         OrganizationService service,
+//                                         User user) {
+//        consume(service.inviteMember(
+//                new InviteOrganizationMemberRequest(token, organisationId, user.id())));
 //    }
 //
 //    @Test
 //    public void createOrganizationTest() {
 //        CreateOrganizationResponse result = consume(service.createOrganization(
-//                new CreateOrganizationRequest("myTestOrg-" + System.currentTimeMillis(), token, "email"))).result();
+//                new CreateOrganizationRequest("myTestOrg-" + System.currentTimeMillis(), token, "email")))
+//                .result();
 //
 //        String id = result.id();
 //        StepVerifier
@@ -118,6 +140,26 @@ public class CouchbaseOrganizationServiceImplTest extends BaseTest {
 //        .verifyComplete();
 //        consume(service.deleteOrganization(new DeleteOrganizationRequest(token, id)));
 //    }
+
+    //    /**
+//     * Subscribe to the mono argument and request unbounded demand
+//     * @param mono publisher
+//     * @param <T> type of response
+//     * @return mono consume or error
+//     */
+
+//    private <T> AwaitLatch<T> consume(Mono<T> mono) {
+//        AwaitLatch<T> await = Await.one();
+//        mono.subscribe(await::result, await::error);
+//        await.timeout(2, TimeUnit.SECONDS);
+//        return await;
+//    }
+
+
+
+
+
+
 //
 //    @Test
 //    public void createDuplicateOrganizationNameShouldFail() {
@@ -212,26 +254,7 @@ public class CouchbaseOrganizationServiceImplTest extends BaseTest {
 //                .verifyComplete();
 //    }
 //
-//    @Test
-//    public void getOrganizationMembers() {
-//        addMemberToOrganization(organisationId, service, testUser4);
-//        addMemberToOrganization(organisationId, service, testUser5);
-//
-//        StepVerifier.create(service.getOrganizationMembers(
-//                new GetOrganizationMembersRequest(organisationId, token)))
-//                .expectSubscription()
-//                .assertNext((r) -> {
-//                    Supplier<Stream<OrganizationMember>> members = () -> Arrays.stream(r.members());
-//                    assertThat(r.members().length, is(2));
-//                    long membersCount = members.get()
-//                            .filter((m) -> Objects.equals(m.role(), Role.Member.toString())).count();
-//                    assertThat(membersCount, is(2L));
-//                    List<String> ids = members.get().map((i) -> i.user().id()).collect(Collectors.toList());
-//                    assertThat(ids, hasItem(testUser4.id()));
-//                    assertThat(ids, hasItem(testUser5.id()));
-//
-//                }).verifyComplete();
-//    }
+
 //
 //    @Test
 //    public void getOrganizationMembersShouldFailOrgNotFound() {
@@ -258,18 +281,7 @@ public class CouchbaseOrganizationServiceImplTest extends BaseTest {
 //
 //
 //
-//    /**
-//     * Subscribe to the mono argument and request unbounded demand
-//     * @param mono publisher
-//     * @param <T> type of response
-//     * @return mono consume or error
-//     */
-//    private <T> AwaitLatch<T> consume(Mono<T> mono) {
-//        AwaitLatch<T> await = Await.one();
-//        mono.subscribe(await::result, await::error);
-//        await.timeout(2, TimeUnit.SECONDS);
-//        return await;
-//    }
+
 //
 //    @Test
 //    public void inviteMemberShouldFailWithUserNotFound() {
@@ -338,12 +350,7 @@ public class CouchbaseOrganizationServiceImplTest extends BaseTest {
 //                .verifyComplete();
 //    }
 //
-//    private void addMemberToOrganization(String organisationId,
-//                                         OrganizationService service,
-//                                         User user) {
-//        consume(service.inviteMember(
-//                new InviteOrganizationMemberRequest(token, organisationId, user.id())));
-//    }
+
 //
 //
 //    @Test
