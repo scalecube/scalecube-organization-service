@@ -5,8 +5,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>io.scalecube</groupId>
-		<artifactId>scalecube-organization-service</artifactId>
-        <version>0.0.6-SNAPSHOT</version>
+		<artifactId>scalecube-organization-parent</artifactId>
+        <version>2.0.12-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>scalecube-webapp-example</artifactId>
