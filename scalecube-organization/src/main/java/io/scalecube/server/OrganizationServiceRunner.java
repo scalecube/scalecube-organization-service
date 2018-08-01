@@ -1,8 +1,6 @@
 package io.scalecube.server;
 
 import io.scalecube.account.api.OrganizationService;
-import io.scalecube.account.api.User;
-import io.scalecube.account.tokens.DefaultTokenVerification;
 import io.scalecube.organization.OrganizationServiceImpl;
 import io.scalecube.organization.repository.couchbase.CouchbaseRepositoryFactory;
 import io.scalecube.services.Microservices;
@@ -30,32 +28,41 @@ public class OrganizationServiceRunner {
   }
 
   private static void start() {
-    Microservices.builder()
-            .seeds(seeds())
-            .services(new OrganizationServiceImpl
-                  .Builder()
-                  .organizationRepository(
-                          CouchbaseRepositoryFactory.organizations())
-                  .userRepository(
-                          CouchbaseRepositoryFactory.users())
-                  .organizationMembershipRepository(
-                          CouchbaseRepositoryFactory.organizationMembers())
-                  .organizationMembershipRepositoryAdmin(
-                          CouchbaseRepositoryFactory
-                                  .organizationMembersRepositoryAdmin()))
-            .startAwait();
+    Properties settings = settings();
+    Microservices microservices = Microservices.builder()
+        .seeds(seeds(settings))
+        .services(createOrganizationService())
+        .startAwait();
   }
 
-  private static Address[] seeds() {
+  private static OrganizationService createOrganizationService() {
+    return new OrganizationServiceImpl.Builder()
+        .organizationRepository(CouchbaseRepositoryFactory.organizations())
+        .userRepository(CouchbaseRepositoryFactory.users())
+        .organizationMembershipRepository(CouchbaseRepositoryFactory.organizationMembers())
+        .organizationMembershipRepositoryAdmin(CouchbaseRepositoryFactory.organizationMembersRepositoryAdmin())
+        .build();
+  }
+
+  private static Address[] seeds(Properties settings) {
+    try {
+      return stringListValue(settings.getProperty(SEEDS))
+          .stream().map(Address::from).toArray(Address[]::new);
+    } catch (Throwable e) {
+      throw new RuntimeException("Failed to parse seeds from settings", e);
+    }
+  }
+
+  private static Properties settings() {
     try {
       Properties settings = new Properties();
       settings.load(OrganizationServiceRunner.class.getResourceAsStream("/settings.properties"));
-      return stringListValue(settings.getProperty(SEEDS))
-              .stream().map(Address::from).toArray(Address[]::new);
+      return settings;
     } catch (IOException e) {
       throw new RuntimeException("Failed to initialize", e);
     }
   }
+
 
   private static List<String> stringListValue(String seeds) {
     if (seeds == null || seeds.length() == 0) {
