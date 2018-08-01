@@ -15,9 +15,6 @@ import java.util.Properties;
 public class OrganizationServiceRunner {
   private static final List<String> DEFAULT_SEEDS = Collections.singletonList("seed:4802");
   private static final String SEEDS = "seeds";
-  private static final String WEBSOCKET_PORT_KEY = "websocket.port";
-  private static final String WEBSOCKET_PORT_DEFAULT_VALUE = "8080";
-  public static final int DEFAULT_WEBSOCKET_PORT = 8080;
 
   /**
    * AccountBootstrap main.
@@ -31,28 +28,11 @@ public class OrganizationServiceRunner {
   }
 
   private static void start() {
-
-    // Properties settings = settings();
-
+    Properties settings = settings();
     Microservices microservices = Microservices.builder()
-        .seeds(Address.create("10.0.0.42", 4801))
+        .seeds(seeds(settings))
         .services(createOrganizationService())
         .startAwait();
-
-  }
-
-  private static int tryGetWebSocketPort(Properties settings) {
-    int port;
-
-    try {
-      port = Integer.parseInt(
-          settings.getProperty(WEBSOCKET_PORT_KEY,
-              String.valueOf(DEFAULT_WEBSOCKET_PORT)));
-    } catch (NumberFormatException e) {
-      return DEFAULT_WEBSOCKET_PORT;
-    }
-
-    return port;
   }
 
   private static OrganizationService createOrganizationService() {
