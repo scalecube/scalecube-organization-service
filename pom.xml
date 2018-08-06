@@ -10,6 +10,15 @@
 	<packaging>pom</packaging>
 
 	<name>scalecube-organization-service</name>
+
+
+    <parent>
+        <groupId>io.scalecube</groupId>
+        <artifactId>scalecube-parent-pom</artifactId>
+        <version>0.0.9</version>
+    </parent>
+
+
 	<description>
         ScaleCube is a lightweight decentralized cluster membership, failure detection, messaging and
         gossip protocol library for the Java VM.
