@@ -1,5 +1,8 @@
 package io.scalecube.organization.repository.couchbase;
 
+/**
+ * Represents a translation service from object to string and vice versa.
+ */
 public interface TranslationService {
     /**
      * Encodes a JSON String into the target format.

@@ -1,13 +1,20 @@
 package io.scalecube.organization.repository.couchbase;
 
-import com.couchbase.client.java.Bucket;
-import com.couchbase.client.java.Cluster;
-
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Supplier;
 
+/**
+ * A functional callback interface.
+ * @param <T> The type returned by this callback.
+ */
 public interface BucketCallback<T> {
-    T doInBucket() throws TimeoutException, ExecutionException, InterruptedException;
 
+    /**
+     * Callback function.
+     * @return An instance of this call back type.
+     * @throws TimeoutException IN case of a timeout.
+     * @throws ExecutionException In case of an execution error.
+     * @throws InterruptedException In case of interruption during execution.
+     */
+    T doInBucket() throws TimeoutException, ExecutionException, InterruptedException;
 }

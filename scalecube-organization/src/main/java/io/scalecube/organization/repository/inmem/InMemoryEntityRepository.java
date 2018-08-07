@@ -6,10 +6,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 
-public abstract class InMemoryEntityRepository<T, ID>
-        implements Repository<T, ID> {
-    private final HashMap<ID, T> entities
-            = new HashMap<>();
+/**
+ * Abstract base in-memory <Code>Repository</Code> implementation.
+ * @param <T> This repository entity type.
+ * @param <Id> This repository entity Id type.
+ */
+public abstract class InMemoryEntityRepository<T, Id>
+        implements Repository<T, Id> {
+    private final HashMap<Id, T> entities = new HashMap<>();
 
     @Override
     public boolean existByProperty(String propertyName, Object propertyValue) {
@@ -17,25 +21,25 @@ public abstract class InMemoryEntityRepository<T, ID>
     }
 
     @Override
-    public Optional<T> findById(ID id) {
+    public Optional<T> findById(Id id) {
         return entities.containsKey(id)
                 ? Optional.of(entities.get(id))
                 : Optional.empty();
     }
 
     @Override
-    public boolean existsById(ID id) {
+    public boolean existsById(Id id) {
         return entities.containsKey(id);
     }
 
     @Override
-    public T save(ID id, T t) {
+    public T save(Id id, T t) {
         entities.put(id, t);
         return t;
     }
 
     @Override
-    public void deleteById(ID id) {
+    public void deleteById(Id id) {
         entities.remove(id);
     }
 

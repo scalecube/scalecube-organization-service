@@ -22,7 +22,12 @@ import static com.couchbase.client.java.query.Select.select;
 import static com.couchbase.client.java.query.dsl.Expression.i;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-abstract class CouchbaseEntityRepository<T, ID extends String> implements Repository<T, ID> {
+/**
+ * Abstract base couchbase <Code>Repository</Code> implementation.
+ * @param <T> This repository entity type.
+ * @param <Id> This repository entity Id type which extends <codes>java.lang.String</codes>.
+ */
+abstract class CouchbaseEntityRepository<T, Id extends String> implements Repository<T, Id> {
     private static final String BUCKET_PASSWORD = ".bucket.password";
     private static final String BUCKET = ".bucket";
     private CouchbaseCluster cluster;
@@ -64,11 +69,11 @@ abstract class CouchbaseEntityRepository<T, ID extends String> implements Reposi
     }
 
     @Override
-    public Optional<T> findById(ID id) {
+    public Optional<T> findById(Id id) {
         return findById(client(), id);
     }
 
-    Optional<T> findById(Bucket client, ID id) {
+    Optional<T> findById(Bucket client, Id id) {
         checkNotNull(id);
         return toEntity(execute(() -> client.get(id), client));
     }
@@ -84,21 +89,21 @@ abstract class CouchbaseEntityRepository<T, ID extends String> implements Reposi
     }
 
     @Override
-    public boolean existsById(ID id) {
+    public boolean existsById(Id id) {
         return existsById(client(), id);
     }
 
-    boolean existsById(Bucket client,  ID id) {
+    boolean existsById(Bucket client,  Id id) {
         checkNotNull(id);
         return execute(() -> client.exists(id), client);
     }
 
     @Override
-    public T save(ID id, T t) {
+    public T save(Id id, T t) {
         return save(client(), id, t);
     }
 
-    T save(Bucket client, ID id, T t) {
+    T save(Bucket client, Id id, T t) {
         checkNotNull(id);
         checkNotNull(t);
 
@@ -107,12 +112,12 @@ abstract class CouchbaseEntityRepository<T, ID extends String> implements Reposi
     }
 
     @Override
-    public void deleteById(ID id) {
+    public void deleteById(Id id) {
         checkNotNull(id);
         deleteById(client(), id);
     }
 
-    void deleteById(Bucket client, ID id) {
+    void deleteById(Bucket client, Id id) {
         execute(() -> client.remove(id), client);
     }
 
