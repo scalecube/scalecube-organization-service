@@ -46,7 +46,7 @@ import io.scalecube.account.tokens.TokenVerifier;
 
 import com.google.common.collect.Lists;
 
-import org.redisson.api.RedissonClient;
+//import org.redisson.api.RedissonClient;
 
 import reactor.core.publisher.Mono;
 
@@ -64,11 +64,11 @@ public class RedisAccountService implements AccountService, OrganizationService 
 
   public static class Builder {
 
-    private RedissonClient redisson;
+    //private RedissonClient redisson;
     private User user;
 
-    public Builder redisson(RedissonClient redisson) {
-      this.redisson = redisson;
+    public Builder redisson() { //RedissonClient redisson) {
+      //this.redisson = redisson;
       return this;
     }
 
@@ -89,7 +89,7 @@ public class RedisAccountService implements AccountService, OrganizationService 
       } else {
         tokenVerifier = new MockTokenVerification(user);
       }
-      return new RedisAccountService(new RedisOrganizations(redisson), tokenVerifier);
+      return new RedisAccountService(new RedisOrganizations(/*redisson*/null), tokenVerifier);
     }
 
   }

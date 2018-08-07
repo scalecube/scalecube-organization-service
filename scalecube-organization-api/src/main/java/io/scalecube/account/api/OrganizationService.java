@@ -23,7 +23,8 @@ public interface OrganizationService {
   Mono<UpdateOrganizationResponse> updateOrganization(UpdateOrganizationRequest request);
 
   @ServiceMethod
-  Mono<GetOrganizationMembersResponse> getOrganizationMembers(GetOrganizationMembersRequest request);
+  Mono<GetOrganizationMembersResponse> getOrganizationMembers(
+      GetOrganizationMembersRequest request);
 
   @ServiceMethod
   Mono<InviteOrganizationMemberResponse> inviteMember(InviteOrganizationMemberRequest request);

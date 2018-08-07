@@ -4,7 +4,7 @@ import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.User;
 
-import org.redisson.api.RedissonClient;
+//import org.redisson.api.RedissonClient;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,26 +21,26 @@ public class RedisOrganizations {//implements OrganizationsDataAccess {
   private static final String ORGANIZATION_MEMBERS = "organization_members";
   private static final String USERS = "users";
 
-  private final RedissonClient redisson;
+  //private final RedissonClient redisson;
 
-  public RedisOrganizations(RedissonClient redisson) {
-    this.redisson = redisson;
+  public RedisOrganizations(/*RedissonClient redisson*/Object redisson) {
+    //this.redisson = redisson;
   }
 
   public void clearAll() {
-    redisson.getKeys().deleteByPattern("*" + ORGANIZATION_MEMBERS);
-    redisson.getMap(ORGANIZATIONS_BY_ID).clear();
-    redisson.getMap(USERS).clear();
+//    redisson.getKeys().deleteByPattern("*" + ORGANIZATION_MEMBERS);
+//    redisson.getMap(ORGANIZATIONS_BY_ID).clear();
+//    redisson.getMap(USERS).clear();
   }
 
   public void register(User user) {
-    ConcurrentMap<String, User> users = redisson.getMap(USERS);
+    ConcurrentMap<String, User> users = null;//redisson.getMap(USERS);
     users.putIfAbsent(user.id(), user);
   }
 
   //@Override
   public User getUser(String userId) {
-    ConcurrentMap<String, User> users = redisson.getMap(USERS);
+    ConcurrentMap<String, User> users = null;//redisson.getMap(USERS);
     return users.get(userId);
   }
 
@@ -54,11 +54,11 @@ public class RedisOrganizations {//implements OrganizationsDataAccess {
    */
   //@Override
   public Organization createOrganization(User owner, Organization organization) throws AccessPermissionException {
-    ConcurrentMap<String, Organization> organizations = redisson.getMap(ORGANIZATIONS_BY_ID);
+    ConcurrentMap<String, Organization> organizations = null;//redisson.getMap(ORGANIZATIONS_BY_ID);
     organizations.putIfAbsent(organization.id(), organization);
 
     final ConcurrentMap<String, OrganizationMember> members =
-        redisson.getMap(organizationMembersCollection(organization.id()));
+        null;//redisson.getMap(organizationMembersCollection(organization.id()));
     members.putIfAbsent(owner.id(), new OrganizationMember(owner, "owner"));
 
     return organization;
@@ -72,7 +72,7 @@ public class RedisOrganizations {//implements OrganizationsDataAccess {
    */
   //@Override
   public Organization getOrganization(String id) {
-    ConcurrentMap<String, Organization> organizations = redisson.getMap(ORGANIZATIONS_BY_ID);
+    ConcurrentMap<String, Organization> organizations = null;//redisson.getMap(ORGANIZATIONS_BY_ID);
     return (Organization) organizations.get(id);
   }
 
@@ -88,7 +88,7 @@ public class RedisOrganizations {//implements OrganizationsDataAccess {
         && getOrganizationMembers(org.id()).size() == 1 
         && getOrganizationMembers(org.id()).contains(owner)) {
 
-      ConcurrentMap<String, Organization> organizations = redisson.getMap(ORGANIZATIONS_BY_ID);
+      ConcurrentMap<String, Organization> organizations = null;//redisson.getMap(ORGANIZATIONS_BY_ID);
       organizations.remove(org.id());
     }
   }
@@ -101,7 +101,7 @@ public class RedisOrganizations {//implements OrganizationsDataAccess {
    */
   //@Override
   public Collection<Organization> getUserMembership(final User user) {
-    ConcurrentMap<String, Organization> organizations = redisson.getMap(ORGANIZATIONS_BY_ID);
+    ConcurrentMap<String, Organization> organizations = null;//redisson.getMap(ORGANIZATIONS_BY_ID);
     return Collections.unmodifiableCollection(organizations.values().stream()
         .filter(org -> this.isOrganizationMember(user, org))
         .collect(Collectors.toList()));
@@ -114,7 +114,7 @@ public class RedisOrganizations {//implements OrganizationsDataAccess {
    * @return organizations match the predicate.
    */
   public List<Organization> queryBy(Predicate<? super Organization> predicate) {
-    ConcurrentMap<String, Organization> organizations = redisson.getMap(ORGANIZATIONS_BY_ID);
+    ConcurrentMap<String, Organization> organizations = null;//redisson.getMap(ORGANIZATIONS_BY_ID);
     if (!organizations.isEmpty()) {
       List<Organization> orgs = organizations.values().stream()
           .filter(predicate)
@@ -136,7 +136,7 @@ public class RedisOrganizations {//implements OrganizationsDataAccess {
   //@Override
   public void updateOrganizationDetails(User owner, Organization org, Organization newDetails) {
     if (org.id().equals(newDetails.id())) {
-      ConcurrentMap<String, Organization> organizations = redisson.getMap(ORGANIZATIONS_BY_ID);
+      ConcurrentMap<String, Organization> organizations = null;//redisson.getMap(ORGANIZATIONS_BY_ID);
       organizations.put(org.id(), newDetails);
     }
   }
@@ -149,7 +149,7 @@ public class RedisOrganizations {//implements OrganizationsDataAccess {
    */
   public Collection<OrganizationMember> getOrganizationMembers(String organizationId) {
     final ConcurrentMap<String, OrganizationMember> members =
-        redisson.getMap(organizationMembersCollection(organizationId));
+        null;//redisson.getMap(organizationMembersCollection(organizationId));
     return Collections.unmodifiableCollection(members.values());
   }
 
@@ -165,7 +165,7 @@ public class RedisOrganizations {//implements OrganizationsDataAccess {
   public void invite(User owner, Organization organization, final User user) throws AccessPermissionException {
     if (isOwner(organization, owner)) {
       final ConcurrentMap<String, OrganizationMember> members =
-          redisson.getMap(organizationMembersCollection(organization.id()));
+          null;//redisson.getMap(organizationMembersCollection(organization.id()));
 
       if (owner.id().equals(user.id())) {
         members.putIfAbsent(user.id(), new OrganizationMember(user, "owner"));
@@ -186,7 +186,7 @@ public class RedisOrganizations {//implements OrganizationsDataAccess {
    */
   public void leave(Organization organization, User user) {
     final ConcurrentMap<String, OrganizationMember> members =
-        redisson.getMap(organizationMembersCollection(organization.id()));
+        null;//redisson.getMap(organizationMembersCollection(organization.id()));
     members.remove(user.id());
   }
 
@@ -211,7 +211,7 @@ public class RedisOrganizations {//implements OrganizationsDataAccess {
    */
   public List<User> getOwners(Organization organization) {
     final ConcurrentMap<String, OrganizationMember> members =
-        redisson.getMap(organizationMembersCollection(organization.id()));
+        null;//redisson.getMap(organizationMembersCollection(organization.id()));
 
     return Collections.unmodifiableList(members.values().stream()
         .filter(m -> m.role().equals("owner"))
@@ -226,7 +226,7 @@ public class RedisOrganizations {//implements OrganizationsDataAccess {
    * @return list of users matching the search criteria.
    */
   public List<User> searchUserByUserNameOrEmail(String fullNameOrEmail) {
-    ConcurrentMap<String, User> users = redisson.getMap(USERS);
+    ConcurrentMap<String, User> users = null;//redisson.getMap(USERS);
     return Collections.unmodifiableList(
         users.values().stream().filter(q -> {
           return startsWith(() -> q.name(), fullNameOrEmail) || startsWith(() -> q.email(), fullNameOrEmail);
@@ -244,7 +244,7 @@ public class RedisOrganizations {//implements OrganizationsDataAccess {
 
   private boolean isOrganizationMember(User user, Organization organization) {
     final ConcurrentMap<String, OrganizationMember> members =
-        redisson.getMap(organizationMembersCollection(organization.id()));
+        null;//redisson.getMap(organizationMembersCollection(organization.id()));
     return members.containsKey(user.id());
   }
 

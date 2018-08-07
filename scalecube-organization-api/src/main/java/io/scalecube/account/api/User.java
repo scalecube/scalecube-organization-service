@@ -3,6 +3,9 @@ package io.scalecube.account.api;
 
 import java.util.Map;
 
+/**
+ * Represents a user.
+ */
 public class User {
   private String id;
   private String email;
@@ -109,9 +112,9 @@ public class User {
 
   @Override
   public String toString() {
-    return "User [id=" + id + ", email=" + email + ", emailVerified=" + emailVerified + ", name=" + name
-        + ", pictureUrl=" + pictureUrl + ", locale=" + locale + ", familyName=" + familyName + ", givenName="
-        + givenName + "]";
+    return "User [id=" + id + ", email=" + email + ", emailVerified=" + emailVerified
+        + ", name=" + name + ", pictureUrl=" + pictureUrl + ", locale=" + locale
+        + ", familyName=" + familyName + ", givenName=" + givenName + "]";
   }
 
   public Map<String, String> claims() {

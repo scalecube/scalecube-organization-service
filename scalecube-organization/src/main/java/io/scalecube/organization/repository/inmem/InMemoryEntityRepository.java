@@ -2,9 +2,9 @@ package io.scalecube.organization.repository.inmem;
 
 import io.scalecube.organization.repository.Repository;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public abstract class InMemoryEntityRepository<T, ID>
         implements Repository<T, ID> {
@@ -41,7 +41,7 @@ public abstract class InMemoryEntityRepository<T, ID>
 
     @Override
     public Iterable<T> findAll() {
-        return entities.values().stream().collect(Collectors.toList());
+        return new ArrayList<>(entities.values());
     }
 
 }

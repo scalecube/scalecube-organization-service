@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Represents an Organization.
+ */
 public class Organization {
 
   private String name;
@@ -20,10 +23,13 @@ public class Organization {
 
   private Map<String, List<String>> members;
 
+  /**
+   * Constructs an empty Organization object.
+   */
   public Organization() {}
 
-  private Organization(String id, String name, String ownerId, String secretKey, ApiKey[] apiKeys, String email,
-                       Map<String, List<String>> members) {
+  private Organization(String id, String name, String ownerId, String secretKey, ApiKey[]
+      apiKeys, String email, Map<String, List<String>> members) {
     this.id = id;
     this.ownerId = ownerId;
     this.secretKey = secretKey;
@@ -105,21 +111,28 @@ public class Organization {
       return this;
     }
 
+    /**
+     * Creates a copy of the Organization source argument.
+     * @param source The source to copy from
+     * @return an Organization object which a shallow copy of the source argument.
+     */
     public Organization copy(Organization source) {
       String email = this.email == null ? source.email : this.email;
       String name = this.name == null ? source.name : this.name;
       ApiKey[] apiKeys = this.apiKeys == null ? source.apiKeys : this.apiKeys;
-      return new Organization(source.id(), name, source.ownerId(), source.secretKey(), apiKeys, email, source.members);
+      return new Organization(source.id(), name, source.ownerId(), source.secretKey(),
+          apiKeys, email, source.members);
     }
 
     public Organization build() {
-      return new Organization("ORG-" + this.id, this.name, this.ownerId, this.secretKey, this.apiKeys, this.email,
-              new HashMap<>());
+      return new Organization("ORG-" + this.id, this.name, this.ownerId, this.secretKey,
+          this.apiKeys, this.email, new HashMap<>());
     }
   }
 
   @Override
   public String toString() {
-    return "Organization [name=" + name + ", apiKey=" + apiKeys + ", id=" + id + ", ownerId=" + ownerId + "]";
+    return "Organization [name=" + name + ", apiKey=" + apiKeys + ", id=" + id
+        + ", ownerId=" + ownerId + "]";
   }
 }

@@ -12,24 +12,26 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+/**
+ * Service runner main entry point.
+ */
 public class OrganizationServiceRunner {
   private static final List<String> DEFAULT_SEEDS = Collections.singletonList("seed:4802");
   private static final String SEEDS = "seeds";
 
   /**
-   * AccountBootstrap main.
+   * Bootstrap main.
    * 
    * @param args application params.
    */
   public static void main(String[] args) throws InterruptedException {
     start();
-
     Thread.currentThread().join();
   }
 
   private static void start() {
     Properties settings = settings();
-    Microservices microservices = Microservices.builder()
+    Microservices.builder()
         .seeds(seeds(settings))
         .services(createOrganizationService())
         .startAwait();
@@ -40,7 +42,8 @@ public class OrganizationServiceRunner {
         .organizationRepository(CouchbaseRepositoryFactory.organizations())
         .userRepository(CouchbaseRepositoryFactory.users())
         .organizationMembershipRepository(CouchbaseRepositoryFactory.organizationMembers())
-        .organizationMembershipRepositoryAdmin(CouchbaseRepositoryFactory.organizationMembersRepositoryAdmin())
+        .organizationMembershipRepositoryAdmin(
+            CouchbaseRepositoryFactory.organizationMembersRepositoryAdmin())
         .build();
   }
 

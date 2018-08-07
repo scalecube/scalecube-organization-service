@@ -19,6 +19,9 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+/**
+ * OrganizationService interface implementation.
+ */
 public class OrganizationServiceImpl implements OrganizationService {
     private final static Logger LOG = LoggerFactory.getLogger(OrganizationServiceImpl.class);
     private final TokenVerifier tokenVerifier;

@@ -1,43 +1,26 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>io.scalecube</groupId>
-        <artifactId>scalecube-organization-parent</artifactId>
-        <version>2.0.12-SNAPSHOT</version>
-    </parent>
-    <artifactId>scalecube-organization-api</artifactId>
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>io.scalecube</groupId>
+    <artifactId>scalecube-organization-parent</artifactId>
+    <version>2.0.12-SNAPSHOT</version>
+  </parent>
 
-    <name>scalecube-organization-api</name>
-    <url>http://maven.apache.org</url>
+  <artifactId>scalecube-organization-api</artifactId>
+  <name>scalecube-organization-api</name>
+  <url>http://maven.apache.org</url>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>io.scalecube</groupId>
-            <artifactId>scalecube-services-api</artifactId>
-            <version>${scalecube-services.version}</version>
-        </dependency>
-    </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <compilerArgs>
-                        <arg>-proc:none</arg>
-                        <arg>-Xlint:unchecked</arg>
-                    </compilerArgs>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+  <dependencies>
+    <dependency>
+      <groupId>io.scalecube</groupId>
+      <artifactId>scalecube-services-api</artifactId>
+      <version>${scalecube-services.version}</version>
+    </dependency>
+  </dependencies>
 </project>

@@ -2,6 +2,9 @@ package io.scalecube.account.api;
 
 import java.util.Arrays;
 
+/**
+ * Get membership response.
+ */
 public class GetMembershipResponse {
 
   @Override
@@ -12,10 +15,15 @@ public class GetMembershipResponse {
   private OrganizationInfo[] organizations;
 
   /**
-   * @deprecated only for serialization/deserialization
+   * @deprecated only for serialization/deserialization.
    */
   GetMembershipResponse() {}
 
+  /**
+   * Constructs a get membership API call response object.
+   *
+   * @param organizationInfos array of organization info objects.
+   */
   public GetMembershipResponse(OrganizationInfo[] organizationInfos) {
     this.organizations = organizationInfos;
   }
