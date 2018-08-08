@@ -27,7 +27,8 @@ public class OrganizationServiceImpl implements OrganizationService {
     private final TokenVerifier tokenVerifier;
     private final OrganizationsDataAccess repository;
 
-    private OrganizationServiceImpl(OrganizationsDataAccess repository, TokenVerifier tokenVerifier) {
+    private OrganizationServiceImpl(OrganizationsDataAccess repository,
+            TokenVerifier tokenVerifier) {
         this.repository = repository;
         this.tokenVerifier = tokenVerifier;
     }
@@ -45,7 +46,8 @@ public class OrganizationServiceImpl implements OrganizationService {
                 final User user = tokenVerifier.verify(request.token());
                 if (user != null && isUserExists(user)) {
                     final String secretKey = IdGenerator.generateId();
-                    final Organization newOrg = repository.createOrganization(user, Organization.builder()
+                    final Organization newOrg = repository.createOrganization(user,
+                        Organization.builder()
                             .id(IdGenerator.generateId())
                             .name(request.name())
                             .ownerId(user.id())
@@ -70,7 +72,8 @@ public class OrganizationServiceImpl implements OrganizationService {
 
 
     @Override
-    public Mono<GetMembershipResponse> getUserOrganizationsMembership(GetMembershipRequest request) {
+    public Mono<GetMembershipResponse> getUserOrganizationsMembership(
+            GetMembershipRequest request) {
         checkNotNull(request);
         checkNotNull(request.token());
 
@@ -80,13 +83,14 @@ public class OrganizationServiceImpl implements OrganizationService {
                 User user = tokenVerifier.verify(request.token());
                 if (user != null && isUserExists(user)) {
                     results = repository.getUserMembership(user);
-                    final List<OrganizationInfo> infos = results.stream().map(item ->
+                    final List<OrganizationInfo> infoItems = results.stream().map(item ->
                             new OrganizationInfo(item.id(),
                                     item.name(),
                                     item.apiKeys(),
                                     item.email(),
                                     item.ownerId())).collect(Collectors.toList());
-                    result.success(new GetMembershipResponse(infos.toArray(new OrganizationInfo[results.size()])));
+                    result.success(new GetMembershipResponse(
+                        infoItems.toArray(new OrganizationInfo[results.size()])));
                 } else {
                     result.error(new InvalidAuthenticationToken());
                 }
@@ -119,7 +123,8 @@ public class OrganizationServiceImpl implements OrganizationService {
                     organization = repository.getOrganization(request.organizationId());
                     if (organization != null) {
                         result.success(
-                                new GetOrganizationResponse(organization.id(), organization.name(), organization.apiKeys(),
+                                new GetOrganizationResponse(organization.id(), organization.name(),
+                                        organization.apiKeys(),
                                         organization.email(),
                                         organization.ownerId()));
                     } else {
@@ -181,7 +186,8 @@ public class OrganizationServiceImpl implements OrganizationService {
                                 .copy(org);
 
                         repository.updateOrganizationDetails(owner, org, org2);
-                        result.success(new UpdateOrganizationResponse(org2.id(), org2.name(), org2.apiKeys(),
+                        result.success(new UpdateOrganizationResponse(org2.id(), org2.name(),
+                            org2.apiKeys(),
                                 org2.email(), org2.ownerId()));
                     } else {
                         result.error(new NoSuchOrganizationFound(request.organizationId()));
@@ -196,7 +202,8 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
-    public Mono<GetOrganizationMembersResponse> getOrganizationMembers(GetOrganizationMembersRequest request) {
+    public Mono<GetOrganizationMembersResponse> getOrganizationMembers(
+            GetOrganizationMembersRequest request) {
         checkNotNull(request);
         checkNotNull(request.organizationId());
         checkNotNull(request.token());
@@ -206,11 +213,14 @@ public class OrganizationServiceImpl implements OrganizationService {
             try {
                 User user = tokenVerifier.verify(request.token());
                 if (user != null && isUserExists(user)) {
-                    organizationMembers = repository.getOrganizationMembers(request.organizationId());
+                    organizationMembers = repository.getOrganizationMembers(
+                        request.organizationId());
                     result.success(
                             new GetOrganizationMembersResponse(
                                     organizationMembers
-                                            .toArray(new OrganizationMember[organizationMembers.size()])));
+                                            .toArray(
+                                                new OrganizationMember[0]))
+                    );
                 } else {
                     result.error(new InvalidAuthenticationToken());
                 }
@@ -221,7 +231,8 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
-    public Mono<InviteOrganizationMemberResponse> inviteMember(InviteOrganizationMemberRequest request) {
+    public Mono<InviteOrganizationMemberResponse> inviteMember(
+            InviteOrganizationMemberRequest request) {
         return Mono.create(result -> {
             try {
                 User owner = tokenVerifier.verify(request.token());
@@ -233,7 +244,8 @@ public class OrganizationServiceImpl implements OrganizationService {
                         result.success(new InviteOrganizationMemberResponse());
                     } else {
                         result.error(new InvalidRequestException(
-                                "Cannot complete request, target-organization or target-user was not found."));
+                                "Cannot complete request, target-organization or target-user was "
+                                    + "not found."));
                     }
                 } else {
                     result.error(new InvalidAuthenticationToken());
@@ -245,7 +257,8 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
-    public Mono<KickoutOrganizationMemberResponse> kickoutMember(KickoutOrganizationMemberRequest request) {
+    public Mono<KickoutOrganizationMemberResponse> kickoutMember(
+            KickoutOrganizationMemberRequest request) {
         checkNotNull(request);
         checkNotNull(request.organizationId());
         checkNotNull(request.token());
@@ -255,14 +268,16 @@ public class OrganizationServiceImpl implements OrganizationService {
             try {
                 User owner = tokenVerifier.verify(request.token());
                 if (owner != null && isUserExists(owner)) {
-                    Organization organization = repository.getOrganization(request.organizationId());
+                    Organization organization = repository.getOrganization(
+                        request.organizationId());
                     User user = repository.getUser(request.userId());
                     if (organization != null && user != null) {
                         repository.kickout(owner, organization, user);
                         result.success(new KickoutOrganizationMemberResponse());
                     } else {
                         result.error(new InvalidRequestException(
-                                "Cannot complete request, target-organization or target-user was not found."));
+                                "Cannot complete request, target-organization or target-user was "
+                                    + "not found."));
                     }
                 } else {
                     result.error(new InvalidAuthenticationToken());
@@ -283,7 +298,8 @@ public class OrganizationServiceImpl implements OrganizationService {
             try {
                 User user = tokenVerifier.verify(request.token());
                 if (user != null && isUserExists(user)) {
-                    Organization organization = repository.getOrganization(request.organizationId());
+                    Organization organization = repository.getOrganization(
+                        request.organizationId());
                     if (organization != null) {
                         repository.leave(organization, user);
                         result.success(new LeaveOrganizationResponse());
@@ -301,11 +317,13 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
-    public Mono<GetOrganizationResponse> addOrganizationApiKey(AddOrganizationApiKeyRequest request) {
+    public Mono<GetOrganizationResponse> addOrganizationApiKey(
+            AddOrganizationApiKeyRequest request) {
         return Mono.create(result -> {
             try {
                 checkNotNull(request);
-                checkNotNull(request.organizationId(), "organizationId is a required argument");
+                checkNotNull(request.organizationId(),
+                    "organizationId is a required argument");
                 checkNotNull(request.token(), "token is a required argument");
                 checkNotNull(request.apiKeyName(), "apiKeyName is a required argument");
 
@@ -323,7 +341,8 @@ public class OrganizationServiceImpl implements OrganizationService {
 
                     Organization newOrg = Organization.builder().apiKey(apiKeys).copy(org);
                     repository.updateOrganizationDetails(user, org, newOrg);
-                    result.success(new GetOrganizationResponse(newOrg.id(), newOrg.name(), newOrg.apiKeys(), newOrg.email(),
+                    result.success(new GetOrganizationResponse(newOrg.id(), newOrg.name(),
+                        newOrg.apiKeys(), newOrg.email(),
                             newOrg.ownerId()));
                 } else {
                     result.error(new InvalidAuthenticationToken());
@@ -338,7 +357,8 @@ public class OrganizationServiceImpl implements OrganizationService {
 
 
     @Override
-    public Mono<GetOrganizationResponse> deleteOrganizationApiKey(DeleteOrganizationApiKeyRequest request) {
+    public Mono<GetOrganizationResponse> deleteOrganizationApiKey(
+            DeleteOrganizationApiKeyRequest request) {
         checkNotNull(request);
         checkNotNull(request.organizationId());
         checkNotNull(request.token());
@@ -351,9 +371,11 @@ public class OrganizationServiceImpl implements OrganizationService {
                     final Organization org = repository.getOrganization(request.organizationId());
                     List<ApiKey> apiKeys = Arrays.asList(org.apiKeys());
                     Organization newOrg = Organization.builder().apiKey(apiKeys.stream()
-                            .filter(api -> !api.name().equals(request.apiKeyName())).toArray(ApiKey[]::new)).copy(org);
+                            .filter(api -> !api.name().equals(request.apiKeyName())).toArray(
+                                ApiKey[]::new)).copy(org);
                     repository.updateOrganizationDetails(user, org, newOrg);
-                    result.success(new GetOrganizationResponse(newOrg.id(), newOrg.name(), newOrg.apiKeys(), newOrg.email(),
+                    result.success(new GetOrganizationResponse(newOrg.id(), newOrg.name(),
+                        newOrg.apiKeys(), newOrg.email(),
                             newOrg.ownerId()));
                 } else {
                     result.error(new InvalidAuthenticationToken());
@@ -383,7 +405,8 @@ public class OrganizationServiceImpl implements OrganizationService {
                     : tokenVerifier);
         }
 
-        public Builder organizationRepository(Repository<Organization, String> organizationRepository) {
+        public Builder organizationRepository(
+                Repository<Organization, String> organizationRepository) {
             this.organizationRepository = organizationRepository;
             return this;
         }
@@ -405,7 +428,7 @@ public class OrganizationServiceImpl implements OrganizationService {
             return this;
         }
 
-        public Builder tokenVerifier(TokenVerifier tokenVerifier) {
+        Builder tokenVerifier(TokenVerifier tokenVerifier) {
             this.tokenVerifier = tokenVerifier;
             return this;
         }
