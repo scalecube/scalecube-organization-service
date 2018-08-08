@@ -1,5 +1,7 @@
 package io.scalecube.organization.repository;
 
+import static java.util.Objects.requireNonNull;
+
 import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.Role;
@@ -14,7 +16,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 
 public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
     private final Repository<Organization, String> organizations;
@@ -35,21 +36,21 @@ public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
 
     @Override
     public User getUser(String id) throws EntityNotFoundException {
-        checkNotNull(id);
+        requireNonNull(id);
         return users.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     }
 
     @Override
     public Organization getOrganization(String id) throws EntityNotFoundException {
-        checkNotNull(id);
+        requireNonNull(id);
         return organizations.findById(id).orElseThrow(() -> new EntityNotFoundException(id));
     }
 
     @Override
     public Organization createOrganization(User owner, Organization organization) throws DuplicateKeyException {
-        checkNotNull(owner);
-        checkNotNull(organization);
-        checkNotNull(organization.id());
+        requireNonNull(owner);
+        requireNonNull(organization);
+        requireNonNull(organization.id());
         validateNewOrganizationInputs(organization);
 
         // create members repository for the organization
@@ -91,8 +92,8 @@ public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
     @Override
     public void deleteOrganization(User owner, Organization organization)
             throws EntityNotFoundException, AccessPermissionException {
-        checkNotNull(owner);
-        checkNotNull(organization);
+        requireNonNull(owner);
+        requireNonNull(organization);
         checkOrganizationExists(organization);
 
         if (isOwner(organization, owner)) {
@@ -105,7 +106,7 @@ public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
 
     @Override
     public Collection<Organization> getUserMembership(User user) {
-        checkNotNull(user);
+        requireNonNull(user);
         return Collections.unmodifiableCollection(
                 StreamSupport.stream(organizations.findAll().spliterator(), false)
                 .filter(org -> isOrgMember(user, org))
@@ -119,9 +120,9 @@ public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
     @Override
     public void updateOrganizationDetails(User owner, Organization org, Organization update)
             throws AccessPermissionException {
-        checkNotNull(owner);
-        checkNotNull(org);
-        checkNotNull(update);
+        requireNonNull(owner);
+        requireNonNull(org);
+        requireNonNull(update);
 
         if (!isOwner(org, owner)){
             throwNotOrgOwnerException(owner, org);
@@ -135,15 +136,15 @@ public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
     @Override
     public Collection<OrganizationMember> getOrganizationMembers(String orgId)
             throws EntityNotFoundException {
-        checkNotNull(orgId);
+        requireNonNull(orgId);
         return organizationMembershipRepository.getMembers(getOrganization(orgId));
     }
 
     public void invite(User owner, Organization organization, User user)
             throws AccessPermissionException, EntityNotFoundException {
-        checkNotNull(owner);
-        checkNotNull(organization);
-        checkNotNull(user);
+        requireNonNull(owner);
+        requireNonNull(organization);
+        requireNonNull(user);
         checkOrganizationExists(organization);
 
         if (isOwner(organization, owner)) {
@@ -170,8 +171,8 @@ public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
 
     @Override
     public void kickout(User owner, Organization organization, User user) throws EntityNotFoundException {
-        checkNotNull(organization);
-        checkNotNull(user);
+        requireNonNull(organization);
+        requireNonNull(user);
         checkOrganizationExists(organization);
 
 
@@ -187,8 +188,8 @@ public class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
 
     @Override
     public void leave(Organization organization, User user) throws EntityNotFoundException {
-        checkNotNull(organization);
-        checkNotNull(user);
+        requireNonNull(organization);
+        requireNonNull(user);
         checkOrganizationExists(organization);
 
         if (organizationMembershipRepository.isMember(user, organization)) {

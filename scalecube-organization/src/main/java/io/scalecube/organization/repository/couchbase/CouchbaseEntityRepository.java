@@ -20,7 +20,7 @@ import java.util.concurrent.TimeoutException;
 
 import static com.couchbase.client.java.query.Select.select;
 import static com.couchbase.client.java.query.dsl.Expression.i;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Abstract base couchbase <Code>Repository</Code> implementation.
@@ -40,7 +40,7 @@ abstract class CouchbaseEntityRepository<T, Id extends String> implements Reposi
     private static final Object lock = new Object();
 
     CouchbaseEntityRepository(String alias, Class<T> type) {
-        checkNotNull(type);
+        requireNonNull(type);
 
         this.type = type;
         this.settings = new CouchbaseSettings.Builder().build();
@@ -74,7 +74,7 @@ abstract class CouchbaseEntityRepository<T, Id extends String> implements Reposi
     }
 
     Optional<T> findById(Bucket client, Id id) {
-        checkNotNull(id);
+        requireNonNull(id);
         return toEntity(execute(() -> client.get(id), client));
     }
 
@@ -94,7 +94,7 @@ abstract class CouchbaseEntityRepository<T, Id extends String> implements Reposi
     }
 
     boolean existsById(Bucket client,  Id id) {
-        checkNotNull(id);
+        requireNonNull(id);
         return execute(() -> client.exists(id), client);
     }
 
@@ -104,8 +104,8 @@ abstract class CouchbaseEntityRepository<T, Id extends String> implements Reposi
     }
 
     T save(Bucket client, Id id, T t) {
-        checkNotNull(id);
-        checkNotNull(t);
+        requireNonNull(id);
+        requireNonNull(t);
 
         execute(() -> client.upsert(RawJsonDocument.create(id, translationService.encode(t))), client);
         return t;
@@ -113,7 +113,7 @@ abstract class CouchbaseEntityRepository<T, Id extends String> implements Reposi
 
     @Override
     public void deleteById(Id id) {
-        checkNotNull(id);
+        requireNonNull(id);
         deleteById(client(), id);
     }
 
@@ -127,7 +127,7 @@ abstract class CouchbaseEntityRepository<T, Id extends String> implements Reposi
     }
 
     Iterable<T> findAll(Bucket client) {
-        checkNotNull(client);
+        requireNonNull(client);
         final SimpleN1qlQuery query = N1qlQuery.simple(select("*").from(i(client.name())));
 
         try {
@@ -190,8 +190,8 @@ abstract class CouchbaseEntityRepository<T, Id extends String> implements Reposi
 
 
     <R> R execute(BucketCallback<R> action, Bucket client) {
-        checkNotNull(client);
-        checkNotNull(action);
+        requireNonNull(client);
+        requireNonNull(action);
 
         try {
             return action.doInBucket();

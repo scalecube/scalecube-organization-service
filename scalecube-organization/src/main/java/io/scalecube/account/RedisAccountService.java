@@ -1,6 +1,6 @@
 package io.scalecube.account;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 
 import io.scalecube.account.api.AccountService;
 import io.scalecube.account.api.AddOrganizationApiKeyRequest;
@@ -130,8 +130,8 @@ public class RedisAccountService implements AccountService, OrganizationService 
 
   //@Override
   public Mono<FindUserResponse> searchUser(FindUserRequest request) {
-    checkNotNull(request);
-    checkNotNull(request.fullNameOrEmail());
+    requireNonNull(request);
+    requireNonNull(request.fullNameOrEmail());
 
     return Mono.create(result -> {
       if (request.fullNameOrEmail().length() >= 3) {
@@ -144,7 +144,7 @@ public class RedisAccountService implements AccountService, OrganizationService 
 
   @Override
   public Mono<CreateOrganizationResponse> createOrganization(CreateOrganizationRequest request) {
-    checkNotNull(request);
+    requireNonNull(request);
 
     return Mono.create(result -> {
       try {
@@ -182,10 +182,10 @@ public class RedisAccountService implements AccountService, OrganizationService 
   public Mono<GetOrganizationResponse> addOrganizationApiKey(AddOrganizationApiKeyRequest request) {
     return Mono.create(result -> {
       try {
-        checkNotNull(request);
-        checkNotNull(request.organizationId(), "organizationId is a required argument");
-        checkNotNull(request.token(), "token is a required argument");
-        checkNotNull(request.apiKeyName(), "apiKeyName is a required argument");
+        requireNonNull(request);
+        requireNonNull(request.organizationId(), "organizationId is a required argument");
+        requireNonNull(request.token(), "token is a required argument");
+        requireNonNull(request.apiKeyName(), "apiKeyName is a required argument");
 
         final User user = tokenVerifier.verify(request.token());
         if (user != null && isKnownUser(user)) {
@@ -217,10 +217,10 @@ public class RedisAccountService implements AccountService, OrganizationService 
 
   @Override
   public Mono<GetOrganizationResponse> deleteOrganizationApiKey(DeleteOrganizationApiKeyRequest request) {
-    checkNotNull(request);
-    checkNotNull(request.organizationId());
-    checkNotNull(request.token());
-    checkNotNull(request.apiKeyName());
+    requireNonNull(request);
+    requireNonNull(request.organizationId());
+    requireNonNull(request.token());
+    requireNonNull(request.apiKeyName());
 
     return Mono.create(result -> {
       try {
@@ -246,9 +246,9 @@ public class RedisAccountService implements AccountService, OrganizationService 
 
   @Override
   public Mono<DeleteOrganizationResponse> deleteOrganization(DeleteOrganizationRequest request) {
-    checkNotNull(request);
-    checkNotNull(request.organizationId());
-    checkNotNull(request.token());
+    requireNonNull(request);
+    requireNonNull(request.organizationId());
+    requireNonNull(request.token());
 
     return Mono.create(result -> {
       try {
@@ -273,9 +273,9 @@ public class RedisAccountService implements AccountService, OrganizationService 
 
   @Override
   public Mono<UpdateOrganizationResponse> updateOrganization(UpdateOrganizationRequest request) {
-    checkNotNull(request);
-    checkNotNull(request.organizationId());
-    checkNotNull(request.token());
+    requireNonNull(request);
+    requireNonNull(request.organizationId());
+    requireNonNull(request.token());
 
     return Mono.create(result -> {
       try {
@@ -306,8 +306,8 @@ public class RedisAccountService implements AccountService, OrganizationService 
 
   @Override
   public Mono<GetMembershipResponse> getUserOrganizationsMembership(GetMembershipRequest request) {
-    checkNotNull(request);
-    checkNotNull(request.token());
+    requireNonNull(request);
+    requireNonNull(request.token());
 
     return Mono.create(result -> {
       Collection<Organization> results = new ArrayList<>();
@@ -331,9 +331,9 @@ public class RedisAccountService implements AccountService, OrganizationService 
 
   @Override
   public Mono<GetOrganizationResponse> getOrganization(GetOrganizationRequest request) {
-    checkNotNull(request);
-    checkNotNull(request.organizationId());
-    checkNotNull(request.token());
+    requireNonNull(request);
+    requireNonNull(request.organizationId());
+    requireNonNull(request.token());
 
     return Mono.create(result -> {
       Organization organization = null;
@@ -367,9 +367,9 @@ public class RedisAccountService implements AccountService, OrganizationService 
   @Override
   public Mono<GetOrganizationMembersResponse> getOrganizationMembers(
       GetOrganizationMembersRequest request) {
-    checkNotNull(request);
-    checkNotNull(request.organizationId());
-    checkNotNull(request.token());
+    requireNonNull(request);
+    requireNonNull(request.organizationId());
+    requireNonNull(request.token());
 
     return Mono.create(result -> {
       Collection<OrganizationMember> organizationMembers = null;
@@ -416,10 +416,10 @@ public class RedisAccountService implements AccountService, OrganizationService 
 
   @Override
   public Mono<KickoutOrganizationMemberResponse> kickoutMember(KickoutOrganizationMemberRequest request) {
-    checkNotNull(request);
-    checkNotNull(request.organizationId());
-    checkNotNull(request.token());
-    checkNotNull(request.userId());
+    requireNonNull(request);
+    requireNonNull(request.organizationId());
+    requireNonNull(request.token());
+    requireNonNull(request.userId());
 
     return Mono.create(result -> {
       try {
@@ -445,9 +445,9 @@ public class RedisAccountService implements AccountService, OrganizationService 
 
   @Override
   public Mono<LeaveOrganizationResponse> leaveOrganization(LeaveOrganizationRequest request) {
-    checkNotNull(request);
-    checkNotNull(request.organizationId());
-    checkNotNull(request.token());
+    requireNonNull(request);
+    requireNonNull(request.organizationId());
+    requireNonNull(request.token());
 
     return Mono.create(result -> {
       try {

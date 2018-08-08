@@ -56,28 +56,12 @@
             <artifactId>jjwt</artifactId>
             <version>0.2</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
-        <!--<dependency>-->
-            <!--<groupId>com.fasterxml.jackson.core</groupId>-->
-            <!--<artifactId>jackson-databind</artifactId>-->
-            <!--<version>${jackson-databind.version}</version>>
-        </dependency-->
         <dependency>
             <groupId>io.scalecube</groupId>
             <artifactId>scalecube-testlib</artifactId>
             <version>${scalecube-testlib.version}</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>io.projectreactor</groupId>-->
-            <!--<artifactId>reactor-test</artifactId>-->
-            <!--<version>${reactor.version}</version>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
-        <dependency>
-            <groupId>com.google.api-client</groupId>
-            <artifactId>google-api-client</artifactId>
-            <version>1.22.0</version>
-        </dependency>
+
     </dependencies>
     <build>
 

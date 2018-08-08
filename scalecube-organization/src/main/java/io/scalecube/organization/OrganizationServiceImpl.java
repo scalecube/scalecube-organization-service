@@ -1,6 +1,5 @@
 package io.scalecube.organization;
 
-import com.google.common.collect.Lists;
 import io.scalecube.account.api.*;
 import io.scalecube.account.tokens.IdGenerator;
 import io.scalecube.account.tokens.JwtApiKey;
@@ -8,6 +7,7 @@ import io.scalecube.account.tokens.TokenVerification;
 import io.scalecube.account.tokens.TokenVerifier;
 import io.scalecube.organization.repository.*;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
+import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
@@ -16,8 +16,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * OrganizationService interface implementation.
@@ -37,9 +35,16 @@ public class OrganizationServiceImpl implements OrganizationService {
         return new Builder();
     }
 
+    private static void requireNonNull(Object request, String orgId, Object token) {
+      Objects.requireNonNull(request, "request is a required argument");
+      Objects.requireNonNull(orgId,
+          "organizationId is a required argument");
+      Objects.requireNonNull(token, "token is a required argument");
+    }
+
     @Override
     public Mono<CreateOrganizationResponse> createOrganization(CreateOrganizationRequest request) {
-        checkNotNull(request);
+        Objects.requireNonNull(request, "request is a required argument");
 
         return Mono.create(result -> {
             try {
@@ -70,12 +75,11 @@ public class OrganizationServiceImpl implements OrganizationService {
         });
     }
 
-
     @Override
     public Mono<GetMembershipResponse> getUserOrganizationsMembership(
             GetMembershipRequest request) {
-        checkNotNull(request);
-        checkNotNull(request.token());
+        Objects.requireNonNull(request, "request is a required argument");
+        Objects.requireNonNull(request.token(), "token is a required argument");
 
         return Mono.create(result -> {
             Collection<Organization> results;
@@ -111,9 +115,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Override
     public Mono<GetOrganizationResponse> getOrganization(GetOrganizationRequest request) {
-        checkNotNull(request);
-        checkNotNull(request.organizationId());
-        checkNotNull(request.token());
+      requireNonNull(request, request.organizationId(), request.token());
 
         return Mono.create(result -> {
             Organization organization;
@@ -142,11 +144,9 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Override
     public Mono<DeleteOrganizationResponse> deleteOrganization(DeleteOrganizationRequest request) {
-        checkNotNull(request);
-        checkNotNull(request.organizationId());
-        checkNotNull(request.token());
+      requireNonNull(request, request.organizationId(), request.token());
 
-        return Mono.create(result -> {
+      return Mono.create(result -> {
             try {
                 final User user = tokenVerifier.verify(request.token());
                 if (user != null && isUserExists(user)) {
@@ -169,11 +169,8 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Override
     public Mono<UpdateOrganizationResponse> updateOrganization(UpdateOrganizationRequest request) {
-        checkNotNull(request);
-        checkNotNull(request.organizationId());
-        checkNotNull(request.token());
-
-        return Mono.create(result -> {
+      requireNonNull(request, request.organizationId(), request.token());
+      return Mono.create(result -> {
             try {
                 final User owner = tokenVerifier.verify(request.token());
                 if (owner != null && isUserExists(owner)) {
@@ -201,14 +198,11 @@ public class OrganizationServiceImpl implements OrganizationService {
         });
     }
 
-    @Override
+  @Override
     public Mono<GetOrganizationMembersResponse> getOrganizationMembers(
             GetOrganizationMembersRequest request) {
-        checkNotNull(request);
-        checkNotNull(request.organizationId());
-        checkNotNull(request.token());
-
-        return Mono.create(result -> {
+    requireNonNull(request, request.organizationId(), request.token());
+    return Mono.create(result -> {
             Collection<OrganizationMember> organizationMembers;
             try {
                 User user = tokenVerifier.verify(request.token());
@@ -233,7 +227,10 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     public Mono<InviteOrganizationMemberResponse> inviteMember(
             InviteOrganizationMemberRequest request) {
-        return Mono.create(result -> {
+      Objects.requireNonNull(request, "request is a required argument");
+      Objects.requireNonNull(request.token(), "token is a required argument");
+
+      return Mono.create(result -> {
             try {
                 User owner = tokenVerifier.verify(request.token());
                 if (owner != null && isUserExists(owner)) {
@@ -259,10 +256,9 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     public Mono<KickoutOrganizationMemberResponse> kickoutMember(
             KickoutOrganizationMemberRequest request) {
-        checkNotNull(request);
-        checkNotNull(request.organizationId());
-        checkNotNull(request.token());
-        checkNotNull(request.userId());
+
+        requireNonNull(request, request.organizationId(), request.token());
+        Objects.requireNonNull(request.userId(), "userId is a required argument");
 
         return Mono.create(result -> {
             try {
@@ -290,10 +286,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Override
     public Mono<LeaveOrganizationResponse> leaveOrganization(LeaveOrganizationRequest request) {
-        checkNotNull(request);
-        checkNotNull(request.organizationId());
-        checkNotNull(request.token());
-
+        requireNonNull(request, request.organizationId(), request.token());
         return Mono.create(result -> {
             try {
                 User user = tokenVerifier.verify(request.token());
@@ -321,11 +314,9 @@ public class OrganizationServiceImpl implements OrganizationService {
             AddOrganizationApiKeyRequest request) {
         return Mono.create(result -> {
             try {
-                checkNotNull(request);
-                checkNotNull(request.organizationId(),
-                    "organizationId is a required argument");
-                checkNotNull(request.token(), "token is a required argument");
-                checkNotNull(request.apiKeyName(), "apiKeyName is a required argument");
+
+              requireNonNull(request, request.organizationId(), request.token());
+              Objects.requireNonNull(request.apiKeyName(), "apiKeyName is a required argument");
 
                 final User user = tokenVerifier.verify(request.token());
                 if (user != null && isUserExists(user)) {
@@ -337,8 +328,9 @@ public class OrganizationServiceImpl implements OrganizationService {
                             .claims(request.claims())
                             .id(org.id())
                             .build(org.secretKey());
-                    ApiKey[] apiKeys = Lists.asList(apiKey, org.apiKeys()).toArray(new ApiKey[0]);
-
+                    ApiKey[] apiKeys = Arrays.copyOf(org.apiKeys(),
+                        org.apiKeys().length + 1);
+                    apiKeys[org.apiKeys().length] = apiKey;
                     Organization newOrg = Organization.builder().apiKey(apiKeys).copy(org);
                     repository.updateOrganizationDetails(user, org, newOrg);
                     result.success(new GetOrganizationResponse(newOrg.id(), newOrg.name(),
@@ -359,10 +351,8 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     public Mono<GetOrganizationResponse> deleteOrganizationApiKey(
             DeleteOrganizationApiKeyRequest request) {
-        checkNotNull(request);
-        checkNotNull(request.organizationId());
-        checkNotNull(request.token());
-        checkNotNull(request.apiKeyName());
+        requireNonNull(request, request.organizationId(), request.token());
+        Objects.requireNonNull(request.apiKeyName());
 
         return Mono.create(result -> {
             try {
