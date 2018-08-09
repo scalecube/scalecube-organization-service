@@ -1,7 +1,5 @@
 package io.scalecube.organization.repository.couchbase;
 
-import io.scalecube.testlib.BaseTest;
-//
 //import io.scalecube.Await;
 //import io.scalecube.Await.AwaitLatch;
 //import io.scalecube.account.api.*;
@@ -31,22 +29,22 @@ import io.scalecube.testlib.BaseTest;
 //import static org.hamcrest.core.IsNull.notNullValue;
 //import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class CouchbaseOrganizationServiceImplTest extends BaseTest {
+public class CouchbaseOrganizationServiceImplTest {
 
 //    private static OrganizationService service;
 //    private Token token = new Token("google", "user1");
-//    private static final User testUser = new User("1", "user1@gmail.com", true, "name 1",
+//    private static final Profile testUser = new Profile("1", "user1@gmail.com", true, "name 1",
 //            "http://picture.jpg", "EN", "fname", "lname", null);
-//    private static final User testUser2 = new User("2", "user2@gmail.com", true, "name 2",
+//    private static final Profile testUser2 = new Profile("2", "user2@gmail.com", true, "name 2",
 //            "http://picture2.jpg", "EN", "fname2", "lname2", null);
-//    private final User invalidUser = new User("3", "user3@gmail.com", true, "name 3",
+//    private final Profile invalidUser = new Profile("3", "user3@gmail.com", true, "name 3",
 //            "http://picture=3.jpg", "EN", "fname3", "lname3", null);
-//    private static final User testUser4 = new User("4", "user4@gmail.com", true, "name 3",
+//    private static final Profile testUser4 = new Profile("4", "user4@gmail.com", true, "name 3",
 //            "http://picture4.jpg", "EN", "fname4", "lname4", null);
-//    private static final User testUser5 = new User("5", "user5@gmail.com", true, "name 3",
+//    private static final Profile testUser5 = new Profile("5", "user5@gmail.com", true, "name 3",
 //            "http://picture5.jpg", "EN", "fname5", "lname5", null);
 //
-//    private static Repository<User, String> userRepository;
+//    private static Repository<Profile, String> userRepository;
 //    private static Repository<Organization, String> organizationRepository;
 //    private static UserOrganizationMembershipRepository orgMembersRepository;
 //    private static CouchbaseOrganizationMembersRepositoryAdmin membersRepositoryAdmin;
@@ -121,7 +119,7 @@ public class CouchbaseOrganizationServiceImplTest extends BaseTest {
 //
 //    private void addMemberToOrganization(String organisationId,
 //                                         OrganizationService service,
-//                                         User user) {
+//                                         Profile user) {
 //        consume(service.inviteMember(
 //                new InviteOrganizationMemberRequest(token, organisationId, user.id())));
 //    }
@@ -141,7 +139,7 @@ public class CouchbaseOrganizationServiceImplTest extends BaseTest {
 //        consume(service.deleteOrganization(new DeleteOrganizationRequest(token, id)));
 //    }
 
-    //    /**
+  //    /**
 //     * Subscribe to the mono argument and request unbounded demand
 //     * @param mono publisher
 //     * @param <T> type of response
@@ -154,11 +152,6 @@ public class CouchbaseOrganizationServiceImplTest extends BaseTest {
 //        await.timeout(2, TimeUnit.SECONDS);
 //        return await;
 //    }
-
-
-
-
-
 
 //
 //    @Test
@@ -430,7 +423,7 @@ public class CouchbaseOrganizationServiceImplTest extends BaseTest {
 //    }
 //
 //
-//    private OrganizationService createService(User user) {
+//    private OrganizationService createService(Profile user) {
 //        return OrganizationServiceImpl
 //                .builder()
 //                .organizationRepository(organizationRepository)

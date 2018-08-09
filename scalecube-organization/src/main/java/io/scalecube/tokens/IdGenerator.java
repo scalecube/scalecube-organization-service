@@ -1,4 +1,4 @@
-package io.scalecube.account.tokens;
+package io.scalecube.tokens;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -7,16 +7,14 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public final class IdGenerator {
 
-  private static final int DEFAULT_SIZE = 10;
-
   /**
    * The default message digest algorithm to use if we cannot use the requested one.
    */
   protected static final String DEFAULT_ALGORITHM = "MD5";
-
+  private static final int DEFAULT_SIZE = 10;
   /**
-   * The message digest algorithm to be used when generating session identifiers. This must be an algorithm supported by
-   * the <code>java.security.MessageDigest</code> class on your platform.
+   * The message digest algorithm to be used when generating session identifiers. This must be an
+   * algorithm supported by the <code>java.security.MessageDigest</code> class on your platform.
    */
   private static String algorithm = DEFAULT_ALGORITHM;
 
@@ -72,9 +70,9 @@ public final class IdGenerator {
   }
 
   /**
-   * Return the MessageDigest object to be used for calculating session identifiers. If none has been created yet,
-   * initialize one the first time this method is called.
-   * 
+   * Return the MessageDigest object to be used for calculating session identifiers. If none has
+   * been created yet, initialize one the first time this method is called.
+   *
    * @return The hashing algorithm
    */
   private static MessageDigest getDigest() {

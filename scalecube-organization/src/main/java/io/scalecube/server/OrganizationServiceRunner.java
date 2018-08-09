@@ -16,12 +16,13 @@ import java.util.Properties;
  * Service runner main entry point.
  */
 public class OrganizationServiceRunner {
+
   private static final List<String> DEFAULT_SEEDS = Collections.singletonList("seed:4802");
   private static final String SEEDS = "seeds";
 
   /**
    * Bootstrap main.
-   * 
+   *
    * @param args application params.
    */
   public static void main(String[] args) throws InterruptedException {
@@ -38,9 +39,9 @@ public class OrganizationServiceRunner {
   }
 
   private static OrganizationService createOrganizationService() {
-    return new OrganizationServiceImpl.Builder()
+    return new OrganizationServiceImpl
+        .Builder()
         .organizationRepository(CouchbaseRepositoryFactory.organizations())
-        .userRepository(CouchbaseRepositoryFactory.users())
         .organizationMembershipRepository(CouchbaseRepositoryFactory.organizationMembers())
         .organizationMembershipRepositoryAdmin(
             CouchbaseRepositoryFactory.organizationMembersRepositoryAdmin())
@@ -51,8 +52,8 @@ public class OrganizationServiceRunner {
     try {
       return stringListValue(settings.getProperty(SEEDS))
           .stream().map(Address::from).toArray(Address[]::new);
-    } catch (Throwable e) {
-      throw new RuntimeException("Failed to parse seeds from settings", e);
+    } catch (Throwable ex) {
+      throw new RuntimeException("Failed to parse seeds from settings", ex);
     }
   }
 
@@ -61,8 +62,8 @@ public class OrganizationServiceRunner {
       Properties settings = new Properties();
       settings.load(OrganizationServiceRunner.class.getResourceAsStream("/settings.properties"));
       return settings;
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to initialize", e);
+    } catch (IOException ex) {
+      throw new RuntimeException("Failed to initialize", ex);
     }
   }
 

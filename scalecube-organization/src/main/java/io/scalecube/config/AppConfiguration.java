@@ -80,7 +80,7 @@ public class AppConfiguration {//extends AbstractCouchbaseConfiguration {
     public void configureRepositoryOperationsMapping(
             RepositoryOperationsMapping baseMapping) {
         try {
-            baseMapping.mapEntity(User.class, usersTemplate());
+            baseMapping.mapEntity(Profile.class, usersTemplate());
         } catch (Exception e) {
             e.printStackTrace();
         }
