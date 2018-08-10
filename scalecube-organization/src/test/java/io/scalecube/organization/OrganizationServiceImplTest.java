@@ -26,6 +26,7 @@ import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.UpdateOrganizationRequest;
 import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
+import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
 import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
@@ -37,7 +38,6 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -96,10 +96,23 @@ public class OrganizationServiceImplTest {
       null);
 
 
-  private final InMemoryOrganizationRepository organizationRepository = new InMemoryOrganizationRepository();
+  private final InMemoryOrganizationRepository organizationRepository
+      = new InMemoryOrganizationRepository();
   private Token token = new Token("google", "user1");
-  private InMemoryUserOrganizationMembershipRepository orgMembersRepository = new InMemoryUserOrganizationMembershipRepository();
+  private InMemoryUserOrganizationMembershipRepository orgMembersRepository
+      = new InMemoryUserOrganizationMembershipRepository();
   private String organisationId;
+
+  private final OrganizationMembersRepositoryAdmin admin
+      = new OrganizationMembersRepositoryAdmin() {
+    @Override
+    public void createRepository(Organization organization) {
+    }
+
+    @Override
+    public void deleteRepository(Organization organization) {
+    }
+  };
 
   public OrganizationServiceImplTest() {
 
@@ -131,9 +144,6 @@ public class OrganizationServiceImplTest {
     organizationRepository.deleteById(organisationId);
   }
 
-  @AfterAll
-  public void cleanup() {
-  }
 
   @Test
   public void createOrganizationTest() {
@@ -326,13 +336,6 @@ public class OrganizationServiceImplTest {
   }
 
   @Test
-  public void inviteMemberShouldFailWithUserNotFound() {
-    expectError(service.inviteMember(
-        new InviteOrganizationMemberRequest(token, organisationId, invalidProfile.getUserId())),
-        EntityNotFoundException.class);
-  }
-
-  @Test
   public void inviteMemberShouldFailOrgNotFound() {
     expectError(service.inviteMember(
         new InviteOrganizationMemberRequest(token, "", testProfile5.getUserId())),
@@ -366,12 +369,6 @@ public class OrganizationServiceImplTest {
 
   }
 
-  @Test
-  public void kickoutMemberShouldFailWithUserNotFound() {
-    expectError(service.kickoutMember(
-        new KickoutOrganizationMemberRequest(organisationId, token, invalidProfile.getUserId())),
-        EntityNotFoundException.class);
-  }
 
   @Test
   public void kickoutMemberShouldFailWithInvalidUser() {
@@ -414,13 +411,6 @@ public class OrganizationServiceImplTest {
 
 
   @Test
-  public void leaveOrganizationShouldFailWithUserNotFound() {
-    expectError(createService(invalidProfile).leaveOrganization(
-        new LeaveOrganizationRequest(token, organisationId)),
-        InvalidAuthenticationToken.class);
-  }
-
-  @Test
   public void leaveOrganizationShouldFailWithOrgNotFound() {
     expectError(service.leaveOrganization(
         new LeaveOrganizationRequest(token, "bla")),
@@ -442,13 +432,6 @@ public class OrganizationServiceImplTest {
           Organization org = getOrganizationFromRepository(organisationId);
           assertThat(org.apiKeys()[0].name(), is("apiKey"));
         }).verifyComplete();
-  }
-
-  @Test
-  public void addOrganizationApiKeyWithUserNotFound() {
-    expectError(createService(invalidProfile).addOrganizationApiKey(
-        new AddOrganizationApiKeyRequest(token, organisationId, "", new HashMap<>())),
-        InvalidAuthenticationToken.class);
   }
 
   @Test
@@ -482,10 +465,10 @@ public class OrganizationServiceImplTest {
   }
 
   @Test
-  public void deleteOrganizationApiKeyWithUserNotFound() {
-    expectError(createService(invalidProfile).deleteOrganizationApiKey(
+  public void deleteOrganizationApiKeyWithUserNotOwner() {
+    expectError(createService(testProfile2).deleteOrganizationApiKey(
         new DeleteOrganizationApiKeyRequest(token, organisationId, "")),
-        InvalidAuthenticationToken.class);
+        AccessPermissionException.class);
   }
 
   @Test
@@ -500,7 +483,9 @@ public class OrganizationServiceImplTest {
     return OrganizationServiceImpl
         .builder()
         .organizationRepository(organizationRepository)
-        .tokenVerifier((t) -> profile)
+        .organizationMembershipRepository(orgMembersRepository)
+        .organizationMembershipRepositoryAdmin(admin)
+        .tokenVerifier((t) -> profile == invalidProfile ? null : profile)
         .build();
   }
 
