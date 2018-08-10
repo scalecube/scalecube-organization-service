@@ -29,6 +29,7 @@ import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
 import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
+import io.scalecube.security.Profile;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -48,28 +49,59 @@ import reactor.test.StepVerifier;
 public class OrganizationServiceImplTest {
 
   private final OrganizationService service;
-  private final Profile testProfile = new Profile("1", "user1@gmail.com", true, "name 1",
-      "http://picture.jpg", "EN", "fname", "lname", null);
-  private final Profile testProfile2 = new Profile("2", "user2@gmail.com", true, "name 2",
-      "http://picture2.jpg", "EN", "fname2", "lname2", null);
-  private final Profile invalidProfile = new Profile("3", "user3@gmail.com", true, "name 3",
-      "http://picture=3.jpg", "EN", "fname3", "lname3", null);
-  private final Profile testProfile4 = new Profile("4", "user4@gmail.com", true, "name 3",
-      "http://picture4.jpg", "EN", "fname4", "lname4", null);
-  private final Profile testProfile5 = new Profile("5", "user5@gmail.com", true, "name 3",
-      "http://picture5.jpg", "EN", "fname5", "lname5", null);
-  private final InMemoryUserRepository userRepository = new InMemoryUserRepository();
+  private final Profile testProfile = new Profile(
+      "1",
+      null,
+      "user1@gmail.com",
+      true,
+      "foo",
+      "fname",
+      "lname",
+      null);
+  private final Profile testProfile2 = new Profile(
+      "2",
+      null,
+      "user2@gmail.com",
+      true,
+      "foo2",
+      "fname2",
+      "lname2",
+      null);
+  private final Profile invalidProfile = new Profile(
+      "3",
+      null,
+      "user3@gmail.com",
+      true,
+      "foo3",
+      "fname3",
+      "lname3",
+      null);
+  private final Profile testProfile4 = new Profile(
+      "4",
+      null,
+      "user4@gmail.com",
+      true,
+      "foo4",
+      "fname4",
+      "lname4",
+      null);
+  private final Profile testProfile5 = new Profile(
+      "5",
+      null,
+      "user5@gmail.com",
+      true,
+      "foo5",
+      "fname5",
+      "lname5",
+      null);
+
+
   private final InMemoryOrganizationRepository organizationRepository = new InMemoryOrganizationRepository();
   private Token token = new Token("google", "user1");
   private InMemoryUserOrganizationMembershipRepository orgMembersRepository = new InMemoryUserOrganizationMembershipRepository();
   private String organisationId;
 
   public OrganizationServiceImplTest() {
-
-    userRepository.save("1", testProfile);
-    userRepository.save("2", testProfile2);
-    userRepository.save("4", testProfile4);
-    userRepository.save("5", testProfile5);
 
     service = OrganizationServiceImpl
         .builder()
@@ -101,8 +133,6 @@ public class OrganizationServiceImplTest {
 
   @AfterAll
   public void cleanup() {
-    IntStream.range(1,6).filter(i -> i != 3).forEach(i
-        -> userRepository.deleteById(String.valueOf(i)));
   }
 
   @Test
@@ -140,15 +170,16 @@ public class OrganizationServiceImplTest {
 
   private void assertGetOrganizationsMembership(String organisationId, Profile profile, Role role) {
     List<String> members = orgMembersRepository.getMembers(
-        getOrganizationFromRepository(organisationId)).stream().map(i -> i.user().id())
+        getOrganizationFromRepository(organisationId)).stream().map(i -> i.id())
         .collect(Collectors.toList());
-    assertThat(members, hasItem(profile.id()));
+    assertThat(members, hasItem(profile.getUserId()));
   }
 
   @Test
   public void getOrganizationsMemberMembershipShouldFailWithInvalidAuthenticationToken() {
     expectError(createService(invalidProfile)
-            .inviteMember(new InviteOrganizationMemberRequest(token, organisationId, invalidProfile.id())),
+            .inviteMember(new InviteOrganizationMemberRequest(token, organisationId,
+                invalidProfile.getUserId())),
         InvalidAuthenticationToken.class);
   }
 
@@ -240,9 +271,9 @@ public class OrganizationServiceImplTest {
           long membersCount = members.get()
               .filter((m) -> Objects.equals(m.role(), Role.Member.toString())).count();
           assertThat(membersCount, is(2L));
-          List<String> ids = members.get().map((i) -> i.user().id()).collect(Collectors.toList());
-          assertThat(ids, hasItem(testProfile4.id()));
-          assertThat(ids, hasItem(testProfile5.id()));
+          List<String> ids = members.get().map((i) -> i.id()).collect(Collectors.toList());
+          assertThat(ids, hasItem(testProfile4.getUserId()));
+          assertThat(ids, hasItem(testProfile5.getUserId()));
 
         }).verifyComplete();
   }
@@ -270,9 +301,9 @@ public class OrganizationServiceImplTest {
         .assertNext((r) -> {
           Supplier<Stream<OrganizationMember>> members = () -> Arrays.stream(r.members());
 
-          assertThat(members.get().map(i -> i.user().id()).collect(Collectors.toList()),
-              hasItem(testProfile2.id()));
-          assertThat(members.get().filter(i -> Objects.equals(i.user().id(), testProfile2.id()))
+          assertThat(members.get().map(OrganizationMember::id).collect(Collectors.toList()),
+              hasItem(testProfile2.getUserId()));
+          assertThat(members.get().filter(i -> Objects.equals(i.id(), testProfile2.getUserId()))
               .findFirst().orElseThrow(IllegalStateException::new), is(notNullValue()));
 
         })
@@ -297,21 +328,21 @@ public class OrganizationServiceImplTest {
   @Test
   public void inviteMemberShouldFailWithUserNotFound() {
     expectError(service.inviteMember(
-        new InviteOrganizationMemberRequest(token, organisationId, invalidProfile.id())),
+        new InviteOrganizationMemberRequest(token, organisationId, invalidProfile.getUserId())),
         EntityNotFoundException.class);
   }
 
   @Test
   public void inviteMemberShouldFailOrgNotFound() {
     expectError(service.inviteMember(
-        new InviteOrganizationMemberRequest(token, "", testProfile5.id())),
+        new InviteOrganizationMemberRequest(token, "", testProfile5.getUserId())),
         EntityNotFoundException.class);
   }
 
   @Test
   public void inviteMemberShouldFailWithInvalidToken() {
     expectError(createService(invalidProfile).inviteMember(
-        new InviteOrganizationMemberRequest(token, organisationId, testProfile5.id())),
+        new InviteOrganizationMemberRequest(token, organisationId, testProfile5.getUserId())),
         InvalidAuthenticationToken.class);
   }
 
@@ -320,7 +351,7 @@ public class OrganizationServiceImplTest {
     addMemberToOrganization(organisationId, service, testProfile5);
     StepVerifier
         .create(service.kickoutMember(
-            new KickoutOrganizationMemberRequest(organisationId, token, testProfile5.id())))
+            new KickoutOrganizationMemberRequest(organisationId, token, testProfile5.getUserId())))
         .expectSubscription()
         .assertNext(x -> StepVerifier
             .create(service.getOrganizationMembers(
@@ -328,8 +359,8 @@ public class OrganizationServiceImplTest {
             .expectSubscription()
             .assertNext(r -> {
               List<String> members = Arrays.stream(r.members())
-                  .map(i -> i.user().id()).collect(Collectors.toList());
-              assertThat(members, not(hasItem(testProfile5.id())));
+                  .map(i -> i.id()).collect(Collectors.toList());
+              assertThat(members, not(hasItem(testProfile5.getUserId())));
             })
             .verifyComplete()).verifyComplete();
 
@@ -338,21 +369,21 @@ public class OrganizationServiceImplTest {
   @Test
   public void kickoutMemberShouldFailWithUserNotFound() {
     expectError(service.kickoutMember(
-        new KickoutOrganizationMemberRequest(organisationId, token, invalidProfile.id())),
+        new KickoutOrganizationMemberRequest(organisationId, token, invalidProfile.getUserId())),
         EntityNotFoundException.class);
   }
 
   @Test
   public void kickoutMemberShouldFailWithInvalidUser() {
     expectError(createService(invalidProfile).kickoutMember(
-        new KickoutOrganizationMemberRequest(organisationId, token, testProfile5.id())),
+        new KickoutOrganizationMemberRequest(organisationId, token, testProfile5.getUserId())),
         InvalidAuthenticationToken.class);
   }
 
   @Test
   public void kickoutMemberShouldFailWithOrgNotFound() {
     expectError(service.kickoutMember(
-        new KickoutOrganizationMemberRequest("", token, testProfile5.id())),
+        new KickoutOrganizationMemberRequest("", token, testProfile5.getUserId())),
         EntityNotFoundException.class);
   }
 
@@ -369,7 +400,7 @@ public class OrganizationServiceImplTest {
                 new GetOrganizationMembersRequest(organisationId, token)))
             .expectSubscription()
             .assertNext(r -> assertThat(Arrays.asList(r.members()),
-                not(hasItem(new OrganizationMember(testProfile, Role.Owner.toString())))))
+                not(hasItem(new OrganizationMember(testProfile.getUserId(), Role.Owner.toString())))))
             .verifyComplete())
         .verifyComplete();
   }
@@ -378,7 +409,7 @@ public class OrganizationServiceImplTest {
       OrganizationService service,
       Profile profile) {
     consume(service.inviteMember(
-        new InviteOrganizationMemberRequest(token, organisationId, profile.id())));
+        new InviteOrganizationMemberRequest(token, organisationId, profile.getUserId())));
   }
 
 
@@ -469,7 +500,6 @@ public class OrganizationServiceImplTest {
     return OrganizationServiceImpl
         .builder()
         .organizationRepository(organizationRepository)
-        .userRepository(userRepository)
         .tokenVerifier((t) -> profile)
         .build();
   }
