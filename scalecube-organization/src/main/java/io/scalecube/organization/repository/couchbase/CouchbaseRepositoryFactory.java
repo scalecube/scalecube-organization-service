@@ -15,6 +15,6 @@ public final class CouchbaseRepositoryFactory {
   }
 
   public static CouchbaseOrganizationMembersRepositoryAdmin organizationMembersRepositoryAdmin() {
-    return new CouchbaseOrganizationMembersRepositoryAdmin.Builder().build();
+    return CouchbaseOrganizationMembersRepositoryAdmin.builder().build();
   }
 }

@@ -1,14 +1,11 @@
 package io.scalecube.account.api;
 
+/**
+ * Represents an access token.
+ */
 public class Token {
 
-  @Override
-  public String toString() {
-    return "Token [issuer=" + issuer + ", token=" + token + "]";
-  }
-
   private String issuer;
-
   private String token;
 
   public Token() {}
@@ -35,5 +32,10 @@ public class Token {
    */
   public String issuer() {
     return this.issuer;
+  }
+
+  @Override
+  public String toString() {
+    return "Token [issuer=" + issuer + ", token=" + token + "]";
   }
 }

@@ -78,7 +78,7 @@ abstract class CouchbaseEntityRepository<T, I extends String> implements Reposit
     return findById(client(), id);
   }
 
-  Optional<T> findById(Bucket client, I id) {
+  protected Optional<T> findById(Bucket client, I id) {
     requireNonNull(id);
     return toEntity(execute(() -> client.get(id), client));
   }
@@ -108,7 +108,7 @@ abstract class CouchbaseEntityRepository<T, I extends String> implements Reposit
     return save(client(), id, entity);
   }
 
-  T save(Bucket client, I id, T entity) {
+  protected T save(Bucket client, I id, T entity) {
     requireNonNull(id);
     requireNonNull(entity);
 
@@ -123,7 +123,7 @@ abstract class CouchbaseEntityRepository<T, I extends String> implements Reposit
     deleteById(client(), id);
   }
 
-  void deleteById(Bucket client, I id) {
+  protected void deleteById(Bucket client, I id) {
     execute(() -> client.remove(id), client);
   }
 
@@ -132,7 +132,7 @@ abstract class CouchbaseEntityRepository<T, I extends String> implements Reposit
     return findAll(client());
   }
 
-  Iterable<T> findAll(Bucket client) {
+  protected Iterable<T> findAll(Bucket client) {
     requireNonNull(client);
     final SimpleN1qlQuery query = N1qlQuery.simple(select("*").from(i(client.name())));
 
@@ -158,7 +158,7 @@ abstract class CouchbaseEntityRepository<T, I extends String> implements Reposit
     }
   }
 
-  Bucket client() {
+  protected Bucket client() {
     return cluster().openBucket(bucketName, bucketPassword);
   }
 
@@ -180,7 +180,7 @@ abstract class CouchbaseEntityRepository<T, I extends String> implements Reposit
         });
   }
 
-  CouchbaseCluster cluster() {
+  protected CouchbaseCluster cluster() {
     if (cluster == null) {
       synchronized (lock) {
         if (cluster == null) {
@@ -196,7 +196,7 @@ abstract class CouchbaseEntityRepository<T, I extends String> implements Reposit
   }
 
 
-  <R> R execute(BucketCallback<R> action, Bucket client) {
+  protected  <R> R execute(BucketCallback<R> action, Bucket client) {
     requireNonNull(client);
     requireNonNull(action);
 

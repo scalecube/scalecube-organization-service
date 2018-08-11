@@ -25,12 +25,12 @@ public class OrganizationServiceRunner {
    *
    * @param args application params.
    */
-  public static void main(String[] args) throws InterruptedException {
+  public static void main(String[] args) throws Exception {
     start();
     Thread.currentThread().join();
   }
 
-  private static void start() {
+  private static void start() throws Exception {
     Properties settings = settings();
     Microservices.builder()
         .seeds(seeds(settings))
@@ -57,13 +57,13 @@ public class OrganizationServiceRunner {
     }
   }
 
-  private static Properties settings() {
+  private static Properties settings() throws Exception {
     try {
       Properties settings = new Properties();
       settings.load(OrganizationServiceRunner.class.getResourceAsStream("/settings.properties"));
       return settings;
     } catch (IOException ex) {
-      throw new RuntimeException("Failed to initialize", ex);
+      throw new Exception("Failed to initialize", ex);
     }
   }
 

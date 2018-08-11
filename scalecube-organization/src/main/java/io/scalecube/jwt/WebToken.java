@@ -34,10 +34,8 @@ public class WebToken {
    */
   public String createToken(String id, long ttlMillis, String secretKey,
       Map<String, String> claims) {
-    if (claims == null) {
-      claims = new HashMap<>();
-    }
-    return createWebToken(id, issuer, subject, ttlMillis, secretKey, claims);
+    return createWebToken(id, issuer, subject, ttlMillis, secretKey,
+        claims == null ? new HashMap<>() : claims);
   }
 
   /**

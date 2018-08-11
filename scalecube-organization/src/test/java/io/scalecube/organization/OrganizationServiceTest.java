@@ -39,14 +39,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-public class OrganizationServiceImplTest {
+public class OrganizationServiceTest {
 
   private final OrganizationService service;
   private final Profile testProfile = new Profile(
@@ -114,7 +113,7 @@ public class OrganizationServiceImplTest {
     }
   };
 
-  public OrganizationServiceImplTest() {
+  public OrganizationServiceTest() {
 
     service = OrganizationServiceImpl
         .builder()
@@ -164,23 +163,24 @@ public class OrganizationServiceImplTest {
             .createOrganization(
                 new CreateOrganizationRequest("myTestOrg5", token, "email"))
         , InvalidAuthenticationToken.class);
+    assertThat(true, is(true));
   }
 
   @Test
   public void getOrganizationsOwnerRoleMembership() {
     addMemberToOrganization(organisationId, service, testProfile);
-    assertGetOrganizationsMembership(organisationId, testProfile, Role.Owner);
+    assertGetOrganizationsMembership(organisationId, testProfile);
   }
 
   @Test
   public void getOrganizationsMemberRoleMembership() {
     addMemberToOrganization(organisationId, service, testProfile2);
-    assertGetOrganizationsMembership(organisationId, testProfile2, Role.Member);
+    assertGetOrganizationsMembership(organisationId, testProfile2);
   }
 
-  private void assertGetOrganizationsMembership(String organisationId, Profile profile, Role role) {
+  private void assertGetOrganizationsMembership(String organisationId, Profile profile) {
     List<String> members = orgMembersRepository.getMembers(
-        getOrganizationFromRepository(organisationId)).stream().map(i -> i.id())
+        getOrganizationFromRepository(organisationId)).stream().map(OrganizationMember::id)
         .collect(Collectors.toList());
     assertThat(members, hasItem(profile.getUserId()));
   }
@@ -191,6 +191,7 @@ public class OrganizationServiceImplTest {
             .inviteMember(new InviteOrganizationMemberRequest(token, organisationId,
                 invalidProfile.getUserId())),
         InvalidAuthenticationToken.class);
+    assertThat(true, is(true));
   }
 
   @Test
@@ -213,13 +214,14 @@ public class OrganizationServiceImplTest {
   public void getOrganizationShouldFailWithEntityNotFoundException() {
     expectError(service.getOrganization(
         new GetOrganizationRequest(token, "bla")), EntityNotFoundException.class);
+    assertThat(true, is(true));
   }
 
   @Test
   public void deleteOrganizationShouldFailWithInvalidToken() {
     expectError(createService(invalidProfile).deleteOrganization(
         new DeleteOrganizationRequest(token, organisationId)), InvalidAuthenticationToken.class);
-
+    assertThat(true, is(true));
   }
 
   @Test
@@ -240,6 +242,7 @@ public class OrganizationServiceImplTest {
             token,
             "update_name",
             "update@email")), EntityNotFoundException.class);
+    assertThat(true, is(true));
   }
 
   @Test
@@ -249,7 +252,7 @@ public class OrganizationServiceImplTest {
         token,
         "update_name",
         "update@email")), InvalidAuthenticationToken.class);
-
+    assertThat(true, is(true));
   }
 
   @Test
@@ -293,13 +296,14 @@ public class OrganizationServiceImplTest {
     expectError(createService(invalidProfile)
             .getOrganizationMembers(new GetOrganizationMembersRequest(organisationId, token))
         , InvalidAuthenticationToken.class);
-
+    assertThat(true, is(true));
   }
 
   @Test
   public void getOrganizationMembersShouldFailOrgNotFound() {
     expectError(service.getOrganizationMembers(new GetOrganizationMembersRequest("bla", token))
         , EntityNotFoundException.class);
+    assertThat(true, is(true));
   }
 
   @Test
@@ -340,6 +344,7 @@ public class OrganizationServiceImplTest {
     expectError(service.inviteMember(
         new InviteOrganizationMemberRequest(token, "", testProfile5.getUserId())),
         EntityNotFoundException.class);
+    assertThat(true, is(true));
   }
 
   @Test
@@ -347,6 +352,7 @@ public class OrganizationServiceImplTest {
     expectError(createService(invalidProfile).inviteMember(
         new InviteOrganizationMemberRequest(token, organisationId, testProfile5.getUserId())),
         InvalidAuthenticationToken.class);
+    assertThat(true, is(true));
   }
 
   @Test
@@ -375,6 +381,7 @@ public class OrganizationServiceImplTest {
     expectError(createService(invalidProfile).kickoutMember(
         new KickoutOrganizationMemberRequest(organisationId, token, testProfile5.getUserId())),
         InvalidAuthenticationToken.class);
+    assertThat(true, is(true));
   }
 
   @Test
@@ -382,6 +389,7 @@ public class OrganizationServiceImplTest {
     expectError(service.kickoutMember(
         new KickoutOrganizationMemberRequest("", token, testProfile5.getUserId())),
         EntityNotFoundException.class);
+    assertThat(true, is(true));
   }
 
   ///////////////////////////////////////////////////////////
@@ -415,6 +423,7 @@ public class OrganizationServiceImplTest {
     expectError(service.leaveOrganization(
         new LeaveOrganizationRequest(token, "bla")),
         EntityNotFoundException.class);
+    assertThat(true, is(true));
   }
 
 
@@ -439,6 +448,7 @@ public class OrganizationServiceImplTest {
     expectError(service.addOrganizationApiKey(
         new AddOrganizationApiKeyRequest(token, "bla", "", new HashMap<>())),
         EntityNotFoundException.class);
+    assertThat(true, is(true));
   }
 
   @Test
@@ -469,6 +479,7 @@ public class OrganizationServiceImplTest {
     expectError(createService(testProfile2).deleteOrganizationApiKey(
         new DeleteOrganizationApiKeyRequest(token, organisationId, "")),
         AccessPermissionException.class);
+    assertThat(true, is(true));
   }
 
   @Test
@@ -476,6 +487,7 @@ public class OrganizationServiceImplTest {
     expectError(service.deleteOrganizationApiKey(
         new DeleteOrganizationApiKeyRequest(token, "bla", "")),
         EntityNotFoundException.class);
+    assertThat(true, is(true));
   }
 
 
@@ -485,7 +497,7 @@ public class OrganizationServiceImplTest {
         .organizationRepository(organizationRepository)
         .organizationMembershipRepository(orgMembersRepository)
         .organizationMembershipRepositoryAdmin(admin)
-        .tokenVerifier((t) -> profile == invalidProfile ? null : profile)
+        .tokenVerifier((t) -> Objects.equals(profile, invalidProfile) ? null : profile)
         .build();
   }
 

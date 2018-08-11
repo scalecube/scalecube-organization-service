@@ -230,9 +230,9 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
      * @return An OrganizationsDataAccess instance object.
      */
     public OrganizationsDataAccess build() {
-      Objects.requireNonNull(organizationRepository, "organizationRepository");
-      Objects.requireNonNull(membershipRepository, "membershipRepository");
-      Objects.requireNonNull(repositoryAdmin, "repositoryAdmin");
+      requireNonNull(organizationRepository, "organizationRepository");
+      requireNonNull(membershipRepository, "membershipRepository");
+      requireNonNull(repositoryAdmin, "repositoryAdmin");
       return new OrganizationsDataAccessImpl(organizationRepository,
           membershipRepository,
           repositoryAdmin);

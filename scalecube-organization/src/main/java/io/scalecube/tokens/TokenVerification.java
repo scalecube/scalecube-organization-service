@@ -2,6 +2,7 @@ package io.scalecube.tokens;
 
 import io.scalecube.account.api.Token;
 import io.scalecube.security.Profile;
+
 import java.util.Objects;
 
 public class TokenVerification implements TokenVerifier {
@@ -16,6 +17,10 @@ public class TokenVerification implements TokenVerifier {
    */
   public Profile verify(Token token) throws Exception {
     Objects.requireNonNull(token, "token");
-    return tokenVerifier.verify(token);
+    try {
+      return tokenVerifier.verify(token);
+    } catch (Throwable ex) {
+      throw new Exception("Token verification failed", ex);
+    }
   }
 }

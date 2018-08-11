@@ -22,36 +22,45 @@ class TokenVerifierImpl implements TokenVerifier {
 
   @Override
   public Profile verify(Token token) throws Exception {
+    final PublicKey publicKey = getPublicKey();
     JwtAuthenticator authenticator = new JwtAuthenticatorImpl
         .Builder()
-        .keyResolver(map -> Optional.of(getPublicKey()))
+        .keyResolver(map -> Optional.of(publicKey))
         .build();
 
     return authenticator.authenticate(token.token());
   }
 
-  private PublicKey getPublicKey() {
+  private PublicKey getPublicKey() throws Exception {
     if (publicKey == null) {
-      Properties properties = new Properties();
-
-      try {
-        properties.load(getClass().getResourceAsStream("/settings.properties"));
-      } catch (IOException ex) {
-        throw new RuntimeException("Failed to initialize", ex);
-      }
-      String key = properties.getProperty("token.verify.public.key");
-
-      try {
-        byte[] byteKey = Base64.getDecoder().decode(Objects.requireNonNull(key).getBytes());
-        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(byteKey);
-        KeyFactory kf = KeyFactory.getInstance("RSA");
-
-        publicKey = kf.generatePublic(keySpec);
-      } catch (Exception ex) {
-        throw new RuntimeException(ex);
-      }
+      String key = loadKeyFromSettingsFile();
+      generatePublicKey(key);
     }
 
     return publicKey;
   }
+
+
+  private String loadKeyFromSettingsFile() throws Exception {
+    Properties properties = new Properties();
+    try {
+      properties.load(getClass().getResourceAsStream("/settings.properties"));
+    } catch (IOException ex) {
+      throw new Exception("Failed to initialize settings file", ex);
+    }
+    return properties.getProperty("token.verify.public.key");
+  }
+
+  private void generatePublicKey(String key) throws Exception {
+    try {
+      byte[] byteKey = Base64.getDecoder().decode(Objects.requireNonNull(key).getBytes());
+      X509EncodedKeySpec keySpec = new X509EncodedKeySpec(byteKey);
+      KeyFactory kf = KeyFactory.getInstance("RSA");
+
+      publicKey = kf.generatePublic(keySpec);
+    } catch (Exception ex) {
+      throw new Exception("Failed to create public key", ex);
+    }
+  }
+
 }

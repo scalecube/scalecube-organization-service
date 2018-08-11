@@ -1,13 +1,8 @@
 package io.scalecube.organization.repository.couchbase;
-/*
-# org members quota in megabytes
-org.members.bucket.quota=100
-org.members.bucket.replicas=0
-org.members.bucket.indexReplicas=false
-org.members.bucket.enableFlush=false
- */
 
 import com.couchbase.client.java.bucket.BucketType;
+
+import io.scalecube.organization.repository.exception.DataAccessResourceFailureException;
 
 import java.io.IOException;
 
@@ -39,7 +34,8 @@ final class CouchbaseSettings {
     try {
       settings.load(getClass().getResourceAsStream("/settings.properties"));
     } catch (IOException ex) {
-      throw new RuntimeException("Failed to initialize", ex);
+      throw new DataAccessResourceFailureException("Failed to initialize",
+          new RuntimeException(ex));
     }
   }
 

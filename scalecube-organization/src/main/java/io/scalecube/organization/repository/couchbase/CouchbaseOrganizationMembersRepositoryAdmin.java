@@ -30,6 +30,9 @@ final class CouchbaseOrganizationMembersRepositoryAdmin implements
     this.settings = settings;
   }
 
+  static Builder builder() {
+    return new Builder();
+  }
 
   @Override
   public void createRepository(Organization organization) {
