@@ -98,7 +98,7 @@ abstract class CouchbaseEntityRepository<T, I extends String> implements Reposit
     return existsById(client(), id);
   }
 
-  boolean existsById(Bucket client, I id) {
+  protected boolean existsById(Bucket client, I id) {
     requireNonNull(id);
     return execute(() -> client.exists(id), client);
   }

@@ -30,7 +30,7 @@ final class CouchbaseOrganizationMembersRepositoryAdmin implements
     this.settings = settings;
   }
 
-  static Builder builder() {
+  protected static Builder builder() {
     return new Builder();
   }
 

@@ -48,12 +48,12 @@ public class OrganizationServiceRunner {
         .build();
   }
 
-  private static Address[] seeds(Properties settings) {
+  private static Address[] seeds(Properties settings) throws Exception {
     try {
       return stringListValue(settings.getProperty(SEEDS))
           .stream().map(Address::from).toArray(Address[]::new);
     } catch (Throwable ex) {
-      throw new RuntimeException("Failed to parse seeds from settings", ex);
+      throw new Exception("Failed to parse seeds from settings", ex);
     }
   }
 

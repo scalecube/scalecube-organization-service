@@ -13,14 +13,14 @@ public class TokenVerification implements TokenVerifier {
    *
    * @param token to be verified.
    * @return Profile if token is verified or null in case its invalid token.
-   * @throws Exception in case of parsing error.
+   * @throws TokenVerificationException in case an error.
    */
-  public Profile verify(Token token) throws Exception {
+  public Profile verify(Token token) throws TokenVerificationException {
     Objects.requireNonNull(token, "token");
     try {
       return tokenVerifier.verify(token);
     } catch (Throwable ex) {
-      throw new Exception("Token verification failed", ex);
+      throw new TokenVerificationException("Token verification failed", ex);
     }
   }
 }

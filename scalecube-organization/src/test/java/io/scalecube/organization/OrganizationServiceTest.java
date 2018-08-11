@@ -104,10 +104,18 @@ public class OrganizationServiceTest {
 
   private final OrganizationMembersRepositoryAdmin admin
       = new OrganizationMembersRepositoryAdmin() {
+    /**
+     * Empty implementation.
+     * @param organization The organization for which a members repository should be created.
+     */
     @Override
     public void createRepository(Organization organization) {
     }
 
+    /**
+     * Empty implementation.
+     * @param organization The organization for which the members repository should be deleted.
+     */
     @Override
     public void deleteRepository(Organization organization) {
     }

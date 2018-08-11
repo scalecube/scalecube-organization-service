@@ -34,8 +34,7 @@ final class CouchbaseSettings {
     try {
       settings.load(getClass().getResourceAsStream("/settings.properties"));
     } catch (IOException ex) {
-      throw new DataAccessResourceFailureException("Failed to initialize",
-          new RuntimeException(ex));
+      throw new DataAccessResourceFailureException("Failed to initialize", ex);
     }
   }
 
