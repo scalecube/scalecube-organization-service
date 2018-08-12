@@ -31,6 +31,7 @@ import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
 import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
 import io.scalecube.security.Profile;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -110,6 +111,8 @@ public class OrganizationServiceTest {
      */
     @Override
     public void createRepository(Organization organization) {
+      // dummy body
+      System.out.println();
     }
 
     /**
@@ -118,7 +121,8 @@ public class OrganizationServiceTest {
      */
     @Override
     public void deleteRepository(Organization organization) {
-    }
+      // dummy body
+      System.out.println();}
   };
 
   public OrganizationServiceTest() {
@@ -166,12 +170,12 @@ public class OrganizationServiceTest {
 
   @Test
   public void createOrganizationTestShouldFailWithInvalidAuthenticationToken() {
-    expectError(
+    Duration duration = expectError(
         createService(invalidProfile)
             .createOrganization(
                 new CreateOrganizationRequest("myTestOrg5", token, "email"))
         , InvalidAuthenticationToken.class);
-    assertThat(true, is(true));
+    assertThat(duration.isZero(), is(false));
   }
 
   @Test
@@ -509,8 +513,8 @@ public class OrganizationServiceTest {
         .build();
   }
 
-  private <T> void expectError(Mono<T> mono, Class<? extends Throwable> exception) {
-    StepVerifier
+  private <T> Duration expectError(Mono<T> mono, Class<? extends Throwable> exception) {
+    return StepVerifier
         .create(mono)
         .expectSubscription()
         .expectError(exception)
