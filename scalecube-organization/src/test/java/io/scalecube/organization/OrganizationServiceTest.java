@@ -254,7 +254,7 @@ public class OrganizationServiceTest {
             token,
             "update_name",
             "update@email")), EntityNotFoundException.class);
-    assertThat(true, is(true));
+    assertNotNull(duration);
   }
 
   @Test
