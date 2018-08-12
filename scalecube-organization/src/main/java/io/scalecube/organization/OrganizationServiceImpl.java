@@ -359,7 +359,6 @@ public class OrganizationServiceImpl implements OrganizationService {
         }
 
       } catch (Throwable ex) {
-        ex.printStackTrace();
         result.error(ex);
       }
     });

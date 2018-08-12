@@ -6,6 +6,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import io.scalecube.Await;
 import io.scalecube.Await.AwaitLatch;
@@ -105,20 +106,12 @@ public class OrganizationServiceTest {
 
   private final OrganizationMembersRepositoryAdmin admin
       = new OrganizationMembersRepositoryAdmin() {
-    /**
-     * Empty implementation.
-     * @param organization The organization for which a members repository should be created.
-     */
     @Override
     public void createRepository(Organization organization) {
       // dummy body
       System.out.println();
     }
 
-    /**
-     * Empty implementation.
-     * @param organization The organization for which the members repository should be deleted.
-     */
     @Override
     public void deleteRepository(Organization organization) {
       // dummy body
@@ -135,10 +128,14 @@ public class OrganizationServiceTest {
         .organizationMembershipRepositoryAdmin(new OrganizationMembersRepositoryAdmin() {
           @Override
           public void createRepository(Organization organization) {
+            // dummy body
+            System.out.println();
           }
 
           @Override
           public void deleteRepository(Organization organization) {
+            // dummy body
+            System.out.println();
           }
         })
         .build();
@@ -160,12 +157,13 @@ public class OrganizationServiceTest {
   public void createOrganizationTest() {
     String id = consume(service.createOrganization(
         new CreateOrganizationRequest("myTestOrg5", token, "email"))).result().id();
-    StepVerifier
+    Duration duration = StepVerifier
         .create(service.getOrganization(new GetOrganizationRequest(token, id)))
         .expectSubscription()
         .assertNext((r) -> assertThat(r.id(), is(id)))
         .verifyComplete();
     organizationRepository.deleteById(id);
+    assertNotNull(duration);
   }
 
   @Test
@@ -175,7 +173,7 @@ public class OrganizationServiceTest {
             .createOrganization(
                 new CreateOrganizationRequest("myTestOrg5", token, "email"))
         , InvalidAuthenticationToken.class);
-    assertThat(duration.isZero(), is(false));
+    assertNotNull(duration);
   }
 
   @Test
@@ -208,12 +206,13 @@ public class OrganizationServiceTest {
 
   @Test
   public void getOrganization() {
-    StepVerifier.create(service.getOrganization(
+    Duration duration = StepVerifier.create(service.getOrganization(
         new GetOrganizationRequest(token, organisationId)))
         .expectSubscription()
         .assertNext((r) -> assertThat(r.id(), is(organisationId)))
         .expectComplete()
         .verify();
+    assertNotNull(duration);
   }
 
   private Organization getOrganizationFromRepository(String organisationId) {
@@ -224,31 +223,32 @@ public class OrganizationServiceTest {
 
   @Test
   public void getOrganizationShouldFailWithEntityNotFoundException() {
-    expectError(service.getOrganization(
+    Duration duration = expectError(service.getOrganization(
         new GetOrganizationRequest(token, "bla")), EntityNotFoundException.class);
-    assertThat(true, is(true));
+    assertNotNull(duration);
   }
 
   @Test
   public void deleteOrganizationShouldFailWithInvalidToken() {
-    expectError(createService(invalidProfile).deleteOrganization(
+    Duration duration = expectError(createService(invalidProfile).deleteOrganization(
         new DeleteOrganizationRequest(token, organisationId)), InvalidAuthenticationToken.class);
-    assertThat(true, is(true));
+    assertNotNull(duration);
   }
 
   @Test
   public void deleteOrganization() {
-    StepVerifier
+    Duration duration = StepVerifier
         .create(service.deleteOrganization(new DeleteOrganizationRequest(token, organisationId)))
         .expectSubscription()
         .assertNext((r) -> assertThat(r.deleted(), is(true)))
         .expectComplete()
         .verify();
+    assertNotNull(duration);
   }
 
   @Test
   public void updateOrganizationShouldFailWithOrgNotFoundException() {
-    expectError(
+    Duration duration = expectError(
         service.updateOrganization(new UpdateOrganizationRequest(
             "",
             token,
@@ -259,17 +259,17 @@ public class OrganizationServiceTest {
 
   @Test
   public void updateOrganizationShouldFailWithInvalidToken() {
-    expectError(createService(invalidProfile).updateOrganization(new UpdateOrganizationRequest(
+    Duration duration = expectError(createService(invalidProfile).updateOrganization(new UpdateOrganizationRequest(
         organisationId,
         token,
         "update_name",
         "update@email")), InvalidAuthenticationToken.class);
-    assertThat(true, is(true));
+    assertNotNull(duration);
   }
 
   @Test
   public void updateOrganization() {
-    StepVerifier.create(service.updateOrganization(new UpdateOrganizationRequest(
+    Duration duration = StepVerifier.create(service.updateOrganization(new UpdateOrganizationRequest(
         organisationId,
         token,
         "update_name",
@@ -280,6 +280,7 @@ public class OrganizationServiceTest {
           assertThat(r.email(), is("update@email"));
         })
         .verifyComplete();
+    assertNotNull(duration);
   }
 
   @Test
@@ -287,7 +288,7 @@ public class OrganizationServiceTest {
     addMemberToOrganization(organisationId, service, testProfile4);
     addMemberToOrganization(organisationId, service, testProfile5);
 
-    StepVerifier.create(service.getOrganizationMembers(
+    Duration duration = StepVerifier.create(service.getOrganizationMembers(
         new GetOrganizationMembersRequest(organisationId, token)))
         .expectSubscription()
         .assertNext((r) -> {
@@ -301,27 +302,28 @@ public class OrganizationServiceTest {
           assertThat(ids, hasItem(testProfile5.getUserId()));
 
         }).verifyComplete();
+    assertNotNull(duration);
   }
 
   @Test
   public void getOrganizationMembersShouldFailWithInvalidToken() {
-    expectError(createService(invalidProfile)
+    Duration duration = expectError(createService(invalidProfile)
             .getOrganizationMembers(new GetOrganizationMembersRequest(organisationId, token))
         , InvalidAuthenticationToken.class);
-    assertThat(true, is(true));
+    assertNotNull(duration);
   }
 
   @Test
   public void getOrganizationMembersShouldFailOrgNotFound() {
-    expectError(service.getOrganizationMembers(new GetOrganizationMembersRequest("bla", token))
+    Duration duration = expectError(service.getOrganizationMembers(new GetOrganizationMembersRequest("bla", token))
         , EntityNotFoundException.class);
-    assertThat(true, is(true));
+    assertNotNull(duration);
   }
 
   @Test
   public void inviteMember() {
     addMemberToOrganization(organisationId, service, testProfile2);
-    StepVerifier.create(
+    Duration duration = StepVerifier.create(
         service.getOrganizationMembers(new GetOrganizationMembersRequest(organisationId, token)))
         .expectSubscription()
         .assertNext((r) -> {
@@ -334,6 +336,7 @@ public class OrganizationServiceTest {
 
         })
         .verifyComplete();
+    assertNotNull(duration);
   }
 
 
@@ -361,16 +364,16 @@ public class OrganizationServiceTest {
 
   @Test
   public void inviteMemberShouldFailWithInvalidToken() {
-    expectError(createService(invalidProfile).inviteMember(
+    Duration duration = expectError(createService(invalidProfile).inviteMember(
         new InviteOrganizationMemberRequest(token, organisationId, testProfile5.getUserId())),
         InvalidAuthenticationToken.class);
-    assertThat(true, is(true));
+    assertNotNull(duration);
   }
 
   @Test
   public void kickoutMember() {
     addMemberToOrganization(organisationId, service, testProfile5);
-    StepVerifier
+    Duration duration = StepVerifier
         .create(service.kickoutMember(
             new KickoutOrganizationMemberRequest(organisationId, token, testProfile5.getUserId())))
         .expectSubscription()
@@ -384,31 +387,31 @@ public class OrganizationServiceTest {
               assertThat(members, not(hasItem(testProfile5.getUserId())));
             })
             .verifyComplete()).verifyComplete();
-
+    assertNotNull(duration);
   }
 
 
   @Test
   public void kickoutMemberShouldFailWithInvalidUser() {
-    expectError(createService(invalidProfile).kickoutMember(
+    Duration duration = expectError(createService(invalidProfile).kickoutMember(
         new KickoutOrganizationMemberRequest(organisationId, token, testProfile5.getUserId())),
         InvalidAuthenticationToken.class);
-    assertThat(true, is(true));
+    assertNotNull(duration);
   }
 
   @Test
   public void kickoutMemberShouldFailWithOrgNotFound() {
-    expectError(service.kickoutMember(
+    Duration duration = expectError(service.kickoutMember(
         new KickoutOrganizationMemberRequest("", token, testProfile5.getUserId())),
         EntityNotFoundException.class);
-    assertThat(true, is(true));
+    assertNotNull(duration);
   }
 
   ///////////////////////////////////////////////////////////
   @Test
   public void leaveOrganization() {
     addMemberToOrganization(organisationId, service, testProfile);
-    StepVerifier
+    Duration duration = StepVerifier
         .create(service.leaveOrganization(
             new LeaveOrganizationRequest(token, organisationId)))
         .expectSubscription()
@@ -420,11 +423,11 @@ public class OrganizationServiceTest {
                 not(hasItem(new OrganizationMember(testProfile.getUserId(), Role.Owner.toString())))))
             .verifyComplete())
         .verifyComplete();
+    assertNotNull(duration);
   }
 
   private void addMemberToOrganization(String organisationId,
-      OrganizationService service,
-      Profile profile) {
+      OrganizationService service, Profile profile) {
     consume(service.inviteMember(
         new InviteOrganizationMemberRequest(token, organisationId, profile.getUserId())));
   }
@@ -432,16 +435,16 @@ public class OrganizationServiceTest {
 
   @Test
   public void leaveOrganizationShouldFailWithOrgNotFound() {
-    expectError(service.leaveOrganization(
+    Duration duration = expectError(service.leaveOrganization(
         new LeaveOrganizationRequest(token, "bla")),
         EntityNotFoundException.class);
-    assertThat(true, is(true));
+    assertNotNull(duration);
   }
 
 
   @Test
   public void addOrganizationApiKey() {
-    StepVerifier
+    Duration duration = StepVerifier
         .create(service.addOrganizationApiKey(
             new AddOrganizationApiKeyRequest(
                 token,
@@ -453,19 +456,20 @@ public class OrganizationServiceTest {
           Organization org = getOrganizationFromRepository(organisationId);
           assertThat(org.apiKeys()[0].name(), is("apiKey"));
         }).verifyComplete();
+    assertNotNull(duration);
   }
 
   @Test
   public void addOrganizationApiKeyWithOrgNotFound() {
-    expectError(service.addOrganizationApiKey(
+    Duration duration = expectError(service.addOrganizationApiKey(
         new AddOrganizationApiKeyRequest(token, "bla", "", new HashMap<>())),
         EntityNotFoundException.class);
-    assertThat(true, is(true));
+    assertNotNull(duration);
   }
 
   @Test
   public void deleteOrganizationApiKey() {
-    StepVerifier
+    Duration duration = StepVerifier
         .create(service.addOrganizationApiKey(
             new AddOrganizationApiKeyRequest(
                 token,
@@ -484,22 +488,23 @@ public class OrganizationServiceTest {
               Organization org = getOrganizationFromRepository(organisationId);
               assertThat(org.apiKeys(), emptyArray());
             }).verifyComplete()).verifyComplete();
+    assertNotNull(duration);
   }
 
   @Test
   public void deleteOrganizationApiKeyWithUserNotOwner() {
-    expectError(createService(testProfile2).deleteOrganizationApiKey(
+    Duration duration = expectError(createService(testProfile2).deleteOrganizationApiKey(
         new DeleteOrganizationApiKeyRequest(token, organisationId, "")),
         AccessPermissionException.class);
-    assertThat(true, is(true));
+    assertNotNull(duration);
   }
 
   @Test
   public void deleteOrganizationApiKeyWithOrgNotFound() {
-    expectError(service.deleteOrganizationApiKey(
+    Duration duration = expectError(service.deleteOrganizationApiKey(
         new DeleteOrganizationApiKeyRequest(token, "bla", "")),
         EntityNotFoundException.class);
-    assertThat(true, is(true));
+    assertNotNull(duration);
   }
 
 
