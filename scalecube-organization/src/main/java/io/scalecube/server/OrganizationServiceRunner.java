@@ -1,6 +1,7 @@
 package io.scalecube.server;
 
 import io.scalecube.account.api.OrganizationService;
+import io.scalecube.config.AppConfiguration;
 import io.scalecube.organization.OrganizationServiceImpl;
 import io.scalecube.organization.repository.couchbase.CouchbaseRepositoryFactory;
 import io.scalecube.services.Microservices;
@@ -31,9 +32,8 @@ public class OrganizationServiceRunner {
   }
 
   private static void start() throws Exception {
-    Properties settings = settings();
     Microservices.builder()
-        .seeds(seeds(settings))
+        .seeds(seeds())
         .services(createOrganizationService())
         .startAwait();
   }
@@ -48,7 +48,8 @@ public class OrganizationServiceRunner {
         .build();
   }
 
-  private static Address[] seeds(Properties settings) throws Exception {
+  private static Address[] seeds() throws Exception {
+    AppConfiguration settings = AppConfiguration.builder().build();
     try {
       return stringListValue(settings.getProperty(SEEDS))
           .stream().map(Address::from).toArray(Address[]::new);
@@ -56,17 +57,6 @@ public class OrganizationServiceRunner {
       throw new Exception("Failed to parse seeds from settings", ex);
     }
   }
-
-  private static Properties settings() throws Exception {
-    try {
-      Properties settings = new Properties();
-      settings.load(OrganizationServiceRunner.class.getResourceAsStream("/settings.properties"));
-      return settings;
-    } catch (IOException ex) {
-      throw new Exception("Failed to initialize", ex);
-    }
-  }
-
 
   private static List<String> stringListValue(String seeds) {
     if (seeds == null || seeds.length() == 0) {

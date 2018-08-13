@@ -32,7 +32,7 @@ final class CouchbaseSettings {
     settings = new Properties();
 
     try {
-      settings.load(getClass().getResourceAsStream("/settings.properties"));
+      settings.load(getClass().getResourceAsStream("/couchbase-settings.properties"));
     } catch (IOException ex) {
       throw new DataAccessResourceFailureException("Failed to initialize", ex);
     }
