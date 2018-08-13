@@ -17,6 +17,7 @@ class TokenVerifierImpl implements TokenVerifier {
     Objects.requireNonNull(token, "token");
     Objects.requireNonNull(token.token(), "token");
     final PublicKey publicKey = getPublicKey(token.token());
+    Objects.requireNonNull(publicKey, "Token signing key");
     JwtAuthenticator authenticator = new JwtAuthenticatorImpl
         .Builder()
         .keyResolver(map -> Optional.of(publicKey))

@@ -1,103 +1,88 @@
 package io.scalecube.tokens;
 
-import com.auth0.jwk.InvalidPublicKeyException;
-import com.auth0.jwk.Jwk;
-import com.auth0.jwk.JwkException;
-import com.auth0.jwk.JwkProvider;
-import com.auth0.jwk.UrlJwkProvider;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.exceptions.JWTDecodeException;
-import com.auth0.jwt.interfaces.Claim;
-import com.auth0.jwt.interfaces.DecodedJWT;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Header;
+import io.jsonwebtoken.Jwt;
+import io.jsonwebtoken.Jwts;
 
-import io.scalecube.config.AppConfiguration;
+import io.scalecube.tokens.jwk.InvalidPublicKeyException;
+import io.scalecube.tokens.jwk.Jwk;
+import io.scalecube.tokens.jwk.JwkException;
+import io.scalecube.tokens.jwk.JwkProvider;
+import io.scalecube.tokens.jwk.UrlJwkProvider;
 
 import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.Objects;
 
 /**
- * Extracts the public key ID of the key used to sigh the JWT token from the token's header 'kid'
- * claim.
- * This class utilize the auth0 API to retrieve the JSON web key corresponding to the
- * kid token header claim value.
- * The JWK provider URL is read from configuration file and is the only dependency this class
- * requires.
+ * Extracts the public get ID of the get used to sigh the JWT token from the
+ * token's header <code>kid</code> claim.
+ * <p>
+ * This class utilize the auth0 API to retrieve the JSON web public key corresponding to the
+ * <code>kid</code> token header claim value.
+ * The JWK provider URL is the token's issuer claim value.
+ * </p>
  */
 public class Auth0PublicKeyProvider implements PublicKeyProvider {
 
-  private static final String MISSING_JWK_PROVIDER_URL = "Missing JWK provider URL";
-  private static final String FAILED_TO_DECODE_TOKEN = "Failed to decode token";
+  private static final String FAILED_TO_PARSE_TOKEN = "Failed to parse token";
   private static final String MISSING_KEY_ID_CLAIM_IN_TOKEN_HEADER
-      = "Missing key id claim in token header.";
+      = "Token header claim: 'kid' not found.";
   private static final String KID_CLAIM_NAME = "kid";
   private static final String FAILED_TO_GET_KEY_FROM_JWK_PROVIDER
-      = "Failed to get key from JWK provider using kid=%s";
+      = "Failed to get public key from JWK provider using kid=%s";
   private static final String FAILED_TO_GET_PUBLIC_KEY = "Failed to get public key.";
-  private final String domain;
-  private final HashMap<String, PublicKey> cacahe = new HashMap<>();
-
-  /**
-   * Constructs an instance of Auth0PublicKeyProvider. PublicKeyProvider instantiates this class
-   * using reflection.
-   */
-  public Auth0PublicKeyProvider() {
-    domain = AppConfiguration.builder().build().getProperty("url.jwk.provider");
-    Objects.requireNonNull(domain, MISSING_JWK_PROVIDER_URL);
-
-    if (domain.length() == 0) {
-      throw new PublicKeyProviderException(MISSING_JWK_PROVIDER_URL);
-    }
-  }
+  public static final String TOKEN_BODY_CLAIM_ISSUER = "token body claim: 'issuer'";
+  private final HashMap<String, PublicKey> cache = new HashMap<>();
 
   @Override
   public PublicKey getPublicKey(String token) throws InvalidTokenException {
     Objects.requireNonNull(token, "token");
-    DecodedJWT jwt = decode(token);
-    String kid = kid(jwt);
-    Objects.requireNonNull(kid, "public key id");
+    String tokenWithoutSignature = TokenUtils.removeSignature(token);
+    Jwt<Header, Claims> jwt = parse(tokenWithoutSignature);
+    String kid = getKeyId(jwt);
+    String issuer = jwt.getBody().getIssuer();
 
-    if (!cacahe.containsKey(kid)) {
-      Jwk jwk = jwk(domain, kid);
-      cacahe.put(kid, key(jwk));
-    }
+    cache.computeIfAbsent(kid, key -> get(issuer, kid));
 
-    return cacahe.get(kid);
+    return cache.get(kid);
   }
 
-  private DecodedJWT decode(String token) throws InvalidTokenException {
+  private Jwt<Header, Claims> parse(String token) {
     try {
-      return JWT.decode(token);
-    } catch (JWTDecodeException ex) {
-      throw new InvalidTokenException(FAILED_TO_DECODE_TOKEN, ex);
+      return Jwts.parser().parseClaimsJwt(token);
+    } catch (Exception ex) {
+      throw new InvalidTokenException(FAILED_TO_PARSE_TOKEN, ex);
     }
   }
 
-  private String kid(DecodedJWT jwt) throws InvalidTokenException {
-    Claim kid = jwt.getHeaderClaim(KID_CLAIM_NAME);
+  private String getKeyId(Jwt<Header, Claims> jwt) {
+    Object kid = jwt.getHeader().get(KID_CLAIM_NAME);
 
-    if (kid.isNull()) {
+    if (kid == null || kid.toString().length() == 0) {
       throw new InvalidTokenException(MISSING_KEY_ID_CLAIM_IN_TOKEN_HEADER);
     }
 
-    return kid.asString();
+    return kid.toString();
   }
 
-  private Jwk jwk(String domain, String kid) throws InvalidTokenException {
-    JwkProvider provider = new UrlJwkProvider(domain);
-
-    try {
-      return provider.get(kid);
-    } catch (JwkException ex) {
-      throw new InvalidTokenException(String.format(FAILED_TO_GET_KEY_FROM_JWK_PROVIDER, kid), ex);
-    }
-  }
-
-  private PublicKey key(Jwk jwk) throws InvalidTokenException {
+  private PublicKey get(String issuer, String kid) {
+    Objects.requireNonNull(issuer, TOKEN_BODY_CLAIM_ISSUER);
+    Jwk jwk = getJwkProvider(issuer, kid);
     try {
       return jwk.getPublicKey();
     } catch (InvalidPublicKeyException ex) {
       throw new InvalidTokenException(FAILED_TO_GET_PUBLIC_KEY, ex);
+    }
+  }
+
+  private Jwk getJwkProvider(String issuer, String kid) {
+    JwkProvider provider = new UrlJwkProvider(issuer);
+    try {
+      return provider.get(kid);
+    } catch (JwkException ex) {
+      throw new InvalidTokenException(String.format(FAILED_TO_GET_KEY_FROM_JWK_PROVIDER, kid), ex);
     }
   }
 }
