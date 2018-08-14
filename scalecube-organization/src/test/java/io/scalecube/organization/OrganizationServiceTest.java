@@ -138,8 +138,8 @@ public class OrganizationServiceTest {
   }
 
   public OrganizationServiceTest() {
-//    initInMemory();
-    initCouchbase();
+    initInMemory();
+//    initCouchbase();
     service = createService(testProfile);
   }
 
