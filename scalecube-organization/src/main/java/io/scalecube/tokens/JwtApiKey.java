@@ -29,7 +29,7 @@ public class JwtApiKey extends ApiKey {
 
   public static final class Builder {
 
-    private String origin;
+    private String issuer;
     private String subject;
     private Map<String, String> claims;
     private String id;
@@ -40,8 +40,8 @@ public class JwtApiKey extends ApiKey {
       return this;
     }
 
-    public Builder origin(String origin) {
-      this.origin = origin;
+    public Builder issuer(String issuer) {
+      this.issuer = issuer;
       return this;
     }
 
@@ -66,7 +66,7 @@ public class JwtApiKey extends ApiKey {
      * @return an API key.
      */
     public ApiKey build(String secretKey) {
-      final WebToken jwt = new WebToken(this.origin, this.subject);
+      final WebToken jwt = new WebToken(this.issuer, this.subject);
       final String apiKey = jwt.createToken(this.id,
           Long.MAX_VALUE - System.currentTimeMillis(), secretKey, claims);
       return new JwtApiKey(this.name, this.claims, apiKey);

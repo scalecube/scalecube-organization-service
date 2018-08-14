@@ -7,11 +7,9 @@ import io.scalecube.organization.repository.couchbase.CouchbaseRepositoryFactory
 import io.scalecube.services.Microservices;
 import io.scalecube.transport.Address;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Service runner main entry point.

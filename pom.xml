@@ -75,6 +75,7 @@
     <junit.jupiter.version>5.1.0</junit.jupiter.version>
     <reactor.version>3.1.6.RELEASE</reactor.version>
     <jackson-databind.version>2.7.6</jackson-databind.version>
+    <couchbase-client-version>2.6.0</couchbase-client-version>
   </properties>
 
   <modules>

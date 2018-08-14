@@ -6,16 +6,21 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.scalecube.Await;
 import io.scalecube.Await.AwaitLatch;
 import io.scalecube.account.api.AddOrganizationApiKeyRequest;
 import io.scalecube.account.api.CreateOrganizationRequest;
+import io.scalecube.account.api.CreateOrganizationResponse;
 import io.scalecube.account.api.DeleteOrganizationApiKeyRequest;
 import io.scalecube.account.api.DeleteOrganizationRequest;
+import io.scalecube.account.api.DeleteOrganizationResponse;
 import io.scalecube.account.api.GetOrganizationMembersRequest;
 import io.scalecube.account.api.GetOrganizationRequest;
+import io.scalecube.account.api.GetOrganizationResponse;
 import io.scalecube.account.api.InvalidAuthenticationToken;
 import io.scalecube.account.api.InviteOrganizationMemberRequest;
 import io.scalecube.account.api.KickoutOrganizationMemberRequest;
@@ -27,8 +32,12 @@ import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.UpdateOrganizationRequest;
 import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
+import io.scalecube.organization.repository.Repository;
+import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
+import io.scalecube.organization.repository.couchbase.CouchbaseRepositoryFactory;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
+import io.scalecube.organization.repository.exception.NameAlreadyInUseException;
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
 import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
 import io.scalecube.security.Profile;
@@ -37,10 +46,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -97,74 +108,82 @@ public class OrganizationServiceTest {
       null);
 
 
-  private final InMemoryOrganizationRepository organizationRepository
-      = new InMemoryOrganizationRepository();
-  private Token token = new Token("google", "user1");
-  private InMemoryUserOrganizationMembershipRepository orgMembersRepository
-      = new InMemoryUserOrganizationMembershipRepository();
   private String organisationId;
+  private Token token = new Token("google", "user1");
+  private Repository<Organization, String> organizationRepository;
+  private UserOrganizationMembershipRepository orgMembersRepository;
+  private OrganizationMembersRepositoryAdmin admin;
 
-  private final OrganizationMembersRepositoryAdmin admin
-      = new OrganizationMembersRepositoryAdmin() {
-    @Override
-    public void createRepository(Organization organization) {
-      // dummy body
-      System.out.println();
-    }
+  private void initInMemory() {
+    orgMembersRepository = new InMemoryUserOrganizationMembershipRepository();
+    organizationRepository = new InMemoryOrganizationRepository();
+    admin = new OrganizationMembersRepositoryAdmin() {
+      @Override
+      public void createRepository(Organization organization) {
+        // dummy body
+        System.out.println();
+      }
 
-    @Override
-    public void deleteRepository(Organization organization) {
-      // dummy body
-      System.out.println();}
-  };
+      @Override
+      public void deleteRepository(Organization organization) {
+        // dummy body
+        System.out.println();}
+    };
+  }
+
+  private void initCouchbase() {
+    orgMembersRepository = CouchbaseRepositoryFactory.organizationMembers();
+    organizationRepository = CouchbaseRepositoryFactory.organizations();
+    admin = CouchbaseRepositoryFactory.organizationMembersRepositoryAdmin();
+  }
 
   public OrganizationServiceTest() {
-
-    service = OrganizationServiceImpl
-        .builder()
-        .organizationRepository(organizationRepository)
-        .tokenVerifier((t) -> testProfile)
-        .organizationMembershipRepository(orgMembersRepository)
-        .organizationMembershipRepositoryAdmin(new OrganizationMembersRepositoryAdmin() {
-          @Override
-          public void createRepository(Organization organization) {
-            // dummy body
-            System.out.println();
-          }
-
-          @Override
-          public void deleteRepository(Organization organization) {
-            // dummy body
-            System.out.println();
-          }
-        })
-        .build();
+//    initInMemory();
+    initCouchbase();
+    service = createService(testProfile);
   }
 
   @BeforeEach
   public void createOrganizationBeforeTest() {
-    organisationId = consume(service.createOrganization(
-        new CreateOrganizationRequest("myTestOrg5", token, "email"))).result().id();
+    AwaitLatch<CreateOrganizationResponse> await = consume(service.createOrganization(
+        new CreateOrganizationRequest("myTestOrg5", token, "email")));
+    assertThat(await.error(), is(nullValue()));
+    organisationId = await.result().id();
   }
 
   @AfterEach
   public void deleteOrganizationAfterTest() {
-    organizationRepository.deleteById(organisationId);
+    AwaitLatch<DeleteOrganizationResponse> await = consume(service.deleteOrganization(
+        new DeleteOrganizationRequest(token, organisationId)));
+    assertThat(await.error(), is(nullValue()));
+    assertTrue(await.result().deleted(), "failed to delete organization");
   }
 
 
   @Test
+  public void createOrganizationNameAlreadyInUseShouldFail() {
+    Duration duration = expectError(
+        service.createOrganization(
+            new CreateOrganizationRequest("myTestOrg5", token, "email"))
+        , NameAlreadyInUseException.class);
+    assertNotNull(duration);
+  }
+
+  @Test
   public void createOrganizationTest() {
-    String id = consume(service.createOrganization(
-        new CreateOrganizationRequest("myTestOrg5", token, "email"))).result().id();
+    String id = createRandomOrganization();
     Duration duration = StepVerifier
         .create(service.getOrganization(new GetOrganizationRequest(token, id)))
         .expectSubscription()
         .assertNext((r) -> assertThat(r.id(), is(id)))
         .verifyComplete();
-    organizationRepository.deleteById(id);
+
+    deleteOrganization(id);
+
     assertNotNull(duration);
   }
+
+
 
   @Test
   public void createOrganizationTestShouldFailWithInvalidAuthenticationToken() {
@@ -180,12 +199,6 @@ public class OrganizationServiceTest {
   public void getOrganizationsOwnerRoleMembership() {
     addMemberToOrganization(organisationId, service, testProfile);
     assertGetOrganizationsMembership(organisationId, testProfile);
-  }
-
-  @Test
-  public void getOrganizationsMemberRoleMembership() {
-    addMemberToOrganization(organisationId, service, testProfile2);
-    assertGetOrganizationsMembership(organisationId, testProfile2);
   }
 
   private void assertGetOrganizationsMembership(String organisationId, Profile profile) {
@@ -237,23 +250,53 @@ public class OrganizationServiceTest {
 
   @Test
   public void deleteOrganization() {
+    String id = createRandomOrganization();
     Duration duration = StepVerifier
-        .create(service.deleteOrganization(new DeleteOrganizationRequest(token, organisationId)))
+        .create(service.deleteOrganization(new DeleteOrganizationRequest(token, id)))
         .expectSubscription()
         .assertNext((r) -> assertThat(r.deleted(), is(true)))
         .expectComplete()
         .verify();
+    deleteOrganization(id);
     assertNotNull(duration);
+  }
+
+  private String createRandomOrganization() {
+    Random rand = new Random();
+    AwaitLatch<CreateOrganizationResponse> await = consume(service.createOrganization(
+        new CreateOrganizationRequest("myTestOrg5" + rand.nextInt(50) + 1,
+            token, "email")));
+    assertThat(await.error(), is(nullValue()));
+    assertThat(await.result(), is(notNullValue()));
+    assertThat(await.result().id(), is(notNullValue()));
+    return await.result().id();
+  }
+
+  private void deleteOrganization(String id) {
+    consume(service.deleteOrganization(
+        new DeleteOrganizationRequest(
+            token, id)));
   }
 
   @Test
   public void updateOrganizationShouldFailWithOrgNotFoundException() {
     Duration duration = expectError(
         service.updateOrganization(new UpdateOrganizationRequest(
-            "",
+            "orgNotExists",
             token,
             "update_name",
             "update@email")), EntityNotFoundException.class);
+    assertNotNull(duration);
+  }
+
+  @Test
+  public void updateOrganizationEmptyIdShouldFailWithIllegalArgumentException() {
+    Duration duration = expectError(
+        service.updateOrganization(new UpdateOrganizationRequest(
+            "",
+            token,
+            "update_name",
+            "update@email")), IllegalArgumentException.class);
     assertNotNull(duration);
   }
 
@@ -297,10 +340,9 @@ public class OrganizationServiceTest {
           long membersCount = members.get()
               .filter((m) -> Objects.equals(m.role(), Role.Member.toString())).count();
           assertThat(membersCount, is(2L));
-          List<String> ids = members.get().map((i) -> i.id()).collect(Collectors.toList());
+          List<String> ids = members.get().map(OrganizationMember::id).collect(Collectors.toList());
           assertThat(ids, hasItem(testProfile4.getUserId()));
           assertThat(ids, hasItem(testProfile5.getUserId()));
-
         }).verifyComplete();
     assertNotNull(duration);
   }
@@ -315,7 +357,8 @@ public class OrganizationServiceTest {
 
   @Test
   public void getOrganizationMembersShouldFailOrgNotFound() {
-    Duration duration = expectError(service.getOrganizationMembers(new GetOrganizationMembersRequest("bla", token))
+    Duration duration = expectError(
+        service.getOrganizationMembers(new GetOrganizationMembersRequest("bla", token))
         , EntityNotFoundException.class);
     assertNotNull(duration);
   }
@@ -355,9 +398,17 @@ public class OrganizationServiceTest {
   }
 
   @Test
-  public void inviteMemberShouldFailOrgNotFound() {
+  public void inviteMemberEmptyOrgIdShouldWithIllegalArgumentException() {
     expectError(service.inviteMember(
         new InviteOrganizationMemberRequest(token, "", testProfile5.getUserId())),
+        IllegalArgumentException.class);
+    assertThat(true, is(true));
+  }
+
+  @Test
+  public void inviteMemberOrgNOtExistsShouldFailWithEntityNotFoundException() {
+    expectError(service.inviteMember(
+        new InviteOrganizationMemberRequest(token, "bla", testProfile5.getUserId())),
         EntityNotFoundException.class);
     assertThat(true, is(true));
   }
@@ -400,9 +451,18 @@ public class OrganizationServiceTest {
   }
 
   @Test
-  public void kickoutMemberShouldFailWithOrgNotFound() {
+  public void kickoutMemberEmptyOrgIdShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(service.kickoutMember(
         new KickoutOrganizationMemberRequest("", token, testProfile5.getUserId())),
+        IllegalArgumentException.class);
+    assertNotNull(duration);
+  }
+
+  @Test
+  public void kickoutMemberOrgNotExistsShouldFailWithEntityNotFoundException() {
+    Duration duration = expectError(service.kickoutMember(
+        new KickoutOrganizationMemberRequest("orgNotExists",
+            token, testProfile5.getUserId())),
         EntityNotFoundException.class);
     assertNotNull(duration);
   }
@@ -434,7 +494,15 @@ public class OrganizationServiceTest {
 
 
   @Test
-  public void leaveOrganizationShouldFailWithOrgNotFound() {
+  public void leaveOrganizationEmptyOrgIdShouldFailWithIllegalArgumentException() {
+    Duration duration = expectError(service.leaveOrganization(
+        new LeaveOrganizationRequest(token, "")),
+        IllegalArgumentException.class);
+    assertNotNull(duration);
+  }
+
+  @Test
+  public void leaveOrganizationOrgNotExistsShouldFailWithEntityNotFoundException() {
     Duration duration = expectError(service.leaveOrganization(
         new LeaveOrganizationRequest(token, "bla")),
         EntityNotFoundException.class);
@@ -460,10 +528,26 @@ public class OrganizationServiceTest {
   }
 
   @Test
-  public void addOrganizationApiKeyWithOrgNotFound() {
+  public void addOrganizationApiKeyOrgNotExistShouldFailWithIllegalArgumentException() {
+    Duration duration = expectError(service.addOrganizationApiKey(
+        new AddOrganizationApiKeyRequest(token, "", "", new HashMap<>())),
+        IllegalArgumentException.class);
+    assertNotNull(duration);
+  }
+
+  @Test
+  public void addOrganizationApiKeyOrgNotExistsShouldFailWithEntityNotFoundException() {
     Duration duration = expectError(service.addOrganizationApiKey(
         new AddOrganizationApiKeyRequest(token, "bla", "", new HashMap<>())),
         EntityNotFoundException.class);
+    assertNotNull(duration);
+  }
+
+  @Test
+  public void addOrganizationApiKeyWithEmptyKeyNameShouldFailWithIllegalArgumentException() {
+    Duration duration = expectError(service.addOrganizationApiKey(
+        new AddOrganizationApiKeyRequest(token, organisationId, "", new HashMap<>())),
+        IllegalArgumentException.class);
     assertNotNull(duration);
   }
 
@@ -500,13 +584,21 @@ public class OrganizationServiceTest {
   }
 
   @Test
-  public void deleteOrganizationApiKeyWithOrgNotFound() {
+  public void deleteOrganizationApiKeyWithEmptyOrgIdShouldFailWithIllegalArgumentException() {
+    Duration duration = expectError(service.deleteOrganizationApiKey(
+        new DeleteOrganizationApiKeyRequest(token, "", "")),
+        IllegalArgumentException.class);
+    assertNotNull(duration);
+  }
+
+
+  @Test
+  public void deleteOrganizationApiKeyWithOrgNotExistsShouldFailWithEntityNotFoundException() {
     Duration duration = expectError(service.deleteOrganizationApiKey(
         new DeleteOrganizationApiKeyRequest(token, "bla", "")),
         EntityNotFoundException.class);
     assertNotNull(duration);
   }
-
 
   private OrganizationService createService(Profile profile) {
     return OrganizationServiceImpl

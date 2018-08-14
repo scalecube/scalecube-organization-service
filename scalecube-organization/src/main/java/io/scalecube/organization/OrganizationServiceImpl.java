@@ -336,11 +336,15 @@ public class OrganizationServiceImpl implements OrganizationService {
         requireNonNull(request, request.organizationId(), request.token());
         Objects.requireNonNull(request.apiKeyName(), "apiKeyName is a required argument");
 
+        if (request.apiKeyName().length() == 0) {
+          throw new IllegalArgumentException("apiKeyName is a required argument");
+        }
+
         final Profile profile = tokenVerifier.verify(request.token());
         if (profile != null) {
           final Organization org = repository.getOrganization(request.organizationId());
 
-          ApiKey apiKey = JwtApiKey.builder().origin("account-service")
+          ApiKey apiKey = JwtApiKey.builder().issuer("account-service")
               .subject(org.id())
               .name(request.apiKeyName())
               .claims(request.claims())
@@ -357,7 +361,6 @@ public class OrganizationServiceImpl implements OrganizationService {
         } else {
           result.error(new InvalidAuthenticationToken());
         }
-
       } catch (Throwable ex) {
         result.error(ex);
       }

@@ -1,3 +1,1 @@
-users
-instruments
-instances
+organizations

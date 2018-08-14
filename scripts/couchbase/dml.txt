@@ -1,7 +1,1 @@
-INSERT INTO instruments (KEY, VALUE) VALUES ("BTC", {"name": "Bitcoin", "precision": 8, "status": "Active", "createdAt": 1524672072860}) RETURNING META().id as docid, *;
-INSERT INTO instruments (KEY, VALUE) VALUES ("XAU", {"name": "Gold", "precision": 2, "status": "Active", "createdAt": 1524672072860}) RETURNING META().id as docid, *;
-
-INSERT INTO instances (KEY, VALUE) VALUES ("1", {"instrumentId": "BTC", "status": "Open", "createdAt": 1524672072860}) RETURNING META().id as docid, *;
-INSERT INTO instances (KEY, VALUE) VALUES ("2", {"instrumentId": "XAU", "status": "Open", "createdAt": 1524672072860}) RETURNING META().id as docid, *;
-
-CREATE INDEX def_userId ON users(userId);
+CREATE PRIMARY INDEX org_primary_index ON organizations USING GSI;

@@ -9,7 +9,7 @@ services:
 #      retries: 3
 #      start_period: 1s
   gateway:
-    image: "docker.repo.marketspulse.com/om2-exchange/api-gateway:${BRANCH:-latest}"
+    image: "scalecube/scalecube-gateway-websocket-runner:latest"
     ports:
       - "8080:8080"
     expose:
@@ -53,7 +53,7 @@ services:
       - COUCHBASE_USERNAME=${COUCHBASE_USERNAME}
       - COUCHBASE_PASSWORD=${COUCHBASE_PASSWORD}
   instruments-service:
-    image: "docker.repo.marketspulse.com/om2-exchange/instruments-service:${BRANCH:-latest}"
+    image: "scalecube/scalecube-organization:${BRANCH:-latest}"
     depends_on:
 #      - seed
       gateway:
@@ -62,29 +62,5 @@ services:
         condition: service_healthy
     env_file:
       - ${ENV_FILE}
-  users-service:
-    image: "docker.repo.marketspulse.com/om2-exchange/users-service:${BRANCH:-latest}"
-    depends_on:
-#      - seed
-      gateway:
-        condition: service_started
-      couchbase:
-        condition: service_healthy
-    env_file:
-      - ${ENV_FILE}
-  market-data-service:
-    image: "docker.repo.marketspulse.com/om2-exchange/market-data-service:${BRANCH:-latest}"
-    depends_on:
-#      - seed
-      gateway:
-        condition: service_started
-    env_file:
-      - ${ENV_FILE}
-  orders-service:
-    image: "docker.repo.marketspulse.com/om2-exchange/orders-service:${BRANCH:-latest}"
-    depends_on:
-#      - seed
-      gateway:
-        condition: service_started
     env_file:
       - ${ENV_FILE}
