@@ -34,15 +34,9 @@ public class Jwk {
    * @param type kyt
    * @param algorithm alg
    * @param usage use
-   * @param operations key_ops
-   * @param certificateUrl x5u
-   * @param certificateChain x5c
-   * @param certificateThumbprint x5t
    * @param additionalAttributes additional attributes not part of the standard ones
    */
-  public Jwk(String id, String type, String algorithm, String usage,
-      List<String> operations, String certificateUrl, List<String>
-      certificateChain, String certificateThumbprint,
+  private Jwk(String id, String type, String algorithm, String usage,
       Map<String, Object> additionalAttributes) {
     this.id = id;
     this.type = type;
@@ -58,24 +52,16 @@ public class Jwk {
     String kty = (String) values.remove("kty");
     String alg = (String) values.remove("alg");
     String use = (String) values.remove("use");
-    List<String> keyOps = (List<String>) values.remove("key_ops");
-    String x5u = (String) values.remove("x5u");
-    List<String> x5c = (List<String>) values.remove("x5c");
-    String x5t = (String) values.remove("x5t");
 
     if (kty == null) {
       throw new IllegalArgumentException("Attributes " + map + " are not from a valid jwk");
     }
 
-    return new Jwk(kid, kty, alg, use, keyOps, x5u, x5c, x5t, values);
+    return new Jwk(kid, kty, alg, use, values);
   }
 
   public String getId() {
     return id;
-  }
-
-  public String getType() {
-    return type;
   }
 
 

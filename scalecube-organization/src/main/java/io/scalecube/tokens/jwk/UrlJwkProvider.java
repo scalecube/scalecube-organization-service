@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.omg.PortableInterceptor.INACTIVE;
 
 
 /**
@@ -23,7 +24,7 @@ public class UrlJwkProvider implements JwkProvider {
 
   private static final String WELL_KNOWN_JWKS_PATH = "/.well-known/jwks.json";
 
-  final URL url;
+  private final URL url;
   private final Integer connectTimeout;
   private final Integer readTimeout;
 
@@ -77,11 +78,12 @@ public class UrlJwkProvider implements JwkProvider {
     this(urlForDomain(domain));
   }
 
-  private static URL urlForDomain(String domain) {
-    Objects.requireNonNull(domain, "A domain is required");
+  private static URL urlForDomain(String inputDomain) {
+    Objects.requireNonNull(inputDomain, "A domain is required");
+    String domain = inputDomain;
 
-    if (!domain.startsWith("http")) {
-      domain = "https://" + domain;
+    if (!inputDomain.startsWith("http")) {
+      domain = "https://" + inputDomain;
     }
 
     try {
