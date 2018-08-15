@@ -8,8 +8,6 @@ import java.util.Objects;
 public class OrganizationMember {
   private String id;
 
-  private User user;
-
   private String role;
 
   /**
@@ -19,12 +17,10 @@ public class OrganizationMember {
 
   /**
    * Constructs an organization member using the user and role arguments.
-   * @param user organization member user.
    * @param role organization member role.
    */
-  public OrganizationMember(User user, String role) {
-    this.id = user.id();
-    this.user = user;
+  public OrganizationMember(String userId, String role) {
+    this.id = userId;
     this.role = role;
   }
 
@@ -32,9 +28,6 @@ public class OrganizationMember {
     return this.id;
   }
 
-  public User user() {
-    return this.user;
-  }
 
   public String role() {
     return this.role;
@@ -48,11 +41,11 @@ public class OrganizationMember {
 
     OrganizationMember other = (OrganizationMember)obj;
 
-    return Objects.equals(user, other.id);
+    return Objects.equals(id, other.id);
   }
 
   @Override
   public String toString() {
-    return super.toString() + String.format("[user=%s, role=%s]", user, role);
+    return super.toString() + String.format("[userId=%s, role=%s]", id, role);
   }
 }

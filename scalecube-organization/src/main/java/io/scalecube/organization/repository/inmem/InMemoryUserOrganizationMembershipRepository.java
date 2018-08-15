@@ -2,50 +2,55 @@ package io.scalecube.organization.repository.inmem;
 
 import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationMember;
-import io.scalecube.account.api.User;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 
 public class InMemoryUserOrganizationMembershipRepository
-        implements UserOrganizationMembershipRepository {
-    private final HashMap<String, Set<OrganizationMember>> map = new HashMap<>();
+    implements UserOrganizationMembershipRepository {
 
-    @Override
-    public void addMember(Organization org, OrganizationMember member) {
-        map.putIfAbsent(org.id(), new HashSet<>());
-        map.get(org.id()).add(member);
-    }
+  private final HashMap<String, Set<OrganizationMember>> map = new HashMap<>();
 
-    @Override
-    public boolean isMember(User user, Organization organization) {
-        return map.containsKey(organization.id()) && map.get(organization.id()).stream()
-                .anyMatch(m -> Objects.equals(m.user().id(), user.id()));
-    }
+  @Override
+  public void addMember(Organization org, OrganizationMember member) {
+    map.putIfAbsent(org.id(), new HashSet<>());
+    map.get(org.id()).add(member);
+  }
 
-    @Override
-    public Collection<OrganizationMember> getMembers(Organization organization) {
-        return map.containsKey(organization.id()) ? map.get(organization.id()) : Collections.emptyList();
-    }
+  @Override
+  public boolean isMember(String userId, Organization organization) {
+    return map.containsKey(organization.id()) && map.get(organization.id()).stream()
+        .anyMatch(m -> Objects.equals(m.id(), userId));
+  }
 
-    @Override
-    public void removeMember(User user, Organization organization) {
-        if (isMember(user, organization)) {
-            Optional<OrganizationMember> member = getMember(user, organization);
-            if (member.isPresent()) {
-                map.get(organization.id()).remove(member.get());
-            }
-        }
-    }
+  @Override
+  public Collection<OrganizationMember> getMembers(Organization organization) {
+    return map.containsKey(organization.id()) ? map.get(organization.id())
+        : Collections.emptyList();
+  }
 
-    @Override
-    public Optional<OrganizationMember> getMember(User user, Organization organization) {
-        return isMember(user, organization)
-                ? map
-                    .get(organization.id())
-                    .stream()
-                    .filter(m -> Objects.equals(m.user().id(), user.id())).findAny()
-                : Optional.empty();
+  @Override
+  public void removeMember(String userId, Organization organization) {
+    if (isMember(userId, organization)) {
+      Optional<OrganizationMember> member = getMember(userId, organization);
+      member.ifPresent(organizationMember -> map.get(organization.id()).remove(organizationMember));
     }
+  }
+
+  @Override
+  public Optional<OrganizationMember> getMember(String userId, Organization organization) {
+    return isMember(userId, organization)
+        ? map
+        .get(organization.id())
+        .stream()
+        .filter(m -> Objects.equals(m.id(), userId)).findAny()
+        : Optional.empty();
+  }
 }

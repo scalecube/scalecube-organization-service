@@ -24,23 +24,32 @@ public class WebToken {
     this.subject = subject;
   }
 
-  public String createToken(String id, long ttlMillis, String secretKey, Map<String, String> claims) {
-    if (claims == null) {
-      claims = new HashMap<>();
-    }
-    return createWebToken(id, issuer, subject, ttlMillis, secretKey, claims);
+  /**
+   * Creates a token using the provided arguments.
+   *
+   * @param id Token id.
+   * @param ttlMillis Token expiration.
+   * @param secretKey Signing key.
+   * @param claims Token claims.
+   * @return A string representation of a token.
+   */
+  public String createToken(String id, long ttlMillis, String secretKey,
+      Map<String, String> claims) {
+    return createWebToken(id, issuer, subject, ttlMillis, secretKey,
+        claims == null ? new HashMap<>() : claims);
   }
 
   /**
    * Create JWT object.
-   * 
+   *
    * @param id contains id information.
    * @param issuer contains issuer information.
    * @param subject contains subject information.
    * @param ttlMillis contains ttl information.
    * @return returns string if valid.
    */
-  private String createWebToken(String id, String issuer, String subject, long ttlMillis, String secretKey,
+  private String createWebToken(String id, String issuer, String subject, long ttlMillis,
+      String secretKey,
       Map<String, String> claims) {
 
     // The JWT signature algorithm we will be using to sign the token
@@ -79,7 +88,7 @@ public class WebToken {
 
   /**
    * Verifies if token is valid.
-   * 
+   *
    * @param token to validate.
    * @param id of the token.
    * @param secretKey this token was encypted with.
@@ -90,7 +99,8 @@ public class WebToken {
 
     // Make sure id, subject, and issuer are correct
     if (claims != null
-        && (claims.getId().equals(id) && claims.getSubject().equals(subject) && claims.getIssuer().equals(issuer))) {
+        && (claims.getId().equals(id) && claims.getSubject().equals(subject) && claims.getIssuer()
+        .equals(issuer))) {
       // Make sure expiration is in the future
       long nowMillis = System.currentTimeMillis();
       Date now = new Date(nowMillis);
@@ -103,7 +113,7 @@ public class WebToken {
 
   /**
    * Parse Web Token object.
-   * 
+   *
    * @param jwt contains jwt information.
    * @return returns if valid.
    */

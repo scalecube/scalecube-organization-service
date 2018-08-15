@@ -1,4 +1,4 @@
-FROM anapsix/alpine-java:8_jdk
+FROM openjdk:8
 
 MAINTAINER info@scalecube.io
 
@@ -21,6 +21,6 @@ EXPOSE 4801 4802
 
 ENV SC_HOME="/usr/dev/root/" \
     SC_SEED_ADDRESS="172.17.0.2:4802, 172.17.0.3:4802, 172.17.0.4:4802" \
-    REDIS_ADDRESS="redis://localhost:6379"
+    COUCHBASE_ADDRESS="localhost:8091"
 
 ENTRYPOINT ["java", "-jar", "/usr/dev/root/server.jar"]
