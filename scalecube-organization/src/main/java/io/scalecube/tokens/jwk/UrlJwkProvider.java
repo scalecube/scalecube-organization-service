@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import org.omg.PortableInterceptor.INACTIVE;
 
 
 /**
@@ -33,7 +32,7 @@ public class UrlJwkProvider implements JwkProvider {
    *
    * @param url to load the jwks
    */
-  public UrlJwkProvider(URL url) {
+  private UrlJwkProvider(URL url) {
     this(url, null, null);
   }
 
@@ -44,7 +43,7 @@ public class UrlJwkProvider implements JwkProvider {
    * @param connectTimeout connection timeout in milliseconds (null for default)
    * @param readTimeout read timeout in milliseconds (null for default)
    */
-  public UrlJwkProvider(URL url, Integer connectTimeout, Integer readTimeout) {
+  private UrlJwkProvider(URL url, Integer connectTimeout, Integer readTimeout) {
     Objects.requireNonNull(url, "A non-null url is required");
 
     if (connectTimeout != null && connectTimeout <= 0) {
