@@ -3,10 +3,10 @@ package io.scalecube.tokens;
 import io.scalecube.account.api.Token;
 import io.scalecube.security.JwtAuthenticator;
 import io.scalecube.security.JwtAuthenticatorImpl;
-
 import io.scalecube.security.Profile;
 
 import java.security.PublicKey;
+
 import java.util.Objects;
 import java.util.Optional;
 
@@ -28,7 +28,7 @@ class TokenVerifierImpl implements TokenVerifier {
 
   private PublicKey getPublicKey(String token) throws Exception {
     return Objects.requireNonNull(
-          PublicKeyProviderFactory.getPublicKeyProvider())
+        PublicKeyProviderFactory.getPublicKeyProvider())
         .getPublicKey(token);
   }
 }

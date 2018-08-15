@@ -13,24 +13,23 @@ import java.util.List;
 import java.util.Map;
 
 
+
 /**
  * Represents a JSON Web Key (JWK) used to verify the signature of JWTs.
  */
 public class Jwk {
+
   private static final String PUBLIC_KEY_ALGORITHM = "RSA";
 
   private final String id;
   private final String type;
   private final String algorithm;
   private final String usage;
-  private final List<String> operations;
-  private final String certificateUrl;
-  private final List<String> certificateChain;
-  private final String certificateThumbprint;
   private final Map<String, Object> additionalAttributes;
 
   /**
    * Creates a new Jwk.
+   *
    * @param id kid
    * @param type kyt
    * @param algorithm alg
@@ -49,15 +48,11 @@ public class Jwk {
     this.type = type;
     this.algorithm = algorithm;
     this.usage = usage;
-    this.operations = operations;
-    this.certificateUrl = certificateUrl;
-    this.certificateChain = certificateChain;
-    this.certificateThumbprint = certificateThumbprint;
     this.additionalAttributes = additionalAttributes;
   }
 
 
-  static Jwk fromValues(Map<String, Object> map) {
+  protected static Jwk fromValues(Map<String, Object> map) {
     Map<String, Object> values = new HashMap<>(map);
     String kid = (String) values.remove("kid");
     String kty = (String) values.remove("kty");
@@ -86,6 +81,7 @@ public class Jwk {
 
   /**
    * Returns a {@link PublicKey} if the {@code 'alg'} is {@code 'RSA'}.
+   *
    * @return a public key
    * @throws InvalidPublicKeyException if the key cannot be built or the key type is not RSA
    */

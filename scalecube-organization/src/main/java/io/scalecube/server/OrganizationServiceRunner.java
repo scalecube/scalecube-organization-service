@@ -24,12 +24,12 @@ public class OrganizationServiceRunner {
    *
    * @param args application params.
    */
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) throws AddressParseException, InterruptedException {
     start();
     Thread.currentThread().join();
   }
 
-  private static void start() throws Exception {
+  private static void start() throws AddressParseException {
     Microservices.builder()
         .seeds(seeds())
         .services(createOrganizationService())
@@ -46,13 +46,13 @@ public class OrganizationServiceRunner {
         .build();
   }
 
-  private static Address[] seeds() throws Exception {
+  private static Address[] seeds() throws AddressParseException {
     AppConfiguration settings = AppConfiguration.builder().build();
     try {
       return stringListValue(settings.getProperty(SEEDS))
           .stream().map(Address::from).toArray(Address[]::new);
     } catch (Throwable ex) {
-      throw new Exception("Failed to parse seeds from settings", ex);
+      throw new AddressParseException("Failed to parse seeds from settings", ex);
     }
   }
 

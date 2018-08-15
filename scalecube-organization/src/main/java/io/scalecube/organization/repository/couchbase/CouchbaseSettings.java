@@ -1,11 +1,9 @@
 package io.scalecube.organization.repository.couchbase;
 
 import com.couchbase.client.java.bucket.BucketType;
-
 import io.scalecube.organization.repository.exception.DataAccessResourceFailureException;
 
 import java.io.IOException;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;

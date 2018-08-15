@@ -5,7 +5,6 @@ import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.DuplicateKeyException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
-
 import io.scalecube.security.Profile;
 
 import java.util.Collection;
@@ -16,6 +15,7 @@ import java.util.Collection;
  * therefore not guaranteed and it is in the scope of the implementing class.
  */
 public interface OrganizationsDataAccess {
+
   /**
    * Returns an Organization object corresponding to the <code>id</code> argument in the underlying
    * data provider.

@@ -20,7 +20,6 @@ import io.scalecube.account.api.DeleteOrganizationRequest;
 import io.scalecube.account.api.DeleteOrganizationResponse;
 import io.scalecube.account.api.GetOrganizationMembersRequest;
 import io.scalecube.account.api.GetOrganizationRequest;
-import io.scalecube.account.api.GetOrganizationResponse;
 import io.scalecube.account.api.InvalidAuthenticationToken;
 import io.scalecube.account.api.InviteOrganizationMemberRequest;
 import io.scalecube.account.api.KickoutOrganizationMemberRequest;
@@ -34,7 +33,6 @@ import io.scalecube.account.api.UpdateOrganizationRequest;
 import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
 import io.scalecube.organization.repository.Repository;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
-import io.scalecube.organization.repository.couchbase.CouchbaseRepositoryFactory;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.organization.repository.exception.NameAlreadyInUseException;
@@ -51,7 +49,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -114,6 +111,18 @@ public class OrganizationServiceTest {
   private UserOrganizationMembershipRepository orgMembersRepository;
   private OrganizationMembersRepositoryAdmin admin;
 
+  public OrganizationServiceTest() {
+    initInMemory();
+//    initCouchbase();
+    service = createService(testProfile);
+  }
+
+//  private void initCouchbase() {
+//    orgMembersRepository = CouchbaseRepositoryFactory.organizationMembers();
+//    organizationRepository = CouchbaseRepositoryFactory.organizations();
+//    admin = CouchbaseRepositoryFactory.organizationMembersRepositoryAdmin();
+//  }
+
   private void initInMemory() {
     orgMembersRepository = new InMemoryUserOrganizationMembershipRepository();
     organizationRepository = new InMemoryOrganizationRepository();
@@ -127,20 +136,9 @@ public class OrganizationServiceTest {
       @Override
       public void deleteRepository(Organization organization) {
         // dummy body
-        System.out.println();}
+        System.out.println();
+      }
     };
-  }
-
-  private void initCouchbase() {
-    orgMembersRepository = CouchbaseRepositoryFactory.organizationMembers();
-    organizationRepository = CouchbaseRepositoryFactory.organizations();
-    admin = CouchbaseRepositoryFactory.organizationMembersRepositoryAdmin();
-  }
-
-  public OrganizationServiceTest() {
-    initInMemory();
-//    initCouchbase();
-    service = createService(testProfile);
   }
 
   @BeforeEach
@@ -182,7 +180,6 @@ public class OrganizationServiceTest {
 
     assertNotNull(duration);
   }
-
 
 
   @Test
@@ -302,21 +299,23 @@ public class OrganizationServiceTest {
 
   @Test
   public void updateOrganizationShouldFailWithInvalidToken() {
-    Duration duration = expectError(createService(invalidProfile).updateOrganization(new UpdateOrganizationRequest(
-        organisationId,
-        token,
-        "update_name",
-        "update@email")), InvalidAuthenticationToken.class);
+    Duration duration = expectError(
+        createService(invalidProfile).updateOrganization(new UpdateOrganizationRequest(
+            organisationId,
+            token,
+            "update_name",
+            "update@email")), InvalidAuthenticationToken.class);
     assertNotNull(duration);
   }
 
   @Test
   public void updateOrganization() {
-    Duration duration = StepVerifier.create(service.updateOrganization(new UpdateOrganizationRequest(
-        organisationId,
-        token,
-        "update_name",
-        "update@email")))
+    Duration duration = StepVerifier
+        .create(service.updateOrganization(new UpdateOrganizationRequest(
+            organisationId,
+            token,
+            "update_name",
+            "update@email")))
         .expectSubscription()
         .assertNext((r) -> {
           assertThat(r.name(), is("update_name"));
@@ -480,7 +479,8 @@ public class OrganizationServiceTest {
                 new GetOrganizationMembersRequest(organisationId, token)))
             .expectSubscription()
             .assertNext(r -> assertThat(Arrays.asList(r.members()),
-                not(hasItem(new OrganizationMember(testProfile.getUserId(), Role.Owner.toString())))))
+                not(hasItem(
+                    new OrganizationMember(testProfile.getUserId(), Role.Owner.toString())))))
             .verifyComplete())
         .verifyComplete();
     assertNotNull(duration);

@@ -10,10 +10,12 @@ import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.RawJsonDocument;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.SimpleN1qlQuery;
+
 import io.scalecube.organization.repository.Repository;
 import io.scalecube.organization.repository.exception.DataRetrievalFailureException;
 import io.scalecube.organization.repository.exception.OperationInterruptedException;
 import io.scalecube.organization.repository.exception.QueryTimeoutException;
+
 import rx.Observable;
 import rx.functions.Func1;
 
@@ -21,8 +23,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
-
-
 
 /**
  * Abstract base couchbase <Code>Repository</Code> implementation.
@@ -196,7 +196,7 @@ abstract class CouchbaseEntityRepository<T, I extends String> implements Reposit
   }
 
 
-  protected  <R> R execute(BucketCallback<R> action, Bucket client) {
+  protected <R> R execute(BucketCallback<R> action, Bucket client) {
     requireNonNull(client);
     requireNonNull(action);
 

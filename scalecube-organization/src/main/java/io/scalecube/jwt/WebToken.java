@@ -26,6 +26,7 @@ public class WebToken {
 
   /**
    * Creates a token using the provided arguments.
+   *
    * @param id Token id.
    * @param ttlMillis Token expiration.
    * @param secretKey Signing key.

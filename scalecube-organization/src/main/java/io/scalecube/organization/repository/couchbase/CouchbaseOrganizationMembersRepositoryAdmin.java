@@ -9,7 +9,6 @@ import com.couchbase.client.java.cluster.UserSettings;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
-
 import io.scalecube.account.api.Organization;
 import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
 import io.scalecube.organization.repository.exception.CreatePrimaryIndexException;
@@ -113,6 +112,7 @@ final class CouchbaseOrganizationMembersRepositoryAdmin implements
   }
 
   public static class Builder {
+
     public CouchbaseOrganizationMembersRepositoryAdmin build() {
       return new CouchbaseOrganizationMembersRepositoryAdmin(
           new CouchbaseSettings.Builder().build());

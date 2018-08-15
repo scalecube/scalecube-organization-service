@@ -26,6 +26,7 @@ public class AppConfiguration {
   }
 
   public static class Builder {
+
     public AppConfiguration build() {
       return new AppConfiguration();
     }

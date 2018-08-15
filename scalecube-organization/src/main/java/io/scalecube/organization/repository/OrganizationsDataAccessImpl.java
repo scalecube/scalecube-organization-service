@@ -227,6 +227,7 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
 
     /**
      * Constructs an instance of OrganizationsDataAccess with this builder setup arguments.
+     *
      * @return An OrganizationsDataAccess instance object.
      */
     public OrganizationsDataAccess build() {

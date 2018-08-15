@@ -9,6 +9,7 @@ public interface PublicKeyProvider {
 
   /**
    * Returns a public key which used to sign the <code>token</code> argument.
+   *
    * @param token The signed token bearing information on the public key which was used to sign the
    *     token.
    * @return A public key.

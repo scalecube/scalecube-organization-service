@@ -132,7 +132,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     });
   }
 
-  
+
   @Override
   public Mono<GetOrganizationResponse> getOrganization(GetOrganizationRequest request) {
     requireNonNull(request, request.organizationId(), request.token());
@@ -406,6 +406,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     /**
      * Construct an OrganizationService object with the provided parameters.
+     *
      * @return an instance of OrganizationService.
      */
     public OrganizationService build() {

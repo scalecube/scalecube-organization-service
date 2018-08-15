@@ -23,6 +23,7 @@ import com.couchbase.client.java.error.TemporaryFailureException;
 import com.couchbase.client.java.error.TemporaryLockFailureException;
 import com.couchbase.client.java.error.TranscodingException;
 import com.couchbase.client.java.error.ViewDoesNotExistException;
+
 import io.scalecube.organization.repository.exception.DataAccessException;
 import io.scalecube.organization.repository.exception.DataAccessResourceFailureException;
 import io.scalecube.organization.repository.exception.DataIntegrityViolationException;

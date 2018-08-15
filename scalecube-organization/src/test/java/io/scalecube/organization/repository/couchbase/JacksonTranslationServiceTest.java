@@ -8,7 +8,6 @@ import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.Role;
 import io.scalecube.security.Profile;
-
 import org.junit.jupiter.api.Test;
 
 

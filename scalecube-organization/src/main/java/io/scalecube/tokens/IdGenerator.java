@@ -17,6 +17,7 @@ public final class IdGenerator {
 
   /**
    * Generates a unique id using this class default algorithm and byte array size.
+   *
    * @return a string representation of a unique id.
    */
   public static String generateId() {

@@ -13,10 +13,12 @@ public class JwtApiKey extends ApiKey {
   /**
    * Constructs an empty JSON web token API key.
    */
-  public JwtApiKey() {}
+  public JwtApiKey() {
+  }
 
   /**
    * Constructs an empty JSON web token API key with the provided arguments.
+   *
    * @param name Key name
    * @param claims Key claims.
    * @param apiKey The API key.
@@ -25,6 +27,10 @@ public class JwtApiKey extends ApiKey {
     super.name = name;
     super.claims = claims;
     super.key = apiKey;
+  }
+
+  public static Builder builder() {
+    return new Builder();
   }
 
   public static final class Builder {
@@ -62,6 +68,7 @@ public class JwtApiKey extends ApiKey {
 
     /**
      * Constructs an API key object and signs it using the <code>secret</code> argument.
+     *
      * @param secretKey The token signing key.
      * @return an API key.
      */
@@ -72,10 +79,6 @@ public class JwtApiKey extends ApiKey {
       return new JwtApiKey(this.name, this.claims, apiKey);
     }
 
-  }
-
-  public static Builder builder() {
-    return new Builder();
   }
 
 }

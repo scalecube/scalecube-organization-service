@@ -12,7 +12,7 @@ import java.util.Objects;
 class CouchbaseOrganizationRepository
     extends CouchbaseEntityRepository<Organization, String> {
 
-  public static final String QUERY_PATTERN = "select count(id) from %s where %s = '%s'";
+  private static final String QUERY_PATTERN = "select count(id) from %s where %s = '%s'";
 
   CouchbaseOrganizationRepository() {
     super("organizations", Organization.class);
@@ -29,7 +29,6 @@ class CouchbaseOrganizationRepository
         String.format(QUERY_PATTERN, getBucketName(), "name", orgName), null);
     N1qlQueryResult queryResult = client.query(query);
     List<N1qlQueryRow> rows = queryResult.allRows();
-    boolean exists = !rows.isEmpty() && Objects.equals(1, rows.get(0).value().get("$1"));
-    return exists;
+    return !rows.isEmpty() && Objects.equals(1, rows.get(0).value().get("$1"));
   }
 }

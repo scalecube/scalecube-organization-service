@@ -6,6 +6,7 @@ import io.scalecube.security.Profile;
 import java.util.Objects;
 
 public class TokenVerification implements TokenVerifier {
+
   private final TokenVerifier tokenVerifier = new TokenVerifierImpl();
 
   /**

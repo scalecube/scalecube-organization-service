@@ -1,7 +1,7 @@
 package io.scalecube.tokens;
 
 abstract class TokenUtils {
-  static String removeSignature(String token) throws InvalidTokenException {
+  protected static String removeSignature(String token) throws InvalidTokenException {
     String[] parts = token.split("\\.");
     if (parts.length == 2 && token.endsWith(".")) {
       parts = new String[]{parts[0], parts[1], ""};
