@@ -16,13 +16,13 @@ import io.scalecube.organization.repository.exception.DataRetrievalFailureExcept
 import io.scalecube.organization.repository.exception.OperationInterruptedException;
 import io.scalecube.organization.repository.exception.QueryTimeoutException;
 
-import rx.Observable;
-import rx.functions.Func1;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
+
+import rx.Observable;
+import rx.functions.Func1;
 
 /**
  * Abstract base couchbase <Code>Repository</Code> implementation.

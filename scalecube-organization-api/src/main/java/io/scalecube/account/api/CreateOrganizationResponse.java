@@ -6,6 +6,7 @@ package io.scalecube.account.api;
 public class CreateOrganizationResponse extends OrganizationInfo {
 
   /**
+   * Default constructor.
    * @deprecated only for serialization/deserialization.
    */
   CreateOrganizationResponse() {}

@@ -10,6 +10,7 @@ public class DeleteOrganizationRequest {
   private Token token;
 
   /**
+   * Default constructor.
    * @deprecated only for serialization/deserialization.
    */
   DeleteOrganizationRequest() {}

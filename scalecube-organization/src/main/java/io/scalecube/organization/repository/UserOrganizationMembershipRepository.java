@@ -13,7 +13,7 @@ public interface UserOrganizationMembershipRepository {
 
   /**
    * Adds the <code>member</code> argument to the <code>organization</code> argument, in the
-   * underlying data provider
+   * underlying data provider.
    *
    * @param organization The organization ao add the member to.
    * @param member The member to add.

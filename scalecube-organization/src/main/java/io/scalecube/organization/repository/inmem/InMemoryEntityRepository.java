@@ -2,9 +2,12 @@ package io.scalecube.organization.repository.inmem;
 
 import io.scalecube.organization.repository.Repository;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 
 /**
  * Abstract base in-memory <Code>Repository</Code> implementation.
@@ -19,6 +22,25 @@ public abstract class InMemoryEntityRepository<T, I>
 
   @Override
   public boolean existByProperty(String propertyName, Object propertyValue) {
+    if (entities.isEmpty()) {
+      return false;
+    }
+    try {
+      Field field = entities.values().iterator().next().getClass()
+          .getDeclaredField(propertyName);
+      field.setAccessible(true);
+      return entities.values().stream()
+          .anyMatch(i -> {
+            try {
+              return Objects.equals(field.get(i), propertyValue);
+            } catch (IllegalAccessException e) {
+              e.printStackTrace();
+              return false;
+            }
+          });
+    } catch (NoSuchFieldException e) {
+      e.printStackTrace();
+    }
     return false;
   }
 

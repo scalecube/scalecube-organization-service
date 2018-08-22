@@ -8,6 +8,7 @@ public class GetOrganizationMembersResponse {
   private OrganizationMember[] members;
 
   /**
+   * Default constructor.
    * @deprecated only for serialization/deserialization.
    */
   GetOrganizationMembersResponse() {}

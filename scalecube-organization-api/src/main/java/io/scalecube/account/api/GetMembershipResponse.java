@@ -15,6 +15,7 @@ public class GetMembershipResponse {
   private OrganizationInfo[] organizations;
 
   /**
+   * Default constructor.
    * @deprecated only for serialization/deserialization.
    */
   GetMembershipResponse() {}
@@ -28,4 +29,8 @@ public class GetMembershipResponse {
     this.organizations = organizationInfos;
   }
 
+
+  public OrganizationInfo[] organizations() {
+    return organizations;
+  }
 }
