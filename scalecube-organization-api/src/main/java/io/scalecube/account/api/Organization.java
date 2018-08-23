@@ -23,15 +23,18 @@ public class Organization {
 
   private Map<String, List<String>> members;
 
+  private String secretKeyId;
+
   /**
    * Constructs an empty Organization object.
    */
   public Organization() {}
 
-  private Organization(String id, String name, String ownerId, String secretKey, ApiKey[]
-      apiKeys, String email, Map<String, List<String>> members) {
+  private Organization(String id, String name, String ownerId, String secretKeyId, String secretKey,
+      ApiKey[] apiKeys, String email, Map<String, List<String>> members) {
     this.id = id;
     this.ownerId = ownerId;
+    this.secretKeyId = secretKeyId;
     this.secretKey = secretKey;
     this.apiKeys = apiKeys;
     this.name = name;
@@ -53,6 +56,10 @@ public class Organization {
 
   public ApiKey[] apiKeys() {
     return this.apiKeys;
+  }
+
+  public String secretKeyId() {
+    return this.secretKeyId;
   }
 
   public String secretKey() {
@@ -81,6 +88,8 @@ public class Organization {
 
     private String id;
 
+    private String secretKeyId;
+
     public Builder id(String id) {
       this.id = id;
       return this;
@@ -106,6 +115,12 @@ public class Organization {
       return this;
     }
 
+    public Builder secretKeyId(String secretKeyId) {
+      this.secretKeyId = secretKeyId;
+      return this;
+    }
+
+
     public Builder secretKey(String secretKey) {
       this.secretKey = secretKey;
       return this;
@@ -120,13 +135,13 @@ public class Organization {
       String email = this.email == null ? source.email : this.email;
       String name = this.name == null ? source.name : this.name;
       ApiKey[] apiKeys = this.apiKeys == null ? source.apiKeys : this.apiKeys;
-      return new Organization(source.id(), name, source.ownerId(), source.secretKey(),
-          apiKeys, email, source.members);
+      return new Organization(source.id(), name, source.ownerId(), source.secretKeyId(),
+          source.secretKey(), apiKeys, email, source.members);
     }
 
     public Organization build() {
-      return new Organization("ORG-" + this.id, this.name, this.ownerId, this.secretKey,
-          this.apiKeys, this.email, new HashMap<>());
+      return new Organization("ORG-" + this.id, this.name, this.ownerId, this.secretKeyId,
+          this.secretKey, this.apiKeys, this.email, new HashMap<>());
     }
   }
 

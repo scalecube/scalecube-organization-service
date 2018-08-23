@@ -978,18 +978,29 @@ public class OrganizationServiceTest {
 
   @Test
   public void addOrganizationApiKey() {
+    final HashMap<String, String> claims = new HashMap<>();
+    claims.put("role", "Owner");
     Duration duration = StepVerifier
         .create(service.addOrganizationApiKey(
             new AddOrganizationApiKeyRequest(
                 token,
                 organisationId,
                 "apiKey",
-                Arrays.asList("assertion").stream().collect(Collectors.toMap(x -> x, x -> x)))))
+                claims)))
         .expectSubscription()
         .assertNext(x -> {
           Organization org = getOrganizationFromRepository(organisationId);
           assertThat(org.apiKeys()[0].name(), is("apiKey"));
         }).verifyComplete();
+    assertNotNull(duration);
+  }
+
+  @Test
+  public void addOrganizationApiKey_not_org_owner_should_fail_with_AccessPermissionException() {
+    Duration duration = expectError(createService(testProfile5).addOrganizationApiKey(
+        new AddOrganizationApiKeyRequest(token, organisationId, "api_key",
+            new HashMap<>())),
+        AccessPermissionException.class);
     assertNotNull(duration);
   }
 

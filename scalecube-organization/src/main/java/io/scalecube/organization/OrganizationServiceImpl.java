@@ -26,25 +26,34 @@ import io.scalecube.account.api.OrganizationInfo;
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.OrganizationNotFound;
 import io.scalecube.account.api.OrganizationService;
+import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.UpdateOrganizationRequest;
 import io.scalecube.account.api.UpdateOrganizationResponse;
+import io.scalecube.config.AppConfiguration;
 import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.organization.repository.OrganizationsDataAccessImpl;
 import io.scalecube.organization.repository.Repository;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
+import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.security.Profile;
 import io.scalecube.tokens.IdGenerator;
 import io.scalecube.tokens.JwtApiKey;
+import io.scalecube.tokens.KeyStoreFactory;
 import io.scalecube.tokens.TokenVerification;
 import io.scalecube.tokens.TokenVerifier;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.TimeZone;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import reactor.core.publisher.Mono;
@@ -76,9 +85,10 @@ public class OrganizationServiceImpl implements OrganizationService {
                 .name(request.name())
                 .ownerId(profile.getUserId())
                 .email(request.email())
+                .secretKeyId(UUID.randomUUID().toString())
                 .secretKey(secretKey)
                 .build());
-
+        KeyStoreFactory.get().store(organization.secretKeyId(), secretKey);
         result.success(new CreateOrganizationResponse(organization.id(),
             organization.name(),
             organization.apiKeys(),
@@ -232,12 +242,22 @@ public class OrganizationServiceImpl implements OrganizationService {
         Profile profile = verifyToken(request.token());
         Organization organization = getOrganization(request.organizationId());
 
+        checkIfUserIsAllowedToAddAnApiKey(request, profile, organization);
+        Map<String, String> claims = request.claims() == null ? new HashMap<>() : request.claims();
+
+        if (!claims.containsKey("role") || !isRoleValid(claims.get("role"))) {
+          // add minimal role
+          claims.put("role", Role.Member.toString());
+        }
+
         ApiKey apiKey = JwtApiKey.builder().issuer("scalecube.io")
             .subject(organization.id())
             .name(request.apiKeyName())
-            .claims(request.claims())
+            .claims(claims)
             .id(organization.id())
-            .build(organization.secretKey());
+            .audience(organization.name())
+            .expiration(tryGetTokenExpiration())
+            .build(organization.secretKeyId(), organization.secretKey());
         ApiKey[] apiKeys = Arrays.copyOf(organization.apiKeys(),
             organization.apiKeys().length + 1);
         apiKeys[organization.apiKeys().length] = apiKey;
@@ -251,6 +271,47 @@ public class OrganizationServiceImpl implements OrganizationService {
         result.error(ex);
       }
     });
+  }
+
+  private void checkIfUserIsAllowedToAddAnApiKey(AddOrganizationApiKeyRequest request,
+      Profile profile, Organization organization)
+      throws EntityNotFoundException, AccessPermissionException {
+    boolean isOwner = Objects.equals(organization.ownerId(), profile.getUserId());
+    if (!isOwner) {
+      OrganizationMember member = repository.getOrganizationMembers(request.organizationId())
+          .stream()
+          .filter(i -> Objects.equals(i.id(), profile.getUserId()))
+          .findAny()
+          .orElseThrow(() -> new AccessPermissionException(profile.getUserId()
+              + " not a member in organization: " + organization.name()));
+      boolean isMemberRole = Objects.equals(member.role(), Role.Member.toString());
+      if (isMemberRole) {
+        throw new AccessPermissionException("Insufficient role permissions");
+      }
+    }
+  }
+
+  private boolean isRoleValid(String role) {
+    try {
+      Enum.valueOf(Role.class, role);
+    } catch (Throwable ex) {
+      return false;
+    }
+    return true;
+  }
+
+  private long tryGetTokenExpiration() {
+    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+    long amount = 2678399982L;
+
+    try {
+      amount = Long.parseLong(AppConfiguration.builder().build().getProperty("token.expiration"));
+    } catch (NumberFormatException ex) {
+      ex.printStackTrace();
+    }
+
+    calendar.setTimeInMillis(System.currentTimeMillis() + amount);
+    return calendar.getTimeInMillis();
   }
 
   @Override
