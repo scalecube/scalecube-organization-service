@@ -1,4 +1,6 @@
-package io.scalecube.tokens;
+package io.scalecube.tokens.store;
+
+import io.scalecube.tokens.KeyStoreException;
 
 /**
  * Represents an abstraction of key storage.

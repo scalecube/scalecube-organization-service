@@ -64,6 +64,7 @@
   </distributionManagement>
 
   <properties>
+    <scalecube.config.version>0.3.2</scalecube.config.version>
     <scalecube-services.version>2.1.12-SNAPSHOT</scalecube-services.version>
     <scalecube-gateway.version>2.0.11</scalecube-gateway.version>
     <scalecube-security-jwt.version>1.0.2-SNAPSHOT</scalecube-security-jwt.version>

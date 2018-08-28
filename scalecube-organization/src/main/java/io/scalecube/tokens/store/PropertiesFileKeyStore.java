@@ -1,5 +1,6 @@
-package io.scalecube.tokens;
+package io.scalecube.tokens.store;
 
+import io.scalecube.tokens.KeyStoreException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -18,7 +19,7 @@ class PropertiesFileKeyStore implements KeyStore {
       properties.put(alias, key);
       properties.store(new FileOutputStream("keystore.properties"), "");
     } catch (IOException ex) {
-      throw new KeyStoreException();
+      throw new KeyStoreException(ex);
     }
   }
 }

@@ -1,6 +1,7 @@
 package io.scalecube.organization.repository.couchbase;
 
 import com.couchbase.client.java.bucket.BucketType;
+import io.scalecube.config.ConfigRegistryConfiguration;
 import io.scalecube.organization.repository.exception.DataAccessResourceFailureException;
 
 import java.io.IOException;
@@ -25,13 +26,17 @@ final class CouchbaseSettings {
   private final Properties settings;
   private List<String> clusterNodes;
   private List<String> orgMemberUserRoles;
+  private final CouchbaseProperties couchbaseProperties;
+
 
   private CouchbaseSettings() {
     settings = new Properties();
 
     try {
+      couchbaseProperties = ConfigRegistryConfiguration.configRegistry()
+          .objectProperty("couchbase", CouchbaseProperties.class).value().get();
       settings.load(getClass().getResourceAsStream("/couchbase-settings.properties"));
-    } catch (IOException ex) {
+    } catch (Exception ex) {
       throw new DataAccessResourceFailureException("Failed to initialize", ex);
     }
   }
@@ -57,16 +62,16 @@ final class CouchbaseSettings {
   }
 
   String getCouchbaseAdmin() {
-    return getProperty(COUCHBASE_ADMIN);
+    return couchbaseProperties.username();//getProperty(COUCHBASE_ADMIN);
   }
 
   String getCouchbaseAdminPassword() {
-    return getProperty(COUCHBASE_ADMIN_PASSWORD);
+    return couchbaseProperties.password();//getProperty(COUCHBASE_ADMIN_PASSWORD);
   }
 
   List<String> getCouchbaseClusterNodes() {
-    clusterNodes = getList(COUCHBASE_CLUSTER_NODES, clusterNodes);
-    return clusterNodes;
+    //clusterNodes = getList(COUCHBASE_CLUSTER_NODES, clusterNodes);
+    return couchbaseProperties.hosts() ;//clusterNodes;
   }
 
   List<String> getOrgMemberUserRoles() {
