@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 
 final class CouchbaseSettings {
@@ -35,6 +36,7 @@ final class CouchbaseSettings {
     try {
       couchbaseProperties = ConfigRegistryConfiguration.configRegistry()
           .objectProperty("couchbase", CouchbaseProperties.class).value().get();
+      Objects.requireNonNull(couchbaseProperties, "failed to get couchbase properties");
       settings.load(getClass().getResourceAsStream("/couchbase-settings.properties"));
     } catch (Exception ex) {
       throw new DataAccessResourceFailureException("Failed to initialize", ex);
@@ -61,17 +63,18 @@ final class CouchbaseSettings {
     return Boolean.valueOf(getProperty(ORG_MEMBERS_BUCKET_ENABLE_FLUSH));
   }
 
-  String getCouchbaseAdmin() {
-    return couchbaseProperties.username();//getProperty(COUCHBASE_ADMIN);
+  String getCouchbaseUsername() {
+    return couchbaseProperties.username();
   }
 
-  String getCouchbaseAdminPassword() {
-    return couchbaseProperties.password();//getProperty(COUCHBASE_ADMIN_PASSWORD);
+  String getCouchbasePassword() {
+    return couchbaseProperties.password();
   }
 
   List<String> getCouchbaseClusterNodes() {
-    //clusterNodes = getList(COUCHBASE_CLUSTER_NODES, clusterNodes);
-    return couchbaseProperties.hosts() ;//clusterNodes;
+    return couchbaseProperties.hosts() == null
+        ? Collections.EMPTY_LIST
+        : couchbaseProperties.hosts();
   }
 
   List<String> getOrgMemberUserRoles() {

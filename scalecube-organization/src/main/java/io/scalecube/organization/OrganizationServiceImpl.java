@@ -41,9 +41,9 @@ import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.security.Profile;
 import io.scalecube.tokens.IdGenerator;
 import io.scalecube.tokens.JwtApiKey;
-import io.scalecube.tokens.store.KeyStoreFactory;
 import io.scalecube.tokens.TokenVerification;
 import io.scalecube.tokens.TokenVerifier;
+import io.scalecube.tokens.store.KeyStoreFactory;
 
 import java.util.Arrays;
 import java.util.Calendar;

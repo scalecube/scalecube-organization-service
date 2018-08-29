@@ -5,10 +5,17 @@ import io.scalecube.config.source.SystemEnvironmentConfigSource;
 import io.scalecube.config.source.SystemPropertiesConfigSource;
 import io.scalecube.config.vault.VaultConfigSource;
 
+/**
+ * Configures the ConfigRegistry with sources.
+ */
 public class ConfigRegistryConfiguration {
   private static final int RELOAD_INTERVAL_SEC = 300;
   private static ConfigRegistry configRegistry;
 
+  /**
+   * Builds a ConfigRegistry.
+   * @return ConfigRegistry
+   */
   public static ConfigRegistry configRegistry() {
     if (configRegistry != null) {
       return configRegistry;

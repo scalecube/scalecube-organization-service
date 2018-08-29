@@ -42,7 +42,8 @@ abstract class CouchbaseEntityRepository<T, I extends String> implements Reposit
   private CouchbaseCluster cluster;
   private TranslationService translationService = new JacksonTranslationService();
   private String bucketName;
-  private String bucketPassword;
+  private String couchbaseUsername;
+  private String couchbasePassword;
 
   CouchbaseEntityRepository(String alias, Class<T> type) {
     requireNonNull(type);
@@ -52,7 +53,8 @@ abstract class CouchbaseEntityRepository<T, I extends String> implements Reposit
 
     if (alias != null) {
       this.bucketName = getBucketName(alias);
-      this.bucketPassword = getBucketPassword(alias);
+      this.couchbaseUsername = settings.getCouchbaseUsername();
+      this.couchbasePassword = settings.getCouchbasePassword();
     }
   }
 
@@ -62,10 +64,6 @@ abstract class CouchbaseEntityRepository<T, I extends String> implements Reposit
 
   String getBucketName() {
     return bucketName;
-  }
-
-  private String getBucketPassword(String alias) {
-    return settings.getProperty(alias + BUCKET_PASSWORD);
   }
 
   @Override
@@ -159,7 +157,7 @@ abstract class CouchbaseEntityRepository<T, I extends String> implements Reposit
   }
 
   protected Bucket client() {
-    return cluster().openBucket(bucketName, bucketPassword);
+    return cluster().openBucket(bucketName);
   }
 
   private <R> Observable<R> executeAsync(Observable<R> asyncAction) {
@@ -189,6 +187,8 @@ abstract class CouchbaseEntityRepository<T, I extends String> implements Reposit
           cluster = nodes.isEmpty()
               ? CouchbaseCluster.create()
               : CouchbaseCluster.create(nodes);
+
+          cluster.authenticate(couchbaseUsername, couchbasePassword);
         }
       }
     }

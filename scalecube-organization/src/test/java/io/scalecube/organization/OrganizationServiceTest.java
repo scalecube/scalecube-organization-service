@@ -36,6 +36,7 @@ import io.scalecube.account.api.UpdateOrganizationRequest;
 import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
 import io.scalecube.organization.repository.Repository;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
+import io.scalecube.organization.repository.couchbase.CouchbaseRepositoryFactory;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.organization.repository.exception.NameAlreadyInUseException;
@@ -117,18 +118,11 @@ public class OrganizationServiceTest {
   private OrganizationMembersRepositoryAdmin admin;
 
   public OrganizationServiceTest() {
-    initInMemory();
-//    initCouchbase();
+    init();
     service = createService(testProfile);
   }
 
-//  private void initCouchbase() {
-//    orgMembersRepository = CouchbaseRepositoryFactory.organizationMembers();
-//    organizationRepository = CouchbaseRepositoryFactory.organizations();
-//    admin = CouchbaseRepositoryFactory.organizationMembersRepositoryAdmin();
-//  }
-
-  private void initInMemory() {
+  private void init() {
     orgMembersRepository = new InMemoryUserOrganizationMembershipRepository();
     organizationRepository = new InMemoryOrganizationRepository();
     admin = new OrganizationMembersRepositoryAdmin() {
@@ -144,6 +138,11 @@ public class OrganizationServiceTest {
         System.out.println();
       }
     };
+
+// init with couchbase
+//    orgMembersRepository = CouchbaseRepositoryFactory.organizationMembers();
+//    organizationRepository = CouchbaseRepositoryFactory.organizations();
+//    admin = CouchbaseRepositoryFactory.organizationMembersRepositoryAdmin();
   }
 
   @BeforeEach

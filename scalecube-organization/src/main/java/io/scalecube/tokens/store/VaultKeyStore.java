@@ -7,6 +7,7 @@ import com.bettercloud.vault.VaultException;
 import io.scalecube.config.AppConfiguration;
 import io.scalecube.tokens.KeyStoreException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -26,14 +27,27 @@ class VaultKeyStore implements KeyStore {
       final String vaultSecretPath = new EnvironmentLoader()
           .loadVariable("VAULT_SECRETS_PATH");
       final String path = String.format(pattern, vaultSecretPath);
-      final HashMap<String, Object> map = new HashMap<>();
+      final Map<String, Object> keys = keys(vault, path);
 
-      map.put(alias, key);
-      vault.logical().write(path, map);
+      keys.put(alias, key.toString());
+      vault.logical().write(path, keys);
     } catch (VaultException ex) {
       throw new KeyStoreException(ex);
     }
   }
+
+
+  private Map<String, Object> keys(Vault vault, String path) {
+    HashMap<String, Object> map = new HashMap<>();
+    try {
+      map.putAll(vault.logical().read(path).getData());
+    } catch (VaultException ex) {
+      // before the 1st key was written to vault under the path,
+      // the api call will throw an exception
+    }
+    return map;
+  }
+
 
   /**
    * Read optional vault address and token from settings file and use them to config vault client.
@@ -44,7 +58,7 @@ class VaultKeyStore implements KeyStore {
     VaultConfig config = new VaultConfig();
 
     if (isVaultAddressEnvVarSet()) {
-      return config;
+      return config.build();
     }
 
     String address = settings.getProperty("vault.address");
@@ -71,7 +85,7 @@ class VaultKeyStore implements KeyStore {
   }
 
   static boolean isVaultAddressEnvVarSet() {
-    String vaultAddress = System.getenv("VAULT_ADDRESS");
+    String vaultAddress = System.getenv("VAULT_ADDR");
     return vaultAddress != null && vaultAddress.length() > 0;
   }
 }

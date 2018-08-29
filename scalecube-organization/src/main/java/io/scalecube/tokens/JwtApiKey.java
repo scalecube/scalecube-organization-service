@@ -3,9 +3,7 @@ package io.scalecube.tokens;
 import io.scalecube.account.api.ApiKey;
 import io.scalecube.jwt.WebToken;
 
-import java.util.Calendar;
 import java.util.Map;
-import java.util.TimeZone;
 
 /**
  * JSON web token API key.
@@ -86,8 +84,8 @@ public class JwtApiKey extends ApiKey {
     public ApiKey build(String keyId, String secretKey) {
       final WebToken jwt = new WebToken(this.issuer, this.subject);
       final String apiKey = jwt.createToken(this.id, this.audience,
-          this.tokenTimeToLiveInMillis
-          , keyId, secretKey, claims);
+          this.tokenTimeToLiveInMillis,
+          keyId, secretKey, claims);
       return new JwtApiKey(this.name, this.claims, apiKey);
     }
 

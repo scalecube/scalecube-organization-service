@@ -102,7 +102,7 @@ final class CouchbaseOrganizationMembersRepositoryAdmin implements
         ? CouchbaseCluster.create()
         : CouchbaseCluster.create(nodes);
 
-    cluster.authenticate(settings.getCouchbaseAdmin(), settings.getCouchbaseAdminPassword());
+    cluster.authenticate(settings.getCouchbaseUsername(), settings.getCouchbasePassword());
 
     try {
       clusterConsumer.accept(cluster);
