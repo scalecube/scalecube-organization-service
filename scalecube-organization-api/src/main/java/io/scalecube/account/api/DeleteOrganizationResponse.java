@@ -9,6 +9,7 @@ public class DeleteOrganizationResponse {
   private String organizationId;
 
   /**
+   * Default constructor.
    * @deprecated only for serialization/deserialization.
    */
   DeleteOrganizationResponse() {}

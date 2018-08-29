@@ -1,17 +1,17 @@
 package io.scalecube.tokens.jwk;
 
-import org.apache.commons.codec.binary.Base64;
-
 import java.math.BigInteger;
+
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
+
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.codec.binary.Base64;
 
 
 /**

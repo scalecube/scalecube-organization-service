@@ -33,9 +33,10 @@ public class WebToken {
    * @param claims Token claims.
    * @return A string representation of a token.
    */
-  public String createToken(String id, long ttlMillis, String secretKey,
+  public String createToken(String id, String audience,
+      long ttlMillis, String keyId, String secretKey,
       Map<String, String> claims) {
-    return createWebToken(id, issuer, subject, ttlMillis, secretKey,
+    return createWebToken(id, issuer, subject, audience, ttlMillis, keyId, secretKey,
         claims == null ? new HashMap<>() : claims);
   }
 
@@ -48,7 +49,12 @@ public class WebToken {
    * @param ttlMillis contains ttl information.
    * @return returns string if valid.
    */
-  private String createWebToken(String id, String issuer, String subject, long ttlMillis,
+  private String createWebToken(String id,
+      String issuer,
+      String subject,
+      String audience,
+      long ttlMillis,
+      String keyId,
       String secretKey,
       Map<String, String> claims) {
 
@@ -66,8 +72,10 @@ public class WebToken {
     // Let's set the JWT Claims
     JwtBuilder builder = Jwts.builder()
         .setId(id)
+        .setHeaderParam("kid", keyId)
         .setIssuedAt(now)
         .setSubject(subject).setIssuer(issuer)
+        .setAudience(audience)
         .signWith(signatureAlgorithm, signingKey);
 
     for (Map.Entry<String, String> entry : claims.entrySet()) {
@@ -79,7 +87,7 @@ public class WebToken {
       Date exp = new Date(expMillis);
       builder.setExpiration(exp);
     } else {
-      builder.setExpiration(null);
+      builder.setExpiration(new Date(Long.MAX_VALUE));
     }
 
     // Builds the JWT and serializes it to a compact, URL-safe string
@@ -121,7 +129,7 @@ public class WebToken {
     Claims claims = null;
     try {
       // This line will throw an exception if it is not a signed JWS (as expected)
-      claims = (Claims) Jwts.parser()
+      claims = Jwts.parser()
           .setSigningKey(DatatypeConverter
               .parseBase64Binary(secretKey))
           .parseClaimsJws(jwt)

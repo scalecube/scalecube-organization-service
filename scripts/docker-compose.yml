@@ -52,7 +52,7 @@ services:
     environment:
       - COUCHBASE_USERNAME=${COUCHBASE_USERNAME}
       - COUCHBASE_PASSWORD=${COUCHBASE_PASSWORD}
-  instruments-service:
+  organization-service:
     image: "scalecube/scalecube-organization:${BRANCH:-latest}"
     depends_on:
 #      - seed

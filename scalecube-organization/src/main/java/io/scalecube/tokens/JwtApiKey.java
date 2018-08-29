@@ -40,6 +40,8 @@ public class JwtApiKey extends ApiKey {
     private Map<String, String> claims;
     private String id;
     private String name;
+    private long tokenTimeToLiveInMillis;
+    private String audience;
 
     public Builder name(String name) {
       this.name = name;
@@ -66,19 +68,31 @@ public class JwtApiKey extends ApiKey {
       return this;
     }
 
+    public Builder expiration(long tokenTimeToLiveInMillis) {
+      this.tokenTimeToLiveInMillis = tokenTimeToLiveInMillis;
+      return this;
+    }
+
+
     /**
      * Constructs an API key object and signs it using the <code>secret</code> argument.
      *
+     * @param keyId The token signing key id.
      * @param secretKey The token signing key.
      * @return an API key.
      */
-    public ApiKey build(String secretKey) {
+    public ApiKey build(String keyId, String secretKey) {
       final WebToken jwt = new WebToken(this.issuer, this.subject);
-      final String apiKey = jwt.createToken(this.id,
-          Long.MAX_VALUE - System.currentTimeMillis(), secretKey, claims);
+      final String apiKey = jwt.createToken(this.id, this.audience,
+          this.tokenTimeToLiveInMillis,
+          keyId, secretKey, claims);
       return new JwtApiKey(this.name, this.claims, apiKey);
     }
 
+    public Builder audience(String audience) {
+      this.audience = audience;
+      return this;
+    }
   }
 
 }
