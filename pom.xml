@@ -62,18 +62,23 @@
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
   </distributionManagement>
-
+  <repositories>
+    <repository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/service/local/repositories/releases/content/</url>
+    </repository>
+  </repositories>
   <properties>
     <scalecube.config.version>0.3.6-SNAPSHOT</scalecube.config.version>
-    <scalecube-services.version>2.1.12-SNAPSHOT</scalecube-services.version>
+    <scalecube-services.version>2.1.23</scalecube-services.version>
     <scalecube-gateway.version>2.0.11</scalecube-gateway.version>
-    <scalecube-security-jwt.version>1.0.2-SNAPSHOT</scalecube-security-jwt.version>
+    <scalecube-security-jwt.version>1.0.2</scalecube-security-jwt.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <dockerfile-maven.version>1.3.6</dockerfile-maven.version>
     <project.docker.repository>scalecube/configuration</project.docker.repository>
     <junit.jupiter.version>5.1.0</junit.jupiter.version>
-    <reactor.version>3.1.6.RELEASE</reactor.version>
+    <reactor.version>3.1.8.RELEASE</reactor.version>
     <jackson-databind.version>2.7.6</jackson-databind.version>
     <couchbase-client-version>2.6.0</couchbase-client-version>
   </properties>
