@@ -1,26 +1,10 @@
 FROM openjdk:8
+MAINTAINER support@jivygroup.com
 
-MAINTAINER info@scalecube.io
+ARG SERVICE_NAME
+ARG EXECUTABLE_JAR
+ENV SERVICE_NAME ${SERVICE_NAME}
 
-# copy package information.
-COPY target/maven-archiver/pom.properties                   /usr/dev/root/package.properties
-
-# Add the service itself
-ADD target/server-jar-with-dependencies.jar                 /usr/dev/root/server.jar
-
-# Cluster control port and communication port.
-EXPOSE 4801 4802
-
-###################################################################
-# Environment Variables:
-# -----------------------------------------------------------------
-# SC_HOME:         the root folder for a scalecube node.
-# SC_SEED_ADDRESS: the list of seed nodes to join a cluster
-# REDIS_ADDRESS:   the redis db address used to connect to redis.
-###################################################################
-
-ENV SC_HOME="/usr/dev/root/" \
-    SC_SEED_ADDRESS="172.17.0.2:4802, 172.17.0.3:4802, 172.17.0.4:4802" \
-    COUCHBASE_ADDRESS="localhost:8091"
-
-ENTRYPOINT ["java", "-jar", "/usr/dev/root/server.jar"]
+COPY target/lib /opt/om2/lib
+COPY target/${EXECUTABLE_JAR}.jar /opt/om2/app.jar
+ENTRYPOINT ["/usr/bin/java", "-jar", "-Dlog4j.configurationFile=exchange-log4j2-cloud.xml", "/opt/om2/app.jar"]

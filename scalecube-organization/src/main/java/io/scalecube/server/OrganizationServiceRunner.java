@@ -2,6 +2,8 @@ package io.scalecube.server;
 
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.config.AppConfiguration;
+import io.scalecube.config.ConfigRegistry;
+import io.scalecube.config.ConfigRegistryConfiguration;
 import io.scalecube.organization.OrganizationServiceImpl;
 import io.scalecube.organization.repository.couchbase.CouchbaseRepositoryFactory;
 import io.scalecube.services.Microservices;
@@ -24,12 +26,12 @@ public class OrganizationServiceRunner {
    *
    * @param args application params.
    */
-  public static void main(String[] args) throws AddressParseException, InterruptedException {
+  public static void main(String[] args) throws Exception {
     start();
     Thread.currentThread().join();
   }
 
-  private static void start() throws AddressParseException {
+  private static void start() throws Exception {
     Microservices.builder()
         .seeds(seeds())
         .services(createOrganizationService())
@@ -46,21 +48,13 @@ public class OrganizationServiceRunner {
         .build();
   }
 
-  private static Address[] seeds() throws AddressParseException {
-    AppConfiguration settings = AppConfiguration.builder().build();
+  private static Address[] seeds() throws Exception {
+    ConfigRegistry configRegistry = ConfigRegistryConfiguration.configRegistry();
     try {
-      return stringListValue(settings.getProperty(SEEDS))
+      return configRegistry.stringListValue(SEEDS, DEFAULT_SEEDS)
           .stream().map(Address::from).toArray(Address[]::new);
     } catch (Throwable ex) {
-      throw new AddressParseException("Failed to parse seeds from settings", ex);
-    }
-  }
-
-  private static List<String> stringListValue(String seeds) {
-    if (seeds == null || seeds.length() == 0) {
-      return DEFAULT_SEEDS;
-    } else {
-      return Arrays.asList(seeds.split(","));
+      throw new Exception("Failed to parse seeds from settings", ex);
     }
   }
 }

@@ -129,13 +129,13 @@ public class OrganizationServiceTest {
       @Override
       public void createRepository(Organization organization) {
         // dummy body
-        System.out.println();
+        System.out.print(".");
       }
 
       @Override
       public void deleteRepository(Organization organization) {
         // dummy body
-        System.out.println();
+        System.out.print(".");
       }
     };
 
