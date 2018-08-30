@@ -15,6 +15,12 @@
 
   <dependencies>
     <dependency>
+      <groupId>io.projectreactor</groupId>
+      <artifactId>reactor-test</artifactId>
+      <version>${reactor-test.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>config</artifactId>
       <version>${scalecube.config.version}</version>

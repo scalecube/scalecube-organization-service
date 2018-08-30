@@ -69,7 +69,7 @@
     </repository>
   </repositories>
   <properties>
-    <scalecube.config.version>0.3.6-SNAPSHOT</scalecube.config.version>
+    <scalecube.config.version>0.3.6</scalecube.config.version>
     <scalecube-services.version>2.1.23</scalecube-services.version>
     <scalecube-gateway.version>2.0.11</scalecube-gateway.version>
     <scalecube-security-jwt.version>1.0.2</scalecube-security-jwt.version>
@@ -78,7 +78,6 @@
     <dockerfile-maven.version>1.3.6</dockerfile-maven.version>
     <project.docker.repository>scalecube/configuration</project.docker.repository>
     <junit.jupiter.version>5.1.0</junit.jupiter.version>
-    <reactor.version>3.1.8.RELEASE</reactor.version>
     <jackson-databind.version>2.7.6</jackson-databind.version>
     <couchbase-client-version>2.6.0</couchbase-client-version>
   </properties>
