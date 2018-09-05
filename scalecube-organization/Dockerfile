@@ -5,6 +5,9 @@ ARG SERVICE_NAME
 ARG EXECUTABLE_JAR
 ENV SERVICE_NAME ${SERVICE_NAME}
 
-COPY target/lib /opt/om2/lib
-COPY target/${EXECUTABLE_JAR}.jar /opt/om2/app.jar
-ENTRYPOINT ["/usr/bin/java", "-jar", "-Dlog4j.configurationFile=exchange-log4j2-cloud.xml", "/opt/om2/app.jar"]
+WORKDIR /opt/om2
+
+COPY target/lib lib
+COPY target/${EXECUTABLE_JAR}.jar app.jar
+
+ENTRYPOINT exec java $JAVA_OPTS -Dlog4j.configurationFile=log4j2.xml -jar app.jar

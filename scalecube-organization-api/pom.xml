@@ -20,7 +20,6 @@
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>scalecube-services-api</artifactId>
-      <version>${scalecube-services.version}</version>
     </dependency>
   </dependencies>
 </project>
