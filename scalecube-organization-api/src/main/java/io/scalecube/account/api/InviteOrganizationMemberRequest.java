@@ -5,9 +5,17 @@ package io.scalecube.account.api;
  */
 public class InviteOrganizationMemberRequest {
 
-  private final Token token;
-  private final String organizationId;
-  private final String userId;
+  private Token token;
+  private String organizationId;
+  private String userId;
+
+  /**
+   * Default constructor.
+   *
+   * @deprecated only for serialization/deserialization.
+   */
+  InviteOrganizationMemberRequest() {
+  }
 
   /**
    * Constructs an invite a member to an Organization request.

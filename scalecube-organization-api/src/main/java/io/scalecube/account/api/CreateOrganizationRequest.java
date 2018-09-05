@@ -13,7 +13,16 @@ public class CreateOrganizationRequest {
   private String email;
 
   /**
+   * Default constructor.
+   *
+   * @deprecated only for serialization/deserialization.
+   */
+  CreateOrganizationRequest() {
+  }
+
+  /**
    * Constructs a request to create a new organization.
+   *
    * @param name New organization name
    * @param token Verification token
    * @param email Organization owner's email
