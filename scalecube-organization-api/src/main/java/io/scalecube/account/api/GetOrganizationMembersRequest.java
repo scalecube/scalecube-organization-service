@@ -2,12 +2,20 @@ package io.scalecube.account.api;
 
 public class GetOrganizationMembersRequest {
 
-  private final String organizationId;
+  private String organizationId;
 
-  private final Token token;
+  private Token token;
+
+  /**
+   * Default constructor.
+   *
+   * @deprecated only for serialization/deserialization.
+   */
+  GetOrganizationMembersRequest() {
+  }
 
   public GetOrganizationMembersRequest(String organizationId,
-                                       Token token) {
+      Token token) {
     this.organizationId = organizationId;
     this.token = token;
   }

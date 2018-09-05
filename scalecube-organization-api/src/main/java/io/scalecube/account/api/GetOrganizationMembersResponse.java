@@ -9,9 +9,11 @@ public class GetOrganizationMembersResponse {
 
   /**
    * Default constructor.
+   *
    * @deprecated only for serialization/deserialization.
    */
-  GetOrganizationMembersResponse() {}
+  GetOrganizationMembersResponse() {
+  }
 
   /**
    * Constructs a get organization membership API call response object.

@@ -11,9 +11,11 @@ public class DeleteOrganizationRequest {
 
   /**
    * Default constructor.
+   *
    * @deprecated only for serialization/deserialization.
    */
-  DeleteOrganizationRequest() {}
+  DeleteOrganizationRequest() {
+  }
 
   /**
    * Construct a request object to a delete an organization API call.

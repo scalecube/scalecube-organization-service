@@ -6,7 +6,13 @@ public class GetOrganizationRequest {
 
   private String organizationId;
 
-  public GetOrganizationRequest() {}
+  /**
+   * Default constructor.
+   *
+   * @deprecated only for serialization/deserialization.
+   */
+  GetOrganizationRequest() {
+  }
 
   public GetOrganizationRequest(Token token, String organizationId) {
     this.token = token;

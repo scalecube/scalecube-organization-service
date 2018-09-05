@@ -7,12 +7,15 @@ public class UpdateOrganizationResponse extends OrganizationInfo {
 
   /**
    * Default constructor.
+   *
    * @deprecated only for serialization/deserialization.
    */
-  UpdateOrganizationResponse() {}
+  UpdateOrganizationResponse() {
+  }
 
   /**
    * Constructs a response to an update of an organization.
+   *
    * @param id Organization Id.
    * @param name Organization name.
    * @param apiKey Organization API key.

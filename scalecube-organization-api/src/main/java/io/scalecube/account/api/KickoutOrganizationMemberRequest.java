@@ -5,9 +5,17 @@ package io.scalecube.account.api;
  */
 public class KickoutOrganizationMemberRequest {
 
-  private final Token token;
-  private final String organizationId;
-  private final String userId;
+  private Token token;
+  private String organizationId;
+  private String userId;
+
+  /**
+   * Default constructor.
+   *
+   * @deprecated only for serialization/deserialization.
+   */
+  KickoutOrganizationMemberRequest() {
+  }
 
   /**
    * Constructs a request to expel a member from an Organization.

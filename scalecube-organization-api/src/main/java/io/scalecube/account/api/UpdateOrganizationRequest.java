@@ -5,13 +5,21 @@ package io.scalecube.account.api;
  */
 public class UpdateOrganizationRequest {
 
-  private final Token token;
+  private Token token;
 
-  private final String name;
+  private String name;
 
-  private final String email;
+  private String email;
 
-  private final String organizationId;
+  private String organizationId;
+
+  /**
+   * Default constructor.
+   *
+   * @deprecated only for serialization/deserialization.
+   */
+  UpdateOrganizationRequest() {
+  }
 
   /**
    * Constructs a request to update an organization with the following arguments.

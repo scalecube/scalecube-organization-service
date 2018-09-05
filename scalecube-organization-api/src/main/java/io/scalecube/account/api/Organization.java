@@ -28,7 +28,8 @@ public class Organization {
   /**
    * Constructs an empty Organization object.
    */
-  public Organization() {}
+  Organization() {
+  }
 
   private Organization(String id, String name, String ownerId, String secretKeyId, String secretKey,
       ApiKey[] apiKeys, String email, Map<String, List<String>> members) {
@@ -128,6 +129,7 @@ public class Organization {
 
     /**
      * Creates a copy of the Organization source argument.
+     *
      * @param source The source to copy from
      * @return an Organization object which a shallow copy of the source argument.
      */

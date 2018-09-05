@@ -7,12 +7,15 @@ public class GetOrganizationResponse extends OrganizationInfo {
 
   /**
    * Default constructor.
+   *
    * @deprecated only for serialization/deserialization.
    */
-  GetOrganizationResponse() {}
+  GetOrganizationResponse() {
+  }
 
   /**
    * Constructs a response to a get Organization API call.
+   *
    * @param id Organization Id.
    * @param name Organization name.
    * @param apiKeys Organization API keys.
