@@ -8,10 +8,18 @@ import java.util.Map;
  */
 public class AddOrganizationApiKeyRequest {
 
-  private final Token token;
-  private final String organizationId;
-  private final String apiKeyName;
-  private final Map<String, String> claims;
+  private Token token;
+  private String organizationId;
+  private String apiKeyName;
+  private Map<String, String> claims;
+
+  /**
+   * Default constructor.
+   *
+   * @deprecated only for serialization/deserialization.
+   */
+  AddOrganizationApiKeyRequest() {
+  }
 
   /**
    * Constructs a request to add organization API key.

@@ -7,18 +7,15 @@ import java.util.Arrays;
  */
 public class GetMembershipResponse {
 
-  @Override
-  public String toString() {
-    return "GetOrganizationsResponse [organizations=" + Arrays.toString(organizations) + "]";
-  }
-
   private OrganizationInfo[] organizations;
 
   /**
    * Default constructor.
+   *
    * @deprecated only for serialization/deserialization.
    */
-  GetMembershipResponse() {}
+  GetMembershipResponse() {
+  }
 
   /**
    * Constructs a get membership API call response object.
@@ -29,8 +26,12 @@ public class GetMembershipResponse {
     this.organizations = organizationInfos;
   }
 
-
   public OrganizationInfo[] organizations() {
     return organizations;
+  }
+
+  @Override
+  public String toString() {
+    return "GetOrganizationsResponse [organizations=" + Arrays.toString(organizations) + "]";
   }
 }
