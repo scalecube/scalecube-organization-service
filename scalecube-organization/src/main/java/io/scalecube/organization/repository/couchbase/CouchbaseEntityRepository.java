@@ -10,17 +10,14 @@ import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.RawJsonDocument;
 import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.SimpleN1qlQuery;
-
 import io.scalecube.organization.repository.Repository;
 import io.scalecube.organization.repository.exception.DataRetrievalFailureException;
 import io.scalecube.organization.repository.exception.OperationInterruptedException;
 import io.scalecube.organization.repository.exception.QueryTimeoutException;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
-
 import rx.Observable;
 import rx.functions.Func1;
 
@@ -157,7 +154,7 @@ abstract class CouchbaseEntityRepository<T, I extends String> implements Reposit
   }
 
   protected Bucket client() {
-    return cluster().openBucket(bucketName);
+    return cluster().openBucket(bucketName, settings.getCouchbasePassword());
   }
 
   private <R> Observable<R> executeAsync(Observable<R> asyncAction) {
@@ -187,8 +184,6 @@ abstract class CouchbaseEntityRepository<T, I extends String> implements Reposit
           cluster = nodes.isEmpty()
               ? CouchbaseCluster.create()
               : CouchbaseCluster.create(nodes);
-
-          cluster.authenticate(couchbaseUsername, couchbasePassword);
         }
       }
     }
