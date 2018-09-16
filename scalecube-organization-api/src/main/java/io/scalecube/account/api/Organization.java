@@ -21,8 +21,6 @@ public class Organization {
 
   private String email;
 
-  private Map<String, List<String>> members;
-
   private String secretKeyId;
 
   /**
@@ -32,7 +30,7 @@ public class Organization {
   }
 
   private Organization(String id, String name, String ownerId, String secretKeyId, String secretKey,
-      ApiKey[] apiKeys, String email, Map<String, List<String>> members) {
+      ApiKey[] apiKeys, String email) {
     this.id = id;
     this.ownerId = ownerId;
     this.secretKeyId = secretKeyId;
@@ -40,7 +38,6 @@ public class Organization {
     this.apiKeys = apiKeys;
     this.name = name;
     this.email = email;
-    this.members = members;
   }
 
   public String ownerId() {
@@ -138,12 +135,12 @@ public class Organization {
       String name = this.name == null ? source.name : this.name;
       ApiKey[] apiKeys = this.apiKeys == null ? source.apiKeys : this.apiKeys;
       return new Organization(source.id(), name, source.ownerId(), source.secretKeyId(),
-          source.secretKey(), apiKeys, email, source.members);
+          source.secretKey(), apiKeys, email);
     }
 
     public Organization build() {
       return new Organization("ORG-" + this.id, this.name, this.ownerId, this.secretKeyId,
-          this.secretKey, this.apiKeys, this.email, new HashMap<>());
+          this.secretKey, this.apiKeys, this.email);
     }
   }
 

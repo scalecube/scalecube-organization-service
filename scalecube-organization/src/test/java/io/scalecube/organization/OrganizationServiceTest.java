@@ -27,8 +27,8 @@ import io.scalecube.account.api.InviteOrganizationMemberRequest;
 import io.scalecube.account.api.KickoutOrganizationMemberRequest;
 import io.scalecube.account.api.LeaveOrganizationRequest;
 import io.scalecube.account.api.Organization;
+import io.scalecube.account.api.OrganizationInfo;
 import io.scalecube.account.api.OrganizationMember;
-import io.scalecube.account.api.OrganizationNotFound;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
@@ -36,7 +36,6 @@ import io.scalecube.account.api.UpdateOrganizationRequest;
 import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
 import io.scalecube.organization.repository.Repository;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
-import io.scalecube.organization.repository.couchbase.CouchbaseRepositoryFactory;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.organization.repository.exception.NameAlreadyInUseException;
@@ -57,7 +56,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.omg.PortableInterceptor.INACTIVE;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -147,10 +145,14 @@ public class OrganizationServiceTest {
 
   @BeforeEach
   public void createOrganizationBeforeTest() {
+    organisationId = createOrganization("myTestOrg5");
+  }
+
+  private String createOrganization(String name) {
     AwaitLatch<CreateOrganizationResponse> await = consume(service.createOrganization(
-        new CreateOrganizationRequest("myTestOrg5", token, "email")));
+        new CreateOrganizationRequest(name, token, "email")));
     assertThat(await.error(), is(nullValue()));
-    organisationId = await.result().id();
+    return await.result().id();
   }
 
   @AfterEach
@@ -163,14 +165,32 @@ public class OrganizationServiceTest {
 
   @Test
   public void getUserOrganizationsMembership() {
+    String orgId1 = createOrganization("testOrg1");
+    String orgId2 = createOrganization("testOrg2");
     addMemberToOrganization(organisationId, service, testProfile);
+    addMemberToOrganization(orgId1, service, testProfile);
+    addMemberToOrganization(orgId2, service, testProfile);
+
     assertNotNull(
-    StepVerifier.create(
-        service.getUserOrganizationsMembership(
-            new GetMembershipRequest(token)
-        )
-    ).assertNext(r -> assertEquals(r.organizations()[0].id(), organisationId))
-        .verifyComplete());
+      StepVerifier.create(
+          service.getUserOrganizationsMembership(
+              new GetMembershipRequest(token)))
+          .assertNext(r -> {
+              assertThat("expected 3 memberships", r.organizations().length, is(3));
+            Supplier<Stream<String>> ids = () ->
+                Arrays.stream(r.organizations()).map(OrganizationInfo::id);
+            assertThat(orgId1 + " is expected",
+                ids.get().anyMatch(i -> Objects.equals(orgId1, i)));
+            assertThat(orgId2 + " is expected",
+                ids.get().anyMatch(i -> Objects.equals(orgId2, i)));
+            assertThat(organisationId + " is expected",
+                ids.get().anyMatch(i -> Objects.equals(organisationId, i)));
+          })
+          .verifyComplete()
+    );
+
+    deleteOrganization(orgId1);
+    deleteOrganization(orgId2);
   }
 
   @Test
@@ -331,6 +351,15 @@ public class OrganizationServiceTest {
         .assertNext((r) -> assertThat(r.id(), is(organisationId)))
         .expectComplete()
         .verify();
+    assertNotNull(duration);
+  }
+
+  @Test
+  public void getOrganization_not_a_member_should_fail_with_AccessPermissionException() {
+    Duration duration = expectError(
+        createService(testProfile5)
+            .getOrganization(new GetOrganizationRequest(new Token("foo", "bar"),
+                organisationId)), AccessPermissionException.class);
     assertNotNull(duration);
   }
 
@@ -590,6 +619,11 @@ public class OrganizationServiceTest {
 
   @Test
   public void updateOrganization() {
+    consume(service.addOrganizationApiKey(
+        new AddOrganizationApiKeyRequest(token,
+            organisationId,
+            "testApiKey",
+            new HashMap<>())));
     Duration duration = StepVerifier
         .create(service.updateOrganization(new UpdateOrganizationRequest(
             organisationId,
@@ -598,8 +632,9 @@ public class OrganizationServiceTest {
             "update@email")))
         .expectSubscription()
         .assertNext((r) -> {
-          assertThat(r.name(), is("update_name"));
-          assertThat(r.email(), is("update@email"));
+          assertThat("name not updated", r.name(), is("update_name"));
+          assertThat("email not updated", r.email(), is("update@email"));
+          assertThat("missing api key ", r.apiKeys().length, is(not(0)));
         })
         .verifyComplete();
     assertNotNull(duration);
@@ -892,12 +927,21 @@ public class OrganizationServiceTest {
     assertNotNull(duration);
   }
 
+  @Test
+  public void kickoutMember_not_org_owner_should_fail_with_AccessPermissionException() {
+    Duration duration = expectError(createService(testProfile5).kickoutMember(
+        new KickoutOrganizationMemberRequest(organisationId,
+            token, testProfile5.getUserId())),
+        AccessPermissionException.class);
+    assertNotNull(duration);
+  }
+
   ///////////////////////////////////////////////////////////
   @Test
   public void leaveOrganization() {
-    addMemberToOrganization(organisationId, service, testProfile);
+    addMemberToOrganization(organisationId, service, testProfile5);
     Duration duration = StepVerifier
-        .create(service.leaveOrganization(
+        .create(createService(testProfile5).leaveOrganization(
             new LeaveOrganizationRequest(token, organisationId)))
         .expectSubscription()
         .assertNext(x -> StepVerifier
@@ -906,7 +950,7 @@ public class OrganizationServiceTest {
             .expectSubscription()
             .assertNext(r -> assertThat(Arrays.asList(r.members()),
                 not(hasItem(
-                    new OrganizationMember(testProfile.getUserId(), Role.Owner.toString())))))
+                    new OrganizationMember(testProfile5.getUserId(), Role.Member.toString())))))
             .verifyComplete())
         .verifyComplete();
     assertNotNull(duration);

@@ -212,6 +212,11 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
     }
   }
 
+  @Override
+  public boolean isMember(String userId, Organization organization) {
+    return organizationMembershipRepository.isMember(userId, organization);
+  }
+
   private void verifyOrganizationExists(Organization organization)
       throws EntityNotFoundException {
     if (!organizations.existsById(organization.id())) {
