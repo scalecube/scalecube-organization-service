@@ -122,7 +122,7 @@ public interface OrganizationsDataAccess {
 
   /**
    * Determines if the user corresponding to the userId argument is a member of the organization
-   *     argument
+   *     argument.
    * @param userId the user id criteria
    * @param organization the organization criteria
    * @return true if the user is a member of the organization; false otherwise.

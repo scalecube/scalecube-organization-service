@@ -208,9 +208,13 @@ public class OrganizationServiceImpl implements OrganizationService {
       try {
         validateRequest(request, request.organizationId(), request.token());
         requireNonNullOrEmpty(request.userId(), "user id is required");
-        Profile owner = verifyToken(request.token());
+        Profile caller = verifyToken(request.token());
         Organization organization = getOrganization(request.organizationId());
-        repository.kickout(owner, organization, request.userId());
+        boolean isOwner = Objects.equals(organization.ownerId(), caller.getUserId());
+        if (!isOwner) {
+          throw new AccessPermissionException("Not owner");
+        }
+        repository.kickout(caller, organization, request.userId());
         result.success(new KickoutOrganizationMemberResponse());
       } catch (Throwable ex) {
         result.error(ex);
@@ -347,10 +351,11 @@ public class OrganizationServiceImpl implements OrganizationService {
     return Mono.create(result -> {
       try {
         validateRequest(request, request.organizationId(), request.token());
-        Profile profile = verifyToken(request.token());
+        Profile caller = verifyToken(request.token());
         Organization organization = getOrganization(request.organizationId());
+        boolean isOwner = Objects.equals(organization.ownerId(), caller.getUserId());
 
-        if (!repository.isMember(profile.getUserId(), organization)) {
+        if (!isOwner && !repository.isMember(caller.getUserId(), organization)) {
           throw new AccessPermissionException("Restricted to members only");
         }
 
