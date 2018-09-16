@@ -347,8 +347,13 @@ public class OrganizationServiceImpl implements OrganizationService {
     return Mono.create(result -> {
       try {
         validateRequest(request, request.organizationId(), request.token());
-        verifyToken(request.token());
+        Profile profile = verifyToken(request.token());
         Organization organization = getOrganization(request.organizationId());
+
+        if (!repository.isMember(profile.getUserId(), organization)) {
+          throw new AccessPermissionException("Restricted to members only");
+        }
+
         result.success(
             new GetOrganizationResponse(organization.id(), organization.name(),
                 organization.apiKeys(),

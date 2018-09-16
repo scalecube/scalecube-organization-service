@@ -119,4 +119,13 @@ public interface OrganizationsDataAccess {
    *     provider.
    */
   void leave(Organization organization, String userId) throws EntityNotFoundException;
+
+  /**
+   * Determines if the user corresponding to the userId argument is a member of the organization
+   *     argument
+   * @param userId the user id criteria
+   * @param organization the organization criteria
+   * @return true if the user is a member of the organization; false otherwise.
+   */
+  boolean isMember(String userId, Organization organization);
 }

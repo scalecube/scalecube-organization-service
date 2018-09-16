@@ -334,6 +334,15 @@ public class OrganizationServiceTest {
     assertNotNull(duration);
   }
 
+  @Test
+  public void getOrganization_not_a_member_should_fail_with_AccessPermissionException() {
+    Duration duration = expectError(
+        createService(testProfile5)
+            .getOrganization(new GetOrganizationRequest(new Token("foo", "bar"),
+                organisationId)), AccessPermissionException.class);
+    assertNotNull(duration);
+  }
+
   private Organization getOrganizationFromRepository(String organisationId) {
     return organizationRepository
         .findById(organisationId)
