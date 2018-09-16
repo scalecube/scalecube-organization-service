@@ -590,6 +590,11 @@ public class OrganizationServiceTest {
 
   @Test
   public void updateOrganization() {
+    consume(service.addOrganizationApiKey(
+        new AddOrganizationApiKeyRequest(token,
+            organisationId,
+            "testApiKey",
+            new HashMap<>())));
     Duration duration = StepVerifier
         .create(service.updateOrganization(new UpdateOrganizationRequest(
             organisationId,
@@ -598,8 +603,9 @@ public class OrganizationServiceTest {
             "update@email")))
         .expectSubscription()
         .assertNext((r) -> {
-          assertThat(r.name(), is("update_name"));
-          assertThat(r.email(), is("update@email"));
+          assertThat("name not updated", r.name(), is("update_name"));
+          assertThat("email not updated", r.email(), is("update@email"));
+          assertThat("missing api key ", r.apiKeys().length, is(not(0)));
         })
         .verifyComplete();
     assertNotNull(duration);

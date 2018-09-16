@@ -150,6 +150,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         Organization org2 = Organization.builder()
               .name(request.name())
               .email(request.email())
+              .apiKey(organization.apiKeys())
               .copy(organization);
 
         repository.updateOrganizationDetails(owner, organization, org2);
