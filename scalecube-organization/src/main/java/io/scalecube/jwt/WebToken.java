@@ -24,23 +24,38 @@ public class WebToken {
     this.subject = subject;
   }
 
-  public String createToken(String id, long ttlMillis, String secretKey, Map<String, String> claims) {
-    if (claims == null) {
-      claims = new HashMap<>();
-    }
-    return createWebToken(id, issuer, subject, ttlMillis, secretKey, claims);
+  /**
+   * Creates a token using the provided arguments.
+   *
+   * @param id Token id.
+   * @param ttlMillis Token expiration.
+   * @param secretKey Signing key.
+   * @param claims Token claims.
+   * @return A string representation of a token.
+   */
+  public String createToken(String id, String audience,
+      long ttlMillis, String keyId, String secretKey,
+      Map<String, String> claims) {
+    return createWebToken(id, issuer, subject, audience, ttlMillis, keyId, secretKey,
+        claims == null ? new HashMap<>() : claims);
   }
 
   /**
    * Create JWT object.
-   * 
+   *
    * @param id contains id information.
    * @param issuer contains issuer information.
    * @param subject contains subject information.
    * @param ttlMillis contains ttl information.
    * @return returns string if valid.
    */
-  private String createWebToken(String id, String issuer, String subject, long ttlMillis, String secretKey,
+  private String createWebToken(String id,
+      String issuer,
+      String subject,
+      String audience,
+      long ttlMillis,
+      String keyId,
+      String secretKey,
       Map<String, String> claims) {
 
     // The JWT signature algorithm we will be using to sign the token
@@ -57,8 +72,10 @@ public class WebToken {
     // Let's set the JWT Claims
     JwtBuilder builder = Jwts.builder()
         .setId(id)
+        .setHeaderParam("kid", keyId)
         .setIssuedAt(now)
         .setSubject(subject).setIssuer(issuer)
+        .setAudience(audience)
         .signWith(signatureAlgorithm, signingKey);
 
     for (Map.Entry<String, String> entry : claims.entrySet()) {
@@ -70,7 +87,7 @@ public class WebToken {
       Date exp = new Date(expMillis);
       builder.setExpiration(exp);
     } else {
-      builder.setExpiration(null);
+      builder.setExpiration(new Date(Long.MAX_VALUE));
     }
 
     // Builds the JWT and serializes it to a compact, URL-safe string
@@ -79,7 +96,7 @@ public class WebToken {
 
   /**
    * Verifies if token is valid.
-   * 
+   *
    * @param token to validate.
    * @param id of the token.
    * @param secretKey this token was encypted with.
@@ -90,7 +107,8 @@ public class WebToken {
 
     // Make sure id, subject, and issuer are correct
     if (claims != null
-        && (claims.getId().equals(id) && claims.getSubject().equals(subject) && claims.getIssuer().equals(issuer))) {
+        && (claims.getId().equals(id) && claims.getSubject().equals(subject) && claims.getIssuer()
+        .equals(issuer))) {
       // Make sure expiration is in the future
       long nowMillis = System.currentTimeMillis();
       Date now = new Date(nowMillis);
@@ -103,7 +121,7 @@ public class WebToken {
 
   /**
    * Parse Web Token object.
-   * 
+   *
    * @param jwt contains jwt information.
    * @return returns if valid.
    */
@@ -111,7 +129,7 @@ public class WebToken {
     Claims claims = null;
     try {
       // This line will throw an exception if it is not a signed JWS (as expected)
-      claims = (Claims) Jwts.parser()
+      claims = Jwts.parser()
           .setSigningKey(DatatypeConverter
               .parseBase64Binary(secretKey))
           .parseClaimsJws(jwt)

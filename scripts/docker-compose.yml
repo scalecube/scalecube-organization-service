@@ -1,0 +1,66 @@
+version: '2.1'
+services:
+#  seed:
+#    image: "scalecube/configuration:scalecube-seed-0.0.5-SNAPSHOT"
+#    healthcheck:
+#      test: ["CMD-SHELL", "netstat -lta | grep 4802"]
+#      interval: 30s
+#      timeout: 10s
+#      retries: 3
+#      start_period: 1s
+  gateway:
+    image: "scalecube/scalecube-gateway-websocket-runner:latest"
+    ports:
+      - "8080:8080"
+    expose:
+      - "8080"
+    env_file:
+      - ${ENV_FILE}
+#    depends_on:
+#      - seed
+  couchbase:
+    build: ./couchbase
+    ports:
+      - "${COUCHBASE_8091:-8091}:8091"
+      - "${COUCHBASE_8092:-8092}:8092"
+      - "${COUCHBASE_8093:-8093}:8093"
+      - "${COUCHBASE_8094:-8094}:8094"
+      - "${COUCHBASE_11207:-11207}:11207"
+      - "${COUCHBASE_11210:-11210}:11210"
+      - "${COUCHBASE_11211:-11211}:11211"
+      - "${COUCHBASE_18091:-18091}:18091"
+      - "${COUCHBASE_18092:-18092}:18092"
+      - "${COUCHBASE_18093:-18093}:18093"
+      - "${COUCHBASE_18094:-18094}:18094"
+    expose:
+      - "${COUCHBASE_8091:-8091}"
+      - "${COUCHBASE_8092:-8092}"
+      - "${COUCHBASE_8093:-8093}"
+      - "${COUCHBASE_8094:-8094}"
+      - "${COUCHBASE_11207:-11207}"
+      - "${COUCHBASE_11210:-11210}"
+      - "${COUCHBASE_11211:-11211}"
+      - "${COUCHBASE_18091:-18091}"
+      - "${COUCHBASE_18092:-18092}"
+      - "${COUCHBASE_18093:-18093}"
+      - "${COUCHBASE_18094:-18094}"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://${COUCHBASE_USERNAME}:${COUCHBASE_PASSWORD}@localhost:8091/pools/default/buckets/instances"]
+      interval: 1s
+      timeout: 3s
+      retries: 60
+    environment:
+      - COUCHBASE_USERNAME=${COUCHBASE_USERNAME}
+      - COUCHBASE_PASSWORD=${COUCHBASE_PASSWORD}
+  organization-service:
+    image: "scalecube/scalecube-organization:${BRANCH:-latest}"
+    depends_on:
+#      - seed
+      gateway:
+        condition: service_started
+      couchbase:
+        condition: service_healthy
+    env_file:
+      - ${ENV_FILE}
+    env_file:
+      - ${ENV_FILE}

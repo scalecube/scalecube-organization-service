@@ -2,18 +2,25 @@ package io.scalecube.account.api;
 
 import java.util.Objects;
 
+/**
+ * Represents an organization member.
+ */
 public class OrganizationMember {
   private String id;
 
-  private User user;
-
   private String role;
 
+  /**
+   * Constructs an empty organization member.
+   */
   public OrganizationMember() {}
 
-  public OrganizationMember(User user, String role) {
-    this.id = user.id();
-    this.user = user;
+  /**
+   * Constructs an organization member using the user and role arguments.
+   * @param role organization member role.
+   */
+  public OrganizationMember(String userId, String role) {
+    this.id = userId;
     this.role = role;
   }
 
@@ -21,9 +28,6 @@ public class OrganizationMember {
     return this.id;
   }
 
-  public User user() {
-    return this.user;
-  }
 
   public String role() {
     return this.role;
@@ -31,15 +35,17 @@ public class OrganizationMember {
 
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof OrganizationMember))
+    if (!(obj instanceof OrganizationMember)) {
       return super.equals(obj);
+    }
 
     OrganizationMember other = (OrganizationMember)obj;
-    return Objects.equals(user, other.id);
+
+    return Objects.equals(id, other.id);
   }
 
   @Override
   public String toString() {
-    return super.toString() + String.format("[user=%s, role=%s]", user, role);
+    return super.toString() + String.format("[userId=%s, role=%s]", id, role);
   }
 }

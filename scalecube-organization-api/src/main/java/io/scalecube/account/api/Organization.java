@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Represents an Organization.
+ */
 public class Organization {
 
   private String name;
@@ -18,19 +21,23 @@ public class Organization {
 
   private String email;
 
-  private Map<String, List<String>> members;
+  private String secretKeyId;
 
-  public Organization() {}
+  /**
+   * Constructs an empty Organization object.
+   */
+  Organization() {
+  }
 
-  private Organization(String id, String name, String ownerId, String secretKey, ApiKey[] apiKeys, String email,
-                       Map<String, List<String>> members) {
+  private Organization(String id, String name, String ownerId, String secretKeyId, String secretKey,
+      ApiKey[] apiKeys, String email) {
     this.id = id;
     this.ownerId = ownerId;
+    this.secretKeyId = secretKeyId;
     this.secretKey = secretKey;
     this.apiKeys = apiKeys;
     this.name = name;
     this.email = email;
-    this.members = members;
   }
 
   public String ownerId() {
@@ -47,6 +54,10 @@ public class Organization {
 
   public ApiKey[] apiKeys() {
     return this.apiKeys;
+  }
+
+  public String secretKeyId() {
+    return this.secretKeyId;
   }
 
   public String secretKey() {
@@ -75,6 +86,8 @@ public class Organization {
 
     private String id;
 
+    private String secretKeyId;
+
     public Builder id(String id) {
       this.id = id;
       return this;
@@ -100,26 +113,40 @@ public class Organization {
       return this;
     }
 
+    public Builder secretKeyId(String secretKeyId) {
+      this.secretKeyId = secretKeyId;
+      return this;
+    }
+
+
     public Builder secretKey(String secretKey) {
       this.secretKey = secretKey;
       return this;
     }
 
+    /**
+     * Creates a copy of the Organization source argument.
+     *
+     * @param source The source to copy from
+     * @return an Organization object which a shallow copy of the source argument.
+     */
     public Organization copy(Organization source) {
       String email = this.email == null ? source.email : this.email;
       String name = this.name == null ? source.name : this.name;
       ApiKey[] apiKeys = this.apiKeys == null ? source.apiKeys : this.apiKeys;
-      return new Organization(source.id(), name, source.ownerId(), source.secretKey(), apiKeys, email, source.members);
+      return new Organization(source.id(), name, source.ownerId(), source.secretKeyId(),
+          source.secretKey(), apiKeys, email);
     }
 
     public Organization build() {
-      return new Organization("ORG-" + this.id, this.name, this.ownerId, this.secretKey, this.apiKeys, this.email,
-              new HashMap<>());
+      return new Organization("ORG-" + this.id, this.name, this.ownerId, this.secretKeyId,
+          this.secretKey, this.apiKeys, this.email);
     }
   }
 
   @Override
   public String toString() {
-    return "Organization [name=" + name + ", apiKey=" + apiKeys + ", id=" + id + ", ownerId=" + ownerId + "]";
+    return "Organization [name=" + name + ", apiKey=" + apiKeys + ", id=" + id
+        + ", ownerId=" + ownerId + "]";
   }
 }

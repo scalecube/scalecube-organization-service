@@ -1,5 +1,8 @@
 package io.scalecube.account.api;
 
+/**
+ * Delete organization API call request.
+ */
 public class DeleteOrganizationRequest {
 
   private String organizationId;
@@ -7,10 +10,19 @@ public class DeleteOrganizationRequest {
   private Token token;
 
   /**
-   * @deprecated only for serialization/deserialization
+   * Default constructor.
+   *
+   * @deprecated only for serialization/deserialization.
    */
-  DeleteOrganizationRequest() {}
+  DeleteOrganizationRequest() {
+  }
 
+  /**
+   * Construct a request object to a delete an organization API call.
+   *
+   * @param token Verification token.
+   * @param organizationId Organization Id.
+   */
   public DeleteOrganizationRequest(Token token, String organizationId) {
     this.token = token;
     this.organizationId = organizationId;

@@ -1,16 +1,36 @@
 package io.scalecube.account.api;
 
+/**
+ * Represents a request to update an organization.
+ */
 public class UpdateOrganizationRequest {
 
-  private final Token token;
+  private Token token;
 
-  private final String name;
+  private String name;
 
-  private final String email;
+  private String email;
 
-  private final String organizationId;
+  private String organizationId;
 
-  public UpdateOrganizationRequest(String organizationId, Token token, String name, String email) {
+  /**
+   * Default constructor.
+   *
+   * @deprecated only for serialization/deserialization.
+   */
+  UpdateOrganizationRequest() {
+  }
+
+  /**
+   * Constructs a request to update an organization with the following arguments.
+   *
+   * @param organizationId Organization Id.
+   * @param token Verification token.
+   * @param name Organization name.
+   * @param email Organization email.
+   */
+  public UpdateOrganizationRequest(String organizationId, Token token,
+      String name, String email) {
     this.organizationId = organizationId;
     this.token = token;
     this.name = name;

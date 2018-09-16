@@ -1,7 +1,8 @@
 package io.scalecube.organization.repository.exception;
 
 public class QueryTimeoutException extends DataAccessException {
-    public QueryTimeoutException(String message, Throwable e) {
-        super(message, e);
-    }
+
+  public QueryTimeoutException(String message, Throwable ex) {
+    super(message, ex);
+  }
 }

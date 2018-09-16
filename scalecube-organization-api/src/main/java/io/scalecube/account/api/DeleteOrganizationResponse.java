@@ -1,15 +1,25 @@
 package io.scalecube.account.api;
 
+/**
+ * Delete organization API call response.
+ */
 public class DeleteOrganizationResponse {
 
   private boolean deleted;
   private String organizationId;
 
   /**
-   * @deprecated only for serialization/deserialization
+   * Default constructor.
+   * @deprecated only for serialization/deserialization.
    */
   DeleteOrganizationResponse() {}
 
+  /**
+   * Construct a response object to a delete an organization API call.
+   *
+   * @param organizationId Organization Id.
+   * @param deleted Organization deleted indication.
+   */
   public DeleteOrganizationResponse(String organizationId, boolean deleted) {
     this.deleted = deleted;
     this.organizationId = organizationId;

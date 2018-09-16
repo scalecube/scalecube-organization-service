@@ -2,9 +2,17 @@ package io.scalecube.account.api;
 
 public class LeaveOrganizationRequest {
 
-  private final Token token;
+  private Token token;
 
-  private final String organizationId;
+  private String organizationId;
+
+  /**
+   * Default constructor.
+   *
+   * @deprecated only for serialization/deserialization.
+   */
+  LeaveOrganizationRequest() {
+  }
 
   public LeaveOrganizationRequest(Token token, String organizationId) {
     this.token = token;

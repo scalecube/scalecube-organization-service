@@ -1,14 +1,25 @@
 package io.scalecube.account.api;
 
+/**
+ * Get organization membership response.
+ */
 public class GetOrganizationMembersResponse {
 
   private OrganizationMember[] members;
 
   /**
-   * @deprecated only for serialization/deserialization
+   * Default constructor.
+   *
+   * @deprecated only for serialization/deserialization.
    */
-  GetOrganizationMembersResponse() {}
+  GetOrganizationMembersResponse() {
+  }
 
+  /**
+   * Constructs a get organization membership API call response object.
+   *
+   * @param members array of organization members objects.
+   */
   public GetOrganizationMembersResponse(OrganizationMember[] members) {
     this.members = members;
   }

@@ -1,14 +1,11 @@
 package io.scalecube.account.api;
 
+/**
+ * Represents an access token.
+ */
 public class Token {
 
-  @Override
-  public String toString() {
-    return "Token [origin=" + origin + ", token=" + token + "]";
-  }
-
-  private String origin;
-
+  private String issuer;
   private String token;
 
   public Token() {}
@@ -16,12 +13,12 @@ public class Token {
   /**
    * Token information.
    * 
-   * @param origin where this token was provided.
+   * @param issuer where this token was provided.
    * @param token the jwt token string.
    */
-  public Token(String origin, String token) {
+  public Token(String issuer, String token) {
     this.token = token;
-    this.origin = origin;
+    this.issuer = issuer;
   }
 
   public String token() {
@@ -31,9 +28,14 @@ public class Token {
   /**
    * source for this token for example: google, twitter, github.
    * 
-   * @return origin of the token.
+   * @return issuer of the token.
    */
-  public String origin() {
-    return this.origin;
+  public String issuer() {
+    return this.issuer;
+  }
+
+  @Override
+  public String toString() {
+    return "Token [issuer=" + issuer + ", token=" + token + "]";
   }
 }
