@@ -8,22 +8,15 @@ import io.scalecube.organization.repository.couchbase.CouchbaseRepositoryFactory
 import io.scalecube.services.Microservices;
 import io.scalecube.services.discovery.api.DiscoveryConfig;
 import io.scalecube.transport.Address;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Service runner main entry point.
- */
+/** Service runner main entry point. */
 public class OrganizationServiceRunner {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OrganizationServiceRunner.class);
-
-  private static final List<String> DEFAULT_SEEDS = Collections.singletonList("seed:4802");
-  private static final String SEEDS = "seeds";
-  private static final String CLUSTER_MEMBER_DNS_NAME = "io.scalecube.cluster.member.dns.name";
 
   /**
    * Bootstrap main.
@@ -35,21 +28,24 @@ public class OrganizationServiceRunner {
     Thread.currentThread().join();
   }
 
-  private static void start() throws Exception {
-
-    String memberHost = memberHost();
-    Address[] seeds = seeds();
-    LOGGER.info("seeds={}, memberHost={}", Arrays.toString(seeds), memberHost);
+  private static void start() {
+    DiscoveryOptions discoveryOptions = discoveryOptions();
+    LOGGER.info("Starting organization service on {}", discoveryOptions);
 
     Microservices.builder()
-        .discoveryConfig(DiscoveryConfig.builder().seeds(seeds).memberHost(memberHost))
+        .discoveryConfig(
+            DiscoveryConfig.builder()
+                .seeds(discoveryOptions.seeds())
+                .port(discoveryOptions.discoveryPort())
+                .memberHost(discoveryOptions.memberHost())
+                .memberPort(discoveryOptions.memberPort()))
+        .servicePort(discoveryOptions.servicePort())
         .services(createOrganizationService())
         .startAwait();
   }
 
   private static OrganizationService createOrganizationService() {
-    return new OrganizationServiceImpl
-        .Builder()
+    return new OrganizationServiceImpl.Builder()
         .organizationRepository(CouchbaseRepositoryFactory.organizations())
         .organizationMembershipRepository(CouchbaseRepositoryFactory.organizationMembers())
         .organizationMembershipRepositoryAdmin(
@@ -57,18 +53,59 @@ public class OrganizationServiceRunner {
         .build();
   }
 
-  private static Address[] seeds() throws Exception {
+  private static DiscoveryOptions discoveryOptions() {
     ConfigRegistry configRegistry = ConfigRegistryConfiguration.configRegistry();
-    try {
-      return configRegistry.stringListValue(SEEDS, DEFAULT_SEEDS)
-          .stream().map(Address::from).toArray(Address[]::new);
-    } catch (Throwable ex) {
-      throw new Exception("Failed to parse seeds from settings", ex);
-    }
+    return configRegistry
+        .objectProperty("io.scalecube.organization", DiscoveryOptions.class)
+        .value()
+        .orElseThrow(() -> new IllegalStateException("Couldn't load discovery options"));
   }
 
-  private static String memberHost() {
-    ConfigRegistry configRegistry = ConfigRegistryConfiguration.configRegistry();
-    return configRegistry.stringValue(CLUSTER_MEMBER_DNS_NAME, null);
+  public static class DiscoveryOptions {
+
+    private List<String> seeds;
+    private Integer servicePort;
+    private Integer discoveryPort;
+    private String memberHost;
+    private Integer memberPort;
+
+    public int servicePort() {
+      return servicePort != null ? servicePort : 0;
+    }
+
+    public Integer discoveryPort() {
+      return discoveryPort;
+    }
+
+    /**
+     * Returns seeds as an {@link Address}'s array.
+     *
+     * @return {@link Address}'s array
+     */
+    public Address[] seeds() {
+      return Optional.ofNullable(seeds)
+          .map(seeds -> seeds.stream().map(Address::from).toArray(Address[]::new))
+          .orElse(new Address[0]);
+    }
+
+    public String memberHost() {
+      return memberHost;
+    }
+
+    public Integer memberPort() {
+      return memberPort;
+    }
+
+    @Override
+    public String toString() {
+      final StringBuilder sb = new StringBuilder("DiscoveryOptions{");
+      sb.append("seeds=").append(seeds);
+      sb.append(", servicePort=").append(servicePort);
+      sb.append(", discoveryPort=").append(discoveryPort);
+      sb.append(", memberHost=").append(memberHost);
+      sb.append(", memberPort=").append(memberPort);
+      sb.append('}');
+      return sb.toString();
+    }
   }
 }
