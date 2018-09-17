@@ -18,7 +18,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import rx.Observable;
-import rx.functions.Func1;
 
 /**
  * Abstract base couchbase <Code>Repository</Code> implementation.
@@ -153,21 +152,20 @@ abstract class CouchbaseEntityRepository<T, I extends String> implements Reposit
 
   private <R> Observable<R> executeAsync(Observable<R> asyncAction) {
     return asyncAction.onErrorResumeNext(
-        (Func1<Throwable, Observable<R>>)
-            e -> {
-              if (e instanceof RuntimeException) {
-                return Observable.error(
-                    exceptionTranslator.translateExceptionIfPossible((RuntimeException) e));
-              } else if (e instanceof TimeoutException) {
-                return Observable.error(new QueryTimeoutException(e.getMessage(), e));
-              } else if (e instanceof InterruptedException) {
-                return Observable.error(new OperationInterruptedException(e.getMessage(), e));
-              } else if (e instanceof ExecutionException) {
-                return Observable.error(new OperationInterruptedException(e.getMessage(), e));
-              } else {
-                return Observable.error(e);
-              }
-            });
+        e -> {
+          if (e instanceof RuntimeException) {
+            return Observable.error(
+                exceptionTranslator.translateExceptionIfPossible((RuntimeException) e));
+          } else if (e instanceof TimeoutException) {
+            return Observable.error(new QueryTimeoutException(e.getMessage(), e));
+          } else if (e instanceof InterruptedException) {
+            return Observable.error(new OperationInterruptedException(e.getMessage(), e));
+          } else if (e instanceof ExecutionException) {
+            return Observable.error(new OperationInterruptedException(e.getMessage(), e));
+          } else {
+            return Observable.error(e);
+          }
+        });
   }
 
   protected <R> R execute(BucketCallback<R> action, Bucket client) {

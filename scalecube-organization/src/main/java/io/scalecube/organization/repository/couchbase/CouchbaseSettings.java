@@ -27,6 +27,9 @@ public final class CouchbaseSettings {
   private List<String> orgMemberUserRoles;
   private final CouchbaseProperties couchbaseProperties;
 
+  /**
+   * Creates couchbase settings with the config registry.
+   */
   public CouchbaseSettings() {
     settings = new Properties();
 

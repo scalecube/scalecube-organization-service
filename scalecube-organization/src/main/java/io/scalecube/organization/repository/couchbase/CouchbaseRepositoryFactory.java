@@ -13,6 +13,11 @@ public final class CouchbaseRepositoryFactory {
   private final Cluster cluster;
   private final CouchbaseCluster adminCluster;
 
+  /**
+   * Creates a couchbase repository factory, initializes two couchbase clusters.
+   *
+   * @param settings the settings
+   */
   public CouchbaseRepositoryFactory(CouchbaseSettings settings) {
     this.settings = settings;
     List<String> nodes = settings.getCouchbaseClusterNodes();

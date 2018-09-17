@@ -46,7 +46,7 @@ public class OrganizationServiceRunner {
   }
 
   private static OrganizationService createOrganizationService() {
-    CouchbaseSettings settings = couchbaseSettings();
+    CouchbaseSettings settings = new CouchbaseSettings();
     CouchbaseRepositoryFactory factory = new CouchbaseRepositoryFactory(settings);
     return new OrganizationServiceImpl.Builder()
         .organizationRepository(factory.organizations())
@@ -61,10 +61,6 @@ public class OrganizationServiceRunner {
         .objectProperty("io.scalecube.organization", DiscoveryOptions.class)
         .value()
         .orElseThrow(() -> new IllegalStateException("Couldn't load discovery options"));
-  }
-
-  private static CouchbaseSettings couchbaseSettings() {
-    return new CouchbaseSettings();
   }
 
   public static class DiscoveryOptions {
