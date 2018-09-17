@@ -5,7 +5,7 @@ import static com.couchbase.client.java.query.dsl.Expression.i;
 import static java.util.Objects.requireNonNull;
 
 import com.couchbase.client.java.Bucket;
-import com.couchbase.client.java.CouchbaseCluster;
+import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.RawJsonDocument;
 import com.couchbase.client.java.query.N1qlQuery;
@@ -14,7 +14,6 @@ import io.scalecube.organization.repository.Repository;
 import io.scalecube.organization.repository.exception.DataRetrievalFailureException;
 import io.scalecube.organization.repository.exception.OperationInterruptedException;
 import io.scalecube.organization.repository.exception.QueryTimeoutException;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -31,32 +30,22 @@ abstract class CouchbaseEntityRepository<T, I extends String> implements Reposit
 
   private static final String BUCKET_PASSWORD = ".bucket.password";
   private static final String BUCKET = ".bucket";
-  private static final Object lock = new Object();
-  private final CouchbaseSettings settings;
-  private final Class<T> type;
   private final CouchbaseExceptionTranslator exceptionTranslator =
       new CouchbaseExceptionTranslator();
-  private CouchbaseCluster cluster;
-  private TranslationService translationService = new JacksonTranslationService();
+  private final TranslationService translationService = new JacksonTranslationService();
+  protected final CouchbaseSettings settings;
+  protected final Cluster cluster;
+  private final Class<T> type;
   private String bucketName;
-  private String couchbaseUsername;
-  private String couchbasePassword;
 
-  CouchbaseEntityRepository(String alias, Class<T> type) {
-    requireNonNull(type);
-
-    this.type = type;
-    this.settings = new CouchbaseSettings.Builder().build();
-
+  CouchbaseEntityRepository(
+      CouchbaseSettings settings, Cluster cluster, String alias, Class<T> type) {
+    this.settings = requireNonNull(settings);
+    this.cluster = requireNonNull(cluster);
+    this.type = requireNonNull(type);
     if (alias != null) {
-      this.bucketName = getBucketName(alias);
-      this.couchbaseUsername = settings.getCouchbaseUsername();
-      this.couchbasePassword = settings.getCouchbasePassword();
+      this.bucketName = settings.getProperty(alias + BUCKET);
     }
-  }
-
-  private String getBucketName(String alias) {
-    return settings.getProperty(alias + BUCKET);
   }
 
   String getBucketName() {
@@ -107,8 +96,8 @@ abstract class CouchbaseEntityRepository<T, I extends String> implements Reposit
     requireNonNull(id);
     requireNonNull(entity);
 
-    execute(() -> client.upsert(
-        RawJsonDocument.create(id, translationService.encode(entity))), client);
+    execute(
+        () -> client.upsert(RawJsonDocument.create(id, translationService.encode(entity))), client);
     return entity;
   }
 
@@ -133,19 +122,24 @@ abstract class CouchbaseEntityRepository<T, I extends String> implements Reposit
 
     try {
       return executeAsync(client.async().query(query))
-          .flatMap(result -> result.rows()
-              .mergeWith(
+          .flatMap(
+              result ->
                   result
-                      .errors()
+                      .rows()
+                      .mergeWith(
+                          result
+                              .errors()
+                              .flatMap(
+                                  error ->
+                                      Observable.error(
+                                          new DataRetrievalFailureException(
+                                              "N1QL error: " + error.toString()))))
                       .flatMap(
-                          error -> Observable.error(new DataRetrievalFailureException(
-                              "N1QL error: " + error.toString())))
-              )
-              .flatMap(row ->
-                  Observable.just(translationService.decode(
-                      row.value().get(client.name()).toString(), type)))
-              .toList()
-          )
+                          row ->
+                              Observable.just(
+                                  translationService.decode(
+                                      row.value().get(client.name()).toString(), type)))
+                      .toList())
           .toBlocking()
           .single();
     } finally {
@@ -154,42 +148,27 @@ abstract class CouchbaseEntityRepository<T, I extends String> implements Reposit
   }
 
   protected Bucket client() {
-    return cluster().openBucket(bucketName, settings.getCouchbasePassword());
+    return cluster.openBucket(bucketName, settings.getCouchbasePassword());
   }
 
   private <R> Observable<R> executeAsync(Observable<R> asyncAction) {
-    return asyncAction
-        .onErrorResumeNext((Func1<Throwable, Observable<R>>) e -> {
-          if (e instanceof RuntimeException) {
-            return Observable
-                .error(exceptionTranslator.translateExceptionIfPossible((RuntimeException) e));
-          } else if (e instanceof TimeoutException) {
-            return Observable.error(new QueryTimeoutException(e.getMessage(), e));
-          } else if (e instanceof InterruptedException) {
-            return Observable.error(new OperationInterruptedException(e.getMessage(), e));
-          } else if (e instanceof ExecutionException) {
-            return Observable.error(new OperationInterruptedException(e.getMessage(), e));
-          } else {
-            return Observable.error(e);
-          }
-        });
+    return asyncAction.onErrorResumeNext(
+        (Func1<Throwable, Observable<R>>)
+            e -> {
+              if (e instanceof RuntimeException) {
+                return Observable.error(
+                    exceptionTranslator.translateExceptionIfPossible((RuntimeException) e));
+              } else if (e instanceof TimeoutException) {
+                return Observable.error(new QueryTimeoutException(e.getMessage(), e));
+              } else if (e instanceof InterruptedException) {
+                return Observable.error(new OperationInterruptedException(e.getMessage(), e));
+              } else if (e instanceof ExecutionException) {
+                return Observable.error(new OperationInterruptedException(e.getMessage(), e));
+              } else {
+                return Observable.error(e);
+              }
+            });
   }
-
-  protected CouchbaseCluster cluster() {
-    if (cluster == null) {
-      synchronized (lock) {
-        if (cluster == null) {
-          List<String> nodes = settings.getCouchbaseClusterNodes();
-
-          cluster = nodes.isEmpty()
-              ? CouchbaseCluster.create()
-              : CouchbaseCluster.create(nodes);
-        }
-      }
-    }
-    return cluster;
-  }
-
 
   protected <R> R execute(BucketCallback<R> action, Bucket client) {
     requireNonNull(client);

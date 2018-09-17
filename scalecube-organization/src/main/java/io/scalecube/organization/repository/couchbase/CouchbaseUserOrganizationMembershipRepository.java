@@ -1,25 +1,22 @@
 package io.scalecube.organization.repository.couchbase;
 
 import com.couchbase.client.java.Bucket;
+import com.couchbase.client.java.Cluster;
 import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
-
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-final class CouchbaseUserOrganizationMembershipRepository extends
-    CouchbaseEntityRepository<OrganizationMember, String>
+final class CouchbaseUserOrganizationMembershipRepository
+    extends CouchbaseEntityRepository<OrganizationMember, String>
     implements UserOrganizationMembershipRepository {
 
-  private final CouchbaseSettings settings = new CouchbaseSettings.Builder().build();
-
-  CouchbaseUserOrganizationMembershipRepository() {
-    super(null, OrganizationMember.class);
+  CouchbaseUserOrganizationMembershipRepository(CouchbaseSettings settings, Cluster cluster) {
+    super(settings, cluster, null, OrganizationMember.class);
   }
-
 
   @Override
   public void addMember(Organization org, OrganizationMember member) {
@@ -33,8 +30,7 @@ final class CouchbaseUserOrganizationMembershipRepository extends
 
   @Override
   public Collection<OrganizationMember> getMembers(Organization organization) {
-    return StreamSupport
-        .stream(findAll(client(organization)).spliterator(), false)
+    return StreamSupport.stream(findAll(client(organization)).spliterator(), false)
         .collect(Collectors.toList());
   }
 
@@ -53,7 +49,7 @@ final class CouchbaseUserOrganizationMembershipRepository extends
   }
 
   private Bucket client(String bucketName, String bucketPassword) {
-    return cluster().openBucket(bucketName, bucketPassword);
+    return cluster.openBucket(bucketName, bucketPassword);
   }
 
   private String getBucketName(Organization organization) {
