@@ -6,14 +6,15 @@ import io.scalecube.config.ConfigRegistryConfiguration;
 import io.scalecube.organization.OrganizationServiceImpl;
 import io.scalecube.organization.repository.couchbase.CouchbaseRepositoryFactory;
 import io.scalecube.services.Microservices;
-import io.scalecube.services.discovery.api.DiscoveryConfig;
 import io.scalecube.transport.Address;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Service runner main entry point. */
+/**
+ * Service runner main entry point.
+ */
 public class OrganizationServiceRunner {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OrganizationServiceRunner.class);
@@ -33,12 +34,13 @@ public class OrganizationServiceRunner {
     LOGGER.info("Starting organization service on {}", discoveryOptions);
 
     Microservices.builder()
-        .discoveryConfig(
-            DiscoveryConfig.builder()
-                .seeds(discoveryOptions.seeds())
-                .port(discoveryOptions.discoveryPort())
-                .memberHost(discoveryOptions.memberHost())
-                .memberPort(discoveryOptions.memberPort()))
+        .discovery(
+            options ->
+                options
+                    .seeds(discoveryOptions.seeds())
+                    .port(discoveryOptions.discoveryPort())
+                    .memberHost(discoveryOptions.memberHost())
+                    .memberPort(discoveryOptions.memberPort()))
         .servicePort(discoveryOptions.servicePort())
         .services(createOrganizationService())
         .startAwait();
