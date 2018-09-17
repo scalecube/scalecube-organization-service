@@ -5,6 +5,7 @@ import io.scalecube.config.ConfigRegistry;
 import io.scalecube.config.ConfigRegistryConfiguration;
 import io.scalecube.organization.OrganizationServiceImpl;
 import io.scalecube.organization.repository.couchbase.CouchbaseRepositoryFactory;
+import io.scalecube.organization.repository.couchbase.CouchbaseSettings;
 import io.scalecube.services.Microservices;
 import io.scalecube.transport.Address;
 import java.util.List;
@@ -12,9 +13,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Service runner main entry point.
- */
+/** Service runner main entry point. */
 public class OrganizationServiceRunner {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OrganizationServiceRunner.class);
@@ -47,11 +46,12 @@ public class OrganizationServiceRunner {
   }
 
   private static OrganizationService createOrganizationService() {
+    CouchbaseSettings settings = new CouchbaseSettings();
+    CouchbaseRepositoryFactory factory = new CouchbaseRepositoryFactory(settings);
     return new OrganizationServiceImpl.Builder()
-        .organizationRepository(CouchbaseRepositoryFactory.organizations())
-        .organizationMembershipRepository(CouchbaseRepositoryFactory.organizationMembers())
-        .organizationMembershipRepositoryAdmin(
-            CouchbaseRepositoryFactory.organizationMembersRepositoryAdmin())
+        .organizationRepository(factory.organizations())
+        .organizationMembershipRepository(factory.organizationMembers())
+        .organizationMembershipRepositoryAdmin(factory.organizationMembersRepositoryAdmin())
         .build();
   }
 

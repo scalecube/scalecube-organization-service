@@ -3,15 +3,13 @@ package io.scalecube.organization.repository.couchbase;
 import com.couchbase.client.java.bucket.BucketType;
 import io.scalecube.config.ConfigRegistryConfiguration;
 import io.scalecube.organization.repository.exception.DataAccessResourceFailureException;
-
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 
-final class CouchbaseSettings {
+public final class CouchbaseSettings {
 
   private static final String COUCHBASE_ADMIN = "couchbase.admin.user";
   private static final String COUCHBASE_ADMIN_PASSWORD = "couchbase.admin.password";
@@ -29,13 +27,18 @@ final class CouchbaseSettings {
   private List<String> orgMemberUserRoles;
   private final CouchbaseProperties couchbaseProperties;
 
-
-  private CouchbaseSettings() {
+  /**
+   * Creates couchbase settings with the config registry.
+   */
+  public CouchbaseSettings() {
     settings = new Properties();
 
     try {
-      couchbaseProperties = ConfigRegistryConfiguration.configRegistry()
-          .objectProperty("couchbase", CouchbaseProperties.class).value().get();
+      couchbaseProperties =
+          ConfigRegistryConfiguration.configRegistry()
+              .objectProperty("couchbase", CouchbaseProperties.class)
+              .value()
+              .get();
       Objects.requireNonNull(couchbaseProperties, "failed to get couchbase properties");
       settings.load(getClass().getResourceAsStream("/couchbase-settings.properties"));
     } catch (Exception ex) {
@@ -82,7 +85,6 @@ final class CouchbaseSettings {
     return orgMemberUserRoles;
   }
 
-
   private List<String> getList(String key, List<String> list) {
     if (list == null) {
       String value = getProperty(key);
@@ -95,15 +97,7 @@ final class CouchbaseSettings {
     return getProperty(ORG_MEMBERS_BUCKET_SUFFIX);
   }
 
-
   String getProperty(String key) {
     return settings.getProperty(key);
-  }
-
-  static class Builder {
-
-    public CouchbaseSettings build() {
-      return new CouchbaseSettings();
-    }
   }
 }
