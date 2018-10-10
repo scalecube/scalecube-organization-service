@@ -8,34 +8,21 @@ final class VaultPathBuilder {
   private String vaultTokenKeysPath;
 
   VaultPathBuilder() {
-    String vaultSecretPathPrefix = new EnvironmentLoader()
-        .loadVariable("VAULT_SECRETS_PATH");
-    String pattern = getVaultPathPattern();
-    vaultTokenKeysPath = String.format(pattern, vaultSecretPathPrefix);
+    EnvironmentLoader environmentLoader = new EnvironmentLoader();
+    AppConfiguration settings = AppConfiguration.builder().build();
+
+    String vaultSecretPathPrefix =
+        Objects.requireNonNull(
+            environmentLoader.loadVariable("VAULT_SECRETS_PATH"),
+            "missing 'VAULT_SECRETS_PATH' env variable");
+    String vaultPathPattern =
+        Objects.requireNonNull(
+            settings.getProperty("vault.secret.path"), "missing vault.secret.path");
+
+    vaultTokenKeysPath = String.format(vaultPathPattern, vaultSecretPathPrefix);
   }
 
   String getPath(String alias) {
-    return getVaultSecretPath().concat(alias);
-  }
-
-  private String getVaultSecretPath() {
-    if (vaultTokenKeysPath == null) {
-      vaultTokenKeysPath = String.format(getVaultPathPattern(), getVaultKeyValueEngine());
-    }
-    return vaultTokenKeysPath;
-  }
-
-  private static String getVaultPathPattern() {
-    final AppConfiguration settings = AppConfiguration.builder().build();
-    String vaultSecretPath = settings.getProperty("vault.secret.path");
-    Objects.requireNonNull(vaultSecretPath, "missing vault.secret.path");
-    return vaultSecretPath;
-  }
-
-  private String getVaultKeyValueEngine() {
-    EnvironmentLoader environmentLoader = new EnvironmentLoader();
-    String vaultKeyValueEngine = environmentLoader.loadVariable("VAULT_SECRETS_PATH");
-    Objects.requireNonNull(vaultKeyValueEngine,  "missing 'VAULT_SECRETS_PATH' env variable");
-    return vaultKeyValueEngine;
+    return vaultTokenKeysPath.concat(alias);
   }
 }

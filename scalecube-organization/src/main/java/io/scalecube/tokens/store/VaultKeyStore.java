@@ -3,6 +3,7 @@ package io.scalecube.tokens.store;
 import com.bettercloud.vault.Vault;
 import com.bettercloud.vault.VaultConfig;
 import com.bettercloud.vault.VaultException;
+import io.scalecube.Throwables;
 import io.scalecube.config.AppConfiguration;
 import io.scalecube.tokens.KeyStoreException;
 import java.util.HashMap;
@@ -10,19 +11,28 @@ import java.util.Map;
 
 /**
  * HshiCorp Vault based KeyStore implementation. Vault access is done via
- * BetterCloud/vault-java-driver at https://github.com/BetterCloud/vault-java-driver.
- * Vault address and token defaults are "VAULT_ADDR" and "VAULT_TOKEN" environment variables
- * respectively. Optional values can be provided in the application settings file.
+ * BetterCloud/vault-java-driver at https://github.com/BetterCloud/vault-java-driver. Vault address
+ * and token defaults are "VAULT_ADDR" and "VAULT_TOKEN" environment variables respectively.
+ * Optional values can be provided in the application settings file.
  */
 class VaultKeyStore implements KeyStore {
 
   private static final String VAULT_ENTRY_KEY = "key";
   private final VaultPathBuilder vaultPathBuilder = new VaultPathBuilder();
 
+  private Vault vault;
+
+  public VaultKeyStore() {
+    try {
+      vault = new Vault(vaultConfig(AppConfiguration.builder().build()));
+    } catch (VaultException e) {
+      throw Throwables.propagate(e);
+    }
+  }
+
   @Override
   public void store(String alias, Object key) throws KeyStoreException {
     try {
-      Vault vault = new Vault(vaultConfig(AppConfiguration.builder().build()));
       String path = vaultPathBuilder.getPath(alias);
       final Map<String, Object> keys = new HashMap<>();
       keys.put(VAULT_ENTRY_KEY, key.toString());
@@ -34,6 +44,7 @@ class VaultKeyStore implements KeyStore {
 
   /**
    * Read optional vault address and token from settings file and use them to config vault client.
+   *
    * @param settings Application settings
    * @return VaultConfig
    */
@@ -57,7 +68,6 @@ class VaultKeyStore implements KeyStore {
 
     return config.build();
   }
-
 
   static boolean isVaultAddressEnvVarSet() {
     String vaultAddress = System.getenv("VAULT_ADDR");
