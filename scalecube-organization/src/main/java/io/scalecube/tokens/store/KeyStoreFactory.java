@@ -1,7 +1,5 @@
 package io.scalecube.tokens.store;
 
-import static io.scalecube.tokens.store.VaultKeyStore.isVaultAddressEnvVarSet;
-
 /**
  * KeyStore factory class which abstracts the creation of a concrete KeyStore implementation.
  */
@@ -18,5 +16,9 @@ public abstract class KeyStoreFactory {
     }
 
     return new VaultKeyStore();
+  }
+
+  private static boolean isVaultAddressEnvVarSet() {
+    return System.getenv("VAULT_ADDR") != null;
   }
 }
