@@ -3,17 +3,14 @@ package io.scalecube.organization.repository.couchbase;
 import com.couchbase.client.java.bucket.BucketType;
 import io.scalecube.config.ConfigRegistryConfiguration;
 import io.scalecube.organization.repository.exception.DataAccessResourceFailureException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Properties;
 
 public final class CouchbaseSettings {
 
-  private static final String COUCHBASE_ADMIN = "couchbase.admin.user";
-  private static final String COUCHBASE_ADMIN_PASSWORD = "couchbase.admin.password";
-  private static final String COUCHBASE_CLUSTER_NODES = "couchbase.cluster.nodes";
   private static final String ORG_MEMBERS_BUCKET_SUFFIX = "org.members.bucket.suffix";
   private static final String ORG_MEMBERS_USER_ROLES = "org.members.bucket.user.roles";
   private static final String ORG_MEMBERS_BUCKET_TYPE = "org.members.bucket.type";
@@ -22,8 +19,9 @@ public final class CouchbaseSettings {
   private static final String ORG_MEMBERS_BUCKET_INDEX_REPLICAS =
       "org.members.bucket.indexReplicas";
   private static final String ORG_MEMBERS_BUCKET_ENABLE_FLUSH = "org.members.bucket.enableFlush";
+  private static final String COUCHBASE_SETTINGS_PROPERTIES = "/couchbase-settings.properties";
+  private static final String LIST_SPLITERATOR = ",";
   private final Properties settings;
-  private List<String> clusterNodes;
   private List<String> orgMemberUserRoles;
   private final CouchbaseProperties couchbaseProperties;
 
@@ -38,9 +36,8 @@ public final class CouchbaseSettings {
           ConfigRegistryConfiguration.configRegistry()
               .objectProperty("couchbase", CouchbaseProperties.class)
               .value()
-              .get();
-      Objects.requireNonNull(couchbaseProperties, "failed to get couchbase properties");
-      settings.load(getClass().getResourceAsStream("/couchbase-settings.properties"));
+              .orElseThrow(() -> new NullPointerException("failed to get couchbase properties"));
+      settings.load(getClass().getResourceAsStream(COUCHBASE_SETTINGS_PROPERTIES));
     } catch (Exception ex) {
       throw new DataAccessResourceFailureException("Failed to initialize", ex);
     }
@@ -81,16 +78,13 @@ public final class CouchbaseSettings {
   }
 
   List<String> getOrgMemberUserRoles() {
-    orgMemberUserRoles = getList(ORG_MEMBERS_USER_ROLES, orgMemberUserRoles);
-    return orgMemberUserRoles;
-  }
-
-  private List<String> getList(String key, List<String> list) {
-    if (list == null) {
-      String value = getProperty(key);
-      list = value.length() > 0 ? Arrays.asList(value.split(",")) : Collections.EMPTY_LIST;
+    if (orgMemberUserRoles == null) {
+      String value = getProperty(ORG_MEMBERS_USER_ROLES);
+      orgMemberUserRoles = value.length() > 0
+          ? Arrays.asList(value.split(LIST_SPLITERATOR))
+          : new ArrayList<>();
     }
-    return list;
+    return orgMemberUserRoles;
   }
 
   String getOrgMembersBucketSuffix() {

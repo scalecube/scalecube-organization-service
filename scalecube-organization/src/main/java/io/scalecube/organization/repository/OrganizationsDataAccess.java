@@ -79,11 +79,13 @@ public interface OrganizationsDataAccess {
    * Returns a membership list of an organization corresponding to the <code>id</code>  argument in
    * the  underlying data provider.
    *
-   * @param id The organization id criteria.
+   * @param caller the profile of the caller
+   * @param organization The organization id criteria.
    * @return A collection of <code>OrganizationMember</code> objects.
    * @throws EntityNotFoundException In case organization is not found.
    */
-  Collection<OrganizationMember> getOrganizationMembers(String id) throws EntityNotFoundException;
+  Collection<OrganizationMember> getOrganizationMembers(Profile caller,
+      Organization organization) throws EntityNotFoundException, AccessPermissionException;
 
   /**
    * Invites the <coded>profile</coded> argument to join the <code>organization</code> argument.

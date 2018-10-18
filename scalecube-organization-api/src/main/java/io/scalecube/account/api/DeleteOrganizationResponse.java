@@ -32,4 +32,10 @@ public class DeleteOrganizationResponse {
   public String organizationId() {
     return this.organizationId;
   }
+
+  @Override
+  public String toString() {
+    return super.toString()
+        + String.format(" [organizationId=%s, deleted=%s]", organizationId, deleted);
+  }
 }

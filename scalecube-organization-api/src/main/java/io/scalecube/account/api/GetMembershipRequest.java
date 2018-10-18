@@ -4,13 +4,16 @@ public class GetMembershipRequest {
 
   private Token token;
 
-  public GetMembershipRequest() {}
-
   public GetMembershipRequest(Token token) {
     this.token = token;
   }
 
   public Token token() {
     return this.token;
+  }
+
+  @Override
+  public String toString() {
+    return super.toString() + String.format(" [token=%s]", token);
   }
 }
