@@ -42,4 +42,9 @@ public class KickoutOrganizationMemberRequest {
     return this.userId;
   }
 
+  @Override
+  public String toString() {
+    return super.toString() + String.format(" [userId=%s, organizationId=%s, token=%s]",
+        userId, organizationId, token);
+  }
 }

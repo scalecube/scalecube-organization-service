@@ -27,7 +27,6 @@ import rx.Observable;
  */
 abstract class CouchbaseEntityRepository<T, I extends String> implements Repository<T, I> {
 
-  private static final String BUCKET_PASSWORD = ".bucket.password";
   private static final String BUCKET = ".bucket";
   private final CouchbaseExceptionTranslator exceptionTranslator =
       new CouchbaseExceptionTranslator();

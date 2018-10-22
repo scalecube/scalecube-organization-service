@@ -5,8 +5,8 @@ package io.scalecube.tokens.store;
  */
 public abstract class KeyStoreFactory {
   /**
-   * Construct a concrete KeyStore object.
-   * @return an instance of KeyStore
+   * Construct a concrete KeyStore instance.
+   * @return a KeyStore
    */
   public static KeyStore get() {
     boolean vaultAddressIsSet = isVaultAddressEnvVarSet();

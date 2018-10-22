@@ -42,4 +42,10 @@ public class DeleteOrganizationApiKeyRequest {
     return this.apiKeyName;
   }
 
+  @Override
+  public String toString() {
+    return super.toString()
+        + String.format(" [organizationId=%s, apiKeyName=%s, token=%s]", organizationId,
+        apiKeyName, token);
+  }
 }

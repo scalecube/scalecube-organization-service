@@ -54,4 +54,10 @@ public class AddOrganizationApiKeyRequest {
     return this.claims;
   }
 
+  @Override
+  public String toString() {
+    return super.toString()
+        + String.format(" [organizationId=%s, apiKeyName=%s, claims=%s, token=%s]", organizationId,
+        apiKeyName, claims, token);
+  }
 }

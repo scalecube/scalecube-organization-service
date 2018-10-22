@@ -31,4 +31,10 @@ public class GetOrganizationResponse extends OrganizationInfo {
     super(id, name, apiKeys, email, ownerId);
   }
 
+  @Override
+  public String toString() {
+    return super.toString()
+        + String.format(" [id=%s, ownerId=%s, apiKeys=%s, email=%s]", id(),
+        ownerId(), apiKeys().length, email());
+  }
 }

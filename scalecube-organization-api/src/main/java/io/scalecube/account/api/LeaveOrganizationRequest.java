@@ -27,4 +27,9 @@ public class LeaveOrganizationRequest {
     return this.organizationId;
   }
 
+  @Override
+  public String toString() {
+    return super.toString()
+        + String.format(" [organizationId=%s, token=%s]", organizationId, token);
+  }
 }

@@ -122,13 +122,11 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
     requireNonNull(userId, "userId");
     return Collections.unmodifiableCollection(
         StreamSupport.stream(organizations.findAll().spliterator(), false)
-            .filter(org -> isOrgMember(userId, org))
+            .filter(org -> isMember(userId, org))
             .collect(Collectors.toList()));
   }
 
-  private boolean isOrgMember(String userId, Organization org) {
-    return organizationMembershipRepository.isMember(userId, org);
-  }
+
 
   @Override
   public void updateOrganizationDetails(Profile owner, Organization org, Organization update)
@@ -147,10 +145,17 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
   }
 
   @Override
-  public Collection<OrganizationMember> getOrganizationMembers(String orgId)
-      throws EntityNotFoundException {
-    requireNonNull(orgId);
-    return organizationMembershipRepository.getMembers(getOrganization(orgId));
+  public Collection<OrganizationMember> getOrganizationMembers(Profile caller,
+      Organization organization)
+      throws AccessPermissionException {
+    requireNonNullProfile(caller);
+    requireNonNull(organization);
+    if (!isOwner(organization, caller) && isMember(caller.getUserId(), organization)) {
+      throw new AccessPermissionException(
+          String.format("user: '%s', name: '%s', is not an owner or member of organization: '%s'",
+          caller.getName(), caller.getUserId(), organization.id()));
+    }
+    return organizationMembershipRepository.getMembers(organization);
   }
 
   @Override
@@ -171,7 +176,7 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
   }
 
   private void addMemberToOrg(String userId, Organization organization, Role role) {
-    if (!isOrgMember(userId, organization)) {
+    if (!isMember(userId, organization)) {
       organizationMembershipRepository.addMember(organization,
           new OrganizationMember(userId, role.toString()));
     }
@@ -180,7 +185,7 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
   private void throwNotOrgOwnerException(Profile owner, Organization org)
       throws AccessPermissionException {
     throw new AccessPermissionException(
-        String.format("user: %s, name: %s, is not an owner of organization: %s",
+        String.format("user: '%s', name: '%s', is not an owner of organization: '%s'",
             owner.getName(), owner.getUserId(), org.id()));
   }
 

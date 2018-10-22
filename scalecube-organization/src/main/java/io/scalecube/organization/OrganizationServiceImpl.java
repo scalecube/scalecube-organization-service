@@ -56,11 +56,17 @@ import java.util.TimeZone;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
 public class OrganizationServiceImpl implements OrganizationService {
+
+  private static final String ROLE_KEY = "role";
+  private static final String ISSUER = "scalecube.io";
   private final TokenVerifier tokenVerifier;
   private final OrganizationsDataAccess repository;
+  private static final Logger logger = LoggerFactory.getLogger(OrganizationServiceImpl.class);
 
   private OrganizationServiceImpl(OrganizationsDataAccess repository,
       TokenVerifier tokenVerifier) {
@@ -68,6 +74,11 @@ public class OrganizationServiceImpl implements OrganizationService {
     this.tokenVerifier = tokenVerifier;
   }
 
+  /**
+   * Returns a builder instance of OrganizationServiceImpl.
+   *
+   * @return instance of OrganizationServiceImpl.Builder
+   */
   public static Builder builder() {
     return new Builder();
   }
@@ -75,8 +86,11 @@ public class OrganizationServiceImpl implements OrganizationService {
   @Override
   public Mono<CreateOrganizationResponse> createOrganization(CreateOrganizationRequest request) {
     return Mono.create(result -> {
+      logger.debug("createOrganization: enter, request: {}", request);
+
       try {
         validateRequest(request);
+
         Profile profile = verifyToken(request.token());
         String secretKey = IdGenerator.generateId();
         Organization organization = repository.createOrganization(profile,
@@ -88,13 +102,19 @@ public class OrganizationServiceImpl implements OrganizationService {
                 .secretKeyId(UUID.randomUUID().toString())
                 .secretKey(secretKey)
                 .build());
+
         KeyStoreFactory.get().store(organization.secretKeyId(), secretKey);
-        result.success(new CreateOrganizationResponse(organization.id(),
+
+        CreateOrganizationResponse response = new CreateOrganizationResponse(organization.id(),
             organization.name(),
             organization.apiKeys(),
             organization.email(),
-            organization.ownerId()));
+            organization.ownerId());
+
+        logger.debug("createOrganization: exit, return: {}", response);
+        result.success(response);
       } catch (Throwable ex) {
+        logger.error("createOrganization: request: {}, error: {}", request, ex);
         result.error(ex);
       }
     });
@@ -104,9 +124,12 @@ public class OrganizationServiceImpl implements OrganizationService {
   public Mono<GetMembershipResponse> getUserOrganizationsMembership(
       GetMembershipRequest request) {
     return Mono.create(result -> {
+      logger.debug("getUserOrganizationsMembership: enter, request: {}", request);
       Collection<Organization> results;
+
       try {
         validateRequest(request);
+
         Profile profile = verifyToken(request.token());
         results = repository.getUserMembership(profile.getUserId());
         final List<OrganizationInfo> infoItems = results.stream().map(item ->
@@ -115,9 +138,13 @@ public class OrganizationServiceImpl implements OrganizationService {
                 item.apiKeys(),
                 item.email(),
                 item.ownerId())).collect(Collectors.toList());
+
+        logger.debug("getUserOrganizationsMembership: exit, request: {}, return: {} memberships",
+            request, results.size());
         result.success(new GetMembershipResponse(
             infoItems.toArray(new OrganizationInfo[results.size()])));
       } catch (Throwable ex) {
+        logger.error("getUserOrganizationsMembership: request: {}, error: {}", request, ex);
         result.error(ex);
       }
     });
@@ -125,15 +152,23 @@ public class OrganizationServiceImpl implements OrganizationService {
 
   @Override
   public Mono<DeleteOrganizationResponse> deleteOrganization(DeleteOrganizationRequest request) {
-
     return Mono.create(result -> {
+      logger.debug("deleteOrganization: enter, request: {}", request);
+
       try {
         validateRequest(request, request.organizationId(), request.token());
+
         Profile owner = verifyToken(request.token());
         Organization organization = getOrganization(request.organizationId());
+
         repository.deleteOrganization(owner, organization);
-        result.success(new DeleteOrganizationResponse(organization.id(), true));
+
+        DeleteOrganizationResponse response = new DeleteOrganizationResponse(organization.id(),
+            true);
+        logger.debug("deleteOrganization: exit response: {}, request: {}", response, request);
+        result.success(response);
       } catch (Throwable ex) {
+        logger.error("deleteOrganization: request: {}, error: {}", request, ex);
         result.error(ex);
       }
     });
@@ -142,22 +177,32 @@ public class OrganizationServiceImpl implements OrganizationService {
   @Override
   public Mono<UpdateOrganizationResponse> updateOrganization(UpdateOrganizationRequest request) {
     return Mono.create(result -> {
+      logger.debug("updateOrganization: enter, request: {}", request);
+
       try {
         validateRequest(request);
+
         Profile owner = verifyToken(request.token());
         Organization organization = getOrganization(request.organizationId());
 
-        Organization org2 = Organization.builder()
+        Organization orgUpdate = Organization.builder()
               .name(request.name())
               .email(request.email())
               .apiKey(organization.apiKeys())
               .copy(organization);
 
-        repository.updateOrganizationDetails(owner, organization, org2);
-        result.success(new UpdateOrganizationResponse(org2.id(), org2.name(),
-            org2.apiKeys(),
-            org2.email(), org2.ownerId()));
+        repository.updateOrganizationDetails(owner, organization, orgUpdate);
+
+        UpdateOrganizationResponse response = new UpdateOrganizationResponse(
+            orgUpdate.id(),
+            orgUpdate.name(),
+            orgUpdate.apiKeys(),
+            orgUpdate.email(),
+            orgUpdate.ownerId());
+        logger.debug("updateOrganization: exit, response: {}, request: {}", response, request);
+        result.success(response);
       } catch (Throwable ex) {
+        logger.error("updateOrganization: request: {}, error: {}", request, ex);
         result.error(ex);
       }
     });
@@ -168,17 +213,26 @@ public class OrganizationServiceImpl implements OrganizationService {
       GetOrganizationMembersRequest request) {
     return Mono.create(result -> {
       try {
+        logger.debug("getOrganizationMembers: enter, request: {}", request);
+
         validateRequest(request, request.organizationId(), request.token());
-        verifyToken(request.token());
+
+        Profile profile = verifyToken(request.token());
+        Organization organization = getOrganization(request.organizationId());
         Collection<OrganizationMember> organizationMembers = repository.getOrganizationMembers(
-            request.organizationId());
+            profile,
+            organization);
+
+        OrganizationMember[] members  = new OrganizationMember[organizationMembers.size()];
+        logger.debug("getOrganizationMembers: exit, org id: {}, return {} members",
+            request.organizationId(), organizationMembers.size());
         result.success(
             new GetOrganizationMembersResponse(
                 organizationMembers
-                    .toArray(
-                        new OrganizationMember[0]))
+                    .toArray(members))
         );
       } catch (Throwable ex) {
+        logger.error("getOrganizationMembers: request: {}, error: {}", request, ex);
         result.error(ex);
       }
     });
@@ -189,13 +243,21 @@ public class OrganizationServiceImpl implements OrganizationService {
       InviteOrganizationMemberRequest request) {
     return Mono.create(result -> {
       try {
+        logger.debug("inviteMember: enter, request: {}", request);
+
         validateRequest(request, request.organizationId(), request.token());
         requireNonNullOrEmpty(request.userId(), "user id is required");
+
         Profile owner = verifyToken(request.token());
         Organization organization = getOrganization(request.organizationId());
+
         repository.invite(owner, organization, request.userId());
-        result.success(new InviteOrganizationMemberResponse());
+
+        InviteOrganizationMemberResponse response = new InviteOrganizationMemberResponse();
+        logger.debug("inviteMember: return response: {}, request: {}", response, request);
+        result.success(response);
       } catch (Throwable ex) {
+        logger.error("inviteMember: request: {}, error: {}", request, ex);
         result.error(ex);
       }
     });
@@ -206,17 +268,25 @@ public class OrganizationServiceImpl implements OrganizationService {
       request) {
     return Mono.create(result -> {
       try {
+        logger.debug("kickoutMember: enter, request: {}", request);
         validateRequest(request, request.organizationId(), request.token());
         requireNonNullOrEmpty(request.userId(), "user id is required");
+
         Profile caller = verifyToken(request.token());
         Organization organization = getOrganization(request.organizationId());
         boolean isOwner = Objects.equals(organization.ownerId(), caller.getUserId());
+
         if (!isOwner) {
           throw new AccessPermissionException("Not owner");
         }
+
         repository.kickout(caller, organization, request.userId());
-        result.success(new KickoutOrganizationMemberResponse());
+
+        KickoutOrganizationMemberResponse response = new KickoutOrganizationMemberResponse();
+        logger.debug("kickoutMember: exit, response: {}, request: {}", response, request);
+        result.success(response);
       } catch (Throwable ex) {
+        logger.error("kickoutMember: request: {}, error: {}", request, ex);
         result.error(ex);
       }
     });
@@ -226,12 +296,20 @@ public class OrganizationServiceImpl implements OrganizationService {
   public Mono<LeaveOrganizationResponse> leaveOrganization(LeaveOrganizationRequest request) {
     return Mono.create(result -> {
       try {
+        logger.debug("leaveOrganization: enter, request: {}", request);
+
         validateRequest(request, request.organizationId(), request.token());
+
         Profile profile = verifyToken(request.token());
         Organization organization = getOrganization(request.organizationId());
+
         repository.leave(organization, profile.getUserId());
-        result.success(new LeaveOrganizationResponse());
+
+        LeaveOrganizationResponse response = new LeaveOrganizationResponse();
+        logger.debug("leaveOrganization: exit, response: {}, request: {}", response, request);
+        result.success(response);
       } catch (Throwable ex) {
+        logger.error("leaveOrganization: request: {}, error: {}", request, ex);
         result.error(ex);
       }
     });
@@ -242,20 +320,23 @@ public class OrganizationServiceImpl implements OrganizationService {
       AddOrganizationApiKeyRequest request) {
     return Mono.create(result -> {
       try {
+        logger.debug("addOrganizationApiKey: enter, request: {}", request);
+
         validateRequest(request, request.organizationId(), request.token());
         requireNonNullOrEmpty(request.apiKeyName(), "apiKeyName is a required argument");
+
         Profile profile = verifyToken(request.token());
         Organization organization = getOrganization(request.organizationId());
 
         checkIfUserIsAllowedToAddAnApiKey(request, profile, organization);
         Map<String, String> claims = request.claims() == null ? new HashMap<>() : request.claims();
 
-        if (!claims.containsKey("role") || !isRoleValid(claims.get("role"))) {
+        if (!claims.containsKey(ROLE_KEY) || !isRoleValid(claims.get(ROLE_KEY))) {
           // add minimal role
-          claims.put("role", Role.Member.toString());
+          claims.put(ROLE_KEY, Role.Member.toString());
         }
 
-        ApiKey apiKey = JwtApiKey.builder().issuer("scalecube.io")
+        ApiKey apiKey = JwtApiKey.builder().issuer(ISSUER)
             .subject(organization.id())
             .name(request.apiKeyName())
             .claims(claims)
@@ -265,14 +346,20 @@ public class OrganizationServiceImpl implements OrganizationService {
             .build(organization.secretKeyId(), organization.secretKey());
         ApiKey[] apiKeys = Arrays.copyOf(organization.apiKeys(),
             organization.apiKeys().length + 1);
+
         apiKeys[organization.apiKeys().length] = apiKey;
+
         Organization clonedOrg = Organization.builder().apiKey(apiKeys).copy(organization);
         repository.updateOrganizationDetails(profile, organization, clonedOrg);
-        result.success(new GetOrganizationResponse(clonedOrg.id(), clonedOrg.name(),
+        GetOrganizationResponse response = new GetOrganizationResponse(clonedOrg.id(),
+            clonedOrg.name(),
             clonedOrg.apiKeys(),
             clonedOrg.email(),
-            clonedOrg.ownerId()));
+            clonedOrg.ownerId());
+        logger.debug("addOrganizationApiKey: exit, response: {}, request: {}", response, request);
+        result.success(response);
       } catch (Throwable ex) {
+        logger.error("addOrganizationApiKey: request: {}, error: {}", request, ex);
         result.error(ex);
       }
     });
@@ -283,7 +370,7 @@ public class OrganizationServiceImpl implements OrganizationService {
       throws EntityNotFoundException, AccessPermissionException {
     boolean isOwner = Objects.equals(organization.ownerId(), profile.getUserId());
     if (!isOwner) {
-      OrganizationMember member = repository.getOrganizationMembers(request.organizationId())
+      OrganizationMember member = repository.getOrganizationMembers(profile, organization)
           .stream()
           .filter(i -> Objects.equals(i.id(), profile.getUserId()))
           .findAny()
@@ -322,25 +409,31 @@ public class OrganizationServiceImpl implements OrganizationService {
   @Override
   public Mono<GetOrganizationResponse> deleteOrganizationApiKey(
       DeleteOrganizationApiKeyRequest request) {
-
     return Mono.create(result -> {
       try {
+        logger.debug("deleteOrganizationApiKey: enter, request: {}", request);
         validateRequest(request, request.organizationId(), request.token());
         requireNonNullOrEmpty(request.apiKeyName(), "apiKeyName is a required argument");
+
         Profile profile = verifyToken(request.token());
         Organization organization = getOrganization(request.organizationId());
         List<ApiKey> apiKeys = Arrays.asList(organization.apiKeys());
         Organization newOrg = Organization.builder().apiKey(apiKeys.stream()
             .filter(api -> !api.name().equals(request.apiKeyName())).toArray(
                 ApiKey[]::new)).copy(organization);
+
         repository.updateOrganizationDetails(profile, organization, newOrg);
-        result.success(new GetOrganizationResponse(newOrg.id(),
+
+        GetOrganizationResponse response = new GetOrganizationResponse(newOrg.id(),
             newOrg.name(),
             newOrg.apiKeys(),
             newOrg.email(),
-            newOrg.ownerId()));
-
+            newOrg.ownerId());
+        logger.debug("deleteOrganizationApiKey: exit, response: {}, request: {}",
+            response, request);
+        result.success(response);
       } catch (Throwable ex) {
+        logger.error("deleteOrganizationApiKey: request: {}, error: {}", request, ex);
         result.error(ex);
       }
     });
@@ -350,21 +443,26 @@ public class OrganizationServiceImpl implements OrganizationService {
   public Mono<GetOrganizationResponse> getOrganization(GetOrganizationRequest request) {
     return Mono.create(result -> {
       try {
+        logger.debug("getOrganization: enter, request: {}", request);
         validateRequest(request, request.organizationId(), request.token());
+
         Profile caller = verifyToken(request.token());
         Organization organization = getOrganization(request.organizationId());
         boolean isOwner = Objects.equals(organization.ownerId(), caller.getUserId());
 
         if (!isOwner && !repository.isMember(caller.getUserId(), organization)) {
-          throw new AccessPermissionException("Restricted to members only");
+          throw new AccessPermissionException("Not a member of the organization");
         }
 
-        result.success(
-            new GetOrganizationResponse(organization.id(), organization.name(),
-                organization.apiKeys(),
-                organization.email(),
-                organization.ownerId()));
+        GetOrganizationResponse response = new GetOrganizationResponse(organization.id(),
+            organization.name(),
+            organization.apiKeys(),
+            organization.email(),
+            organization.ownerId());
+        logger.debug("getOrganization: exit, response: {}, request: {}", response, request);
+        result.success(response);
       } catch (Throwable ex) {
+        logger.error("getOrganization: request: {}, error: {}", request, ex);
         result.error(ex);
       }
     });
