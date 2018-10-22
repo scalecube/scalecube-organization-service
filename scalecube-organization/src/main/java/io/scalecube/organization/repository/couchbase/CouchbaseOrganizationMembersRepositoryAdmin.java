@@ -51,8 +51,15 @@ final class CouchbaseOrganizationMembersRepositoryAdmin
     }
   }
 
+  /**
+   * To enable select queries on the members bucket, this method creates a primary index on the
+   * bucket.
+   * @param bucketName the bucket name to create the index
+   * @param cluster A cluster instance to open the bucket
+   */
   private void createPrimaryIndex(String bucketName, Cluster cluster) {
-    N1qlQuery index = N1qlQuery.simple(String.format(CREATE_PRIMARY_INDEX, bucketName, bucketName));
+    N1qlQuery index = N1qlQuery.simple(String.format(CREATE_PRIMARY_INDEX,
+        bucketName, bucketName));
     N1qlQueryResult queryResult = cluster.openBucket(bucketName).query(index);
 
     if (!queryResult.finalSuccess()) {
@@ -64,6 +71,13 @@ final class CouchbaseOrganizationMembersRepositoryAdmin
     }
   }
 
+  /**
+   * Couchbase Server 5.0 introduced role-based access control (RBAC).
+   * By creating a user with same name as the org-members-bucket, we limit the access to this
+   * bucket only with the need for a password when opening the  bucket.
+   * @param password the new user password
+   * @param bucketName the bucket name
+   */
   private void insertUser(String password, String bucketName) {
     cluster
         .clusterManager()

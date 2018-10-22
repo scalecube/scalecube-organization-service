@@ -36,7 +36,8 @@ public final class CouchbaseSettings {
           ConfigRegistryConfiguration.configRegistry()
               .objectProperty("couchbase", CouchbaseProperties.class)
               .value()
-              .orElseThrow(() -> new NullPointerException("failed to get couchbase properties"));
+              .orElseThrow(() -> new DataAccessResourceFailureException(
+                  "failed to get couchbase properties"));
       settings.load(getClass().getResourceAsStream(COUCHBASE_SETTINGS_PROPERTIES));
     } catch (Exception ex) {
       throw new DataAccessResourceFailureException("Failed to initialize", ex);

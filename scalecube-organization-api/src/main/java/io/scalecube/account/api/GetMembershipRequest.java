@@ -4,6 +4,8 @@ public class GetMembershipRequest {
 
   private Token token;
 
+  GetMembershipRequest() {}
+
   public GetMembershipRequest(Token token) {
     this.token = token;
   }
