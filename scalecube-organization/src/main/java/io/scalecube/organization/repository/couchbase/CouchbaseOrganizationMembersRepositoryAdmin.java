@@ -29,7 +29,7 @@ final class CouchbaseOrganizationMembersRepositoryAdmin
 
   @Override
   public void createRepository(Organization organization) {
-    String bucketName = getBucketName(organization.name());
+    String bucketName = getBucketName(organization);
     cluster
         .clusterManager()
         .insertBucket(
@@ -95,13 +95,13 @@ final class CouchbaseOrganizationMembersRepositoryAdmin
                         .collect(Collectors.toList())));
   }
 
-  private String getBucketName(String orgId) {
-    return String.format(settings.getOrgMembersBucketSuffix(), orgId);
+  private String getBucketName(Organization organization) {
+    return String.format(settings.getOrgMembersBucketSuffix(), organization.id());
   }
 
   @Override
   public void deleteRepository(Organization organization) {
-    String bucketName = getBucketName(organization.name());
+    String bucketName = getBucketName(organization);
     cluster.clusterManager().removeUser(AuthDomain.LOCAL, bucketName);
     cluster.clusterManager().removeBucket(bucketName);
   }
