@@ -53,6 +53,6 @@ final class CouchbaseUserOrganizationMembershipRepository
   }
 
   private String getBucketName(Organization organization) {
-    return String.format(settings.getOrgMembersBucketSuffix(), organization.name());
+    return String.format(settings.getOrgMembersBucketSuffix(), organization.id());
   }
 }
