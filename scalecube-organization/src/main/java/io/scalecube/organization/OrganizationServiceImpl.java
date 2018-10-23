@@ -43,6 +43,7 @@ import io.scalecube.tokens.IdGenerator;
 import io.scalecube.tokens.JwtApiKey;
 import io.scalecube.tokens.TokenVerification;
 import io.scalecube.tokens.TokenVerifier;
+import io.scalecube.tokens.store.ApiKeyBuilder;
 import io.scalecube.tokens.store.KeyStoreFactory;
 
 import java.util.Arrays;
@@ -62,8 +63,7 @@ import reactor.core.publisher.Mono;
 
 public class OrganizationServiceImpl implements OrganizationService {
 
-  private static final String ROLE_KEY = "role";
-  private static final String ISSUER = "scalecube.io";
+
   private final TokenVerifier tokenVerifier;
   private final OrganizationsDataAccess repository;
   private static final Logger logger = LoggerFactory.getLogger(OrganizationServiceImpl.class);
@@ -327,25 +327,11 @@ public class OrganizationServiceImpl implements OrganizationService {
 
         Profile profile = verifyToken(request.token());
         Organization organization = getOrganization(request.organizationId());
-
         checkIfUserIsAllowedToAddAnApiKey(request, profile, organization);
-        Map<String, String> claims = request.claims() == null ? new HashMap<>() : request.claims();
 
-        if (!claims.containsKey(ROLE_KEY) || !isRoleValid(claims.get(ROLE_KEY))) {
-          // add minimal role
-          claims.put(ROLE_KEY, Role.Member.toString());
-        }
-
-        ApiKey apiKey = JwtApiKey.builder().issuer(ISSUER)
-            .subject(organization.id())
-            .name(request.apiKeyName())
-            .claims(claims)
-            .id(organization.id())
-            .audience(organization.name())
-            .expiration(tryGetTokenExpiration())
-            .build(organization.secretKeyId(), organization.secretKey());
-        ApiKey[] apiKeys = Arrays.copyOf(organization.apiKeys(),
-            organization.apiKeys().length + 1);
+        ApiKey apiKey = ApiKeyBuilder.build(organization, request.claims(), request.apiKeyName());
+        int newLength = organization.apiKeys().length + 1;
+        ApiKey[] apiKeys = Arrays.copyOf(organization.apiKeys(),newLength);
 
         apiKeys[organization.apiKeys().length] = apiKey;
 
@@ -383,28 +369,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
   }
 
-  private boolean isRoleValid(String role) {
-    try {
-      Enum.valueOf(Role.class, role);
-    } catch (Throwable ex) {
-      return false;
-    }
-    return true;
-  }
 
-  private long tryGetTokenExpiration() {
-    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-    long amount = 2678399982L;
-
-    try {
-      amount = Long.parseLong(AppConfiguration.builder().build().getProperty("token.expiration"));
-    } catch (NumberFormatException ex) {
-      ex.printStackTrace();
-    }
-
-    calendar.setTimeInMillis(System.currentTimeMillis() + amount);
-    return calendar.getTimeInMillis();
-  }
 
   @Override
   public Mono<GetOrganizationResponse> deleteOrganizationApiKey(
