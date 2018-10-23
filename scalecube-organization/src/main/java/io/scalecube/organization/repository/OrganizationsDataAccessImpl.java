@@ -150,7 +150,7 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
       throws AccessPermissionException {
     requireNonNullProfile(caller);
     requireNonNull(organization);
-    if (!isOwner(organization, caller) && isMember(caller.getUserId(), organization)) {
+    if (!isOwner(organization, caller) && !isMember(caller.getUserId(), organization)) {
       throw new AccessPermissionException(
           String.format("user: '%s', name: '%s', is not an owner or member of organization: '%s'",
           caller.getName(), caller.getUserId(), organization.id()));
