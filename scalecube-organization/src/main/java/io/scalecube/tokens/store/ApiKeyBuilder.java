@@ -10,12 +10,23 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
+/**
+ * Represent a class that encapsulate the logic of constructing an ApiKey.
+ */
 public final class ApiKeyBuilder {
 
   private static final String ROLE_KEY = "role";
   private static final String ISSUER = "scalecube.io";
   private static final String TOKEN_EXPIRATION = "token.expiration";
 
+  /**
+   * Builds an APiKey based on the <code>organization</code>, <ocde>claims</ocde>
+   * and <code>apiKeyName</code> arguments.
+   * @param organization the organization of the generated API key.
+   * @param claims the generated API key token claims
+   * @param apiKeyName the generated API Key name
+   * @return a signed ApiKey instance
+   */
   public static ApiKey build(Organization organization,
       Map<String, String> claims,
       String apiKeyName) {
