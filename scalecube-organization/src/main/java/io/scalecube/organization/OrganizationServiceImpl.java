@@ -30,7 +30,6 @@ import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.UpdateOrganizationRequest;
 import io.scalecube.account.api.UpdateOrganizationResponse;
-import io.scalecube.config.AppConfiguration;
 import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.organization.repository.OrganizationsDataAccessImpl;
@@ -40,20 +39,15 @@ import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.security.Profile;
 import io.scalecube.tokens.IdGenerator;
-import io.scalecube.tokens.JwtApiKey;
 import io.scalecube.tokens.TokenVerification;
 import io.scalecube.tokens.TokenVerifier;
 import io.scalecube.tokens.store.ApiKeyBuilder;
 import io.scalecube.tokens.store.KeyStoreFactory;
 
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.TimeZone;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -329,7 +323,8 @@ public class OrganizationServiceImpl implements OrganizationService {
         Organization organization = getOrganization(request.organizationId());
         checkIfUserIsAllowedToAddAnApiKey(request, profile, organization);
 
-        ApiKey apiKey = ApiKeyBuilder.build(organization, request.claims(), request.apiKeyName());
+
+        ApiKey apiKey = ApiKeyBuilder.build(organization, request);
         int newLength = organization.apiKeys().length + 1;
         ApiKey[] apiKeys = Arrays.copyOf(organization.apiKeys(),newLength);
 
