@@ -13,28 +13,7 @@ public class GetOrganizationResponse extends OrganizationInfo {
   GetOrganizationResponse() {
   }
 
-  /**
-   * Constructs a response to a get Organization API call.
-   *
-   * @param id Organization Id.
-   * @param name Organization name.
-   * @param apiKeys Organization API keys.
-   * @param email Organization email
-   * @param ownerId Organization owner's Id.
-   */
-  public GetOrganizationResponse(
-      String id,
-      String name,
-      ApiKey[] apiKeys,
-      String email,
-      String ownerId) {
-    super(id, name, apiKeys, email, ownerId);
-  }
-
-  @Override
-  public String toString() {
-    return super.toString()
-        + String.format(" [id=%s, ownerId=%s, apiKeys=%s, email=%s]", id(),
-        ownerId(), apiKeys().length, email());
+  public GetOrganizationResponse(Builder builder) {
+    super(builder);
   }
 }
