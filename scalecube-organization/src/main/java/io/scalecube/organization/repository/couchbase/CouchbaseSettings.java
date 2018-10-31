@@ -44,23 +44,23 @@ public final class CouchbaseSettings {
     }
   }
 
-  BucketType getOrgMembersBucketType() {
+  public BucketType getOrgMembersBucketType() {
     return Enum.valueOf(BucketType.class, getProperty(ORG_MEMBERS_BUCKET_TYPE));
   }
 
-  int getOrgMembersBucketQuota() {
+  public int getOrgMembersBucketQuota() {
     return Integer.valueOf(getProperty(ORG_MEMBERS_BUCKET_QUOTA));
   }
 
-  int getOrgMembersBucketReplicas() {
+  public int getOrgMembersBucketReplicas() {
     return Integer.valueOf(getProperty(ORG_MEMBERS_BUCKET_REPLICAS));
   }
 
-  boolean getOrgMembersBucketIndexReplicas() {
+  public boolean getOrgMembersBucketIndexReplicas() {
     return Boolean.valueOf(getProperty(ORG_MEMBERS_BUCKET_INDEX_REPLICAS));
   }
 
-  boolean getOrgMembersBucketEnableFlush() {
+  public boolean getOrgMembersBucketEnableFlush() {
     return Boolean.valueOf(getProperty(ORG_MEMBERS_BUCKET_ENABLE_FLUSH));
   }
 
@@ -78,7 +78,12 @@ public final class CouchbaseSettings {
         : couchbaseProperties.hosts();
   }
 
-  List<String> getOrgMemberUserRoles() {
+  /**
+   * Returns a list of configured roles of the organization members bucket user.
+   * Align with Couchbase new RBAC bucket authorization model.
+   * @return list of configured couchbase roles
+   */
+  public List<String> getOrgMemberUserRoles() {
     if (orgMemberUserRoles == null) {
       String value = getProperty(ORG_MEMBERS_USER_ROLES);
       orgMemberUserRoles = value.length() > 0

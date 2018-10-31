@@ -25,10 +25,10 @@ class CouchbaseOrganizationRepository
     return execute(() -> isOrganizationNameExists(propertyValue.toString(), client), client);
   }
 
-  private boolean isOrganizationNameExists(String orgName, Bucket client) {
+  private boolean isOrganizationNameExists(String orgName, Bucket bucket) {
     N1qlQuery query = N1qlQuery.simple(
         String.format(QUERY_PATTERN, getBucketName(), NAME_PROPERTY, orgName), null);
-    N1qlQueryResult queryResult = client.query(query);
+    N1qlQueryResult queryResult = bucket.query(query);
     List<N1qlQueryRow> rows = queryResult.allRows();
     return !rows.isEmpty() && Objects.equals(1, rows.get(0).value().get("$1"));
   }
