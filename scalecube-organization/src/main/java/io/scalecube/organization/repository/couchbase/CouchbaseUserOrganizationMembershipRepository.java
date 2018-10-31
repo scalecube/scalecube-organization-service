@@ -41,7 +41,7 @@ final class CouchbaseUserOrganizationMembershipRepository
 
   @Override
   public Optional<OrganizationMember> getMember(String userId, Organization organization) {
-    return findById(client(organizati), userId);
+    return findById(client(organization), userId);
   }
 
   private Bucket client(Organization organization) {
