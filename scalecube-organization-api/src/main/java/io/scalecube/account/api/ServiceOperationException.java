@@ -1,11 +1,15 @@
 package io.scalecube.account.api;
 
-public class MissingOrganizationException extends Throwable {
-
-  private static final long serialVersionUID = 1L;
-
-  public MissingOrganizationException(String organizationId) {
-    super("cannot find organization id: " + organizationId);
+/**
+ * The {@link ServiceOperationException} represents an error that can be thrown during execution
+ * of a service request.
+ */
+public class ServiceOperationException extends Throwable {
+  public ServiceOperationException(String message, Throwable cause) {
+    super(message,cause);
   }
 
+  public ServiceOperationException(String message) {
+    super(message);
+  }
 }
