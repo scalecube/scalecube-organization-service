@@ -30,8 +30,6 @@ public class AddOrganizationApiKey extends ServiceOperation<AddOrganizationApiKe
       OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
     checkIfUserIsAllowedToAddAnApiKey(context, organization);
-
-
     ApiKey apiKey = ApiKeyBuilder.build(organization, request);
     int newLength = organization.apiKeys().length + 1;
     ApiKey[] apiKeys = Arrays.copyOf(organization.apiKeys(),newLength);

@@ -286,7 +286,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   public Mono<GetOrganizationResponse> getOrganization(GetOrganizationRequest request) {
     return Mono.create(result -> {
       try {
-        logger.debug("getOrganization0: enter, request: {}", request);
+        logger.debug("getOrganization: enter, request: {}", request);
         GetOrganizationResponse response = GetOrganization
             .builder()
             .tokenVerifier(tokenVerifier)
@@ -296,7 +296,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         logger.debug("getOrganization0: exit, response: {}, request: {}", response, request);
         result.success(response);
       } catch (ServiceOperationException ex) {
-        logger.error("getOrganization0: request: {}, error: {}", request, ex);
+        logger.error("getOrganization: request: {}, error: {}", request, ex);
         result.error(ex.getCause());
       }
     });

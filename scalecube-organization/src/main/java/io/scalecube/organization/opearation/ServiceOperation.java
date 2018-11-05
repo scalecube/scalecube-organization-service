@@ -37,8 +37,8 @@ public abstract class ServiceOperation<I, O> {
    * @throws ServiceOperationException in case of an error during request execution
    */
   public O execute(I request) throws ServiceOperationException {
+    Objects.requireNonNull(repository, "repository");
     try {
-      Objects.requireNonNull(request);
       validate(request);
       Token token = getToken(request);
       Profile profile = verifyToken(token);
@@ -48,14 +48,29 @@ public abstract class ServiceOperation<I, O> {
     }
   }
 
-  protected abstract O process(I request, OperationServiceContext context) throws Throwable;
-
   protected void validate(I request) {
     Objects.requireNonNull(request, "request is a required argument");
   }
 
+  protected abstract Token getToken(I request);
+
+  private Profile verifyToken(Token token) throws Throwable {
+    Objects.requireNonNull(tokenVerifier, "tokenVerifier");
+    Objects.requireNonNull(token, "token");
+    requireNonNullOrEmpty(token.token(), "token");
+
+    Profile owner = tokenVerifier.verify(token);
+    if (owner == null) {
+      throw new InvalidAuthenticationToken();
+    }
+    return owner;
+  }
+
+  protected abstract O process(I request, OperationServiceContext context) throws Throwable;
+
   protected Organization getOrganization(String id)
       throws EntityNotFoundException, OrganizationNotFound {
+    Objects.requireNonNull(repository, "repository");
     Organization organization = repository.getOrganization(id);
 
     if (organization == null) {
@@ -73,20 +88,6 @@ public abstract class ServiceOperation<I, O> {
         .email(organization.email())
         .ownerId(organization.ownerId()));
   }
-
-  protected Profile verifyToken(Token token) throws Throwable {
-    Objects.requireNonNull(token, "token");
-    requireNonNullOrEmpty(token.token(), "token");
-
-    Profile owner = tokenVerifier.verify(token);
-    if (owner == null) {
-      throw new InvalidAuthenticationToken();
-    }
-    return owner;
-  }
-
-
-  protected abstract Token getToken(I request);
 
   protected static void requireNonNullOrEmpty(Object object, String message) {
     Objects.requireNonNull(object, message);

@@ -25,6 +25,7 @@ public class GetOrganizationMembers extends ServiceOperation<GetOrganizationMemb
     Collection<OrganizationMember> organizationMembers = context.repository()
         .getOrganizationMembers(context.profile(), organization);
     OrganizationMember[] members  = new OrganizationMember[organizationMembers.size()];
+
     return new GetOrganizationMembersResponse(organizationMembers.toArray(members));
   }
 
