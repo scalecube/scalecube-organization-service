@@ -1,30 +1,39 @@
 package io.scalecube.organization.opearation;
 
-import io.scalecube.account.api.InviteOrganizationMemberRequest;
-import io.scalecube.account.api.InviteOrganizationMemberResponse;
+import io.scalecube.account.api.KickoutOrganizationMemberRequest;
+import io.scalecube.account.api.KickoutOrganizationMemberResponse;
 import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
+import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.tokens.TokenVerifier;
 
-public class InviteMember extends ServiceOperation<InviteOrganizationMemberRequest,
-    InviteOrganizationMemberResponse> {
+import java.util.Objects;
 
-  private InviteMember(TokenVerifier tokenVerifier,
+public class KickoutMember extends ServiceOperation<KickoutOrganizationMemberRequest,
+    KickoutOrganizationMemberResponse> {
+
+  private KickoutMember(TokenVerifier tokenVerifier,
       OrganizationsDataAccess repository) {
     super(tokenVerifier, repository);
   }
 
   @Override
-  protected InviteOrganizationMemberResponse process(InviteOrganizationMemberRequest request,
+  protected KickoutOrganizationMemberResponse process(KickoutOrganizationMemberRequest request,
       OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
-    context.repository().invite(context.profile(), organization, request.userId());
-    return new InviteOrganizationMemberResponse();
+    boolean isOwner = Objects.equals(organization.ownerId(), context.profile().getUserId());
+
+    if (!isOwner) {
+      throw new AccessPermissionException("Not owner");
+    }
+
+    context.repository().kickout(context.profile(), organization, request.userId());
+    return new KickoutOrganizationMemberResponse();
   }
 
   @Override
-  protected void validate(InviteOrganizationMemberRequest request) {
+  protected void validate(KickoutOrganizationMemberRequest request) {
     super.validate(request);
     requireNonNullOrEmpty(request.organizationId(),
         "organizationId is a required argument");
@@ -32,7 +41,7 @@ public class InviteMember extends ServiceOperation<InviteOrganizationMemberReque
   }
 
   @Override
-  protected Token getToken(InviteOrganizationMemberRequest request) {
+  protected Token getToken(KickoutOrganizationMemberRequest request) {
     return request.token();
   }
 
@@ -54,8 +63,8 @@ public class InviteMember extends ServiceOperation<InviteOrganizationMemberReque
       return this;
     }
 
-    public InviteMember build() {
-      return new InviteMember(tokenVerifier, repository);
+    public KickoutMember build() {
+      return new KickoutMember(tokenVerifier, repository);
     }
   }
 }

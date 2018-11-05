@@ -1,37 +1,54 @@
 package io.scalecube.organization.opearation;
 
-import io.scalecube.account.api.DeleteOrganizationRequest;
-import io.scalecube.account.api.DeleteOrganizationResponse;
 import io.scalecube.account.api.Organization;
+import io.scalecube.account.api.OrganizationInfo;
 import io.scalecube.account.api.Token;
+import io.scalecube.account.api.UpdateOrganizationRequest;
+import io.scalecube.account.api.UpdateOrganizationResponse;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.tokens.TokenVerifier;
 
-public class DeleteOrganization extends ServiceOperation<DeleteOrganizationRequest,
-    DeleteOrganizationResponse> {
+public class UpdateOrganization extends ServiceOperation<UpdateOrganizationRequest,
+    UpdateOrganizationResponse> {
 
-  private DeleteOrganization(TokenVerifier tokenVerifier,
+  private UpdateOrganization(TokenVerifier tokenVerifier,
       OrganizationsDataAccess repository) {
     super(tokenVerifier, repository);
   }
 
   @Override
-  protected DeleteOrganizationResponse process(DeleteOrganizationRequest request,
+  protected UpdateOrganizationResponse process(UpdateOrganizationRequest request,
       OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
-    context.repository().deleteOrganization(context.profile(), organization);
-    return new DeleteOrganizationResponse(organization.id(), true);
+
+    Organization orgUpdate = Organization.builder()
+        .name(request.name())
+        .email(request.email())
+        .apiKey(organization.apiKeys())
+        .copy(organization);
+
+    context.repository().updateOrganizationDetails(context.profile(), organization, orgUpdate);
+    return new UpdateOrganizationResponse(
+        OrganizationInfo.builder()
+            .id(orgUpdate.id())
+            .name(orgUpdate.name())
+            .apiKeys(orgUpdate.apiKeys())
+            .email(orgUpdate.email())
+            .ownerId(orgUpdate.ownerId())
+    );
   }
 
   @Override
-  protected void validate(DeleteOrganizationRequest request) {
+  protected void validate(UpdateOrganizationRequest request) {
     super.validate(request);
     requireNonNullOrEmpty(request.organizationId(),
         "organizationId is a required argument");
+    requireNonNullOrEmpty(request.email(), "email is a required argument");
+    requireNonNullOrEmpty(request.name(), "name is a required argument");
   }
 
   @Override
-  protected Token getToken(DeleteOrganizationRequest request) {
+  protected Token getToken(UpdateOrganizationRequest request) {
     return request.token();
   }
 
@@ -53,8 +70,8 @@ public class DeleteOrganization extends ServiceOperation<DeleteOrganizationReque
       return this;
     }
 
-    public DeleteOrganization build() {
-      return new DeleteOrganization(tokenVerifier, repository);
+    public UpdateOrganization build() {
+      return new UpdateOrganization(tokenVerifier, repository);
     }
   }
 }

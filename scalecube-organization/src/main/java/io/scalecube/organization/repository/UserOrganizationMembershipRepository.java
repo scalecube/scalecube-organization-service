@@ -21,12 +21,12 @@ public interface UserOrganizationMembershipRepository {
   void addMember(Organization organization, OrganizationMember member);
 
   /**
-   * Determines if the <code>profile</code> argument is a member of the <code>organization</code>
-   * argument.
+   * Determines if the <code>tokenVerifier</code> argument is a member of the
+   * <code>organization</code> argument.
    *
    * @param userId The user id criteria.
    * @param organization The organization criteria.
-   * @return True if the profile is a member of the organization; false otherwise.
+   * @return True if the tokenVerifier is a member of the organization; false otherwise.
    */
   boolean isMember(String userId, Organization organization);
 
@@ -39,16 +39,16 @@ public interface UserOrganizationMembershipRepository {
   Collection<OrganizationMember> getMembers(Organization organization);
 
   /**
-   * Removes the <code>profile</code> argument from the <code>organization</code> argument, in the
-   * underlying data provider.
+   * Removes the <code>tokenVerifier</code> argument from the <code>organization</code> argument,
+   * in the underlying data provider.
    *
    * @param organization The organization ao add the member to.
-   * @param userId The id of the profile to remove.
+   * @param userId The id of the tokenVerifier to remove.
    */
   void removeMember(String userId, Organization organization);
 
   /**
-   * Returns an organization membership info of the <code>profile</code> argument in the
+   * Returns an organization membership info of the <code>tokenVerifier</code> argument in the
    * <code>organization</code> argument.
    *
    * @param userId Profile criteria.

@@ -55,10 +55,10 @@ public interface OrganizationsDataAccess {
       throws EntityNotFoundException, AccessPermissionException;
 
   /**
-   * Returns a list of organizations of which the <code>profile</code> argument is a member of those
-   * organizations.
+   * Returns a list of organizations of which the <code>tokenVerifier</code> argument is a member
+   * of those organizations.
    *
-   * @param userId The id of the profile criteria.
+   * @param userId The id of the tokenVerifier criteria.
    * @return a list of <code>Organization</code> objects.
    */
   Collection<Organization> getUserMembership(String userId);
@@ -79,7 +79,7 @@ public interface OrganizationsDataAccess {
    * Returns a membership list of an organization corresponding to the <code>id</code>  argument in
    * the  underlying data provider.
    *
-   * @param caller the profile of the caller
+   * @param caller the tokenVerifier of the caller
    * @param organization The organization id criteria.
    * @return A collection of <code>OrganizationMember</code> objects.
    * @throws EntityNotFoundException In case organization is not found.
@@ -88,7 +88,8 @@ public interface OrganizationsDataAccess {
       Organization organization) throws EntityNotFoundException, AccessPermissionException;
 
   /**
-   * Invites the <coded>profile</coded> argument to join the <code>organization</code> argument.
+   * Invites the <coded>tokenVerifier</coded> argument to join the <code>organization</code>
+   *   argument.
    *
    * @param owner The Organization owner
    * @param organization The Organization to join.
@@ -101,10 +102,11 @@ public interface OrganizationsDataAccess {
       AccessPermissionException, EntityNotFoundException;
 
   /**
-   * Kicks out the <coded>profile</coded> argument from the <code>organization</code> argument.
+   * Kicks out the <coded>tokenVerifier</coded> argument from the <code>organization</code>
+   *   argument.
    *
    * @param owner The Organization owner
-   * @param organization The Organization from which the profile is to be kicked out.
+   * @param organization The Organization from which the tokenVerifier is to be kicked out.
    * @param userId The kicked out user id.
    * @throws EntityNotFoundException In case the organization does not exists in the underlying data
    *     provider.
@@ -113,10 +115,10 @@ public interface OrganizationsDataAccess {
       throws EntityNotFoundException;
 
   /**
-   * Enables the <code>profile</code> to leave the <code>organization</code>.
+   * Enables the <code>tokenVerifier</code> to leave the <code>organization</code>.
    *
-   * @param organization The organization of which the profile wishes to leave.
-   * @param userId The id of the profile requesting to leave the organization.
+   * @param organization The organization of which the tokenVerifier wishes to leave.
+   * @param userId The id of the tokenVerifier requesting to leave the organization.
    * @throws EntityNotFoundException In case the organization is not found in the underlying data
    *     provider.
    */

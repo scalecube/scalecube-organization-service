@@ -1,46 +1,37 @@
 package io.scalecube.organization.opearation;
 
-import io.scalecube.account.api.KickoutOrganizationMemberRequest;
-import io.scalecube.account.api.KickoutOrganizationMemberResponse;
+import io.scalecube.account.api.LeaveOrganizationRequest;
+import io.scalecube.account.api.LeaveOrganizationResponse;
 import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
-import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.tokens.TokenVerifier;
-import java.util.Objects;
 
-public class KickoutMember extends ServiceOperation<KickoutOrganizationMemberRequest,
-    KickoutOrganizationMemberResponse> {
+public class LeaveOrganization extends ServiceOperation<LeaveOrganizationRequest,
+    LeaveOrganizationResponse> {
 
-  private KickoutMember(TokenVerifier tokenVerifier,
+  private LeaveOrganization(TokenVerifier tokenVerifier,
       OrganizationsDataAccess repository) {
     super(tokenVerifier, repository);
   }
 
   @Override
-  protected KickoutOrganizationMemberResponse process(KickoutOrganizationMemberRequest request,
+  protected LeaveOrganizationResponse process(LeaveOrganizationRequest request,
       OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
-    boolean isOwner = Objects.equals(organization.ownerId(), context.profile().getUserId());
-
-    if (!isOwner) {
-      throw new AccessPermissionException("Not owner");
-    }
-
-    context.repository().kickout(context.profile(), organization, request.userId());
-    return new KickoutOrganizationMemberResponse();
+    context.repository().leave(organization, context.profile().getUserId());
+    return new LeaveOrganizationResponse();
   }
 
   @Override
-  protected void validate(KickoutOrganizationMemberRequest request) {
+  protected void validate(LeaveOrganizationRequest request) {
     super.validate(request);
     requireNonNullOrEmpty(request.organizationId(),
         "organizationId is a required argument");
-    requireNonNullOrEmpty(request.userId(), "user id is required");
   }
 
   @Override
-  protected Token getToken(KickoutOrganizationMemberRequest request) {
+  protected Token getToken(LeaveOrganizationRequest request) {
     return request.token();
   }
 
@@ -62,8 +53,8 @@ public class KickoutMember extends ServiceOperation<KickoutOrganizationMemberReq
       return this;
     }
 
-    public KickoutMember build() {
-      return new KickoutMember(tokenVerifier, repository);
+    public LeaveOrganization build() {
+      return new LeaveOrganization(tokenVerifier, repository);
     }
   }
 }

@@ -1,41 +1,38 @@
 package io.scalecube.organization.opearation;
 
-import io.scalecube.account.api.GetOrganizationMembersRequest;
-import io.scalecube.account.api.GetOrganizationMembersResponse;
+import io.scalecube.account.api.InviteOrganizationMemberRequest;
+import io.scalecube.account.api.InviteOrganizationMemberResponse;
 import io.scalecube.account.api.Organization;
-import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.tokens.TokenVerifier;
-import java.util.Collection;
 
-public class GetOrganizationMembers extends ServiceOperation<GetOrganizationMembersRequest,
-    GetOrganizationMembersResponse> {
+public class InviteMember extends ServiceOperation<InviteOrganizationMemberRequest,
+    InviteOrganizationMemberResponse> {
 
-  private GetOrganizationMembers(TokenVerifier tokenVerifier,
+  private InviteMember(TokenVerifier tokenVerifier,
       OrganizationsDataAccess repository) {
     super(tokenVerifier, repository);
   }
 
   @Override
-  protected GetOrganizationMembersResponse process(GetOrganizationMembersRequest request,
+  protected InviteOrganizationMemberResponse process(InviteOrganizationMemberRequest request,
       OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
-    Collection<OrganizationMember> organizationMembers = context.repository()
-        .getOrganizationMembers(context.profile(), organization);
-    OrganizationMember[] members  = new OrganizationMember[organizationMembers.size()];
-    return new GetOrganizationMembersResponse(organizationMembers.toArray(members));
+    context.repository().invite(context.profile(), organization, request.userId());
+    return new InviteOrganizationMemberResponse();
   }
 
   @Override
-  protected void validate(GetOrganizationMembersRequest request) {
+  protected void validate(InviteOrganizationMemberRequest request) {
     super.validate(request);
     requireNonNullOrEmpty(request.organizationId(),
         "organizationId is a required argument");
+    requireNonNullOrEmpty(request.userId(), "user id is required");
   }
 
   @Override
-  protected Token getToken(GetOrganizationMembersRequest request) {
+  protected Token getToken(InviteOrganizationMemberRequest request) {
     return request.token();
   }
 
@@ -57,8 +54,8 @@ public class GetOrganizationMembers extends ServiceOperation<GetOrganizationMemb
       return this;
     }
 
-    public GetOrganizationMembers build() {
-      return new GetOrganizationMembers(tokenVerifier, repository);
+    public InviteMember build() {
+      return new InviteMember(tokenVerifier, repository);
     }
   }
 }

@@ -1,56 +1,42 @@
 package io.scalecube.organization.opearation;
 
-import io.scalecube.account.api.DeleteOrganizationRequest;
-import io.scalecube.account.api.DeleteOrganizationResponse;
+import io.scalecube.account.api.GetOrganizationMembersRequest;
+import io.scalecube.account.api.GetOrganizationMembersResponse;
 import io.scalecube.account.api.Organization;
-import io.scalecube.account.api.OrganizationInfo;
+import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.Token;
-import io.scalecube.account.api.UpdateOrganizationRequest;
-import io.scalecube.account.api.UpdateOrganizationResponse;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.tokens.TokenVerifier;
 
-public class UpdateOrganization extends ServiceOperation<UpdateOrganizationRequest,
-    UpdateOrganizationResponse> {
+import java.util.Collection;
 
-  private UpdateOrganization(TokenVerifier tokenVerifier,
+public class GetOrganizationMembers extends ServiceOperation<GetOrganizationMembersRequest,
+    GetOrganizationMembersResponse> {
+
+  private GetOrganizationMembers(TokenVerifier tokenVerifier,
       OrganizationsDataAccess repository) {
     super(tokenVerifier, repository);
   }
 
   @Override
-  protected UpdateOrganizationResponse process(UpdateOrganizationRequest request,
+  protected GetOrganizationMembersResponse process(GetOrganizationMembersRequest request,
       OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
-
-    Organization orgUpdate = Organization.builder()
-        .name(request.name())
-        .email(request.email())
-        .apiKey(organization.apiKeys())
-        .copy(organization);
-
-    context.repository().updateOrganizationDetails(context.profile(), organization, orgUpdate);
-    return new UpdateOrganizationResponse(
-        OrganizationInfo.builder()
-            .id(orgUpdate.id())
-            .name(orgUpdate.name())
-            .apiKeys(orgUpdate.apiKeys())
-            .email(orgUpdate.email())
-            .ownerId(orgUpdate.ownerId())
-    );
+    Collection<OrganizationMember> organizationMembers = context.repository()
+        .getOrganizationMembers(context.profile(), organization);
+    OrganizationMember[] members  = new OrganizationMember[organizationMembers.size()];
+    return new GetOrganizationMembersResponse(organizationMembers.toArray(members));
   }
 
   @Override
-  protected void validate(UpdateOrganizationRequest request) {
+  protected void validate(GetOrganizationMembersRequest request) {
     super.validate(request);
     requireNonNullOrEmpty(request.organizationId(),
         "organizationId is a required argument");
-    requireNonNullOrEmpty(request.email(), "email is a required argument");
-    requireNonNullOrEmpty(request.name(), "name is a required argument");
   }
 
   @Override
-  protected Token getToken(UpdateOrganizationRequest request) {
+  protected Token getToken(GetOrganizationMembersRequest request) {
     return request.token();
   }
 
@@ -72,8 +58,8 @@ public class UpdateOrganization extends ServiceOperation<UpdateOrganizationReque
       return this;
     }
 
-    public UpdateOrganization build() {
-      return new UpdateOrganization(tokenVerifier, repository);
+    public GetOrganizationMembers build() {
+      return new GetOrganizationMembers(tokenVerifier, repository);
     }
   }
 }

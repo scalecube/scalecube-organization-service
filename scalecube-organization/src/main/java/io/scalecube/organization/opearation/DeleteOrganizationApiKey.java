@@ -1,79 +1,47 @@
 package io.scalecube.organization.opearation;
 
-import io.scalecube.account.api.AddOrganizationApiKeyRequest;
 import io.scalecube.account.api.ApiKey;
+import io.scalecube.account.api.DeleteOrganizationApiKeyRequest;
 import io.scalecube.account.api.GetOrganizationResponse;
 import io.scalecube.account.api.Organization;
-import io.scalecube.account.api.OrganizationInfo;
-import io.scalecube.account.api.OrganizationMember;
-import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
-import io.scalecube.organization.repository.exception.AccessPermissionException;
-import io.scalecube.organization.repository.exception.EntityNotFoundException;
-import io.scalecube.security.Profile;
 import io.scalecube.tokens.TokenVerifier;
-import io.scalecube.tokens.store.ApiKeyBuilder;
-import java.util.Arrays;
-import java.util.Objects;
 
-public class AddOrganizationApiKey extends ServiceOperation<AddOrganizationApiKeyRequest,
+import java.util.Arrays;
+import java.util.List;
+
+public class DeleteOrganizationApiKey extends ServiceOperation<DeleteOrganizationApiKeyRequest,
     GetOrganizationResponse> {
 
-  private AddOrganizationApiKey(TokenVerifier tokenVerifier,
+  private DeleteOrganizationApiKey(TokenVerifier tokenVerifier,
       OrganizationsDataAccess repository) {
     super(tokenVerifier, repository);
   }
 
   @Override
-  protected GetOrganizationResponse process(AddOrganizationApiKeyRequest request,
+  protected GetOrganizationResponse process(DeleteOrganizationApiKeyRequest request,
       OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
-    checkIfUserIsAllowedToAddAnApiKey(context, organization);
 
-
-    ApiKey apiKey = ApiKeyBuilder.build(organization, request);
-    int newLength = organization.apiKeys().length + 1;
-    ApiKey[] apiKeys = Arrays.copyOf(organization.apiKeys(),newLength);
-
-    apiKeys[organization.apiKeys().length] = apiKey;
-
-    Organization clonedOrg = Organization.builder().apiKey(apiKeys).copy(organization);
-    context.repository().updateOrganizationDetails(context.profile(), organization, clonedOrg);
-
-    return getOrganizationResponse(clonedOrg);
-  }
-
-  private void checkIfUserIsAllowedToAddAnApiKey(OperationServiceContext context,
-      Organization organization)
-      throws EntityNotFoundException, AccessPermissionException {
-    Profile profile = context.profile();
-    boolean isOwner = Objects.equals(organization.ownerId(), profile.getUserId());
-    if (!isOwner) {
-      OrganizationMember member = context.repository().getOrganizationMembers(profile, organization)
-          .stream()
-          .filter(i -> Objects.equals(i.id(), profile.getUserId()))
-          .findAny()
-          .orElseThrow(() -> new AccessPermissionException(profile.getUserId()
-              + " not a member in organization: " + organization.name()));
-      boolean isMemberRole = Objects.equals(member.role(), Role.Member.toString());
-      if (isMemberRole) {
-        throw new AccessPermissionException("Insufficient role permissions");
-      }
+    if (organization.apiKeys() == null) {
+      throw new IllegalStateException("organization.apiKeys is null");
     }
+
+    List<ApiKey> apiKeys = Arrays.asList(organization.apiKeys());
+    Organization newOrg = Organization.builder().apiKey(apiKeys.stream()
+        .filter(api -> !api.name().equals(request.apiKeyName())).toArray(
+            ApiKey[]::new)).copy(organization);
+
+    context.repository().updateOrganizationDetails(context.profile(), organization, newOrg);
+
+    return getOrganizationResponse(newOrg);
   }
 
-  private GetOrganizationResponse getOrganizationResponse(Organization organization) {
-    return new GetOrganizationResponse(OrganizationInfo.builder()
-        .id(organization.id())
-        .name(organization.name())
-        .apiKeys(organization.apiKeys())
-        .email(organization.email())
-        .ownerId(organization.ownerId()));
-  }
+
 
   @Override
-  protected void validate(AddOrganizationApiKeyRequest request) {
+  protected void validate(DeleteOrganizationApiKeyRequest request) {
     super.validate(request);
     requireNonNullOrEmpty(request.organizationId(),
         "organizationId is a required argument");
@@ -81,7 +49,7 @@ public class AddOrganizationApiKey extends ServiceOperation<AddOrganizationApiKe
   }
 
   @Override
-  protected Token getToken(AddOrganizationApiKeyRequest request) {
+  protected Token getToken(DeleteOrganizationApiKeyRequest request) {
     return request.token();
   }
 
@@ -103,8 +71,8 @@ public class AddOrganizationApiKey extends ServiceOperation<AddOrganizationApiKe
       return this;
     }
 
-    public AddOrganizationApiKey build() {
-      return new AddOrganizationApiKey(tokenVerifier, repository);
+    public DeleteOrganizationApiKey build() {
+      return new DeleteOrganizationApiKey(tokenVerifier, repository);
     }
   }
 }
