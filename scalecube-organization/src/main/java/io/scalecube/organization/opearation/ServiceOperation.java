@@ -59,11 +59,12 @@ public abstract class ServiceOperation<I, O> {
     Objects.requireNonNull(token, "token");
     requireNonNullOrEmpty(token.token(), "token");
 
-    Profile owner = tokenVerifier.verify(token);
-    if (owner == null) {
+    Profile profile = tokenVerifier.verify(token);
+    
+    if (profile == null) {
       throw new InvalidAuthenticationToken();
     }
-    return owner;
+    return profile;
   }
 
   protected abstract O process(I request, OperationServiceContext context) throws Throwable;
