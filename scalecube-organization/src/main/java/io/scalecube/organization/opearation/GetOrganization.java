@@ -5,10 +5,7 @@ import io.scalecube.account.api.GetOrganizationResponse;
 import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
-import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.tokens.TokenVerifier;
-
-import java.util.Objects;
 
 public class GetOrganization extends ServiceOperation<GetOrganizationRequest,
     GetOrganizationResponse> {
@@ -22,12 +19,7 @@ public class GetOrganization extends ServiceOperation<GetOrganizationRequest,
   protected GetOrganizationResponse process(GetOrganizationRequest request,
       OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
-    boolean isOwner = Objects.equals(organization.ownerId(), context.profile().getUserId());
-
-    if (!isOwner && !context.repository().isMember(context.profile().getUserId(), organization)) {
-      throw new AccessPermissionException("Not a member of the organization");
-    }
-
+    checkMemberAccess(organization, context.profile());
     return getOrganizationResponse(organization);
   }
 

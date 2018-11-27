@@ -29,7 +29,8 @@ public class AddOrganizationApiKey extends ServiceOperation<AddOrganizationApiKe
   protected GetOrganizationResponse process(AddOrganizationApiKeyRequest request,
       OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
-    checkIfUserIsAllowedToAddAnApiKey(context, organization);
+    checkMemberAccess(organization, context.profile());
+
     ApiKey apiKey = ApiKeyBuilder.build(organization, request);
     int newLength = organization.apiKeys().length + 1;
     ApiKey[] apiKeys = Arrays.copyOf(organization.apiKeys(),newLength);
@@ -41,26 +42,6 @@ public class AddOrganizationApiKey extends ServiceOperation<AddOrganizationApiKe
 
     return getOrganizationResponse(clonedOrg);
   }
-
-  private void checkIfUserIsAllowedToAddAnApiKey(OperationServiceContext context,
-      Organization organization)
-      throws EntityNotFoundException, AccessPermissionException {
-    Profile profile = context.profile();
-    boolean isOwner = Objects.equals(organization.ownerId(), profile.getUserId());
-    if (!isOwner) {
-      OrganizationMember member = context.repository().getOrganizationMembers(profile, organization)
-          .stream()
-          .filter(i -> Objects.equals(i.id(), profile.getUserId()))
-          .findAny()
-          .orElseThrow(() -> new AccessPermissionException(profile.getUserId()
-              + " not a member in organization: " + organization.name()));
-      boolean isMemberRole = Objects.equals(member.role(), Role.Member.toString());
-      if (isMemberRole) {
-        throw new AccessPermissionException("Insufficient role permissions");
-      }
-    }
-  }
-
 
   @Override
   protected void validate(AddOrganizationApiKeyRequest request) {

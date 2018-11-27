@@ -19,6 +19,7 @@ public class InviteMember extends ServiceOperation<InviteOrganizationMemberReque
   protected InviteOrganizationMemberResponse process(InviteOrganizationMemberRequest request,
       OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
+    checkSuperUserAccess(organization, context.profile());
     context.repository().invite(context.profile(), organization, request.userId());
     return new InviteOrganizationMemberResponse();
   }

@@ -19,6 +19,7 @@ public class DeleteOrganization extends ServiceOperation<DeleteOrganizationReque
   protected DeleteOrganizationResponse process(DeleteOrganizationRequest request,
       OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
+    checkOwnerAccess(organization, context.profile());
     context.repository().deleteOrganization(context.profile(), organization);
     return new DeleteOrganizationResponse(organization.id(), true);
   }
