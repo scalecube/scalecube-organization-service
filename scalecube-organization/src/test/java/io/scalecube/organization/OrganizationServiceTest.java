@@ -108,18 +108,6 @@ public class OrganizationServiceTest {
       "fname5",
       "lname5",
       null);
-  private final Profile testOwnerProfile = new Profile(
-      "11",
-      null,
-      "user1@gmail.com",
-      true,
-      "ownerUser",
-      "fname",
-      "lname",
-      new HashMap<String, Object>()
-      {{
-        put("role", "Owner");
-      }});
   private final Profile testAdminProfile = new Profile(
       "12",
       null,

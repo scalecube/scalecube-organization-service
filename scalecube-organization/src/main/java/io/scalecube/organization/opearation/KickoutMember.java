@@ -3,14 +3,12 @@ package io.scalecube.organization.opearation;
 import io.scalecube.account.api.KickoutOrganizationMemberRequest;
 import io.scalecube.account.api.KickoutOrganizationMemberResponse;
 import io.scalecube.account.api.Organization;
-import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.tokens.TokenVerifier;
-import java.util.Objects;
 
 public class KickoutMember extends ServiceOperation<KickoutOrganizationMemberRequest,
     KickoutOrganizationMemberResponse> {
