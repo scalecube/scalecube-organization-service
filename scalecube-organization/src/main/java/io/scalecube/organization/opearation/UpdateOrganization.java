@@ -20,7 +20,7 @@ public class UpdateOrganization extends ServiceOperation<UpdateOrganizationReque
   protected UpdateOrganizationResponse process(UpdateOrganizationRequest request,
       OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
-
+    checkSuperUserAccess(organization, context.profile());
     Organization orgUpdate = Organization.builder()
         .name(request.name())
         .email(request.email())

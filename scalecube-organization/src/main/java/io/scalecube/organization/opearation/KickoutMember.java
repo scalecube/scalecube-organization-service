@@ -3,12 +3,12 @@ package io.scalecube.organization.opearation;
 import io.scalecube.account.api.KickoutOrganizationMemberRequest;
 import io.scalecube.account.api.KickoutOrganizationMemberResponse;
 import io.scalecube.account.api.Organization;
+import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
+import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.tokens.TokenVerifier;
-
-import java.util.Objects;
 
 public class KickoutMember extends ServiceOperation<KickoutOrganizationMemberRequest,
     KickoutOrganizationMemberResponse> {
@@ -19,17 +19,30 @@ public class KickoutMember extends ServiceOperation<KickoutOrganizationMemberReq
   }
 
   @Override
-  protected KickoutOrganizationMemberResponse process(KickoutOrganizationMemberRequest request,
+  protected KickoutOrganizationMemberResponse process(
+      KickoutOrganizationMemberRequest request,
       OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
-    boolean isOwner = Objects.equals(organization.ownerId(), context.profile().getUserId());
-
-    if (!isOwner) {
-      throw new AccessPermissionException("Not owner");
-    }
-
+    checkSuperUserAccess(organization, context.profile());
+    ensureCallerIsInHigherRoleThanKickedOutUser(request, context, organization);
     context.repository().kickout(context.profile(), organization, request.userId());
     return new KickoutOrganizationMemberResponse();
+  }
+
+  private void ensureCallerIsInHigherRoleThanKickedOutUser(KickoutOrganizationMemberRequest request,
+      OperationServiceContext context, Organization organization)
+        throws AccessPermissionException, EntityNotFoundException {
+    boolean isCallerAdmin = isInRole(context.profile().getUserId(), organization, Role.Admin);
+
+    if (isCallerAdmin && isInRole(request.userId(), organization, Role.Owner)) {
+      throw new AccessPermissionException(
+          String.format("user: '%s', name: '%s', in Admin role cannot kickout "
+                  + "user: '%s' in role Owner of organization: '%s'",
+              context.profile().getName(),
+              context.profile().getUserId(),
+              request.userId(),
+              organization.name()));
+    }
   }
 
   @Override

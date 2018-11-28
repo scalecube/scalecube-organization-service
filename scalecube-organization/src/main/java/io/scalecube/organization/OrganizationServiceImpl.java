@@ -21,6 +21,8 @@ import io.scalecube.account.api.LeaveOrganizationResponse;
 import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.ServiceOperationException;
+import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
+import io.scalecube.account.api.UpdateOrganizationMemberRoleResponse;
 import io.scalecube.account.api.UpdateOrganizationRequest;
 import io.scalecube.account.api.UpdateOrganizationResponse;
 import io.scalecube.organization.opearation.AddOrganizationApiKey;
@@ -34,6 +36,7 @@ import io.scalecube.organization.opearation.InviteMember;
 import io.scalecube.organization.opearation.KickoutMember;
 import io.scalecube.organization.opearation.LeaveOrganization;
 import io.scalecube.organization.opearation.UpdateOrganization;
+import io.scalecube.organization.opearation.UpdateOrganizationMemberRole;
 import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.organization.repository.OrganizationsDataAccessImpl;
@@ -274,6 +277,8 @@ public class OrganizationServiceImpl implements OrganizationService {
             .repository(repository)
             .build()
             .execute(request);
+        logger.debug("deleteOrganizationApiKey: exit, response: {}, request: {}", response,
+            request);
         result.success(response);
       } catch (ServiceOperationException ex) {
         logger.error("deleteOrganizationApiKey: request: {}, error: {}", request, ex);
@@ -293,10 +298,32 @@ public class OrganizationServiceImpl implements OrganizationService {
             .repository(repository)
             .build()
             .execute(request);
-        logger.debug("getOrganization0: exit, response: {}, request: {}", response, request);
+        logger.debug("getOrganization: exit, response: {}, request: {}", response, request);
         result.success(response);
       } catch (ServiceOperationException ex) {
         logger.error("getOrganization: request: {}, error: {}", request, ex);
+        result.error(ex.getCause());
+      }
+    });
+  }
+
+  @Override
+  public Mono<UpdateOrganizationMemberRoleResponse> updateOrganizationMemberRole(
+      UpdateOrganizationMemberRoleRequest request) {
+    return Mono.create(result -> {
+      try {
+        logger.debug("updateOrganizationMemberRole: enter, request: {}", request);
+        UpdateOrganizationMemberRoleResponse response = UpdateOrganizationMemberRole
+            .builder()
+            .tokenVerifier(tokenVerifier)
+            .repository(repository)
+            .build()
+            .execute(request);
+        logger.debug("updateOrganizationMemberRole: exit, response: {}, request: {}", response,
+            request);
+        result.success(response);
+      } catch (ServiceOperationException ex) {
+        logger.error("updateOrganizationMemberRole: request: {}, error: {}", request, ex);
         result.error(ex.getCause());
       }
     });

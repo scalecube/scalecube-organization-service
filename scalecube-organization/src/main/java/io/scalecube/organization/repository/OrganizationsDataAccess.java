@@ -77,14 +77,13 @@ public interface OrganizationsDataAccess {
 
   /**
    * Returns a membership list of an organization corresponding to the <code>id</code>  argument in
-   * the  underlying data provider.
+   * the underlying data provider.
    *
-   * @param caller the tokenVerifier of the caller
    * @param organization The organization id criteria.
    * @return A collection of <code>OrganizationMember</code> objects.
    * @throws EntityNotFoundException In case organization is not found.
    */
-  Collection<OrganizationMember> getOrganizationMembers(Profile caller,
+  Collection<OrganizationMember> getOrganizationMembers(
       Organization organization) throws EntityNotFoundException, AccessPermissionException;
 
   /**
@@ -132,4 +131,14 @@ public interface OrganizationsDataAccess {
    * @return true if the user is a member of the organization; false otherwise.
    */
   boolean isMember(String userId, Organization organization);
+
+  /**
+   * Updates the organization membership of the user corrsponding to the userId argument to the
+   *     role argument.
+   *
+   * @param organization the organization criteria
+   * @param userId the user id criteria
+   * @param role the new role
+   */
+  void updateOrganizationMemberRole(Organization organization, String userId, String role);
 }

@@ -7,7 +7,6 @@ import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -26,12 +25,14 @@ import io.scalecube.account.api.InvalidAuthenticationToken;
 import io.scalecube.account.api.InviteOrganizationMemberRequest;
 import io.scalecube.account.api.KickoutOrganizationMemberRequest;
 import io.scalecube.account.api.LeaveOrganizationRequest;
+import io.scalecube.account.api.NotAnOrganizationMemberException;
 import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationInfo;
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
+import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
 import io.scalecube.account.api.UpdateOrganizationRequest;
 import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
 import io.scalecube.organization.repository.Repository;
@@ -107,7 +108,18 @@ public class OrganizationServiceTest {
       "fname5",
       "lname5",
       null);
-
+  private final Profile testAdminProfile = new Profile(
+      "12",
+      null,
+      "user1@gmail.com",
+      true,
+      "adminUser",
+      "fname",
+      "lname",
+      new HashMap<String, Object>()
+      {{
+        put("role", "Admin");
+      }});
 
   private String organisationId;
   private Token token = new Token("google", "user1");
@@ -618,14 +630,38 @@ public class OrganizationServiceTest {
   }
 
   @Test
+  public void updateOrganization_not_a_member_should_fail() {
+    expectError(createService(testProfile5)
+        .updateOrganization(new UpdateOrganizationRequest(
+        organisationId,
+        token,
+        "update_name",
+        "update@email")), AccessPermissionException.class);
+  }
+
+  @Test
+  public void updateOrganization_not_admin_should_fail() {
+    orgMembersRepository.addMember(getOrganizationFromRepository(organisationId),
+        new OrganizationMember(testProfile2.getUserId(), Role.Member.toString()));
+    expectError(createService(testProfile2)
+        .updateOrganization(new UpdateOrganizationRequest(
+            organisationId,
+            token,
+            "update_name",
+            "update@email")), AccessPermissionException.class);
+  }
+
+  @Test
   public void updateOrganization() {
+    orgMembersRepository.addMember(getOrganizationFromRepository(organisationId),
+        new OrganizationMember(testAdminProfile.getUserId(), Role.Admin.toString()));
     consume(service.addOrganizationApiKey(
         new AddOrganizationApiKeyRequest(token,
             organisationId,
             "testApiKey",
             new HashMap<>())));
     Duration duration = StepVerifier
-        .create(service.updateOrganization(new UpdateOrganizationRequest(
+        .create(createService(testAdminProfile).updateOrganization(new UpdateOrganizationRequest(
             organisationId,
             token,
             "update_name",
@@ -650,7 +686,7 @@ public class OrganizationServiceTest {
         .expectSubscription()
         .assertNext((r) -> {
           Supplier<Stream<OrganizationMember>> members = () -> Arrays.stream(r.members());
-          assertThat(r.members().length, is(2));
+          assertThat(r.members().length, is(3));
           long membersCount = members.get()
               .filter((m) -> Objects.equals(m.role(), Role.Member.toString())).count();
           assertThat(membersCount, is(2L));
@@ -844,7 +880,7 @@ public class OrganizationServiceTest {
             .expectSubscription()
             .assertNext(r -> {
               List<String> members = Arrays.stream(r.members())
-                  .map(i -> i.id()).collect(Collectors.toList());
+                  .map(OrganizationMember::id).collect(Collectors.toList());
               assertThat(members, not(hasItem(testProfile5.getUserId())));
             })
             .verifyComplete()).verifyComplete();
@@ -954,6 +990,80 @@ public class OrganizationServiceTest {
             .verifyComplete())
         .verifyComplete();
     assertNotNull(duration);
+  }
+
+  @Test
+  public void updateOrganizationMemberRole() {
+    addMemberToOrganization(organisationId, service, testProfile5);
+    Duration duration = StepVerifier
+        .create(service.updateOrganizationMemberRole(
+            new UpdateOrganizationMemberRoleRequest(
+                token, organisationId, testProfile5.getUserId(), Role.Admin.toString())))
+        .expectSubscription()
+        .assertNext(x -> StepVerifier
+            .create(createService(testProfile5).getOrganizationMembers(
+                new GetOrganizationMembersRequest(organisationId, token)))
+            .expectSubscription()
+            .assertNext(r -> assertTrue(Arrays.stream(r.members()).anyMatch(i ->
+                Objects.equals(i.id(), testProfile5.getUserId())
+                    && Objects.equals(i.role(), Role.Admin.toString()))))
+            ).verifyComplete();
+    assertNotNull(duration);
+  }
+
+  @Test
+  public void updateOrganizationMemberRole_not_a_member_should_fail() {
+    expectError(service.updateOrganizationMemberRole(
+        new UpdateOrganizationMemberRoleRequest(
+            token, organisationId, testProfile5.getUserId(), Role.Admin.toString())),
+        NotAnOrganizationMemberException.class);
+  }
+
+  @Test
+  public void updateOrganizationMemberRole_not_a_super_user_should_fail() {
+    addMemberToOrganization(organisationId, service, testProfile5);
+    addMemberToOrganization(organisationId, service, testProfile2);
+    expectError(createService(testProfile2).updateOrganizationMemberRole(
+        new UpdateOrganizationMemberRoleRequest(
+            token, organisationId, testProfile5.getUserId(), Role.Admin.toString())),
+        AccessPermissionException.class);
+  }
+
+  @Test
+  public void
+  updateOrganizationMemberRole_caller_not_owner_trying_to_promote_to_owner_should_fail() {
+    addMemberToOrganization(organisationId, service, testProfile5);
+    addMemberToOrganization(organisationId, service, testProfile2);
+
+    // upgrade to admin
+    consume(service.updateOrganizationMemberRole(
+        new UpdateOrganizationMemberRoleRequest(
+            token, organisationId, testProfile2.getUserId(), Role.Admin.toString())));
+    expectError(createService(testProfile2).updateOrganizationMemberRole(
+        new UpdateOrganizationMemberRoleRequest(
+            token, organisationId, testProfile5.getUserId(), Role.Owner.toString())),
+        AccessPermissionException.class);
+  }
+
+  @Test
+  public void updateOrganizationMemberRole_caller_not_owner_trying_to_downgrade_user_should_fail() {
+    addMemberToOrganization(organisationId, service, testProfile5);
+    addMemberToOrganization(organisationId, service, testProfile2);
+
+    // upgrade to owner
+    consume(service.updateOrganizationMemberRole(
+        new UpdateOrganizationMemberRoleRequest(
+            token, organisationId, testProfile5.getUserId(), Role.Owner.toString())));
+    // upgrade to admin
+    consume(service.updateOrganizationMemberRole(
+        new UpdateOrganizationMemberRoleRequest(
+            token, organisationId, testProfile2.getUserId(), Role.Admin.toString())));
+
+    // admin tries to downgrade an owner should fail
+    expectError(createService(testProfile2).updateOrganizationMemberRole(
+        new UpdateOrganizationMemberRoleRequest(
+            token, organisationId, testProfile5.getUserId(), Role.Admin.toString())),
+        AccessPermissionException.class);
   }
 
   private void addMemberToOrganization(String organisationId,
