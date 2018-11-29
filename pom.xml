@@ -24,17 +24,16 @@
 
   <properties>
     <scalecube.config.version>0.3.6</scalecube.config.version>
-    <scalecube-services.version>2.1.31</scalecube-services.version>
-    <scalecube-gateway.version>2.0.11</scalecube-gateway.version>
+    <scalecube-services.version>2.4.3</scalecube-services.version>
     <scalecube-security-jwt.version>1.0.2</scalecube-security-jwt.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.jupiter.version>5.1.0</junit.jupiter.version>
     <jackson-databind.version>2.7.6</jackson-databind.version>
     <vault-java-driver.version>3.1.0</vault-java-driver.version>
     <couchbase-client.version>2.6.0</couchbase-client.version>
-    <reactor.version>3.1.8.RELEASE</reactor.version>
-    <netty.version>4.1.25.Final</netty.version>
-    <reactor-netty.version>0.7.8.RELEASE</reactor-netty.version>
+    <reactor.version>3.2.1.RELEASE</reactor.version>
+    <netty.version>4.1.29.Final</netty.version>
+    <reactor-netty.version>0.8.1.RELEASE</reactor-netty.version>
     <slf4j.version>1.7.7</slf4j.version>
     <log4j.version>2.11.1</log4j.version>
     <commons-codec.version>1.10</commons-codec.version>
@@ -85,12 +84,12 @@
       </dependency>
       <dependency>
         <groupId>io.scalecube</groupId>
-        <artifactId>rsocket-services-transport</artifactId>
+        <artifactId>scalecube-services-transport-rsocket</artifactId>
         <version>${scalecube-services.version}</version>
       </dependency>
       <dependency>
         <groupId>io.scalecube</groupId>
-        <artifactId>scalecube-services-jackson</artifactId>
+        <artifactId>scalecube-services-transport-jackson</artifactId>
         <version>${scalecube-services.version}</version>
       </dependency>
       <dependency>
@@ -135,7 +134,7 @@
 
       <!-- Reactor Netty -->
       <dependency>
-        <groupId>io.projectreactor.ipc</groupId>
+        <groupId>io.projectreactor.netty</groupId>
         <artifactId>reactor-netty</artifactId>
         <version>${reactor-netty.version}</version>
       </dependency>
