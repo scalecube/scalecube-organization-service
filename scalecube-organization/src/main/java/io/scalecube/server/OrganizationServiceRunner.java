@@ -7,7 +7,7 @@ import io.scalecube.organization.OrganizationServiceImpl;
 import io.scalecube.organization.repository.couchbase.CouchbaseRepositoryFactory;
 import io.scalecube.organization.repository.couchbase.CouchbaseSettings;
 import io.scalecube.services.Microservices;
-import io.scalecube.transport.Address;
+import io.scalecube.services.transport.api.Address;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -40,7 +40,7 @@ public class OrganizationServiceRunner {
                     .port(discoveryOptions.discoveryPort())
                     .memberHost(discoveryOptions.memberHost())
                     .memberPort(discoveryOptions.memberPort()))
-        .servicePort(discoveryOptions.servicePort())
+        .transport(options -> options.port(discoveryOptions.servicePort()))
         .services(createOrganizationService())
         .startAwait();
   }
