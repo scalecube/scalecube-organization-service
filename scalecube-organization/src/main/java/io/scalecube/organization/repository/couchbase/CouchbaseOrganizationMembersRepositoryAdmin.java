@@ -29,7 +29,7 @@ final class CouchbaseOrganizationMembersRepositoryAdmin
 
     try {
       createPrimaryIndex(bucketName);
-      insertUser(bucketName);
+      insertUser(operationContext(bucketName, organization));
     } catch (Throwable throwable) {
       logger.error("createRepository: organization: {}, error: {}", organization, throwable);
       // rollback
@@ -55,12 +55,12 @@ final class CouchbaseOrganizationMembersRepositoryAdmin
    * Couchbase Server 5.0 introduced role-based access control (RBAC).
    * By creating a user with same name as the org-members-bucket, we limit the access to this
    * bucket only with the need for a password when opening the  bucket.
-   * @param bucketName the bucket name
+   * @param operationContext the bucket name and organization object
    */
-  private void insertUser(String bucketName) {
-    logger.debug("insetUser: enter: name: {}", bucketName);
-    AdminOperationsFactory.insertUser().execute(operationContext(bucketName));
-    logger.debug("insetUser: exit: name: {}", bucketName);
+  private void insertUser(AdminOperationContext operationContext) {
+    logger.debug("insetUser: enter: name: {}", operationContext);
+    AdminOperationsFactory.insertUser().execute(operationContext);
+    logger.debug("insetUser: exit: name: {}", operationContext);
   }
 
 
@@ -74,11 +74,16 @@ final class CouchbaseOrganizationMembersRepositoryAdmin
   }
 
   private AdminOperationContext operationContext(String bucketName)  {
+    return operationContext(bucketName, null);
+  }
+
+  private AdminOperationContext operationContext(String bucketName, Organization organization)  {
     return AdminOperationContext
         .builder()
         .settings(settings)
         .cluster(cluster)
         .name(bucketName)
+        .organization(organization)
         .build();
   }
 

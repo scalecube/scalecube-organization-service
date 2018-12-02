@@ -15,7 +15,7 @@ final class InsertUserOperation extends Operation<Boolean> {
             AuthDomain.LOCAL,
             context.name(),
             UserSettings.build()
-                .password(PasswordGenerator.md5Hash(context.name()))
+                .password(PasswordGenerator.md5Hash(context.organization().id()))
                 .name(context.name())
                 .roles(
                     context.settings()

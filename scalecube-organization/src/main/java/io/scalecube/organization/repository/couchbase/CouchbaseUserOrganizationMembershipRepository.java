@@ -5,6 +5,7 @@ import com.couchbase.client.java.Cluster;
 import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
+import io.scalecube.organization.repository.couchbase.admin.PasswordGenerator;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -45,7 +46,7 @@ final class CouchbaseUserOrganizationMembershipRepository
   }
 
   private Bucket client(Organization organization) {
-    return client(getBucketName(organization), organization.id());
+    return client(getBucketName(organization), PasswordGenerator.md5Hash(organization.id()));
   }
 
   private Bucket client(String bucketName, String bucketPassword) {
