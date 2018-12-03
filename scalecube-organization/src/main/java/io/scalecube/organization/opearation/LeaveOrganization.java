@@ -24,8 +24,9 @@ public class LeaveOrganization extends ServiceOperation<LeaveOrganizationRequest
   }
 
   @Override
-  protected void validate(LeaveOrganizationRequest request) {
-    super.validate(request);
+  protected void validate(LeaveOrganizationRequest request,
+      OperationServiceContext context) throws Throwable {
+    super.validate(request, context);
     requireNonNullOrEmpty(request.organizationId(),
         "organizationId is a required argument");
   }

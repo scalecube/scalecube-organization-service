@@ -25,8 +25,9 @@ public class DeleteOrganization extends ServiceOperation<DeleteOrganizationReque
   }
 
   @Override
-  protected void validate(DeleteOrganizationRequest request) {
-    super.validate(request);
+  protected void validate(DeleteOrganizationRequest request, OperationServiceContext context)
+      throws Throwable {
+    super.validate(request, context);
     requireNonNullOrEmpty(request.organizationId(),
         "organizationId is a required argument");
   }

@@ -49,6 +49,11 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
     return new Builder();
   }
 
+  @Override
+  public boolean existByName(String name) {
+    requireNonNullId(name);
+    return organizations.existByProperty("name", name);
+  }
 
   @Override
   public Organization getOrganization(String id) throws EntityNotFoundException {
@@ -61,7 +66,6 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
       throws DuplicateKeyException {
     requireNonNullProfile(owner);
     requireNonNullOrganization(organization);
-    validateNewOrganizationInputs(organization);
 
     // create members repository for the organization
     membersAdmin.createRepository(organization);
@@ -75,32 +79,6 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
       // rollback
       membersAdmin.deleteRepository(organization);
       throw throwable;
-    }
-  }
-
-  private void validateNewOrganizationInputs(Organization organization) {
-    if (organization.id() == null || organization.id().length() == 0) {
-      throw new InvalidInputException("Organization id cannot be empty");
-    }
-
-    if (organization.name() == null || organization.name().length() == 0) {
-      throw new InvalidInputException("Organization name cannot be empty");
-    }
-
-    if (!organization.name().matches("^[.%a-zA-Z0-9_-]*$")) {
-      throw new InvalidInputException(
-          "name can only contain characters in range A-Z, a-z, 0-9 as well as "
-              + "underscore, period, dash & percent.");
-    }
-
-    if (organizations.existByProperty("name", organization.name())) {
-      throw new NameAlreadyInUseException(
-          String.format("Organization name: '%s' already in use.",
-              organization.name()));
-    }
-
-    if (organizations.existsById(organization.id())) {
-      throw new DuplicateKeyException(organization.id());
     }
   }
 

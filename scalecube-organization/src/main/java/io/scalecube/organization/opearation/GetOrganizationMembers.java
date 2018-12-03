@@ -32,8 +32,9 @@ public class GetOrganizationMembers extends ServiceOperation<GetOrganizationMemb
   }
 
   @Override
-  protected void validate(GetOrganizationMembersRequest request) {
-    super.validate(request);
+  protected void validate(GetOrganizationMembersRequest request, OperationServiceContext context)
+      throws Throwable {
+    super.validate(request, context);
     requireNonNullOrEmpty(request.organizationId(),
         "organizationId is a required argument");
   }

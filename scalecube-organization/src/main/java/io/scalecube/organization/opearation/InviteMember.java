@@ -25,8 +25,9 @@ public class InviteMember extends ServiceOperation<InviteOrganizationMemberReque
   }
 
   @Override
-  protected void validate(InviteOrganizationMemberRequest request) {
-    super.validate(request);
+  protected void validate(InviteOrganizationMemberRequest request,
+      OperationServiceContext context) throws Throwable {
+    super.validate(request, context);
     requireNonNullOrEmpty(request.organizationId(),
         "organizationId is a required argument");
     requireNonNullOrEmpty(request.userId(), "user id is required");

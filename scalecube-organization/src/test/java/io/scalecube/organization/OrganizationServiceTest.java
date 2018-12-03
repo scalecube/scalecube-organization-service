@@ -43,6 +43,7 @@ import io.scalecube.organization.repository.exception.NameAlreadyInUseException;
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
 import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
 import io.scalecube.security.Profile;
+import java.nio.charset.Charset;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -62,7 +63,6 @@ import reactor.test.StepVerifier;
 
 public class OrganizationServiceTest {
 
-  private final OrganizationService service;
   private final Profile testProfile = new Profile(
       "1",
       null,
@@ -121,7 +121,9 @@ public class OrganizationServiceTest {
         put("role", "Admin");
       }});
 
+  private OrganizationService service;
   private String organisationId;
+  private Organization organisation;
   private Token token = new Token("google", "user1");
   private Repository<Organization, String> organizationRepository;
   private UserOrganizationMembershipRepository orgMembersRepository;
@@ -155,16 +157,33 @@ public class OrganizationServiceTest {
 //    admin = CouchbaseRepositoryFactory.organizationMembersRepositoryAdmin();
   }
 
-  @BeforeEach
-  public void createOrganizationBeforeTest() {
-    organisationId = createOrganization("myTestOrg5");
+  private String randomString() {
+    int leftLimit = 97; // letter 'a'
+    int rightLimit = 122; // letter 'z'
+    int targetStringLength = 10;
+    Random random = new Random();
+    StringBuilder buffer = new StringBuilder(targetStringLength);
+    for (int i = 0; i < targetStringLength; i++) {
+      int randomLimitedInt = leftLimit + (int)
+          (random.nextFloat() * (rightLimit - leftLimit + 1));
+      buffer.append((char) randomLimitedInt);
+    }
+    String generatedString = buffer.toString();
+
+    return generatedString;
   }
 
-  private String createOrganization(String name) {
+  @BeforeEach
+  public void createOrganizationBeforeTest() {
+    organisation = createOrganization(randomString());
+    organisationId = organisation.id();
+  }
+
+  private Organization createOrganization(String name) {
     AwaitLatch<CreateOrganizationResponse> await = consume(service.createOrganization(
         new CreateOrganizationRequest(name, token, "email")));
     assertThat(await.error(), is(nullValue()));
-    return await.result().id();
+    return organizationRepository.findById(await.result().id()).get();
   }
 
   @AfterEach
@@ -177,8 +196,8 @@ public class OrganizationServiceTest {
 
   @Test
   public void getUserOrganizationsMembership() {
-    String orgId1 = createOrganization("testOrg1");
-    String orgId2 = createOrganization("testOrg2");
+    String orgId1 = createOrganization("testOrg1").id();
+    String orgId2 = createOrganization("testOrg2").id();
     addMemberToOrganization(organisationId, service, testProfile);
     addMemberToOrganization(orgId1, service, testProfile);
     addMemberToOrganization(orgId2, service, testProfile);
@@ -246,7 +265,7 @@ public class OrganizationServiceTest {
   public void createOrganization_with_name_already_in_use_should_Fail() {
     Duration duration = expectError(
         service.createOrganization(
-            new CreateOrganizationRequest("myTestOrg5", token, "email"))
+            new CreateOrganizationRequest(organisation.name(), token, "email"))
         , NameAlreadyInUseException.class);
     assertNotNull(duration);
   }
@@ -375,11 +394,7 @@ public class OrganizationServiceTest {
     assertNotNull(duration);
   }
 
-  private Organization getOrganizationFromRepository(String organisationId) {
-    return organizationRepository
-        .findById(organisationId)
-        .orElseThrow(IllegalStateException::new);
-  }
+
 
   @Test
   public void getOrganization_should_fail_with_EntityNotFoundException() {
@@ -524,21 +539,19 @@ public class OrganizationServiceTest {
     assertNotNull(duration);
   }
 
-  private String createRandomOrganization() {
-    Random rand = new Random();
-    AwaitLatch<CreateOrganizationResponse> await = consume(service.createOrganization(
-        new CreateOrganizationRequest("myTestOrg5" + rand.nextInt(50) + 1,
-            token, "email")));
-    assertThat(await.error(), is(nullValue()));
-    assertThat(await.result(), is(notNullValue()));
-    assertThat(await.result().id(), is(notNullValue()));
-    return await.result().id();
-  }
 
-  private void deleteOrganization(String id) {
-    consume(service.deleteOrganization(
-        new DeleteOrganizationRequest(
-            token, id)));
+  @Test
+  public void
+    update_organization_with_existing_org_name_should_fail_with_NameAlreadyInUseException() {
+    Organization localOrganization = createOrganization(randomString());
+
+    Duration duration = expectError(
+        service.updateOrganization(new UpdateOrganizationRequest(
+            organisationId,
+            token,
+            localOrganization.name(),
+            "update@email")), NameAlreadyInUseException.class);
+    assertNotNull(duration);
   }
 
   @Test
@@ -559,7 +572,7 @@ public class OrganizationServiceTest {
             "",
             token,
             "update_name",
-            "update@email")), IllegalArgumentException.class);
+            "update@email")), EntityNotFoundException.class);
     assertNotNull(duration);
   }
 
@@ -697,6 +710,13 @@ public class OrganizationServiceTest {
     assertNotNull(duration);
   }
 
+
+
+
+
+
+
+
   @Test
   public void getOrganizationMembers_empty_org_id_should_fail_with_IllegalArgumentException() {
     Duration duration = expectError(
@@ -777,19 +797,7 @@ public class OrganizationServiceTest {
   }
 
 
-  /**
-   * Subscribe to the mono argument and request unbounded demand
-   *
-   * @param mono publisher
-   * @param <T> type of response
-   * @return mono consume or error
-   */
-  private <T> AwaitLatch<T> consume(Mono<T> mono) {
-    AwaitLatch<T> await = Await.one();
-    mono.subscribe(await::result, await::error);
-    await.timeout(2, TimeUnit.SECONDS);
-    return await;
-  }
+
 
   @Test
   public void inviteMember_empty_org_id_should_fail_with_IllegalArgumentException() {
@@ -972,7 +980,6 @@ public class OrganizationServiceTest {
     assertNotNull(duration);
   }
 
-  ///////////////////////////////////////////////////////////
   @Test
   public void leaveOrganization() {
     addMemberToOrganization(organisationId, service, testProfile5);
@@ -1066,11 +1073,6 @@ public class OrganizationServiceTest {
         AccessPermissionException.class);
   }
 
-  private void addMemberToOrganization(String organisationId,
-      OrganizationService service, Profile profile) {
-    consume(service.inviteMember(
-        new InviteOrganizationMemberRequest(token, organisationId, profile.getUserId())));
-  }
 
   @Test
   public void leaveOrganization_with_empty_org_id_should_fail_with_IllegalArgumentException() {
@@ -1293,6 +1295,7 @@ public class OrganizationServiceTest {
     assertNotNull(duration);
   }
 
+
   @Test
   public void deleteOrganizationApiKey_empty_org_id_should_fail_with_IllegalArgumentException() {
     Duration duration = expectError(service.deleteOrganizationApiKey(
@@ -1367,6 +1370,31 @@ public class OrganizationServiceTest {
     assertNotNull(duration);
   }
 
+
+
+  private String createRandomOrganization() {
+    Random rand = new Random();
+    AwaitLatch<CreateOrganizationResponse> await = consume(service.createOrganization(
+        new CreateOrganizationRequest("myTestOrg5" + rand.nextInt(50) + 1,
+            token, "email")));
+    assertThat(await.error(), is(nullValue()));
+    assertThat(await.result(), is(notNullValue()));
+    assertThat(await.result().id(), is(notNullValue()));
+    return await.result().id();
+  }
+
+  private void deleteOrganization(String id) {
+    consume(service.deleteOrganization(
+        new DeleteOrganizationRequest(
+            token, id)));
+  }
+
+  private void addMemberToOrganization(String organisationId,
+      OrganizationService service, Profile profile) {
+    consume(service.inviteMember(
+        new InviteOrganizationMemberRequest(token, organisationId, profile.getUserId())));
+  }
+
   private OrganizationService createService(Profile profile) {
     return OrganizationServiceImpl
         .builder()
@@ -1383,5 +1411,25 @@ public class OrganizationServiceTest {
         .expectSubscription()
         .expectError(exception)
         .verify();
+  }
+
+  private Organization getOrganizationFromRepository(String organisationId) {
+    return organizationRepository
+        .findById(organisationId)
+        .orElseThrow(IllegalStateException::new);
+  }
+
+  /**
+   * Subscribe to the mono argument and request unbounded demand
+   *
+   * @param mono publisher
+   * @param <T> type of response
+   * @return mono consume or error
+   */
+  private <T> AwaitLatch<T> consume(Mono<T> mono) {
+    AwaitLatch<T> await = Await.one();
+    mono.subscribe(await::result, await::error);
+    await.timeout(2, TimeUnit.SECONDS);
+    return await;
   }
 }
