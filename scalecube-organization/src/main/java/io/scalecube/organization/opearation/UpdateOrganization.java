@@ -2,13 +2,15 @@ package io.scalecube.organization.opearation;
 
 import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationInfo;
+import io.scalecube.account.api.OrganizationNotFound;
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.UpdateOrganizationRequest;
 import io.scalecube.account.api.UpdateOrganizationResponse;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
+import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.tokens.TokenVerifier;
 
-public class UpdateOrganization extends ServiceOperation<UpdateOrganizationRequest,
+public class UpdateOrganization extends OrganizationInfoOperation<UpdateOrganizationRequest,
     UpdateOrganizationResponse> {
 
   private UpdateOrganization(TokenVerifier tokenVerifier,
@@ -39,12 +41,16 @@ public class UpdateOrganization extends ServiceOperation<UpdateOrganizationReque
   }
 
   @Override
-  protected void validate(UpdateOrganizationRequest request) {
-    super.validate(request);
-    requireNonNullOrEmpty(request.organizationId(),
-        "organizationId is a required argument");
-    requireNonNullOrEmpty(request.email(), "email is a required argument");
-    requireNonNullOrEmpty(request.name(), "name is a required argument");
+  protected void validate(UpdateOrganizationRequest request, OperationServiceContext context)
+      throws Throwable {
+    super.validate(request, context);
+
+    validate(new OrganizationInfo.Builder()
+        .id(request.organizationId())
+        .email(request.email())
+        .name(request.name())
+        .ownerId(getOrganization(request.organizationId()).ownerId())
+        .build(), context);
   }
 
   @Override

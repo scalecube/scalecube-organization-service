@@ -4,18 +4,11 @@ import io.scalecube.account.api.AddOrganizationApiKeyRequest;
 import io.scalecube.account.api.ApiKey;
 import io.scalecube.account.api.GetOrganizationResponse;
 import io.scalecube.account.api.Organization;
-import io.scalecube.account.api.OrganizationMember;
-import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
-import io.scalecube.organization.repository.exception.AccessPermissionException;
-import io.scalecube.organization.repository.exception.EntityNotFoundException;
-import io.scalecube.security.Profile;
 import io.scalecube.tokens.TokenVerifier;
 import io.scalecube.tokens.store.ApiKeyBuilder;
-
 import java.util.Arrays;
-import java.util.Objects;
 
 public class AddOrganizationApiKey extends ServiceOperation<AddOrganizationApiKeyRequest,
     GetOrganizationResponse> {
@@ -44,8 +37,9 @@ public class AddOrganizationApiKey extends ServiceOperation<AddOrganizationApiKe
   }
 
   @Override
-  protected void validate(AddOrganizationApiKeyRequest request) {
-    super.validate(request);
+  protected void validate(AddOrganizationApiKeyRequest request, OperationServiceContext context)
+      throws Throwable {
+    super.validate(request, context);
     requireNonNullOrEmpty(request.organizationId(),
         "organizationId is a required argument");
     requireNonNullOrEmpty(request.apiKeyName(), "apiKeyName is a required argument");

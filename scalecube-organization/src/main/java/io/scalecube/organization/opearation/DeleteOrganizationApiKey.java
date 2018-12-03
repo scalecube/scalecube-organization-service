@@ -43,8 +43,9 @@ public class DeleteOrganizationApiKey extends ServiceOperation<DeleteOrganizatio
 
 
   @Override
-  protected void validate(DeleteOrganizationApiKeyRequest request) {
-    super.validate(request);
+  protected void validate(DeleteOrganizationApiKeyRequest request,
+      OperationServiceContext context) throws Throwable {
+    super.validate(request, context);
     requireNonNullOrEmpty(request.organizationId(),
         "organizationId is a required argument");
     requireNonNullOrEmpty(request.apiKeyName(), "apiKeyName is a required argument");

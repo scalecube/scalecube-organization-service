@@ -17,6 +17,16 @@ import java.util.Collection;
 public interface OrganizationsDataAccess {
 
   /**
+   * Returns true if an Organization corresponding to the <code>name</code> argument exists in the
+   * underlying data provider.
+   *
+   * @param name organization's name criteria
+   * @return true if an Organization corresponding to the <code>name</code> argument exists in the
+   *     underlying data provider; false otherwise
+   */
+  boolean existByName(String name);
+
+  /**
    * Returns an Organization object corresponding to the <code>id</code> argument in the underlying
    * data provider.
    *

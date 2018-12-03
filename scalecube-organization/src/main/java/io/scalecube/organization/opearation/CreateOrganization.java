@@ -9,11 +9,9 @@ import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.tokens.IdGenerator;
 import io.scalecube.tokens.TokenVerifier;
 import io.scalecube.tokens.store.KeyStoreFactory;
-
-import java.util.Objects;
 import java.util.UUID;
 
-public final class CreateOrganization extends ServiceOperation<CreateOrganizationRequest,
+public final class CreateOrganization extends OrganizationInfoOperation<CreateOrganizationRequest,
     CreateOrganizationResponse> {
 
   private CreateOrganization(TokenVerifier tokenVerifier,
@@ -26,18 +24,27 @@ public final class CreateOrganization extends ServiceOperation<CreateOrganizatio
   }
 
   @Override
-  protected CreateOrganizationResponse process(CreateOrganizationRequest request,
+  protected CreateOrganizationResponse process(
+      CreateOrganizationRequest request,
       OperationServiceContext context) throws Throwable {
+    String id = IdGenerator.generateId();
+    validate(new OrganizationInfo.Builder()
+        .id(id)
+        .email(request.email())
+        .name(request.name())
+        .ownerId(context.profile().getUserId())
+        .build(), context);
     String secretKey = IdGenerator.generateId();
     Organization organization = context.repository().createOrganization(context.profile(),
         Organization.builder()
-            .id(IdGenerator.generateId())
+            .id(id)
             .name(request.name())
             .ownerId(context.profile().getUserId())
             .email(request.email())
             .secretKeyId(UUID.randomUUID().toString())
             .secretKey(secretKey)
             .build());
+
 
     KeyStoreFactory.get().store(organization.secretKeyId(), secretKey);
 
@@ -48,12 +55,6 @@ public final class CreateOrganization extends ServiceOperation<CreateOrganizatio
             .apiKeys(organization.apiKeys())
             .email(organization.email())
             .ownerId(organization.ownerId()));
-  }
-
-  @Override
-  protected void validate(CreateOrganizationRequest request) {
-    requireNonNullOrEmpty(request.email(), "email is a required argument");
-    requireNonNullOrEmpty(request.name(), "name is a required argument");
   }
 
   @Override

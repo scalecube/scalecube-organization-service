@@ -40,16 +40,18 @@ public abstract class ServiceOperation<I, O> {
   public O execute(I request) throws ServiceOperationException {
     Objects.requireNonNull(repository, "repository");
     try {
-      validate(request);
       Token token = getToken(request);
       Profile profile = verifyToken(token);
-      return process(request, new OperationServiceContext(profile, repository));
+      OperationServiceContext context = new OperationServiceContext(profile, repository);
+      validate(request, context);
+      return process(request, context);
     } catch (Throwable throwable) {
       throw new ServiceOperationException(request.toString(), throwable);
     }
   }
 
-  protected void validate(I request) {
+  protected void validate(I request, OperationServiceContext context)
+      throws OrganizationNotFound, EntityNotFoundException, Throwable {
     Objects.requireNonNull(request, "request is a required argument");
   }
 

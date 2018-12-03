@@ -46,8 +46,9 @@ public class KickoutMember extends ServiceOperation<KickoutOrganizationMemberReq
   }
 
   @Override
-  protected void validate(KickoutOrganizationMemberRequest request) {
-    super.validate(request);
+  protected void validate(KickoutOrganizationMemberRequest request,
+      OperationServiceContext context) throws Throwable {
+    super.validate(request, context);
     requireNonNullOrEmpty(request.organizationId(),
         "organizationId is a required argument");
     requireNonNullOrEmpty(request.userId(), "user id is required");
