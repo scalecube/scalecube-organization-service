@@ -7,12 +7,9 @@ import io.scalecube.account.api.UpdateOrganizationRequest;
 import io.scalecube.account.api.UpdateOrganizationResponse;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.tokens.TokenVerifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class UpdateOrganization extends OrganizationInfoOperation<UpdateOrganizationRequest,
     UpdateOrganizationResponse> {
-  private static final Logger logger = LoggerFactory.getLogger(UpdateOrganization.class);
 
   private UpdateOrganization(TokenVerifier tokenVerifier,
       OrganizationsDataAccess repository) {
@@ -45,7 +42,6 @@ public class UpdateOrganization extends OrganizationInfoOperation<UpdateOrganiza
   protected void validate(UpdateOrganizationRequest request, OperationServiceContext context)
       throws Throwable {
     super.validate(request, context);
-    logger.debug("UpdateOrganization: validate: enter: request: {}", request);
 
     validate(new OrganizationInfo.Builder()
         .id(request.organizationId())
@@ -54,7 +50,6 @@ public class UpdateOrganization extends OrganizationInfoOperation<UpdateOrganiza
         .ownerId(getOrganization(request.organizationId()).ownerId())
         .build(), context);
 
-    logger.debug("UpdateOrganization: validate: exit: request: {}", request);
   }
 
   @Override

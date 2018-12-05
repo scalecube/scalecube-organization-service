@@ -38,6 +38,27 @@ public class UpdateOrganizationMemberRole extends ServiceOperation<
       UpdateOrganizationMemberRoleRequest request, OperationServiceContext context)
       throws Throwable {
     Organization organization = getOrganization(request.organizationId());
+    context.repository().updateOrganizationMemberRole(
+        organization,
+        request.userId(),
+        request.role());
+
+    return new UpdateOrganizationMemberRoleResponse();
+  }
+
+  @Override
+  protected void validate(UpdateOrganizationMemberRoleRequest request,
+      OperationServiceContext context) throws Throwable {
+    super.validate(request, context);
+    requireNonNullOrEmpty(request.userId(),
+        "user id is a required argument");
+    requireNonNullOrEmpty(request.role(),
+        "role is a required argument");
+    requireNonNullOrEmpty(request.organizationId(),
+        "organizationId is a required argument");
+    validateRoleInput(request);
+
+    Organization organization = getOrganization(request.organizationId());
     Profile caller = context.profile();
 
     checkIsMember(request.userId(), context, organization);
@@ -51,13 +72,14 @@ public class UpdateOrganizationMemberRole extends ServiceOperation<
         organization,
         request
     );
+  }
 
-    context.repository().updateOrganizationMemberRole(
-        organization,
-        request.userId(),
-        request.role());
-
-    return new UpdateOrganizationMemberRoleResponse();
+  private void validateRoleInput(UpdateOrganizationMemberRoleRequest request) {
+    try {
+      Enum.valueOf(Role.class, request.role());
+    } catch (Throwable ex) {
+      throw new IllegalArgumentException("role: " + request.role());
+    }
   }
 
   private void checkIfRequestToPromoteUserToOwnerIsValidForCaller(
