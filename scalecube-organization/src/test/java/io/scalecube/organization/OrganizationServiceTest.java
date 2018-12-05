@@ -1073,6 +1073,123 @@ public class OrganizationServiceTest {
         AccessPermissionException.class);
   }
 
+  @Test
+  public void
+  updateOrganizationMemberRole_with_null_user_id_should_fail_with_NullPointerException() {
+    Duration duration = expectError(service.updateOrganizationMemberRole(
+        new UpdateOrganizationMemberRoleRequest(
+            token, organisationId, null, Role.Admin.toString())),
+        NullPointerException.class);
+    assertNotNull(duration);
+
+  }
+
+  @Test
+  public void
+  updateOrganizationMemberRole_with_empty_user_id_should_fail_with_IllegalArgumentException() {
+    Duration duration = expectError(service.updateOrganizationMemberRole(
+        new UpdateOrganizationMemberRoleRequest(
+            token, organisationId, "", Role.Admin.toString())),
+        IllegalArgumentException.class);
+    assertNotNull(duration);
+  }
+
+  @Test
+  public void
+  updateOrganizationMemberRole_with_null_org_id_should_fail_with_NullPointerException() {
+    Duration duration = expectError(service.updateOrganizationMemberRole(
+        new UpdateOrganizationMemberRoleRequest(
+            token, null, testProfile5.getUserId(), Role.Admin.toString())),
+        NullPointerException.class);
+    assertNotNull(duration);
+  }
+
+  @Test
+  public void
+  updateOrganizationMemberRole_with_empty_org_id_should_fail_with_IllegalArgumentException() {
+    Duration duration = expectError(service.updateOrganizationMemberRole(
+        new UpdateOrganizationMemberRoleRequest(
+            token, "", testProfile5.getUserId(), Role.Admin.toString())),
+        IllegalArgumentException.class);
+    assertNotNull(duration);
+  }
+
+  @Test
+  public void
+  updateOrganizationMemberRole_with_non_exist_org_should_fail_with_EntityNotFoundException() {
+    Duration duration = expectError(service.updateOrganizationMemberRole(
+        new UpdateOrganizationMemberRoleRequest(
+            token, "bla", testProfile5.getUserId(), Role.Admin.toString())),
+        EntityNotFoundException.class);
+    assertNotNull(duration);
+  }
+
+  @Test
+  public void
+  updateOrganizationMemberRole_with_null_token_should_fail_with_NullPointerException() {
+    Duration duration = expectError(service.updateOrganizationMemberRole(
+        new UpdateOrganizationMemberRoleRequest(
+            null, organisationId, testProfile5.getUserId(), Role.Admin.toString())),
+        NullPointerException.class);
+    assertNotNull(duration);
+  }
+
+  @Test
+  public void
+  updateOrganizationMemberRole_with_null_inner_token_should_fail_with_NullPointerException() {
+    Duration duration = expectError(service.updateOrganizationMemberRole(
+        new UpdateOrganizationMemberRoleRequest(
+            new Token(null, null), organisationId, testProfile5.getUserId(),
+            Role.Admin.toString())),
+        NullPointerException.class);
+    assertNotNull(duration);
+  }
+
+  @Test
+  public void
+  updateOrganizationMemberRole_with_empty_inner_token_should_fail_with_IllegalArgumentException() {
+    Duration duration = expectError(service.updateOrganizationMemberRole(
+        new UpdateOrganizationMemberRoleRequest(
+            new Token(null, ""), organisationId, testProfile5.getUserId(),
+            Role.Admin.toString())),
+        IllegalArgumentException.class);
+    assertNotNull(duration);
+  }
+
+  @Test
+  public void
+  updateOrganizationMemberRole_with_empty_role_should_fail_with_IllegalArgumentException() {
+    Duration duration = expectError(service.updateOrganizationMemberRole(
+        new UpdateOrganizationMemberRoleRequest(
+            token, organisationId, testProfile5.getUserId(),
+            "")),
+        IllegalArgumentException.class);
+    assertNotNull(duration);
+  }
+
+  @Test
+  public void
+  updateOrganizationMemberRole_with_null_role_should_fail_with_NullPointerException() {
+    Duration duration = expectError(service.updateOrganizationMemberRole(
+        new UpdateOrganizationMemberRoleRequest(
+            token, organisationId, testProfile5.getUserId(),
+            null)),
+        NullPointerException.class);
+    assertNotNull(duration);
+  }
+
+  @Test
+  public void
+  updateOrganizationMemberRole_invalid_role_enum_value_should_fail_with_IllegalArgumentException() {
+    Duration duration = expectError(service.updateOrganizationMemberRole(
+        new UpdateOrganizationMemberRoleRequest(
+            token, organisationId, testProfile5.getUserId(),
+            "invalid role enum value")),
+        IllegalArgumentException.class);
+    assertNotNull(duration);
+  }
+
+
 
   @Test
   public void leaveOrganization_with_empty_org_id_should_fail_with_IllegalArgumentException() {
