@@ -8,15 +8,12 @@ import io.scalecube.account.api.OrganizationNotFound;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.ServiceOperationException;
 import io.scalecube.account.api.Token;
-import io.scalecube.organization.OrganizationServiceImpl;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.security.Profile;
 import io.scalecube.tokens.TokenVerifier;
 import java.util.Objects;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
