@@ -47,6 +47,7 @@
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>scalecube-services-discovery</artifactId>
+      <version>${scalecube-services.version}</version>
     </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>
