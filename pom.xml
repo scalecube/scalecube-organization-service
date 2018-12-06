@@ -75,7 +75,12 @@
       </dependency>
       <dependency>
         <groupId>io.scalecube</groupId>
-        <artifactId>scalecube-services-discovery</artifactId>
+        <artifactId>services-discovery</artifactId>
+        <version>${scalecube-services.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.scalecube</groupId>
+        <artifactId>scalecube-services-transport-rsocket</artifactId>
         <version>${scalecube-services.version}</version>
       </dependency>
       <dependency>
@@ -118,12 +123,14 @@
       <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter-engine</artifactId>
+        <version>${junit.jupiter.version}</version>
         <scope>test</scope>
       </dependency>
       <!-- This will get hamcrest-core automatically -->
       <dependency>
         <groupId>org.hamcrest</groupId>
         <artifactId>hamcrest-library</artifactId>
+        <version>${hamcrest-library.version}</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
