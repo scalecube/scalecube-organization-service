@@ -34,6 +34,7 @@
     <couchbase-client.version>2.6.0</couchbase-client.version>
     <slf4j.version>1.7.7</slf4j.version>
     <log4j.version>2.11.1</log4j.version>
+    <netty.version>4.1.31.Final</netty.version>
     <commons-codec.version>1.10</commons-codec.version>
     <hamcrest-library.version>1.3</hamcrest-library.version>
     <maven-shade-plugin.version>3.1.0</maven-shade-plugin.version>
@@ -75,7 +76,7 @@
       </dependency>
       <dependency>
         <groupId>io.scalecube</groupId>
-        <artifactId>services-discovery</artifactId>
+        <artifactId>scalecube-services-discovery</artifactId>
         <version>${scalecube-services.version}</version>
       </dependency>
       <dependency>
@@ -102,6 +103,49 @@
         <groupId>com.couchbase.client</groupId>
         <artifactId>java-client</artifactId>
         <version>${couchbase-client.version}</version>
+      </dependency>
+
+      <!-- Netty -->
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-common</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-buffer</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-codec</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-codec-http</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-handler</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-handler-proxy</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-transport</artifactId>
+        <version>${netty.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.netty</groupId>
+        <artifactId>netty-transport-native-epoll</artifactId>
+        <classifier>linux-x86_64</classifier>
+        <version>${netty.version}</version>
       </dependency>
 
       <!-- Loggers -->
