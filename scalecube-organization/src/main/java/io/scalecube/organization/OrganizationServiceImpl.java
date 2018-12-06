@@ -90,7 +90,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         logger.debug("createOrganization: exit, return: {}", response);
         result.success(response);
       } catch (ServiceOperationException ex) {
-        logger.error("createOrganization: ERROR:", ex);
+        logger.error("createOrganization: ERROR: {}", ex);
         result.error(ex.getCause());
       }
     });
@@ -113,7 +113,8 @@ public class OrganizationServiceImpl implements OrganizationService {
             request, response.organizations().length);
         result.success(response);
       } catch (ServiceOperationException ex) {
-        logger.error("getUserOrganizationsMembership: ERROR:", ex);
+        logger.error("getUserOrganizationsMembership: ERROR: {}", ex);
+        ex.printStackTrace();
         result.error(ex.getCause());
       }
     });
@@ -134,7 +135,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         logger.debug("deleteOrganization: exit, request: {}, response: {}", request, response);
         result.success(response);
       } catch (ServiceOperationException ex) {
-        logger.error("deleteOrganization: ERROR:", ex);
+        logger.error("deleteOrganization: ERROR: {}", ex);
         result.error(ex.getCause());
       }
     });
@@ -154,7 +155,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         logger.debug("updateOrganization: exit, response: {}, request: {}", response, request);
         result.success(response);
       } catch (ServiceOperationException ex) {
-        logger.error("updateOrganization: ERROR:", ex);
+        logger.error("updateOrganization: ERROR: {}", ex);
         result.error(ex.getCause());
       }
     });
@@ -175,7 +176,7 @@ public class OrganizationServiceImpl implements OrganizationService {
             request.organizationId(), response.members().length);
         result.success(response);
       } catch (ServiceOperationException ex) {
-        logger.error("getOrganizationMembers: ERROR:", ex);
+        logger.error("getOrganizationMembers: ERROR: {}", ex);
         result.error(ex.getCause());
       }
     });
@@ -196,7 +197,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         logger.debug("inviteMember: return response: {}, request: {}", response, request);
         result.success(response);
       } catch (ServiceOperationException ex) {
-        logger.error("inviteMember: ERROR:", ex);
+        logger.error("inviteMember: ERROR: {}", ex);
         result.error(ex.getCause());
       }
     });
@@ -217,7 +218,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         logger.debug("kickoutMember: exit, response: {}, request: {}", response, request);
         result.success(response);
       } catch (ServiceOperationException ex) {
-        logger.error("kickoutMember: ERROR:", ex);
+        logger.error("kickoutMember: ERROR: {}", ex);
         result.error(ex.getCause());
       }
     });
@@ -237,7 +238,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         logger.debug("leaveOrganization: exit, response: {}, request: {}", response, request);
         result.success(response);
       } catch (ServiceOperationException ex) {
-        logger.error("leaveOrganization: ERROR:", ex);
+        logger.error("leaveOrganization: ERROR: {}", ex);
         result.error(ex.getCause());
       }
     });
@@ -259,7 +260,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         logger.debug("addOrganizationApiKey: exit, response: {}, request: {}", response, request);
         result.success(response);
       } catch (ServiceOperationException ex) {
-        logger.error("addOrganizationApiKey: ERROR:", ex);
+        logger.error("addOrganizationApiKey: ERROR: {}", ex);
         result.error(ex.getCause());
       }
     });
@@ -281,7 +282,7 @@ public class OrganizationServiceImpl implements OrganizationService {
             request);
         result.success(response);
       } catch (ServiceOperationException ex) {
-        logger.error("deleteOrganizationApiKey: ERROR:", ex);
+        logger.error("deleteOrganizationApiKey: ERROR: {}", ex);
         result.error(ex.getCause());
       }
     });
@@ -301,7 +302,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         logger.debug("getOrganization: exit, response: {}, request: {}", response, request);
         result.success(response);
       } catch (ServiceOperationException ex) {
-        logger.error("getOrganization: ERROR:", ex);
+        logger.error("getOrganization: ERROR: {}", ex);
         result.error(ex.getCause());
       }
     });
@@ -323,7 +324,7 @@ public class OrganizationServiceImpl implements OrganizationService {
             request);
         result.success(response);
       } catch (ServiceOperationException ex) {
-        logger.error("updateOrganizationMemberRole: ERROR:", ex);
+        logger.error("updateOrganizationMemberRole: ERROR: {}", ex);
         result.error(ex.getCause());
       }
     });
