@@ -6,10 +6,6 @@
   </Properties>
 
   <Appenders>
-    <Console name="io.scalecube.organization" target="SYSTEM_OUT">
-      <PatternLayout pattern="${patternLayout}"/>
-    </Console>
-
     <Console name="STDOUT" target="SYSTEM_OUT">
       <PatternLayout pattern="${patternLayout}"/>
     </Console>
@@ -28,11 +24,14 @@
   </Appenders>
 
   <Loggers>
-    <Root level="INFO">
+    <Root level="${env:logLevel:-info}">
+      <AppenderRef ref="FILE"/>
+      <AppenderRef ref="STDOUT"/>
     </Root>
-    <Root level="DEBUG">
-      <AppenderRef ref="io.scalecube.organization"/>
-    </Root>
+    <Logger name="io.scalecube.organization" level="DEBUG">
+      <AppenderRef ref="FILE"/>
+      <AppenderRef ref="STDOUT"/>
+    </Logger>
   </Loggers>
 
 </Configuration>
