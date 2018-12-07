@@ -37,7 +37,6 @@
     <netty.version>4.1.31.Final</netty.version>
     <commons-codec.version>1.10</commons-codec.version>
     <hamcrest-library.version>1.3</hamcrest-library.version>
-    <maven-shade-plugin.version>3.1.0</maven-shade-plugin.version>
     <dockerfile.repository>scalecube/${project.artifactId}</dockerfile.repository>
     <dockerfile.useMavenSettingsForAuth>true</dockerfile.useMavenSettingsForAuth>
   </properties>
@@ -194,7 +193,6 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-shade-plugin</artifactId>
-          <version>${maven-shade-plugin.version}</version>
           <executions>
             <execution>
               <id>default</id>
