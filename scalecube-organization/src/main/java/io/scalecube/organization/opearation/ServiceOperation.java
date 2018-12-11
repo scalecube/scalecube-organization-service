@@ -39,6 +39,7 @@ public abstract class ServiceOperation<I, O> {
    */
   public O execute(I request) throws ServiceOperationException {
     Objects.requireNonNull(repository, "repository");
+    Objects.requireNonNull(request, "request is a required argument");
     try {
       Token token = getToken(request);
       Profile profile = verifyToken(token);
@@ -50,9 +51,7 @@ public abstract class ServiceOperation<I, O> {
     }
   }
 
-  protected void validate(I request, OperationServiceContext context)
-      throws Throwable {
-    Objects.requireNonNull(request, "request is a required argument");
+  protected void validate(I request, OperationServiceContext context) throws Throwable {
   }
 
   protected abstract Token getToken(I request);

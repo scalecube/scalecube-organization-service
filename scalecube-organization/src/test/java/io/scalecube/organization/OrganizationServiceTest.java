@@ -12,28 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.scalecube.Await;
 import io.scalecube.Await.AwaitLatch;
-import io.scalecube.account.api.AddOrganizationApiKeyRequest;
-import io.scalecube.account.api.CreateOrganizationRequest;
-import io.scalecube.account.api.CreateOrganizationResponse;
-import io.scalecube.account.api.DeleteOrganizationApiKeyRequest;
-import io.scalecube.account.api.DeleteOrganizationRequest;
-import io.scalecube.account.api.DeleteOrganizationResponse;
-import io.scalecube.account.api.GetMembershipRequest;
-import io.scalecube.account.api.GetOrganizationMembersRequest;
-import io.scalecube.account.api.GetOrganizationRequest;
-import io.scalecube.account.api.InvalidAuthenticationToken;
-import io.scalecube.account.api.InviteOrganizationMemberRequest;
-import io.scalecube.account.api.KickoutOrganizationMemberRequest;
-import io.scalecube.account.api.LeaveOrganizationRequest;
-import io.scalecube.account.api.NotAnOrganizationMemberException;
-import io.scalecube.account.api.Organization;
-import io.scalecube.account.api.OrganizationInfo;
-import io.scalecube.account.api.OrganizationMember;
-import io.scalecube.account.api.OrganizationService;
-import io.scalecube.account.api.Role;
-import io.scalecube.account.api.Token;
-import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
-import io.scalecube.account.api.UpdateOrganizationRequest;
+import io.scalecube.account.api.*;
 import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
 import io.scalecube.organization.repository.Repository;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
@@ -1401,6 +1380,42 @@ public class OrganizationServiceTest {
     Duration duration = expectError(createService(testProfile2).addOrganizationApiKey(
         new AddOrganizationApiKeyRequest(token, organisationId, "api_key", null)),
         AccessPermissionException.class);
+    assertNotNull(duration);
+  }
+
+  @Test
+  public void addOrganizationApiKey_user_not_admin_should_fail_with_AccessPermissionException() {
+    addMemberToOrganization(organisationId, service, testProfile2);
+
+    Duration duration = expectError(createService(testProfile2).addOrganizationApiKey(
+            new AddOrganizationApiKeyRequest(token, organisationId, "api_key", null)),
+            AccessPermissionException.class);
+    assertNotNull(duration);
+  }
+
+  @Test
+  public void addOrganizationApiKey_by_admin() {
+    Profile adminUser = testProfile2;
+    addMemberToOrganization(organisationId, service, adminUser);
+
+    // upgrade user to admin role
+    consume(service.updateOrganizationMemberRole(
+            new UpdateOrganizationMemberRoleRequest(
+                    token, organisationId, adminUser.getUserId(), Role.Admin.toString())));
+
+    // add api key by admin
+    Duration duration = StepVerifier
+            .create(createService(adminUser).addOrganizationApiKey(
+                    new AddOrganizationApiKeyRequest(
+                            token,
+                            organisationId,
+                            "apiKey",
+                            null)))
+            .expectSubscription()
+            .assertNext(x -> {
+              Organization org = getOrganizationFromRepository(organisationId);
+              assertThat(org.apiKeys()[0].name(), is("apiKey"));
+            }).verifyComplete();
     assertNotNull(duration);
   }
 
