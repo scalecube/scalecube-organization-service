@@ -15,6 +15,8 @@ before_install:
 script:
   - if [ "$TRAVIS_BRANCH" == "develop" ]; then pip3 install -r requirements.txt && python3 ./src/main/scripts/cd/travis_tests.py; fi;
 
+after_success: "./src/main/scripts/ci/after-success.sh"
+
 - provider: script
   script:
   - "./src/main/scripts/cd/deploy.sh"
