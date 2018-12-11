@@ -17,7 +17,8 @@ mvn dependency:get dependency:copy \
    -DoutputAbsoluteArtifactFilename=true \
    -Dmdep.stripVersion=true \
    -DrepoUrl=https://oss.sonatype.org/service/local/repositories/releases/content/ \
-   -Dartifact=com.codacy:codacy-coverage-reporter:$latest:jar:assembly
+   -Dartifact=com.codacy:codacy-coverage-reporter:$latest:jar:assembly \
+   -DskipTests=true
 
 echo local file md5sum:   
 md5sum ~/codacy-coverage-reporter-assembly.jar
