@@ -17,6 +17,7 @@ script:
 
 after_success: "./src/main/scripts/ci/after-success.sh"
 
+deploy:
 - provider: script
   script:
   - "./src/main/scripts/cd/deploy.sh"
