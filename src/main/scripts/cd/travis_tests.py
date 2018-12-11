@@ -41,7 +41,7 @@ class TravisBuilds:
 
     def wait_for_build_result(self):
         attempts = 0
-        tests_minutes = os.getenv('TESTS_MINUTES')
+        tests_minutes = int(os.getenv('TESTS_MINUTES'))
         while attempts < tests_minutes:
             url = urljoin(self.travis_api_url, 'build/{}'.format(self.build_id))
             response = requests.get(url=url, headers=self.headers)
