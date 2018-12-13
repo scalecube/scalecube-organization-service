@@ -72,7 +72,7 @@ public final class CreateOrganization extends OrganizationInfoOperation<CreateOr
    * @param organization The organization which owns the secret to be persisted
    * @throws AccessPermissionException in case of an error
    * @throws EntityNotFoundException in case of an error
-   * @throws KeyStoreException  in case of an error
+   * @throws KeyStoreException   in case of an error
    */
   private void persistOrganizationSecret(OperationServiceContext context,
                                          Organization organization)
