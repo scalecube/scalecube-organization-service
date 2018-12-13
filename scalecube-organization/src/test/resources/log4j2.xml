@@ -9,7 +9,7 @@
     <Console name="STDOUT" target="SYSTEM_OUT">
       <PatternLayout pattern="${patternLayout}"/>
     </Console>
-
+  </Appenders>
   <Loggers>
     <Root level="${env:logLevel:-info}">
       <AppenderRef ref="STDOUT"/>
