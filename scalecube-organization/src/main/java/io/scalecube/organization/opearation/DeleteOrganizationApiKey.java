@@ -28,7 +28,7 @@ public class DeleteOrganizationApiKey extends ServiceOperation<DeleteOrganizatio
       throw new IllegalStateException("organization.apiKeys is null");
     }
 
-    checkMemberAccess(organization, context.profile());
+    checkSuperUserAccess(organization, context.profile());
 
     List<ApiKey> apiKeys = Arrays.asList(organization.apiKeys());
     Organization newOrg = Organization.builder().apiKey(apiKeys.stream()
