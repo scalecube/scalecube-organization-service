@@ -16,25 +16,15 @@ final class RoleRank {
 
   private final Role role;
 
-
-
   static RoleRank from(Role role) {
     return roleToRank.computeIfAbsent(role, RoleRank::new);
   }
 
-  protected RoleRank(Role role) {
+  private RoleRank(Role role) {
     this.role = role;
   }
 
-  public boolean isHigherRank(Role target) {
-    return ranks.get(role).compareTo(ranks.get(target)) > 0;
-  }
-
-  public boolean isSameRank(Role target) {
-    return ranks.get(role).compareTo(ranks.get(target)) == 0;
-  }
-
-  public boolean isLowerRank(Role target) {
-    return ranks.get(role).compareTo(ranks.get(target)) < 0;
+  protected boolean isHigherRank(Role target) {
+    return ranks.get(target).compareTo(ranks.get(role)) > 0;
   }
 }

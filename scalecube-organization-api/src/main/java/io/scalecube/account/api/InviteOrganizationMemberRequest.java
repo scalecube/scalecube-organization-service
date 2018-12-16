@@ -18,16 +18,6 @@ public class InviteOrganizationMemberRequest {
   InviteOrganizationMemberRequest() {
   }
 
-  /**
-   * Constructs an invite a member to an Organization request.
-   *
-   * @param token Verification Id.
-   * @param organizationId Organization Id.
-   * @param userId Invited user's Id.
-   */
-  public InviteOrganizationMemberRequest(Token token, String organizationId, String userId) {
-    this(token, organizationId, userId, Role.Member.toString());
-  }
 
   /**
    * Constructs an invite a member to an Organization request.

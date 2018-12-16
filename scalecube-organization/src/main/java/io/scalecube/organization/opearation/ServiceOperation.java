@@ -125,7 +125,7 @@ public abstract class ServiceOperation<I, O> {
         organization, Role.Admin);
   }
 
-  protected Role from(String userId, Organization organization)
+  protected Role getRole(String userId, Organization organization)
       throws AccessPermissionException, EntityNotFoundException {
     return repository
         .getOrganizationMembers(organization)
@@ -137,7 +137,7 @@ public abstract class ServiceOperation<I, O> {
         .orElse(null);
   }
 
-  protected Role from(String role) {
+  protected Role toRole(String role) {
     try {
       return Role.valueOf(role);
     } catch (Throwable ex) {

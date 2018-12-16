@@ -23,15 +23,16 @@ public class InviteMember extends ServiceOperation<InviteOrganizationMemberReque
       OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
     checkSuperUserAccess(organization, context.profile());
-    Role invitedMemberRole = from(request.role());
+    Role invitedMemberRole = toRole(request.role());
 
-    Role callerRole = from(context.profile().getUserId(), organization);
+    Role callerRole = getRole(context.profile().getUserId(), organization);
 
     if (RoleRank.from(callerRole).isHigherRank(invitedMemberRole)) {
       throw new AccessPermissionException(
-          String.format("user: '%s', name: '%s', cannot invite to a higher rank role: '%s'",
+          String.format("user: '%s', name: '%s', role: %s cannot invite to a higher role: '%s'",
               context.profile().getUserId(),
               context.profile().getName(),
+              callerRole,
               invitedMemberRole.toString()));
     }
 
@@ -49,8 +50,6 @@ public class InviteMember extends ServiceOperation<InviteOrganizationMemberReque
     requireNonNullOrEmpty(request.organizationId(),
         "organizationId is a required argument");
     requireNonNullOrEmpty(request.userId(), "user id is required");
-
-
   }
 
   @Override
