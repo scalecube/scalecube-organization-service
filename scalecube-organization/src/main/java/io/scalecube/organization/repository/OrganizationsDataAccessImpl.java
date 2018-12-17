@@ -122,16 +122,14 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
   }
 
   @Override
-  public void invite(Profile owner, Organization organization, String userId)
+  public void invite(Profile owner, Organization organization, String userId, Role role)
       throws EntityNotFoundException {
     requireNonNullProfile(owner);
     requireNonNullOrganization(organization);
     requireNonNull(userId, "userId");
+    requireNonNull(role, "role");
     verifyOrganizationExists(organization);
-
-    addMember(userId, organization, owner.getUserId().equals(userId)
-        ? Role.Owner
-        : Role.Member);
+    addMember(userId, organization, role);
   }
 
   private void addMember(String userId, Organization organization, Role role) {

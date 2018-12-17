@@ -8,6 +8,7 @@ public class InviteOrganizationMemberRequest {
   private Token token;
   private String organizationId;
   private String userId;
+  private String role;
 
   /**
    * Default constructor.
@@ -17,6 +18,7 @@ public class InviteOrganizationMemberRequest {
   InviteOrganizationMemberRequest() {
   }
 
+
   /**
    * Constructs an invite a member to an Organization request.
    *
@@ -24,10 +26,12 @@ public class InviteOrganizationMemberRequest {
    * @param organizationId Organization Id.
    * @param userId Invited user's Id.
    */
-  public InviteOrganizationMemberRequest(Token token, String organizationId, String userId) {
+  public InviteOrganizationMemberRequest(Token token, String organizationId, String userId,
+                                         String role) {
     this.token = token;
     this.organizationId = organizationId;
     this.userId = userId;
+    this.role = role;
   }
 
   public Token token() {
@@ -42,9 +46,13 @@ public class InviteOrganizationMemberRequest {
     return this.userId;
   }
 
+  public String role() {
+    return this.role;
+  }
+
   @Override
   public String toString() {
-    return super.toString() + String.format(" [userId=%s, organizationId=%s, token=%s]",
-        userId, organizationId, token);
+    return super.toString() + String.format(" [userId=%s, organizationId=%s, token=%s, role=%s]",
+        userId, organizationId, token, role);
   }
 }
