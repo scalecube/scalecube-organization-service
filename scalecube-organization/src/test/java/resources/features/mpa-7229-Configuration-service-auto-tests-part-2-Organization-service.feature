@@ -13,10 +13,6 @@ Feature: Basic CRUD tests for organization service.
   - grant the permission level (key) for members according to relevant role and change this permission level or even delete it.
 
 
- #QUESTIONS:
-
- #1. CAN THE MEMBER WHO WAS GRANTED THE ADMIN/OWNER ROLE DOWNGRADE REAL OWNER TO MEMBER OR ADMIN OR KICKED-OUT REAL OWNER OR OWNER DOWNGRADE HIMSELF?
-
 
   #CREATE ORG
 
@@ -43,7 +39,7 @@ Feature: Basic CRUD tests for organization service.
     Then user "A" should get an error message: "Organization name: 'org "B" name' already in use"
 
 
-  #MPA-7229 (#1.3)
+  #MPA-7229 (#1.3) - SHOULD WE REMOVE SUCH VALIDATION AND ENABLE TO ADD ANY CHARS?
   Scenario: Fail to create the Organization with the name which contain else symbols apart of allowed chars
     Given the user "A" have got a valid "token" issued by relevant authority
     When the user "A" requested to create the organization with specified "name" which contains "+" and some "email"
@@ -61,34 +57,43 @@ Feature: Basic CRUD tests for organization service.
     Then user "A" should receive the successful response with relevant organization data
 
 
-  #MPA-7229 (#2.1) - FAIL OR SUCCESS ? CURRENTLY - SUCCESS
+  #MPA-7229 (#2.1) - SHOULD WE ALLOW IF THE ORIGIN OWNER WAS REMOVED ???
   Scenario: Successful get of specific Organization info upon the origin owner was removed from own Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And the user "A" was removed from user's "A" organization
+    And the user "A" was removed from user's "A" organization by its own decision
     When the user "A" requested to get user's "A" organization info
-    #Then user "A" should receive the successful response with relevant organization data
+    Then user "A" should receive the successful response with relevant organization data
 
 
   #MPA-7229 (#2.2)
-  Scenario: Fail to get the Organization info if the token is invalid (expired)
-    Given a user have got the invalid either expired "token"
-    When this user requested to get the organization info with some "organizationId"
-    Then this user should receive the error message: "Token verification failed"
+  Scenario: Successful get of specific Organization info by some of the Organization members with any of accessible role
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And the user "B" who have got the "userId" issued by relevant authority became the "member" of the user's "A" organization
+    When the user "B" requested to get user's "A" organization info
+    Then user "B" should receive the successful response with relevant organization data
 
 
   #MPA-7229 (#2.3)
-  Scenario: Fail to get the Organization info upon the valid token doesn't have the owner's either admin's permission level
-    Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
-    And the organization "organizationId" with specified "name" and "email" which doesn't contain any "member" already created and owned by user "A"
-    When the user "B" applied "token" of user "A" and requested to get the user's "B" organization info
-    Then the user "B" should receive the error message: "user: 'null', name: 'userId "A"', is not a "member" of organization: 'user "B" organizationId'"
+  Scenario: Fail to get the Organization info if the token is invalid (expired)
+    Given a user have got the invalid either expired "token"
+    When this user requested to get a organization info with some "organizationId"
+    Then this user should receive the error message: "Token verification failed"
 
 
   #MPA-7229 (#2.4)
+  Scenario: Fail to get the Organization info upon the user is not the member of this Org
+    Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
+    And the organization "organizationId" with specified "name" and "email" which doesn't contain any "member" already created and owned by user "A"
+    When the user "A" applied "token" of user "B" and requested to get the user's "A" organization info
+    Then the user "A" should receive the error message: "user: 'null', name: 'userId "B"', is not a "member" of organization: 'user "A" organizationId'"
+
+
+  #MPA-7229 (#2.5)
   Scenario: Fail to get a non-existent Organization
     Given the user "A" have got a valid "token" issued by relevant authority
-    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And there is no organization "organizationId" was created and stored
     When the user "A" requested to get the non-existent organization "organizationId" info
     Then user "A" should receive the error message with non-existent "organizationId"
 
@@ -100,35 +105,37 @@ Feature: Basic CRUD tests for organization service.
   Scenario: Successful update of the Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And the organization "organizationId" with specified "name" and "email" already created and owned by this user "A"
-    When this user requested to update the organization with some non-existent "name" and some or the existent "email"
-    Then user "A" should receive the successful response with relevant organization updated "name" and "email"
+    When user "A" requested to update own organization with some non-existent "name" and some or the existent "email"
+    Then user "A" should receive the successful response with relevant organization updated data of "name" and "email"
 
 
   #MPA-7229 (#3.1)
   Scenario: Successful update of the Organization upon it's "member" was granted by admin role
     Given the user "A" have got a valid "token" issued by relevant authority
     And the organization "organizationId" with specified "name" and "email" already created and owned by this user "A"
-    And the user "B" who had the "member" role in the user's "A" organization was assigned by "admin" role
+    And the user "B" who have got the "userId" issued by relevant authority became the "member" of the user's "A" organization
+    And the user "B" who had the "member" role in the user's "A" organization was assigned with "admin" role by the owner
     When the user "B" requested to update user's "A" organization with some non-existent "name" and some or the existent "email"
-    Then user "B" should receive the successful response with relevant user's "A" organization and updated "name" and "email"
+    Then user "B" should receive the successful response with relevant organization updated data of "name" and "email"
 
 
   #MPA-7229 (#3.2)
   Scenario: Successful update of the Organization upon it's "member" was granted by owner role
     Given the user "A" have got a valid "token" issued by relevant authority
     And the organization "organizationId" with specified "name" and "email" already created and owned by this user "A"
-    And the user "B" who had the "admin" role in the user's "A" organization was assigned by "owner" role
-    When the user "B" requested to update user's "A" organization with some non-existent "name" and some or the existent "email"
-    Then user "B" should receive the successful response with relevant user's "A" organization and updated "name" and "email"
+    And the users "B" and "C" who have got the "userId" issued by relevant authority became the "admin" and "member" accordingly in the user's "A" organization
+    And the user "C" who had the "member" role in the user's "A" organization was assigned with "owner" role by the user "B" "admin" permission
+    When the user "C" requested to update user's "A" organization with some non-existent "name" and some or the existent "email"
+    Then user "C" should receive the successful response with relevant organization updated data of "name" and "email"
 
 
-  #MPA-7229 (#3.3) - FAIL OR SUCCESS ? CURRENTLY - SUCCESS
+  #MPA-7229 (#3.3) - SHOULD WE ALLOW IF THE ORIGIN OWNER WAS REMOVED ???
   Scenario: Successful update of specific Organization upon the origin owner was removed from own Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And the user "A" was removed from user's "A" organization
+    And the user "A" was removed from user's "A" organization by its own decision
     When the user "A" requested to update user's "A" organization with some non-existent "name" and some or the existent "email"
-    #Then user "A" should receive the successful response with relevant user's "A" organization and updated "name" and "email"
+    Then user "A" should receive the successful response with relevant organization updated data of "name" and "email"
 
 
   #MPA-7229 (#3.4)
@@ -139,14 +146,23 @@ Feature: Basic CRUD tests for organization service.
 
 
   #MPA-7229 (#3.5)
-  Scenario: Fail to update the Organization upon the valid token doesn't have the owner's either admin's permission level
+  Scenario: Fail to update the Organization upon the user is not the member of this Org
     Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
-    And the organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    When the user "B" applied "token" of user "A" and requested to update the user's "B" organization with some "name" and some "email"
-    Then the user "B" should get an error message: "user: 'userId of user B', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
+    And the organization "organizationId" with specified "name" and "email" which doesn't contain any "member" already created and owned by user "A"
+    When the user "A" applied "token" of user "B" and requested to update the user's "A" organization with some "name" and some "email"
+    Then the user "A" should get an error message: "user: 'userId "B"', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
 
 
   #MPA-7229 (#3.6)
+  Scenario: Fail to update the Organization upon the valid token have "member" role permission level
+    Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
+    And the organization "organizationId" with specified "name" and "email" which doesn't contain any "member" already created and owned by user "A"
+    And the user "B" who have got the "userId" issued by relevant authority became the "member" of the user's "A" organization
+    When the user "B" applied own "token" and requested to update the user's "A" organization with some "name" and some "email"
+    Then the user "B" should get an error message: "user: 'userId "B"', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
+
+
+  #MPA-7229 (#3.7)
   Scenario: Fail to update the non-existent Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -154,15 +170,15 @@ Feature: Basic CRUD tests for organization service.
     Then user "A" should receive the error message with non-existent "organizationId"
 
 
-  #MPA-7229 (#3.7)
+  #MPA-7229 (#3.8)
   Scenario: Fail to update the Organization with the name which already exists (duplicate)
-    Given the user "A" have got a valid "token" issued by relevant authority
-    And the organization "organizationId" with specified "name" and "email" already created and owned by user "B"
-    When the user "A" requested to update the organization with the existent user's "B" organization "name" and some or the same "email"
+    Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
+    And only two organizations "organizationId" with specified "name" and "email" already created and owned by each of the user's "A" and "B"
+    When the user "A" requested to update own organization "name" with the existent user's "B" organization "name" and some or the same "email"
     Then user "A" should get an error message: "Organization name: 'org "B" name' already in use"
 
 
-  #MPA-7229 (#3.8)
+  #MPA-7229 (#3.9) - SHOULD WE REMOVE SUCH VALIDATION AND ENABLE TO ADD ANY CHARS?
   Scenario: Fail to update the Organization with the name which contain else symbols apart of allowed chars
     Given the user "A" have got a valid "token" issued by relevant authority
     And the organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -185,7 +201,7 @@ Feature: Basic CRUD tests for organization service.
   Scenario: Successful delete of the Organization upon it's "member" was granted by admin role
     Given the user "A" have got a valid "token" issued by relevant authority
     And the organization "organizationId" with specified "name" and "email" already created and owned by this user "A"
-    And the user "B" who had the "member" role in the user's "A" organization was assigned by "admin" role
+    And the user "B" who had the "member" role in the user's "A" organization was assigned with "admin" role by the owner
     When the user "B" requested to delete user's "A" organization "organizationId"
     Then user "B" should receive the successful response object: "deleted":true,"organizationId":"org "A" organizationId"
 
@@ -194,18 +210,18 @@ Feature: Basic CRUD tests for organization service.
   Scenario: Successful delete of the Organization upon it's "member" was granted by owner role
     Given the user "A" have got a valid "token" issued by relevant authority
     And the organization "organizationId" with specified "name" and "email" already created and owned by this user "A"
-    And the user "B" who had the "admin" role in the user's "A" organization was assigned by "owner" role
+    And the user "B" who had the "admin" role in the user's "A" organization was assigned with "owner" role by the owner
     When the user "B" requested to delete user's "A" organization "organizationId"
     Then user "B" should receive the successful response object: "deleted":true,"organizationId":"org "A" organizationId"
 
 
-  #MPA-7229 (#4.3) - FAIL OR SUCCESS ? CURRENTLY - SUCCESS
+  #MPA-7229 (#4.3) - SHOULD WE ALLOW IF THE ORIGIN OWNER WAS REMOVED ???
   Scenario: Successful delete a specific Organization upon the origin owner was removed from own Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And the user "A" was removed from user's "A" organization
+    And the user "A" was removed from user's "A" organization by its own decision
     When the user "A" requested to delete user's "A" organization
-    #Then user "A" should receive the successful response object: "deleted":true,"organizationId":"org "A" organizationId"
+    Then user "A" should receive the successful response object: "deleted":true,"organizationId":"org "A" organizationId"
 
 
   #MPA-7229 (#4.4)
@@ -216,14 +232,23 @@ Feature: Basic CRUD tests for organization service.
 
 
   #MPA-7229 (#4.5)
-  Scenario: Fail to delete the Organization upon the valid token doesn't have the owner's either admin's permission level
+  Scenario: Fail to delete the Organization upon the user is not the member of the relevant Organization with appropriate permission level (role)
     Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
-    And the organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    When the user "B" applied "token" of user "A" and requested to delete the user's "B" organization
-    Then user "B" should receive an error message: "user: 'null', name: userId of user B', is not in role Owner of organization: 'org "A" name'"
+    And the organization "organizationId" with specified "name" and "email" which doesn't contain any member already created and owned by user "A"
+    When the user "A" applied "token" of user "B" and requested to delete the user's "A" organization
+    Then user "A" should receive an error message: "user: 'null', name: userId "B"', is not in role Owner or Admin of organization: 'org "A" name'"
 
 
   #MPA-7229 (#4.6)
+  Scenario: Fail to delete the Organization upon the valid token have "member" role permission level
+    Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
+    And the organization "organizationId" with specified "name" and "email" which doesn't contain any "member" already created and owned by user "A"
+    And the user "B" who have got the "userId" issued by relevant authority became the "member" of the user's "A" organization
+    When the user "B" applied own "token" and requested to delete the user's "A" organization with some "name" and some "email"
+    Then the user "B" should get an error message: "user: 'userId "B"', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
+
+
+  #MPA-7229 (#4.7)
   Scenario: Fail to delete a non-existent Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -232,7 +257,7 @@ Feature: Basic CRUD tests for organization service.
 
 
 
-  #INVITE MEMBER
+  #INVITE MEMBER  - SHOULD WE RETURN INFO ABOUT ADDED MEMBER INSTEAD OF PLAIN ACKNOWLEDGEMENT???
 
   #MPA-7229 (#5)
   Scenario: Successful "member" invitation to multiple Organizations which belongs to different owners
@@ -241,7 +266,7 @@ Feature: Basic CRUD tests for organization service.
     And the user "C" have got the "userId" issued by relevant authority
     When the user "A" requested to invite the user "C" to step into user's "A" organization "organizationId"
     And the user "B" requested to invite the user "C" to step into user's "B" organization "organizationId"
-    Then the user "C" should become the "member" each of both organizations which belong to the users "A" and "B"
+    Then the user "C" should become the "member" in each of both organizations which belong to the users "A" and "B" accordingly
 
 
   #MPA-7229 (#5.1)
@@ -249,15 +274,15 @@ Feature: Basic CRUD tests for organization service.
     Given the user "A" have got a valid "token" issued by relevant authority
     And several organizations "organizationId" with specified "name" and "email" which don't contain any "member" already created and owned by single user "A"
     And the user "B" have got the "userId" issued by relevant authority
-    When the user "A" requested to invite the user "B" to step into each organization of user's "A"
-    Then the user "B" should become the "member" each of both user's "A" organizations
+    When the user "A" requested to invite the user "B" to step into each organization which belongs to user "A"
+    Then the user "B" should become the "member" in each of both user's "A" organizations
 
 
   #MPA-7229 (#5.2)
   Scenario: Successful invitation of the "member" into specific Organization upon it's existent "member" was granted by admin role
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" which doesn't contain any "member" already created and owned by this user "A"
-    And the user "B" who had the "member" role in the user's "A" organization was assigned by "admin" role
+    And the user "B" who had the "member" role in the user's "A" organization was assigned with "admin" role by the owner
     And the user "C" have got the "userId" issued by relevant authority
     When the user "B" requested to invite user "C" to step into user's "A" organization "organizationId"
     Then the user "C" should become the "member" of user's "A" organization
@@ -330,7 +355,7 @@ Feature: Basic CRUD tests for organization service.
     Then user "B" should abandon user's "A" organization and user "A" should get the empty object
 
 
-  #MPA-7229 (#6.1)
+  #MPA-7229 (#6.1) - SHOULD WE PROHIBIT TO REMOVE ORIGIN ORG OWNER BY ANOTHER OWNER/ADMIN EITHER EVENTUALLY DISABLE THIS ABILITY EVEN FOR ORIGIN OWNER???
   Scenario: Successful remove (kick-out) the owner of a specific Organization
     Given the user "A" have got a valid "token" and "userId" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -670,7 +695,7 @@ Feature: Basic CRUD tests for organization service.
     Then user "A" should abandon user's "A" organization and user "A" should get the empty object
 
 
-  #MPA-7229 (#12.2)
+  #MPA-7229 (#12.2) - CAN THE MEMBER WHO WAS GRANTED THE ADMIN/OWNER ROLE DOWNGRADE REAL OWNER TO MEMBER OR ADMIN OR KICKED-OUT REAL OWNER OR OWNER DOWNGRADE HIMSELF?
   Scenario: Successful remove (kick-out) of the "member" from specific Organization upon it's existent "member" was granted by admin role
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by this user "A"
