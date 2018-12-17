@@ -8,11 +8,12 @@ import java.util.Map;
 final class RoleRank {
   private static final Map<Role, RoleRank> roleToRank = new HashMap<>();
   private static final Map<Role, Integer> ranks = new HashMap<Role, Integer>();
-   static {
-      ranks.put(Role.Owner, 300);
-      ranks.put(Role.Admin, 200);
-      ranks.put(Role.Member, 100);
-  };
+
+  static {
+    ranks.put(Role.Owner, 300);
+    ranks.put(Role.Admin, 200);
+    ranks.put(Role.Member, 100);
+  }
 
   private final Role role;
 
