@@ -95,7 +95,7 @@ Feature: Basic CRUD tests for organization service.
     Given the user "A" have got a valid "token" issued by relevant authority
     And there is no organization "organizationId" was created and stored
     When the user "A" requested to get the non-existent organization "organizationId" info
-    Then user "A" should receive the error message with non-existent "organizationId"
+    Then user "A" should receive the error message: "organizationId" doesn't exist
 
 
 
@@ -167,7 +167,7 @@ Feature: Basic CRUD tests for organization service.
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
     When the user "A" requested to update the organization with non-existent "organizationId" and some "name" and "email"
-    Then user "A" should receive the error message with non-existent "organizationId"
+    Then user "A" should receive the error message: "organizationId" doesn't exist
 
 
   #MPA-7229 (#3.8)
@@ -253,7 +253,7 @@ Feature: Basic CRUD tests for organization service.
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
     When the user "A" requested to delete the organization with non-existent "organizationId"
-    Then user "A" should receive the error message with non-existent "organizationId"
+    Then user "A" should receive the error message: "organizationId" doesn't exist
 
 
 
@@ -443,7 +443,7 @@ Feature: Basic CRUD tests for organization service.
   #GET MEMBER FROM ORG
 
   #MPA-7229 (#7)
-  Scenario: Successful get the list of all the members from the specific Organization (Members in Organizations)
+  Scenario: Successful get the list of all the members from the specific Organization (Members in Organizations) by the origin owner
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
     And each of the users "B" and "C" have got the "userId" issued by relevant authority and both became the members of the user's "A" organization
@@ -451,24 +451,33 @@ Feature: Basic CRUD tests for organization service.
     Then user "A" should receive successful response with list of all the members of the own organization i.e. users "B" and "C" including the owner "A"
 
 
-  #MPA-7229 (#7.1) - FAIL OR SUCCESS ? CURRENTLY - SUCCESS
+ #MPA-7229 (#7.1)
+  Scenario: Successful get the list of all the members from the specific Organization (Members in Organizations) by some member from the relevant Organization
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And each of the users "B" and "C" have got the "userId" issued by relevant authority and both became the members of the user's "A" organization
+    When the user "B" requested to get all members from user's "A" organization
+    Then user "B" should receive successful response with list of all the members of the own organization i.e. users "B" and "C" including the owner "A"
+
+
+  #MPA-7229 (#7.2) - SHOULD WE ALLOW IF THE ORIGIN OWNER WAS REMOVED ???
   Scenario: Successful get the list of all the members from the specific Organization upon the origin owner was removed from own Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
     And the user "B" have got the "userId" issued by relevant authority and became the "member" of the user's "A" organization
-    And the user "A" was removed from user's "A" organization
-    When the user "A" requested to get the list of all the members user's "A" organization
-    #Then user "A" should receive successful response with list of all the members of the own organization i.e. user "B" only
-
-
-  #MPA-7229 (#7.2)
-  Scenario: Fail to get the user from specific Organization if the token is invalid (expired)
-    Given a user "A" have got the invalid either expired "token"
-    When user "A" requested to get some user from some organization "organizationId"
-    Then user "A" should receive the error message: "Token verification failed"
+    And the user "A" was removed from user's "A" organization by its own decision
+    When the user "A" requested to get the list of all the members from own organization
+    Then user "A" should receive successful response with list of all the members of the own organization i.e. user "B" only
 
 
   #MPA-7229 (#7.3)
+  Scenario: Fail to get the user from specific Organization if the token is invalid (expired)
+    Given a user "D" have got the invalid either expired "token"
+    When user "D" requested to get some user from some organization "organizationId"
+    Then user "D" should receive the error message: "Token verification failed"
+
+
+  #MPA-7229 (#7.4) - SHOULD WE RETURNS MESSAGE - NO MEMBERS WERE FOUND???
   Scenario: Do not get any "member" from a specific Organization if nobody steeped in
     Given the user "A" have got a valid "token" issued by relevant authority
     And the organization "organizationId" with specified "name" and "email" which doesn't contain any "member" already created and owned by user "A"
@@ -476,21 +485,21 @@ Feature: Basic CRUD tests for organization service.
     Then user "A" should receive successful response with empty object
 
 
-  #MPA-7229 (#7.4)
-  Scenario: Fail to get the members from a specific Organization upon the valid token doesn't have the owner's either admin's permission level
+  #MPA-7229 (#7.6)
+  Scenario: Fail to get the members from a specific Organization upon the host is not the member of the relevant Organization
     Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
     And the user "C" have got the "userId" issued by relevant authority and became the "member" of the user's "A" organization
     When the user "A" applied "token" of the user "B" and requested to get all the members from the user's "A" organization
-    Then user "A" should get an error message: "user: 'userId of user "A"', name: 'null', not in role Owner or Admin of organization: 'org "B" organizationId'"
+    Then user "A" should get an error message: "user: 'userId "B"', name: 'null', is not a "member" of organization: 'user "A" organizationId'"
 
 
-  #MPA-7229 (#7.5)
+  #MPA-7229 (#7.7)
   Scenario: Fail to get members from non-existent Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
     When the user "A" requested to get all the members from non-existent organization "organizationId"
-    Then user "A" should receive the error message with non-existent "organizationId"
+    Then user "A" should receive the error message: "organizationId" doesn't exist
 
 
 
@@ -501,12 +510,12 @@ Feature: Basic CRUD tests for organization service.
     Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
     And only two organizations "organizationId" with specified "name" and "email" already created and owned by each of the user's "A" and "B"
     And the user "C" have got the "userId" issued by relevant authority and became the "member" of the users' "A" and "B" organizations
-    When the user "C" requested to get the Membership (list of all Organizations in each the user "C" steeped in)
-    Then user "C" should receive successful response with list of all the Organizations i.e. "A" and "B" in which he became a "member"
+    When the user "C" requested to get the Membership
+    Then user "C" should receive successful response with list of all the Organizations i.e. "A" and "B" in which user "C" was invited (became a member with accessible role)
 
 
-  #MPA-7229 (#8.1)
-  Scenario: Do not get any Organization if the user hasn't became a "member" in each of them
+  #MPA-7229 (#8.1) - SHOULD WE RETURNS MESSAGE - NO ORGANIZATIONS WERE FOUND???
+  Scenario: Do not get any Organization data upon the user hasn't became a member (wasn't invited) to any of the relevant Organizations
     Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" which doesn't contain any "member" already created and owned by user "A"
     And the user "C" have got the "userId" issued by relevant authority
@@ -522,10 +531,10 @@ Feature: Basic CRUD tests for organization service.
 
 
 
-  #LEAVE ORG
+  #LEAVE ORG - SHOULD WE RETURN INFO ABOUT MEMBER WHO LEAVED THE ORGANIZATION INSTEAD OF PLAIN ACKNOWLEDGEMENT???
 
   #MPA-7229 (#9)
-  Scenario: Member successfully leave a specific Organization
+  Scenario: Member successfully leaved a specific Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
     And the user "C" have got the "userId" issued by relevant authority and became the "member" of the user's "A" organization
@@ -534,27 +543,34 @@ Feature: Basic CRUD tests for organization service.
 
 
   #MPA-7229 (#9.1)
+  Scenario: Origin owner successfully leaved own Organization
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    When the user "A" requested to leave the user's "A" organization by its own decision
+    Then user "A" should leave the own organization and receive the empty object
+
+
+  #MPA-7229 (#9.2)
   Scenario: Fail to leave the Organization if the token is invalid (expired)
     Given a user have got the invalid either expired "token"
     When this user requested to leave some Organization "organizationId"
     Then this user should receive the error message: "Token verification failed"
 
 
-  #MPA-7229 (#9.2)
-  Scenario: Fail to leave the Organization upon the valid token doesn't have the owner's either admin's permission level
-    Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
-    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And the user "C" have got the "userId" issued by relevant authority and became the "member" of the user's "A" organization
-    When the user "C" applied "token" of user "B" and requested to leave the user's "A" organization
-    Then the user "C" shouldn't leave user's "A" organization and receive the empty object
-
-
   #MPA-7229 (#9.3)
+  Scenario: Fail to leave the Organization upon the user hasn't became a member (wasn't invited) to any of the relevant Organizations
+    Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" which doesn't contain any "member" already created and owned by user "A"
+    When the user "B" requested to leave the user's "A" organization
+    Then the user "B" should receive error message: "user: 'null', name: 'userId "B"', is not a "member" of organization: 'user "A" organizationId'"
+
+
+  #MPA-7229 (#9.4)
   Scenario: Fail to leave a non-existent Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
     When the user "A" requested to leave the non-existent organization "organizationId"
-    Then user "A" should receive the error message with non-existent "organizationId"
+    Then user "A" should receive the error message: "organizationId" doesn't exist
 
 
 
