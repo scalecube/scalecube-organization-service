@@ -451,7 +451,7 @@ Feature: Basic CRUD tests for organization service.
     Then user "A" should receive successful response with list of all the members of the own organization i.e. users "B" and "C" including the owner "A"
 
 
- #MPA-7229 (#7.1)
+  #MPA-7229 (#7.1)
   Scenario: Successful get the list of all the members from the specific Organization (Members in Organizations) by some member from the relevant Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -580,58 +580,75 @@ Feature: Basic CRUD tests for organization service.
   Scenario: Successful adding of API key (token) for a specific Organization with relevant assigned roles (permission level for configuration service)
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    When the user "A" requested to add the API keys "name" for user's "A" organization with assigned roles "owner", "admin" and "member"
+    When the user "A" requested to add each of the API keys "name" for own organization with relevant assigned roles "owner", "admin" and "member"
     Then each of the API keys with assigned roles of "owner", "admin" and "member" should be added for the relevant organization
 
 
   #MPA-7229 (#10.1)
-  Scenario: Successful adding either of accessible API keys (token) with the same "name" for a specific Organization
+  Scenario: Successful adding any of accessible API keys (token) with the same "name" (duplicate) for a specific Organization by Admin
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And each of the API keys assigned by "owner", "admin" and "member" roles with specified "name" were added to user's "A" organization
-    When the user "A" requested to add the API key with specified existent "name" for user's "A" organization assigned by either of roles "owner", "admin" or "member"
-    Then the API key with the same (duplicated) "name" and relevant assigned "role" should be added for the relevant organization
+    And the user "B" have got the "userId" issued by relevant authority and became the "admin" of the user's "A" organization
+    And each of the API keys assigned by "owner", "admin" and "member" roles with specified "name" were added to user's "A" organization by it's owner
+    When the user "B" requested to add the API keys with specified existent "name" for user's "A" organization assigned with "owner", "admin" and "member" roles
+    Then each of the relevant API keys with the same (duplicated) "name" and relevant assigned role should be added for the relevant organization
 
 
-  #MPA-7229 (#10.2)
+  #MPA-7229 (#10.2) - SHOULD WE ALLOW IF THE ORIGIN OWNER WAS REMOVED ???
+  Scenario: Successful adding some of accessible API keys (token) for relevant Organization upon the origin owner was removed from own Organization
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And the user "A" was removed from user's "A" organization by its own decision
+    When the user "A" requested to add the API key "name" for own organization with relevant assigned role "owner"
+    Then the API key with assigned "owner" role should be added for the relevant organization
+
+
+  #MPA-7229 (#10.3)
   Scenario: Fail to add the API key (token) for a specific Organization if the token is invalid (expired)
     Given a user have got the invalid either expired "token"
     When this user requested to add some API key for some Organization
     Then this user should receive the error message: "Token verification failed"
 
 
-  #MPA-7229 (#10.3)
+  #MPA-7229 (#10.4)
   Scenario: Fail to add the API key (token) for a specific Organization upon the user hadn't became the member in it with relevant role (permission level)
     Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
-    And the organization "organizationId" with specified "name" and "email" which doesn't contain any "member" already created and owned by user "A"
-    When the user "A" applied "token" of user "B" and requested to add the API key "name" for user's "A" organization assigned by some "role"
-    Then the user "A" should receive the error message: "user: 'null', name: 'userId "B"', is not a "member" of organization: 'user "A" organizationId'"
-
-
-  #MPA-7229 (#10.3)
-  Scenario: Fail to add the API key (token) for a specific Organization upon the relevant member doesn't have the owner's permission level
-    Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
     And the organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And the user "B" have got the "userId" issued by relevant authority and became the "member" either "admin" of the user's "A" organization
-    When the user "B" requested to add the API key "name" for user's "A" organization assigned by some "role"
-    Then user "B" should get an error message: "user: 'userId of user "B"', name: 'null', not in role Owner of organization: 'org "A" name'"
-
-
-  #MPA-7229 (#10.4)
-  Scenario: Fail to add the API key (token) for non-existent Organization
-    Given the user "A" have got a valid "token" issued by relevant authority
-    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    When the user "A" requested to add the API key "name" for the non-existent organization "organizationId"
-    #Then user "A" should receive the error message: "non-existent organizationId"
+    When the user "A" applied "token" of user "B" and requested to add the API key "name" for user's "A" organization with some assigned "role"
+    Then user "A" should get an error message: "user: 'userId "B"', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
 
 
   #MPA-7229 (#10.5)
-  Scenario: Fail to add the API key (token) for a specific Organization upon the role is else (invalid) apart of allowed
+  Scenario: Fail to add the API key (token) for a foreign Organization
+    Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
+    And only two organizations "organizationId" with specified "name" and "email" already created and owned by each of the user's "A" and "B"
+    When the user "A" applied own token and requested to add the API key "name" for user's "B" organization assigned by some "role"
+    Then user "A" should get an error message: "user: 'userId "A"', name: 'null', not in role Owner or Admin of organization: 'org "B" name'"
+
+
+  #MPA-7229 (#10.6)
+  Scenario: Fail to add the API key (token) for a specific Organization upon the relevant member doesn't have appropriate permission level
+    Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
+    And the organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And the user "B" have got the "userId" issued by relevant authority and became the "member" of the user's "A" organization
+    When the user "B" requested to add the API key "name" for user's "A" organization assigned by some "role"
+    Then user "B" should get an error message: "user: 'userId "B"', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
+
+
+  #MPA-7229 (#10.7)
+  Scenario: Fail to add the API key (token) for non-existent Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    When the user "A" requested to add the API key "name" for user's "A" organization assigned by invalid "role" like "founder"
-    Then the API key with assigned role "founder" shouldn't be added to the user's "A" organization "organizationId"
-    #And the user "A" should receive the empty object
+    When the user "A" requested to add the API key "name" with some "role" for the non-existent organization "organizationId"
+    Then user "A" should receive the error message: "organizationId" doesn't exist
+
+
+  #MPA-7229 (#10.8) - SHOULD WE RETURN THE RELEVANT ERROR MESSAGE - UNAVAILABLE ROLE IS APPLIED??? INSTEAD OF SET IT TO THE MEMBER ROLE AS DEFAULT
+  Scenario: Fail to add the API key (token) for a specific Organization upon the requested role differs (invalid) from allowed
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    When the user "A" requested to add the API key "name" for user's "A" organization assigned by invalid "role" like "boss"
+    Then the API key with assigned role "member" by default should be added to the user's "A" organization "organizationId"
 
 
 
@@ -648,47 +665,55 @@ Feature: Basic CRUD tests for organization service.
 
 
   #MPA-7229 (#11.1)
-  Scenario: Successful delete of multiple API key (token) from specific Organization upon these keys got the common name (duplicate)
+  Scenario: Successful delete of multiple API keys (token) from specific Organization upon these keys got the common name (duplicate)
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And user's "A" organization have got the relevant API keys "name" with assigned roles "owner", "admin" and "member"
-    And the user "A" requested to add the API key with specified existent "name" for user's "A" organization assigned by "admin" role
-    When the user "A" requested to delete the API key with specified existent "name" for user's "A" organization assigned by "admin" role
-    Then the both API keys with specified common (existent) "name" assigned by "admin" roles should be deleted
-    And user "A" should receive successful response with the API keys of "owner" and "member" roles related to the relevant organization
+    And user's "A" organization have got two relevant API keys with the common "name" with relevant assigned roles "owner" and "admin"
+    When the user "A" requested to delete the API key with common existent "name" from own organization
+    Then the both API keys with common existent "name" assigned with "owner" and "admin" roles should be deleted
 
 
-  #MPA-7229 (#11.2)
-  Scenario: Fail to add the API key (token) for a specific Organization upon the user hadn't became the member in it with relevant role (permission level)
-    Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
-    And the organization "organizationId" with specified "name" and "email" which doesn't contain any "member" already created and owned by user "A"
-    When the user "A" applied "token" of user "B" and requested to delete the API key "name" for user's "A" organization assigned by some "role"
-    Then the user "A" should receive the error message: "user: 'null', name: 'userId "B"', is not a "member" of organization: 'user "A" organizationId'"
+  #MPA-7229 (#11.2) - SHOULD WE ALLOW IF THE ORIGIN OWNER WAS REMOVED ???
+  Scenario: Successful delete some of accessible API keys (token) for relevant Organization upon the origin owner was removed from own Organization
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And user's "A" organization have got relevant API key "name" with relevant assigned role "owner"
+    And the user "A" was removed from user's "A" organization by its own decision
+    When the user "A" requested to delete the API key "name" from own organization
+    Then the API key with assigned "owner" role should be deleted from the relevant organization
 
 
-  #MPA-7229 (#11.4)
-  Scenario: Fail to add the API key (token) for a specific Organization upon the relevant member doesn't have the owner's permission level
-    Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
-    And the organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And the user "B" have got the "userId" issued by relevant authority and became the "member" either "admin" of the user's "A" organization
-    When the user "B" requested to add the API key "name" for user's "A" organization assigned by some "role"
-    Then user "B" should get an error message: "user: 'userId of user "B"', name: 'null', not in role Owner of organization: 'org "A" name'"
-
-
-  #MPA-7229 (#11.5)
+  #MPA-7229 (#11.3)
   Scenario: Fail to delete the API key (token) related to specific Organization if the token is invalid (expired)
     Given a user have got the invalid either expired "token"
     When this user requested to delete some API key in some Organization
-    #Then this user should receive the error message: "Token verification failed"
+    Then this user should receive the error message: "Token verification failed"
+
+
+  #MPA-7229 (#11.4)
+  Scenario: Fail to delete the API key (token) from related Organization upon the user hadn't became the member in it with relevant role (permission level)
+    Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
+    And the organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    When the user "A" applied "token" of user "B" and requested to delete the API key "name" from user's "A" organization
+    Then user "A" should get an error message: "user: 'userId "B"', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
+
+
+  #MPA-7229 (#11.5)
+  Scenario: Fail to delete the API key (token) from the foreign Organization
+    Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
+    And only two organizations "organizationId" with specified "name" and "email" already created and owned by each of the user's "A" and "B"
+    When the user "A" applied own token and requested to delete the API key "name" from user's "B" organization
+    Then user "A" should get an error message: "user: 'userId "A"', name: 'null', not in role Owner or Admin of organization: 'org "B" name'"
 
 
   #MPA-7229 (#11.6)
-  Scenario: Fail to delete the API key (token) related to specific Organization upon the valid token doesn't have the owner's either admin's permission level
+  Scenario: Fail to delete the API key (token) from related Organization upon the relevant member doesn't have the appropriate permission level
     Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
     And the organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And user's "A" organization have got the relevant API keys with assigned roles "owner", "admin" and "member"
-    When the user "A" applied "token" of user "B" and requested to delete some API key "name" in user's "A" organization "organizationId"
-    #Then the user "A" should receive the error message: "user: 'null', name: 'userId of user A', not in role Owner or Admin of organization: 'org "B" name'"
+    And user's "A" organization have got the relevant API key with assigned role "owner"
+    And the user "B" have got the "userId" issued by relevant authority and became the "member" of the user's "A" organization
+    When the user "B" requested to delete the API key "name" for user's "A" organization
+    Then user "B" should get an error message: "user: 'userId "B"', name: 'null', not in role Owner of organization: 'org "A" name'"
 
 
   #MPA-7229 (#11.7)
@@ -696,7 +721,7 @@ Feature: Basic CRUD tests for organization service.
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
     When the user "A" requested to delete the API key "name" for the non-existent organization "organizationId"
-    #Then user "A" should receive the error message: "non-existent organizationId"
+    Then user "A" should receive the error message: "organizationId" doesn't exist
 
 
   #MPA-7229 (#11.8)
@@ -706,7 +731,7 @@ Feature: Basic CRUD tests for organization service.
     And user's "A" organization have got the relevant API keys with assigned roles "owner", "admin" and "member"
     When the user "A" requested to delete the non-existent API key "name" in user's "A" organization
     Then any of the stored API keys shouldn't be deleted from the user's "A" organization "organizationId"
-    #And user "A" should receive successful response with the API keys assigned by "owner", "admin" and "member" roles which related to the relevant organization
+    And user "A" should receive successful response with related API keys assigned by "owner", "admin" and "member" roles which related to the relevant organization
 
 
 
