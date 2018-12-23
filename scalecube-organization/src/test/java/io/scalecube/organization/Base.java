@@ -54,8 +54,7 @@ public class Base {
           "adminUser",
           "fname",
           "lname",
-          Collections.singletonMap("role", "Admin")
-          );
+          Collections.singletonMap("role", "Admin"));
   protected OrganizationService service;
   protected String organisationId;
   protected Organization organisation;
@@ -81,6 +80,7 @@ public class Base {
             System.out.print(".");
           }
         };
+    service = createService(testProfile);
 
     // init with couchbase
     //    orgMembersRepository = CouchbaseRepositoryFactory.organizationMembers();
@@ -152,7 +152,7 @@ public class Base {
     return organizationRepository.findById(await.result().id()).get();
   }
 
-  @AfterEach
+  //  @AfterEach
   public void deleteOrganizationAfterTest() {
     AwaitLatch<DeleteOrganizationResponse> await =
         consume(service.deleteOrganization(new DeleteOrganizationRequest(token, organisationId)));
