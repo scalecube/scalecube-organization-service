@@ -23,38 +23,71 @@ import io.scalecube.organization.repository.UserOrganizationMembershipRepository
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
 import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
 import io.scalecube.security.Profile;
-
 import java.time.Duration;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Random;
-import java.util.Collections;
 import java.util.concurrent.TimeUnit;
-import org.junit.jupiter.api.AfterEach;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 public class Base {
 
   protected final Profile testProfile =
-      new Profile("1", null, "user1@gmail.com", true, "foo", "fname", "lname", null);
+      Profile.builder()
+          .userId("1")
+          .email("user1@gmail.com")
+          .emailVerified(true)
+          .name("foo")
+          .familyName("fname")
+          .givenName("lname")
+          .build();
   protected final Profile testProfile2 =
-      new Profile("2", null, "user2@gmail.com", true, "foo2", "fname2", "lname2", null);
+      Profile.builder()
+          .userId("2")
+          .email("user2@gmail.com")
+          .emailVerified(true)
+          .name("foo2")
+          .familyName("fname2")
+          .givenName("lname2")
+          .build();
   protected final Profile invalidProfile =
-      new Profile("3", null, "user3@gmail.com", true, "foo3", "fname3", "lname3", null);
+      Profile.builder()
+          .userId("3")
+          .email("user3@gmail.com")
+          .emailVerified(true)
+          .name("foo3")
+          .familyName("fname3")
+          .givenName("lname3")
+          .build();
   protected final Profile testProfile4 =
-      new Profile("4", null, "user4@gmail.com", true, "foo4", "fname4", "lname4", null);
+      Profile.builder()
+          .userId("4")
+          .email("user4@gmail.com")
+          .emailVerified(true)
+          .name("foo4")
+          .familyName("fname4")
+          .givenName("lname4")
+          .build();
   protected final Profile testProfile5 =
-      new Profile("5", null, "user5@gmail.com", true, "foo5", "fname5", "lname5", null);
+      Profile.builder()
+          .userId("5")
+          .email("user5@gmail.com")
+          .emailVerified(true)
+          .name("foo5")
+          .familyName("fname5")
+          .givenName("lname5")
+          .build();
   protected final Profile testAdminProfile =
-      new Profile(
-          "12",
-          null,
-          "user1@gmail.com",
-          true,
-          "adminUser",
-          "fname",
-          "lname",
-          Collections.singletonMap("role", "Admin"));
+      Profile.builder()
+          .userId("12")
+          .email("user1@gmail.com")
+          .emailVerified(true)
+          .name("adminUser")
+          .familyName("fname")
+          .givenName("lname")
+          .claims(Collections.singletonMap("role", "Admin"))
+          .build();
   protected OrganizationService service;
   protected String organisationId;
   protected Organization organisation;

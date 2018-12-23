@@ -3,15 +3,13 @@ package io.scalecube.organization;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import io.scalecube.account.api.GetMembershipRequest;
 import io.scalecube.account.api.InvalidAuthenticationToken;
 import io.scalecube.account.api.OrganizationInfo;
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.Token;
-import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
-import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
 import io.scalecube.security.Profile;
 import java.time.Duration;
 import java.util.Arrays;
@@ -21,7 +19,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 

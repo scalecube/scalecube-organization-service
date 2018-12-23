@@ -13,15 +13,14 @@ import org.junit.jupiter.api.Test;
 
 public class JacksonTranslationServiceTest {
 
-  private final Profile testProfile = new Profile(
-      "1",
-      null,
-      "user1@gmail.com",
-      true,
-      "foo",
-      "fname",
-      "lname",
-      null);
+  private final Profile testProfile = Profile.builder()
+      .userId("1")
+      .email("user1@gmail.com")
+      .emailVerified(true)
+      .name("foo")
+      .familyName("fname")
+      .givenName("lname")
+      .build();
 
   @Test
   public void shouldEncodeUser() {

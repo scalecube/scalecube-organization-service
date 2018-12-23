@@ -38,6 +38,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,6 +52,13 @@ public class OrganizationServiceTest extends Base {
     organisation = createOrganization(randomString());
     organisationId = organisation.id();
   }
+  
+  @Override
+  @AfterEach
+  public void deleteOrganizationAfterTest() {
+    super.deleteOrganizationAfterTest();
+  }
+
 
   @Test
   public void createOrganization_with_name_already_in_use_should_Fail() {
@@ -174,10 +182,11 @@ public class OrganizationServiceTest extends Base {
     */
   //FIXME should be Token verification failed
   @Test
-  public void createOrganization_expired_token_should_fail_with_InvalidAuthenticationToken() {
+  public void createOrganizationExpiredTokenShouldFailWithInvalidAuthenticationToken() {
     Duration duration = expectError(
         service.createOrganization(
-            new CreateOrganizationRequest("myTestOrg5", new Token("i", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZXhwIjoxLCJpYXQiOjF9.Qdqda-NXqmHGGrs2kSCxX5fM7mSgTjOgCenQkT28VcA"), "email"))
+            new CreateOrganizationRequest("myTestOrg5", 
+                new Token("i", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZXhwIjoxLCJpYXQiOjF9.Qdqda-NXqmHGGrs2kSCxX5fM7mSgTjOgCenQkT28VcA"), "email"))
         , IllegalArgumentException.class);
     assertNotNull(duration);
   }  
