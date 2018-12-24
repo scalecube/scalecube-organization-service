@@ -1,0 +1,38 @@
+/**
+ * @api {websocket} io.scalecube.configuration.api.ConfigurationService/fetch Fetch (get) specified entry
+ * @apiName Fetch
+ * @apiGroup Fetch
+ *
+ * @apiDescription This operation enable you to get entry object for specified entity from the relevant Repository and enabled for each accessible permission level (read&write) granted for owner either admin or member role
+ * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
+ * @apiParam {String} repository Specified name of the repository
+ * @apiParam {String} key Specified key name for relevant configuration setting in the repository
+ *
+ * @apiSuccess {String} key Specified key name for relevant configuration setting in the repository
+ * @apiSuccess {Object} value Specified node name applied for relevant configuration settings in the repository
+ *
+ * @apiParamExample {json} Request-Example:
+ *     {
+ *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
+ *         "repository": "specifiedRepoName"
+ *         "key": "specifiedKeyName"
+ *     }
+ *
+ * @apiSuccessExample Success-Response:
+ *     {
+ *        "key": "specifiedKeyName"
+ *        "value": {
+ *                    "name": "Gold",
+ *                    "instrument": "XAU",
+ *                    "DecimalPrecision" : "2",
+ *                    "Rounding": "down"
+ *                 }
+ *     }
+ *
+ * @apiError {String} field invalid repository name
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *        errorCode":500,
+ *        "errorMessage":"repository: "specified" name doesn't exist"
+ *     }
+ */

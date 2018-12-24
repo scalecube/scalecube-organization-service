@@ -1,0 +1,81 @@
+
+/**
+* @api {Transport protocols} / Getting Started
+* @apiName GettingStarted
+* @apiGroup Overview
+*
+* @apiDescription Configuration service enable you to integrate the API in order to create and manage the separate repositories purposed for entity collection and storage.
+*
+*
+* <b>Getting Started</b>
+*
+*
+* All API endpoints are documented below.
+* <br> You can try out any query in realtime using our interactive API.
+* Actually all methods require API key authorization since they provide a specific permission level for the each user.
+* So there is a necessity to get the API key (token - assigned with relevant role Member/Admin/Owner) issued via Organization Service which is basically purposed for organization managers
+* who provide such kind permission level to potential costumers.
+* <br>Thus, we recommend you first to be granted with valid API key assigned with relevant role (permission level) to be able to use this API key across all service endpoints.
+*
+* Validation for the object entities is handled by scalecube services and do the next upon the request object:
+* >~ ignores any excessive keys and values added besides the required parameters
+* ><br>~ doesn't ignore the keys duplicates and takes the last values which applied for each of the relevant key duplicate
+*/
+
+/**
+* @api {API Gateway protocols} / General Definitions
+* @apiName GeneralDefinitions
+* @apiGroup Overview
+
+* @apiDescription The request should contain the following structure upon the transport protocols are used:
+                    <ul>
+								   <b>Websocket</b>
+                                   <li> 1. "q": The query of the relevant service path </li>
+                                   <li> 2. "sid": The identifier of the stream id. </li>
+                                   <li> 3. "d": The request data (parameters and values). </li>
+								   <b>RSocket</b>
+								   <li> 1. "metadata" which contains object "q": The query of the relevant service path </li>
+                                   <li> 2. "data" object: The request data (parameters and values). </li>
+								   <b>HTTP</b>
+								   <li> 1. "headers": Content-Type json </li>
+                                   <li> 2. "body" json object: The request data (parameters and values). </li>
+                    </ul>
+
+* @apiParamExample {json} Request-Example Websocket:
+                    {
+                        "q": "/io.scalecube.configuration.api.ServiceName/method_name",
+                        "sid": 1,
+                        "d": {
+                                "relevant request parameters and values"
+                             }
+                    }
+
+* @apiParamExample {json} Request-Example RSocket:
+                    {
+                        "metadata": {
+                            "q": "/io.scalecube.configuration.api.ServiceName/method_name",
+                            }
+                            "d": {
+                                    "relevant request parameters and values"
+                            }
+                    }
+
+* @apiParamExample {json} Request-Example HTTP:
+                    {
+                                    "relevant request parameters and values"
+                    }
+
+*/
+
+/**
+  * @api {Host addresses} / Interactive API Explorer
+  * @apiName InteractiveAPIExplorer
+  * @apiGroup Overview
+  * @apiDescription Please follow the steps below to connect and run commands via Sandbox:
+  <ul>
+                 <li> 1. Enter to the sandbox: <a href="http://scalecube.io/api-sandbox/app/index.html">Scalecube sandbox</a> </li>
+                 <li> 2. Click on the Settings button and enter the environment: wss://configuration-service-7070.genesis.om2.com </li>
+                 <li> 3. Import the exchange.json file path <a href="https://raw.githubusercontent.com/PavloPetrina/JsonData/master/OrganizationServiceALL.json">Organization service contracts.json</a></li>
+                 <li> 4. Click on the Connect button (now you are connected to the environment) and push "Send"</li>
+  </ul>
+*/

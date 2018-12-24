@@ -1,0 +1,30 @@
+/**
+ * @api {websocket} io.scalecube.configuration.api.ConfigurationService/delete Delete specified entry
+ * @apiName Delete
+ * @apiGroup Delete
+ *
+ * @apiDescription This operation enable you to delete a specified entity from the relevant Repository and requires a write level permission granted for owner either admin role only
+ * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
+ * @apiParam {String} repository Specified name of the repository
+ * @apiParam {String} key Specified key name for relevant configuration setting in the repository
+ *
+ * @apiSuccess Acknowledgment Empty object
+ *
+ * @apiParamExample {json} Request-Example:
+ *     {
+ *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
+ *         "repository": "specifiedRepoName"
+ *         "key": "specifiedKeyName"
+ *     }
+ *
+ * @apiSuccessExample Success-Response:
+ *     {
+ *
+ *     }
+ * @apiError {String} field invalid permission level for specified API key
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *        errorCode":500,
+ *        "errorMessage":"userId" not in role Owner or Admin"
+ *     }
+ */

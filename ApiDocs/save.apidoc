@@ -1,0 +1,40 @@
+/**
+ * @api {websocket} io.scalecube.configuration.api.ConfigurationService/save SaveUpdate the entry
+ * @apiName Save
+ * @apiGroup Save
+ *
+ * @apiDescription This operation enable you to save either update (edit) a specified entity in the relevant Repository and requires a write level permission granted for owner either admin role only.
+ * Upon the specified entity is saved then it could be updated i.e. overwritten by the common method
+ *
+ * @apiParam {Object} token The requested API key (token) which assigned with relevant role (permission level)
+ * @apiParam {String} repository Specified name of the repository
+ * @apiParam {String} key Specified key name for relevant configuration setting in the repository
+ * @apiParam {JsonNode} value Specified node name applied for relevant configuration settings in the repository
+ *
+ * @apiSuccess Acknowledgment Empty object
+ *
+ * @apiParamExample {json} Request-Example:
+ *     {
+ *         "token": "eyJraWQiOiIyODQyYzFkYS0zMTFmLTRjNDcIUzI1NiJ9.JvbGUiOiJPd25lciIsImV4cCI6DAzOX0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqawR",
+ *         "repository": "specifiedRepoName"
+ *         "key": "specifiedKeyName"
+ *         "value": {
+ *                     "name": "Gold",
+ *                     "instrument": "XAU",
+ *                     "DecimalPrecision" : "2",
+ *                     "Rounding": "down"
+ *                  }
+ *     }
+ *
+ * @apiSuccessExample Success-Response:
+ *     {
+ *
+ *     }
+ *
+ * @apiError {String} field invalid key name
+ * @apiErrorExample {json} Error-Response:
+ *     {
+ *        errorCode":500,
+ *        "errorMessage":"key: "specified" name doesn't exist"
+ *     }
+ */

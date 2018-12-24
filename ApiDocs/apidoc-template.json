@@ -1,0 +1,29 @@
+{
+  "name": "Organization service",
+  "version": "0.0.1-SNAPSHOT",
+  "description": "Organization service API",
+  "title": "API documentation for the Organization Service",
+  "url" : "wss://$FORMATTED_BRANCH_NAME.genesis.om2.com",
+  "template": {
+    "forceLanguage" : "en"
+  },
+  "order": [
+    "Overview",
+    "GettingStarted",
+    "General Definitions",
+    "InteractiveAPIExplorer",
+    "Datatypes",
+    "CreateOrganization",
+    "GetOrganization",
+    "UpdateOrganization",
+    "DeleteOrganization",
+    "InviteMember",
+    "KickoutMember",
+    "LeaveOrganization",
+    "UpdateOrganizationMemberRole",
+    "GetOrganizationMembers",
+    "GetUserOrganizationsMembership",
+    "AddOrganizationApiKey",
+    "DeleteOrganizationApiKey"
+  ]
+}
