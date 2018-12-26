@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -50,11 +51,11 @@
     </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>
-      <artifactId>rsocket-services-transport</artifactId>
+      <artifactId>scalecube-services-transport-rsocket</artifactId>
     </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>
-      <artifactId>scalecube-services-jackson</artifactId>
+      <artifactId>scalecube-services-transport-jackson</artifactId>
     </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>
@@ -87,12 +88,14 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
+      <version>${junit-jupiter.version}</version>
       <scope>test</scope>
     </dependency>
     <!-- This will get hamcrest-core automatically -->
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-library</artifactId>
+      <version>${hamcrest-library.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

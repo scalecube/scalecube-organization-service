@@ -5,7 +5,6 @@ import static java.util.Objects.requireNonNull;
 import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.Role;
-import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.DuplicateKeyException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.organization.repository.exception.InvalidInputException;
@@ -21,16 +20,16 @@ import java.util.stream.StreamSupport;
 public final class OrganizationsDataAccessImpl implements OrganizationsDataAccess {
 
   private final Repository<Organization, String> organizations;
-  private final UserOrganizationMembershipRepository organizationMembershipRepository;
-  private final OrganizationMembersRepositoryAdmin organizationMembersRepositoryAdmin;
+  private final UserOrganizationMembershipRepository membershipRepository;
+  private final OrganizationMembersRepositoryAdmin membersAdmin;
 
   private OrganizationsDataAccessImpl(
       Repository<Organization, String> organizationRepository,
       UserOrganizationMembershipRepository membershipRepository,
       OrganizationMembersRepositoryAdmin repositoryAdmin) {
     this.organizations = organizationRepository;
-    this.organizationMembershipRepository = membershipRepository;
-    this.organizationMembersRepositoryAdmin = repositoryAdmin;
+    this.membershipRepository = membershipRepository;
+    this.membersAdmin = repositoryAdmin;
   }
 
   private static void requireNonNullId(String id) {
@@ -50,6 +49,11 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
     return new Builder();
   }
 
+  @Override
+  public boolean existByName(String name) {
+    requireNonNullId(name);
+    return organizations.existByProperty("name", name);
+  }
 
   @Override
   public Organization getOrganization(String id) throws EntityNotFoundException {
@@ -62,59 +66,30 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
       throws DuplicateKeyException {
     requireNonNullProfile(owner);
     requireNonNullOrganization(organization);
-    validateNewOrganizationInputs(organization);
 
     // create members repository for the organization
-    organizationMembersRepositoryAdmin.createRepository(organization);
+    membersAdmin.createRepository(organization);
 
     try {
+      membershipRepository.addMember(
+          organization,
+          new OrganizationMember(organization.ownerId(), Role.Owner.toString()));
       return organizations.save(organization.id(), organization);
     } catch (Throwable throwable) {
       // rollback
-      organizationMembersRepositoryAdmin.deleteRepository(organization);
+      membersAdmin.deleteRepository(organization);
       throw throwable;
-    }
-  }
-
-  private void validateNewOrganizationInputs(Organization organization) {
-    if (organization.id() == null || organization.id().length() == 0) {
-      throw new InvalidInputException("Organization id cannot be empty");
-    }
-
-    if (organization.name() == null || organization.name().length() == 0) {
-      throw new InvalidInputException("Organization name cannot be empty");
-    }
-
-    if (!organization.name().matches("^[.%a-zA-Z0-9_-]*$")) {
-      throw new InvalidInputException(
-          "name can only contain characters in range A-Z, a-z, 0-9 as well as "
-              + "underscore, period, dash & percent.");
-    }
-
-    if (organizations.existByProperty("name", organization.name())) {
-      throw new NameAlreadyInUseException(
-          String.format("Organization name: '%s' already in use.",
-              organization.name()));
-    }
-
-    if (organizations.existsById(organization.id())) {
-      throw new DuplicateKeyException(organization.id());
     }
   }
 
   @Override
   public void deleteOrganization(Profile owner, Organization organization)
-      throws EntityNotFoundException, AccessPermissionException {
+      throws EntityNotFoundException {
     requireNonNullProfile(owner);
     requireNonNullOrganization(organization);
     verifyOrganizationExists(organization);
-
-    if (isOwner(organization, owner)) {
-      organizationMembersRepositoryAdmin.deleteRepository(organization);
-      organizations.deleteById(organization.id());
-    } else {
-      throwNotOrgOwnerException(owner, organization);
-    }
+    membersAdmin.deleteRepository(organization);
+    organizations.deleteById(organization.id());
   }
 
   @Override
@@ -122,24 +97,17 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
     requireNonNull(userId, "userId");
     return Collections.unmodifiableCollection(
         StreamSupport.stream(organizations.findAll().spliterator(), false)
-            .filter(org -> isOrgMember(userId, org))
+            .filter(org -> isMember(userId, org))
             .collect(Collectors.toList()));
   }
 
-  private boolean isOrgMember(String userId, Organization org) {
-    return organizationMembershipRepository.isMember(userId, org);
-  }
+
 
   @Override
-  public void updateOrganizationDetails(Profile owner, Organization org, Organization update)
-      throws AccessPermissionException {
+  public void updateOrganizationDetails(Profile owner, Organization org, Organization update) {
     requireNonNullProfile(owner);
     requireNonNullOrganization(org);
     requireNonNullOrganization(update);
-
-    if (!isOwner(org, owner)) {
-      throwNotOrgOwnerException(owner, org);
-    }
 
     if (Objects.equals(org.id(), update.id())) {
       organizations.save(org.id(), update);
@@ -147,41 +115,28 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
   }
 
   @Override
-  public Collection<OrganizationMember> getOrganizationMembers(String orgId)
-      throws EntityNotFoundException {
-    requireNonNull(orgId);
-    return organizationMembershipRepository.getMembers(getOrganization(orgId));
+  public Collection<OrganizationMember> getOrganizationMembers(
+      Organization organization) {
+    requireNonNull(organization);
+    return membershipRepository.getMembers(organization);
   }
 
   @Override
-  public void invite(Profile owner, Organization organization, String userId)
-      throws AccessPermissionException, EntityNotFoundException {
+  public void invite(Profile owner, Organization organization, String userId, Role role)
+      throws EntityNotFoundException {
     requireNonNullProfile(owner);
     requireNonNullOrganization(organization);
     requireNonNull(userId, "userId");
+    requireNonNull(role, "role");
     verifyOrganizationExists(organization);
-
-    if (isOwner(organization, owner)) {
-      addMemberToOrg(userId, organization, owner.getUserId().equals(userId)
-          ? Role.Owner
-          : Role.Member);
-    } else {
-      throwNotOrgOwnerException(owner, organization);
-    }
+    addMember(userId, organization, role);
   }
 
-  private void addMemberToOrg(String userId, Organization organization, Role role) {
-    if (!isOrgMember(userId, organization)) {
-      organizationMembershipRepository.addMember(organization,
+  private void addMember(String userId, Organization organization, Role role) {
+    if (!isMember(userId, organization)) {
+      membershipRepository.addMember(organization,
           new OrganizationMember(userId, role.toString()));
     }
-  }
-
-  private void throwNotOrgOwnerException(Profile owner, Organization org)
-      throws AccessPermissionException {
-    throw new AccessPermissionException(
-        String.format("user: %s, name: %s, is not an owner of organization: %s",
-            owner.getName(), owner.getUserId(), org.id()));
   }
 
   @Override
@@ -191,14 +146,9 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
     requireNonNull(userId, "userId");
     verifyOrganizationExists(organization);
 
-    if (isOwner(organization, owner) && organizationMembershipRepository
-        .isMember(userId, organization)) {
+    if (membershipRepository.isMember(userId, organization)) {
       leave(organization, userId);
     }
-  }
-
-  private boolean isOwner(Organization org, Profile profile) {
-    return Objects.equals(org.ownerId(), profile.getUserId());
   }
 
   @Override
@@ -207,14 +157,22 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
     requireNonNull(userId, "userId");
     verifyOrganizationExists(organization);
 
-    if (organizationMembershipRepository.isMember(userId, organization)) {
-      organizationMembershipRepository.removeMember(userId, organization);
+    if (membershipRepository.isMember(userId, organization)) {
+      membershipRepository.removeMember(userId, organization);
     }
   }
 
   @Override
   public boolean isMember(String userId, Organization organization) {
-    return organizationMembershipRepository.isMember(userId, organization);
+    return membershipRepository.isMember(userId, organization);
+  }
+
+  @Override
+  public void updateOrganizationMemberRole(Organization organization, String userId, String role) {
+    if (membershipRepository.isMember(userId, organization)) {
+      membershipRepository.removeMember(userId, organization);
+      membershipRepository.addMember(organization, new OrganizationMember(userId, role));
+    }
   }
 
   private void verifyOrganizationExists(Organization organization)

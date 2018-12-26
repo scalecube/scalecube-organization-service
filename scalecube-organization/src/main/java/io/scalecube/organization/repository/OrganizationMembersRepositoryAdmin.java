@@ -4,6 +4,8 @@ import io.scalecube.account.api.Organization;
 
 /**
  * An abstraction to administrative operations on the Organization members repository.
+ * Whenever an organization is created, a side-car bucket named the ORG_ID-members gets
+ * auto created.
  */
 public interface OrganizationMembersRepositoryAdmin {
 

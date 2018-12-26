@@ -13,17 +13,7 @@ public class UpdateOrganizationResponse extends OrganizationInfo {
   UpdateOrganizationResponse() {
   }
 
-  /**
-   * Constructs a response to an update of an organization.
-   *
-   * @param id Organization Id.
-   * @param name Organization name.
-   * @param apiKey Organization API key.
-   * @param email Organization email.
-   * @param ownerId Organization owner Id.
-   */
-  public UpdateOrganizationResponse(String id, String name, ApiKey[] apiKey,
-      String email, String ownerId) {
-    super(id, name, apiKey, email, ownerId);
+  public UpdateOrganizationResponse(Builder builder) {
+    super(builder);
   }
 }

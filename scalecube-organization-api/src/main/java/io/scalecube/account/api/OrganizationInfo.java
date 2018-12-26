@@ -14,21 +14,20 @@ public class OrganizationInfo {
 
   public OrganizationInfo() {}
 
-  /**
-   * Organization Info constroctor.
-   * 
-   * @param id of the organization.
-   * @param name of the organization
-   * @param apiKeys array of the apiKeys of the organization
-   * @param email of the organization
-   * @param ownerId of the organization
-   */
-  public OrganizationInfo(String id, String name, ApiKey[] apiKeys, String email, String ownerId) {
-    this.apiKeys = apiKeys;
-    this.id = id;
-    this.email = email;
-    this.ownerId = ownerId;
-    this.name = name;
+
+  protected OrganizationInfo(Builder builder) {
+    this.apiKeys = builder.apiKeys;
+    this.id = builder.id;
+    this.email = builder.email;
+    this.ownerId = builder.ownerId;
+    this.name = builder.name;
+  }
+
+  @Override
+  public String toString() {
+    return super.toString()
+        + String.format(" [id=%s, name=%s, ownerId=%s, apiKeys=%s, email=%s]", id(), name(),
+        ownerId(), apiKeys().length, email());
   }
 
   public ApiKey[] apiKeys() {
@@ -49,5 +48,46 @@ public class OrganizationInfo {
 
   public String ownerId() {
     return this.ownerId;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static class Builder {
+    private ApiKey[] apiKeys;
+    private String id;
+    private String name;
+    private String email;
+    private String ownerId;
+
+    public Builder apiKeys(ApiKey[] apiKeys) {
+      this.apiKeys = apiKeys;
+      return this;
+    }
+
+    public Builder id(String id) {
+      this.id = id;
+      return this;
+    }
+
+    public Builder email(String email) {
+      this.email = email;
+      return this;
+    }
+
+    public Builder name(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public Builder ownerId(String ownerId) {
+      this.ownerId = ownerId;
+      return this;
+    }
+
+    public OrganizationInfo build() {
+      return new OrganizationInfo(this);
+    }
   }
 }

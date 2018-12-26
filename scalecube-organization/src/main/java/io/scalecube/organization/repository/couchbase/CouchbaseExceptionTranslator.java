@@ -43,7 +43,6 @@ final class CouchbaseExceptionTranslator {
         || ex instanceof NotConnectedException
         || ex instanceof ConfigurationException
         || ex instanceof EnvironmentException
-        || ex instanceof InvalidPasswordException
         || ex instanceof SSLException
         || ex instanceof ServiceNotAvailableException
         || ex instanceof BucketClosedException

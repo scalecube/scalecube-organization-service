@@ -44,4 +44,11 @@ public class CreateOrganizationRequest {
   public String email() {
     return email;
   }
+
+  @Override
+  public String toString() {
+    return super.toString()
+        + String.format(" [name=%s, email=%s, token=%s]",
+            name,email, token);
+  }
 }

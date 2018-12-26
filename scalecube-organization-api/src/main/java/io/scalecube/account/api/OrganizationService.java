@@ -41,4 +41,8 @@ public interface OrganizationService {
   @ServiceMethod
   Mono<GetOrganizationResponse> deleteOrganizationApiKey(DeleteOrganizationApiKeyRequest request);
 
+  @ServiceMethod
+  Mono<UpdateOrganizationMemberRoleResponse> updateOrganizationMemberRole(
+      UpdateOrganizationMemberRoleRequest request);
+
 }

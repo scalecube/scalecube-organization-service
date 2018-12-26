@@ -2,6 +2,7 @@ package io.scalecube.organization.repository;
 
 import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationMember;
+import io.scalecube.account.api.Role;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.DuplicateKeyException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
@@ -15,6 +16,16 @@ import java.util.Collection;
  * therefore not guaranteed and it is in the scope of the implementing class.
  */
 public interface OrganizationsDataAccess {
+
+  /**
+   * Returns true if an Organization corresponding to the <code>name</code> argument exists in the
+   * underlying data provider.
+   *
+   * @param name organization's name criteria
+   * @return true if an Organization corresponding to the <code>name</code> argument exists in the
+   *     underlying data provider; false otherwise
+   */
+  boolean existByName(String name);
 
   /**
    * Returns an Organization object corresponding to the <code>id</code> argument in the underlying
@@ -55,10 +66,10 @@ public interface OrganizationsDataAccess {
       throws EntityNotFoundException, AccessPermissionException;
 
   /**
-   * Returns a list of organizations of which the <code>profile</code> argument is a member of those
-   * organizations.
+   * Returns a list of organizations of which the <code>tokenVerifier</code> argument is a member
+   * of those organizations.
    *
-   * @param userId The id of the profile criteria.
+   * @param userId The id of the tokenVerifier criteria.
    * @return a list of <code>Organization</code> objects.
    */
   Collection<Organization> getUserMembership(String userId);
@@ -77,32 +88,36 @@ public interface OrganizationsDataAccess {
 
   /**
    * Returns a membership list of an organization corresponding to the <code>id</code>  argument in
-   * the  underlying data provider.
+   * the underlying data provider.
    *
-   * @param id The organization id criteria.
+   * @param organization The organization id criteria.
    * @return A collection of <code>OrganizationMember</code> objects.
    * @throws EntityNotFoundException In case organization is not found.
    */
-  Collection<OrganizationMember> getOrganizationMembers(String id) throws EntityNotFoundException;
+  Collection<OrganizationMember> getOrganizationMembers(
+      Organization organization) throws EntityNotFoundException, AccessPermissionException;
 
   /**
-   * Invites the <coded>profile</coded> argument to join the <code>organization</code> argument.
+   * Invites the <coded>tokenVerifier</coded> argument to join the <code>organization</code>
+   *   argument.
    *
    * @param owner The Organization owner
    * @param organization The Organization to join.
    * @param userId The invited user id.
+   * @param targetRole The invited user role.
    * @throws AccessPermissionException In case of insufficient privileges.
    * @throws EntityNotFoundException In case the organization does not exists in the underlying data
    *     provider.
    */
-  void invite(Profile owner, Organization organization, String userId) throws
+  void invite(Profile owner, Organization organization, String userId, Role targetRole) throws
       AccessPermissionException, EntityNotFoundException;
 
   /**
-   * Kicks out the <coded>profile</coded> argument from the <code>organization</code> argument.
+   * Kicks out the <coded>tokenVerifier</coded> argument from the <code>organization</code>
+   *   argument.
    *
    * @param owner The Organization owner
-   * @param organization The Organization from which the profile is to be kicked out.
+   * @param organization The Organization from which the tokenVerifier is to be kicked out.
    * @param userId The kicked out user id.
    * @throws EntityNotFoundException In case the organization does not exists in the underlying data
    *     provider.
@@ -111,10 +126,10 @@ public interface OrganizationsDataAccess {
       throws EntityNotFoundException;
 
   /**
-   * Enables the <code>profile</code> to leave the <code>organization</code>.
+   * Enables the <code>tokenVerifier</code> to leave the <code>organization</code>.
    *
-   * @param organization The organization of which the profile wishes to leave.
-   * @param userId The id of the profile requesting to leave the organization.
+   * @param organization The organization of which the tokenVerifier wishes to leave.
+   * @param userId The id of the tokenVerifier requesting to leave the organization.
    * @throws EntityNotFoundException In case the organization is not found in the underlying data
    *     provider.
    */
@@ -128,4 +143,14 @@ public interface OrganizationsDataAccess {
    * @return true if the user is a member of the organization; false otherwise.
    */
   boolean isMember(String userId, Organization organization);
+
+  /**
+   * Updates the organization membership of the user corrsponding to the userId argument to the
+   *     role argument.
+   *
+   * @param organization the organization criteria
+   * @param userId the user id criteria
+   * @param role the new role
+   */
+  void updateOrganizationMemberRole(Organization organization, String userId, String role);
 }
