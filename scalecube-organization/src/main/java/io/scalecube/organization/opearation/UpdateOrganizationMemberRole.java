@@ -56,58 +56,58 @@ public class UpdateOrganizationMemberRole extends ServiceOperation<
         "role is a required argument");
     requireNonNullOrEmpty(request.organizationId(),
         "organizationId is a required argument");
-    validateRoleInput(request);
 
     Organization organization = getOrganization(request.organizationId());
     Profile caller = context.profile();
+    Role callerRole = getRole(context.profile().getUserId(), organization);
 
     checkIsMember(request.userId(), context, organization);
     checkSuperUserAccess(organization, caller);
-    checkIfRequestToPromoteUserToOwnerIsValidForCaller(
-        organization,
-        request.role(),
-        caller);
+    checkIfRequestToUpdateUserRoleIsValidForCaller(
+        toRole(request.role()),
+        context.profile(),
+        callerRole);
     checkIfAdminCallerIsTryingToDowngradeAnOwner(
         caller,
+        callerRole,
         organization,
         request
     );
   }
 
-  private void validateRoleInput(UpdateOrganizationMemberRoleRequest request) {
-    try {
-      Enum.valueOf(Role.class, request.role());
-    } catch (Throwable ex) {
-      throw new IllegalArgumentException("role: " + request.role());
-    }
-  }
-
-  private void checkIfRequestToPromoteUserToOwnerIsValidForCaller(
-      Organization organization,
-      String role,
-      Profile profile)
-      throws AccessPermissionException, EntityNotFoundException {
-    boolean isRequestToPromoteUserToOwner = Objects.equals(role, Role.Owner.toString());
-    boolean isCallerOwner = isOwner(organization, profile);
-
-    if (isRequestToPromoteUserToOwner && !isCallerOwner) {
-      throwNotOrgOwnerException(profile, organization);
+  private void checkIfRequestToUpdateUserRoleIsValidForCaller(
+      Role targetRole, Profile profile, Role callerRole)
+        throws AccessPermissionException {
+    if (RoleRank.from(callerRole).isHigherRank(targetRole)) {
+      throw new AccessPermissionException(
+        String.format("user: '%s', name: '%s', role: '%s',"
+            + " cannot promote to a higher role: '%s'",
+          profile.getUserId(),
+          profile.getName(),
+          callerRole.toString(),
+          targetRole.toString()));
     }
   }
 
   private void checkIfAdminCallerIsTryingToDowngradeAnOwner(
       Profile caller,
+      Role callerRole,
       Organization organization,
       UpdateOrganizationMemberRoleRequest request)
       throws AccessPermissionException, EntityNotFoundException {
-    boolean isCallerOwner = isOwner(organization, caller);
-    boolean isUpdateUserOwner = isInRole(request.userId(), organization, Role.Owner);
-    boolean isAdminCallerIsTryingToDowngradeAnOwner = !isCallerOwner
-        && isUpdateUserOwner && !Objects.equals(request.role(), Role.Owner.toString());
+    Role updateUserCurrentRole = getRole(request.userId(), organization);
 
-    if (isAdminCallerIsTryingToDowngradeAnOwner) {
-      throwNotOrgOwnerException(caller, organization);
+    if (RoleRank.from(callerRole).isHigherRank(updateUserCurrentRole)) {
+      throw new AccessPermissionException(
+        String.format("user: '%s', name: '%s', role: %s,"
+            + " cannot downgrade user id: %s, in higher role: '%s'.",
+          caller.getUserId(),
+          caller.getName(),
+          callerRole.toString(),
+          request.userId(),
+          updateUserCurrentRole.toString()));
     }
+
   }
 
   private void checkIsMember(String userId,

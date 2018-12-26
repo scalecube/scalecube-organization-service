@@ -8,11 +8,14 @@ import io.scalecube.account.api.OrganizationNotFound;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.ServiceOperationException;
 import io.scalecube.account.api.Token;
+
 import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
+
 import io.scalecube.security.Profile;
 import io.scalecube.tokens.TokenVerifier;
+
 import java.util.Objects;
 
 
@@ -39,6 +42,7 @@ public abstract class ServiceOperation<I, O> {
    */
   public O execute(I request) throws ServiceOperationException {
     Objects.requireNonNull(repository, "repository");
+    Objects.requireNonNull(request, "request is a required argument");
     try {
       Token token = getToken(request);
       Profile profile = verifyToken(token);
@@ -50,9 +54,7 @@ public abstract class ServiceOperation<I, O> {
     }
   }
 
-  protected void validate(I request, OperationServiceContext context)
-      throws Throwable {
-    Objects.requireNonNull(request, "request is a required argument");
+  protected void validate(I request, OperationServiceContext context) throws Throwable {
   }
 
   protected abstract Token getToken(I request);
@@ -123,6 +125,26 @@ public abstract class ServiceOperation<I, O> {
         organization, Role.Admin);
   }
 
+  protected Role getRole(String userId, Organization organization)
+      throws AccessPermissionException, EntityNotFoundException {
+    return repository
+        .getOrganizationMembers(organization)
+        .stream()
+        .filter(i ->
+            Objects.equals(i.id(), userId)
+        ).map(i -> Role.valueOf(i.role()))
+        .findFirst()
+        .orElse(null);
+  }
+
+  protected Role toRole(String role) {
+    try {
+      return Role.valueOf(role);
+    } catch (Throwable ex) {
+      throw new IllegalArgumentException("role: " + role);
+    }
+  }
+
   protected boolean isInRole(String userId, Organization organization, Role role)
       throws AccessPermissionException, EntityNotFoundException {
     return repository
@@ -155,4 +177,6 @@ public abstract class ServiceOperation<I, O> {
               profile.getUserId(), profile.getName(), organization.name()));
     }
   }
+
+
 }

@@ -12,28 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.scalecube.Await;
 import io.scalecube.Await.AwaitLatch;
-import io.scalecube.account.api.AddOrganizationApiKeyRequest;
-import io.scalecube.account.api.CreateOrganizationRequest;
-import io.scalecube.account.api.CreateOrganizationResponse;
-import io.scalecube.account.api.DeleteOrganizationApiKeyRequest;
-import io.scalecube.account.api.DeleteOrganizationRequest;
-import io.scalecube.account.api.DeleteOrganizationResponse;
-import io.scalecube.account.api.GetMembershipRequest;
-import io.scalecube.account.api.GetOrganizationMembersRequest;
-import io.scalecube.account.api.GetOrganizationRequest;
-import io.scalecube.account.api.InvalidAuthenticationToken;
-import io.scalecube.account.api.InviteOrganizationMemberRequest;
-import io.scalecube.account.api.KickoutOrganizationMemberRequest;
-import io.scalecube.account.api.LeaveOrganizationRequest;
-import io.scalecube.account.api.NotAnOrganizationMemberException;
-import io.scalecube.account.api.Organization;
-import io.scalecube.account.api.OrganizationInfo;
-import io.scalecube.account.api.OrganizationMember;
-import io.scalecube.account.api.OrganizationService;
-import io.scalecube.account.api.Role;
-import io.scalecube.account.api.Token;
-import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
-import io.scalecube.account.api.UpdateOrganizationRequest;
+import io.scalecube.account.api.*;
 import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
 import io.scalecube.organization.repository.Repository;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
@@ -796,13 +775,51 @@ public class OrganizationServiceTest {
     assertNotNull(duration);
   }
 
+  @Test
+  public void inviteMember_null_role_should_fail_with_IllegalArgumentException() {
+    Duration duration = expectError(service.inviteMember(
+      new InviteOrganizationMemberRequest(token, organisationId,
+        testProfile5.getUserId(), null)),
+      IllegalArgumentException.class);
+    assertNotNull(duration);
+  }
+
+  @Test
+  public void inviteMember_empty_role_should_fail_with_IllegalArgumentException() {
+    Duration duration = expectError(service.inviteMember(
+      new InviteOrganizationMemberRequest(token, organisationId,
+        testProfile5.getUserId(), "")),
+      IllegalArgumentException.class);
+    assertNotNull(duration);
+  }
+
+  @Test
+  public void inviteMember_invalid_role_should_fail_with_IllegalArgumentException() {
+    Duration duration = expectError(service.inviteMember(
+      new InviteOrganizationMemberRequest(token, organisationId,
+        testProfile5.getUserId(), "bla")),
+      IllegalArgumentException.class);
+    assertNotNull(duration);
+  }
+
+  @Test
+  public void inviteMember_higher_role_should_fail_with_AccessPermissionException() {
+    addMemberToOrganization(organisationId, service, testProfile2, Role.Admin);
+
+    Duration duration = expectError(createService(testProfile2).inviteMember(
+      new InviteOrganizationMemberRequest(token, organisationId,
+        testProfile5.getUserId(), Role.Owner.toString())),
+      AccessPermissionException.class);
+    assertNotNull(duration);
+  }
 
 
 
   @Test
   public void inviteMember_empty_org_id_should_fail_with_IllegalArgumentException() {
     Duration duration = expectError(service.inviteMember(
-        new InviteOrganizationMemberRequest(token, "", testProfile5.getUserId())),
+        new InviteOrganizationMemberRequest(token, "",
+          testProfile5.getUserId(), Role.Member.toString())),
         IllegalArgumentException.class);
     assertNotNull(duration);
   }
@@ -810,7 +827,8 @@ public class OrganizationServiceTest {
   @Test
   public void inviteMember_null_org_id_should_fail_with_NullPointerException() {
     Duration duration = expectError(service.inviteMember(
-        new InviteOrganizationMemberRequest(token, null, testProfile5.getUserId())),
+        new InviteOrganizationMemberRequest(token, null,
+          testProfile5.getUserId(), Role.Member.toString())),
         NullPointerException.class);
     assertNotNull(duration);
   }
@@ -818,7 +836,8 @@ public class OrganizationServiceTest {
   @Test
   public void inviteMember_empty_user_id_should_fail_with_IllegalArgumentException() {
     Duration duration = expectError(service.inviteMember(
-        new InviteOrganizationMemberRequest(token, organisationId, "")),
+        new InviteOrganizationMemberRequest(token, organisationId,
+          "", Role.Member.toString())),
         IllegalArgumentException.class);
     assertNotNull(duration);
   }
@@ -826,7 +845,8 @@ public class OrganizationServiceTest {
   @Test
   public void inviteMember_null_user_id_should_fail_with_NullPointerException() {
     Duration duration = expectError(service.inviteMember(
-        new InviteOrganizationMemberRequest(token, organisationId, null)),
+        new InviteOrganizationMemberRequest(token, organisationId,
+          null, Role.Member.toString())),
         NullPointerException.class);
     assertNotNull(duration);
   }
@@ -835,7 +855,7 @@ public class OrganizationServiceTest {
   public void inviteMember_empty_token_should_fail_with_IllegalArgumentException() {
     Duration duration = expectError(service.inviteMember(
         new InviteOrganizationMemberRequest(new Token(null, ""), organisationId,
-            testProfile5.getUserId())),
+            testProfile5.getUserId(), Role.Member.toString())),
         IllegalArgumentException.class);
     assertNotNull(duration);
   }
@@ -844,7 +864,7 @@ public class OrganizationServiceTest {
   public void inviteMember_null_token_should_fail_with_NullPointerException() {
     Duration duration = expectError(service.inviteMember(
         new InviteOrganizationMemberRequest(null, organisationId,
-            testProfile5.getUserId())),
+            testProfile5.getUserId(), Role.Member.toString())),
         NullPointerException.class);
     assertNotNull(duration);
   }
@@ -853,7 +873,7 @@ public class OrganizationServiceTest {
   public void inviteMember_null_inner_token_should_fail_with_NullPointerException() {
     Duration duration = expectError(service.inviteMember(
         new InviteOrganizationMemberRequest(new Token(null, null), organisationId,
-            testProfile5.getUserId())),
+            testProfile5.getUserId(), Role.Member.toString())),
         NullPointerException.class);
     assertNotNull(duration);
   }
@@ -862,7 +882,7 @@ public class OrganizationServiceTest {
   public void inviteMember_org_not_exists_should_fail_with_EntityNotFoundException() {
     expectError(service.inviteMember(
         new InviteOrganizationMemberRequest(token, "orgNotExists",
-            testProfile5.getUserId())),
+            testProfile5.getUserId(), Role.Member.toString())),
         EntityNotFoundException.class);
     assertThat(true, is(true));
   }
@@ -870,7 +890,8 @@ public class OrganizationServiceTest {
   @Test
   public void inviteMember_should_fail_with_InvalidAuthenticationToken() {
     Duration duration = expectError(createService(invalidProfile).inviteMember(
-        new InviteOrganizationMemberRequest(token, organisationId, testProfile5.getUserId())),
+        new InviteOrganizationMemberRequest(token, organisationId,
+          testProfile5.getUserId(), Role.Member.toString())),
         InvalidAuthenticationToken.class);
     assertNotNull(duration);
   }
@@ -1181,6 +1202,7 @@ public class OrganizationServiceTest {
   @Test
   public void
   updateOrganizationMemberRole_invalid_role_enum_value_should_fail_with_IllegalArgumentException() {
+    addMemberToOrganization(organisationId, service, testProfile5);
     Duration duration = expectError(service.updateOrganizationMemberRole(
         new UpdateOrganizationMemberRoleRequest(
             token, organisationId, testProfile5.getUserId(),
@@ -1405,6 +1427,42 @@ public class OrganizationServiceTest {
   }
 
   @Test
+  public void addOrganizationApiKey_user_not_admin_should_fail_with_AccessPermissionException() {
+    addMemberToOrganization(organisationId, service, testProfile2);
+
+    Duration duration = expectError(createService(testProfile2).addOrganizationApiKey(
+            new AddOrganizationApiKeyRequest(token, organisationId, "api_key", null)),
+            AccessPermissionException.class);
+    assertNotNull(duration);
+  }
+
+  @Test
+  public void addOrganizationApiKey_by_admin() {
+    Profile adminUser = testProfile2;
+    addMemberToOrganization(organisationId, service, adminUser);
+
+    // upgrade user to admin role
+    consume(service.updateOrganizationMemberRole(
+            new UpdateOrganizationMemberRoleRequest(
+                    token, organisationId, adminUser.getUserId(), Role.Admin.toString())));
+
+    // add api key by admin
+    Duration duration = StepVerifier
+            .create(createService(adminUser).addOrganizationApiKey(
+                    new AddOrganizationApiKeyRequest(
+                            token,
+                            organisationId,
+                            "apiKey",
+                            null)))
+            .expectSubscription()
+            .assertNext(x -> {
+              Organization org = getOrganizationFromRepository(organisationId);
+              assertThat(org.apiKeys()[0].name(), is("apiKey"));
+            }).verifyComplete();
+    assertNotNull(duration);
+  }
+
+  @Test
   public void deleteOrganizationApiKey_user_not_owner_should_fail_with_AccessPermissionException() {
     Duration duration = expectError(createService(testProfile2).deleteOrganizationApiKey(
         new DeleteOrganizationApiKeyRequest(token, organisationId, "api_key")),
@@ -1508,8 +1566,14 @@ public class OrganizationServiceTest {
 
   private void addMemberToOrganization(String organisationId,
       OrganizationService service, Profile profile) {
+    addMemberToOrganization(organisationId, service, profile, Role.Member);
+  }
+
+  private void addMemberToOrganization(String organisationId,
+                                       OrganizationService service, Profile profile, Role role) {
     consume(service.inviteMember(
-        new InviteOrganizationMemberRequest(token, organisationId, profile.getUserId())));
+      new InviteOrganizationMemberRequest(token, organisationId, profile.getUserId(),
+        role.toString())));
   }
 
   private OrganizationService createService(Profile profile) {

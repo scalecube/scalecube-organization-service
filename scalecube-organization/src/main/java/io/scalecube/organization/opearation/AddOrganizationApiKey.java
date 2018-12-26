@@ -22,7 +22,7 @@ public class AddOrganizationApiKey extends ServiceOperation<AddOrganizationApiKe
   protected GetOrganizationResponse process(AddOrganizationApiKeyRequest request,
       OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
-    checkMemberAccess(organization, context.profile());
+    checkSuperUserAccess(organization, context.profile());
 
     ApiKey apiKey = ApiKeyBuilder.build(organization, request);
     int newLength = organization.apiKeys().length + 1;

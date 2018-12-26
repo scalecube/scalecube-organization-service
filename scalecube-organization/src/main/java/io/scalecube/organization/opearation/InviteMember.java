@@ -3,8 +3,11 @@ package io.scalecube.organization.opearation;
 import io.scalecube.account.api.InviteOrganizationMemberRequest;
 import io.scalecube.account.api.InviteOrganizationMemberResponse;
 import io.scalecube.account.api.Organization;
+import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
+
 import io.scalecube.organization.repository.OrganizationsDataAccess;
+import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.tokens.TokenVerifier;
 
 public class InviteMember extends ServiceOperation<InviteOrganizationMemberRequest,
@@ -20,7 +23,23 @@ public class InviteMember extends ServiceOperation<InviteOrganizationMemberReque
       OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
     checkSuperUserAccess(organization, context.profile());
-    context.repository().invite(context.profile(), organization, request.userId());
+    Role invitedMemberRole = toRole(request.role());
+
+    Role callerRole = getRole(context.profile().getUserId(), organization);
+
+    if (RoleRank.from(callerRole).isHigherRank(invitedMemberRole)) {
+      throw new AccessPermissionException(
+          String.format("user: '%s', name: '%s', role: %s cannot invite to a higher role: '%s'",
+              context.profile().getUserId(),
+              context.profile().getName(),
+              callerRole,
+              invitedMemberRole.toString()));
+    }
+
+    context.repository().invite(context.profile(),
+        organization,
+        request.userId(),
+        invitedMemberRole);
     return new InviteOrganizationMemberResponse();
   }
 

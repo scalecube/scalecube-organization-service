@@ -2,6 +2,7 @@ package io.scalecube.organization.repository;
 
 import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationMember;
+import io.scalecube.account.api.Role;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.DuplicateKeyException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
@@ -103,11 +104,12 @@ public interface OrganizationsDataAccess {
    * @param owner The Organization owner
    * @param organization The Organization to join.
    * @param userId The invited user id.
+   * @param targetRole The invited user role.
    * @throws AccessPermissionException In case of insufficient privileges.
    * @throws EntityNotFoundException In case the organization does not exists in the underlying data
    *     provider.
    */
-  void invite(Profile owner, Organization organization, String userId) throws
+  void invite(Profile owner, Organization organization, String userId, Role targetRole) throws
       AccessPermissionException, EntityNotFoundException;
 
   /**
