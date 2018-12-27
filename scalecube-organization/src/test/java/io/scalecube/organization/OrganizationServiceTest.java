@@ -39,9 +39,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -49,19 +47,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import reactor.test.StepVerifier;
 
 public class OrganizationServiceTest extends Base {
-
-
-  @BeforeEach
-  public void createOrganizationBeforeTest() {
-    organisation = createOrganization(randomString());
-    organisationId = organisation.id();
-  }
-  
-  @Override
-  @AfterEach
-  public void deleteOrganizationAfterTest() {
-    super.deleteOrganizationAfterTest();
-  }
 
 
   @Test
@@ -142,20 +127,21 @@ public class OrganizationServiceTest extends Base {
   Then user "A" should get an error message: "name can only contain characters in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent"
  */
 
-@ParameterizedTest
-@MethodSource("validOrgNames")
-public void createOrganization_with_valid_name_should_not_fail_with_IllegalArgumentException(String invalidString) {
-  StepVerifier.create(
-      service.createOrganization(
-          new CreateOrganizationRequest(invalidString,
-              token, "email")))
-  .assertNext(Objects::nonNull)
-  .verifyComplete();
-}
+  @ParameterizedTest
+  @MethodSource("validOrgNames")
+  public void createOrganization_with_valid_name_should_not_fail_with_IllegalArgumentException(String invalidString) {
+    StepVerifier.create(
+        service.createOrganization(
+            new CreateOrganizationRequest(invalidString,
+                token, "email")))
+    .assertNext(Objects::nonNull)
+    .verifyComplete();
+  }
+
   public static Stream<Arguments> validOrgNames() {
     return IntStream.of('_', '%', '.', '-', '%')
-        .mapToObj(i -> new StringBuilder("org").append((char)i).toString()
-    ).map(Arguments::of);
+        .mapToObj(i -> new StringBuilder("org").append((char) i).toString())
+        .map(Arguments::of);
   }
   
   @Test
@@ -229,99 +215,6 @@ public void createOrganization_with_valid_name_should_not_fail_with_IllegalArgum
     assertNotNull(duration);
   }
   
-
-  @Test
-  public void getOrganization() {
-    Duration duration = StepVerifier.create(service.getOrganization(
-        new GetOrganizationRequest(token, organisationId)))
-        .expectSubscription()
-        .assertNext((r) -> assertThat(r.id(), is(organisationId)))
-        .expectComplete()
-        .verify();
-    assertNotNull(duration);
-  }
-
-  @Test
-  public void getOrganization_not_a_member_should_fail_with_AccessPermissionException() {
-    Duration duration = expectError(
-        createService(testProfile5)
-            .getOrganization(new GetOrganizationRequest(new Token("foo", "bar"),
-                organisationId)), AccessPermissionException.class);
-    assertNotNull(duration);
-  }
-
-
-
-  @Test
-  public void getOrganization_should_fail_with_EntityNotFoundException() {
-    Duration duration = expectError(
-        service.getOrganization(new GetOrganizationRequest(token, "bla")),
-        EntityNotFoundException.class);
-    assertNotNull(duration);
-  }
-
-  @Test
-  public void getOrganization_should_fail_with_InvalidAuthenticationToken() {
-    Duration duration = expectError(
-        createService(invalidProfile).getOrganization(
-            new GetOrganizationRequest(token, organisationId)),
-        InvalidAuthenticationToken.class);
-    assertNotNull(duration);
-  }
-
-  @Test
-  public void getOrganization_with_empty_id_should_fail_with_IllegalArgumentException() {
-    Duration duration = expectError(
-        createService(testProfile).getOrganization(
-            new GetOrganizationRequest(token, "")),
-        IllegalArgumentException.class);
-    assertNotNull(duration);
-  }
-
-  @Test
-  public void getOrganization_with_null_id_should_fail_with_NullPointerException() {
-    Duration duration = expectError(
-        createService(testProfile).getOrganization(
-            new GetOrganizationRequest(token, null)),
-        NullPointerException.class);
-    assertNotNull(duration);
-  }
-
-  @Test
-  public void getOrganization_with_null_token_should_fail_with_NullPointerException() {
-    Duration duration = expectError(
-        createService(testProfile).getOrganization(
-            new GetOrganizationRequest(null, organisationId)),
-        NullPointerException.class);
-    assertNotNull(duration);
-  }
-
-  @Test
-  public void getOrganization_with_invalid_token_should_fail_with_InvalidAuthenticationToken() {
-    Duration duration = expectError(
-        createService(invalidProfile).getOrganization(
-            new GetOrganizationRequest(token , organisationId)),
-        InvalidAuthenticationToken.class);
-    assertNotNull(duration);
-  }
-
-  @Test
-  public void getOrganization_with_id_not_exists_should_fail_with_EntityNotFoundException() {
-    Duration duration = expectError(
-        createService(testProfile).getOrganization(
-            new GetOrganizationRequest(token , "orgIdNotExists")),
-        EntityNotFoundException.class);
-    assertNotNull(duration);
-  }
-
-  @Test
-  public void getOrganization_with_empty_token_should_fail_with_IllegalArgumentException() {
-    Duration duration = expectError(
-        createService(testProfile).getOrganization(
-            new GetOrganizationRequest(new Token(null, "") , "")),
-        IllegalArgumentException.class);
-    assertNotNull(duration);
-  }
 
   @Test
   public void delete_organization_invalid_token_should_fail_with_InvalidAuthenticationToken() {

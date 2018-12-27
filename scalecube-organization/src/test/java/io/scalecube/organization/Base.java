@@ -28,6 +28,8 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -185,12 +187,18 @@ public class Base {
     return organizationRepository.findById(await.result().id()).get();
   }
 
-  //  @AfterEach
+  @AfterEach
   public void deleteOrganizationAfterTest() {
     AwaitLatch<DeleteOrganizationResponse> await =
         consume(service.deleteOrganization(new DeleteOrganizationRequest(token, organisationId)));
     assertThat(await.error(), is(nullValue()));
     assertTrue(await.result().deleted(), "failed to delete organization");
+  }
+
+  @BeforeEach
+  public void createOrganizationBeforeTest() {
+    organisation = createOrganization(randomString());
+    organisationId = organisation.id();
   }
 
   /**
