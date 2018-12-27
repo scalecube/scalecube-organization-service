@@ -37,11 +37,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import reactor.test.StepVerifier;
 
 public class OrganizationServiceTest extends Base {
@@ -100,7 +104,60 @@ public class OrganizationServiceTest extends Base {
                 token, "email")), IllegalArgumentException.class);
     assertNotNull(duration);
   }
+  
+  /**
+    #MPA-7229 (#1.3) - SHOULD WE REMOVE SUCH VALIDATION AND ENABLE TO ADD ANY CHARS?
+    Scenario: Fail to create the Organization with the name which contain else symbols apart of allowed chars
+    Given the user "A" have got a valid "token" issued by relevant authority
+    When the user "A" requested to create the organization with specified "name" which contains "+" and some "email"
+    Then user "A" should get an error message: "name can only contain characters in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent"
+   */
+  
+  @ParameterizedTest
+  @MethodSource("invalidOrgNames")
+  public void createOrganization_with_illigal_name_should_fail_with_IllegalArgumentException(String invalidString) {
+    StepVerifier.create(
+        service.createOrganization(
+            new CreateOrganizationRequest(invalidString,
+                token, "email")))
+    .expectErrorMessage("Organization name can only contain characters in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent.")
+    .verify();
+  }
+  
+  public static Stream<Arguments> invalidOrgNames() {
+    return IntStream.concat(
+        IntStream.concat(IntStream.range('!', '%'),
+            IntStream.range('&', ')')
+            ), IntStream.range('[', '_'))
+        .mapToObj(i -> new StringBuilder("org").append((char)i).toString()
+    ).map(Arguments::of);
+  }
+  
+  
+  /**
+  #MPA-7229 (#1.3) - SHOULD WE REMOVE SUCH VALIDATION AND ENABLE TO ADD ANY CHARS?
+  Scenario: Fail to create the Organization with the name which contain else symbols apart of allowed chars
+  Given the user "A" have got a valid "token" issued by relevant authority
+  When the user "A" requested to create the organization with specified "name" which contains "+" and some "email"
+  Then user "A" should get an error message: "name can only contain characters in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent"
+ */
 
+@ParameterizedTest
+@MethodSource("validOrgNames")
+public void createOrganization_with_valid_name_should_not_fail_with_IllegalArgumentException(String invalidString) {
+  StepVerifier.create(
+      service.createOrganization(
+          new CreateOrganizationRequest(invalidString,
+              token, "email")))
+  .assertNext(Objects::nonNull)
+  .verifyComplete();
+}
+  public static Stream<Arguments> validOrgNames() {
+    return IntStream.of('_', '%', '.', '-', '%')
+        .mapToObj(i -> new StringBuilder("org").append((char)i).toString()
+    ).map(Arguments::of);
+  }
+  
   @Test
   public void createOrganization_with_null_name_should_fail_with_NullPointerException() {
     Duration duration = expectError(
@@ -172,28 +229,6 @@ public class OrganizationServiceTest extends Base {
     assertNotNull(duration);
   }
   
-
-  /**
-   *   <p>#MPA-7229 (#1.1)</p>
-   *   <p>Scenario: Fail to create the Organization if the token is invalid (expired)</p>
-   *   <p>Given a user have got the invalid either expired "token"</p>
-   *   <p>When this user requested to create the organization with some "name" and "email"</p>
-   *   <p>Then this user should get an error message: "Token verification failed"</p>
-    */
-  //FIXME should be Token verification failed
-  @Test
-  public void createOrganizationExpiredTokenShouldFailWithInvalidAuthenticationToken() {
-    Duration duration = expectError(
-        service.createOrganization(
-            new CreateOrganizationRequest("myTestOrg5", 
-                new Token("i", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZXhwIjoxLCJpYXQiOjF9.Qdqda-NXqmHGGrs2kSCxX5fM7mSgTjOgCenQkT28VcA"), "email"))
-        , IllegalArgumentException.class);
-    assertNotNull(duration);
-  }  
-
-
-
-
 
   @Test
   public void getOrganization() {
@@ -359,8 +394,14 @@ public class OrganizationServiceTest extends Base {
     deleteOrganization(id);
     assertNotNull(duration);
   }
-
-
+  
+ /** #MPA-7229 (#1.2)
+*  Scenario: Fail to create the Organization with the name which already exists (duplicate)
+*    Given the user "A" have got a valid "token" issued by relevant authority
+*    And the organization "organizationId" with specified "name" and "email" already created and owned by user "B"
+*    When the user "A" requested to create the organization with the existent user's "B" organization "name" and some or the same "email"
+*    Then user "A" should get an error message: "Organization name: 'org "B" name' already in use"
+*/
   @Test
   public void
     update_organization_with_existing_org_name_should_fail_with_NameAlreadyInUseException() {
