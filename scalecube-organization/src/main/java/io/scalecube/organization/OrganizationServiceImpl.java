@@ -114,7 +114,6 @@ public class OrganizationServiceImpl implements OrganizationService {
         result.success(response);
       } catch (ServiceOperationException ex) {
         logger.error("getUserOrganizationsMembership: ERROR: {}", ex);
-        ex.printStackTrace();
         result.error(ex.getCause());
       }
     });
