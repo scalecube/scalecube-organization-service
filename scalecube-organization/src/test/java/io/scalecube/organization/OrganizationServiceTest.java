@@ -53,7 +53,7 @@ public class OrganizationServiceTest extends Base {
   public void createOrganization_with_name_already_in_use_should_Fail() {
     Duration duration = expectError(
         service.createOrganization(
-            new CreateOrganizationRequest(organisation.name(), token, "email"))
+            new CreateOrganizationRequest(organisation.name(), token))
         , NameAlreadyInUseException.class);
     assertNotNull(duration);
   }
@@ -86,7 +86,7 @@ public class OrganizationServiceTest extends Base {
     Duration duration = expectError(
         service.createOrganization(
             new CreateOrganizationRequest("",
-                token, "email")), IllegalArgumentException.class);
+                token)), IllegalArgumentException.class);
     assertNotNull(duration);
   }
   
@@ -104,7 +104,7 @@ public class OrganizationServiceTest extends Base {
     StepVerifier.create(
         service.createOrganization(
             new CreateOrganizationRequest(invalidString,
-                token, "email")))
+                token)))
     .expectErrorMessage("Organization name can only contain characters in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent.")
     .verify();
   }
@@ -133,7 +133,7 @@ public class OrganizationServiceTest extends Base {
     StepVerifier.create(
         service.createOrganization(
             new CreateOrganizationRequest(invalidString,
-                token, "email")))
+                token)))
     .assertNext(Objects::nonNull)
     .verifyComplete();
   }
@@ -149,27 +149,11 @@ public class OrganizationServiceTest extends Base {
     Duration duration = expectError(
         service.createOrganization(
             new CreateOrganizationRequest(null,
-                token, "email")), NullPointerException.class);
+                token)), NullPointerException.class);
     assertNotNull(duration);
   }
 
-  @Test
-  public void createOrganization_with_empty_email_should_fail_with_IllegalArgumentException() {
-    Duration duration = expectError(
-        service.createOrganization(
-            new CreateOrganizationRequest("foo",
-                token, "")), IllegalArgumentException.class);
-    assertNotNull(duration);
-  }
 
-  @Test
-  public void createOrganization_with_null_email_should_fail_with_NullPointerException() {
-    Duration duration = expectError(
-        service.createOrganization(
-            new CreateOrganizationRequest("foo",
-                token, null)), NullPointerException.class);
-    assertNotNull(duration);
-  }
 
 /**
  *   <p>#MPA-7229 (#1.1)</p>
@@ -182,7 +166,7 @@ public class OrganizationServiceTest extends Base {
   public void createOrganization_should_fail_with_InvalidAuthenticationToken() {
     Duration duration = expectError(
         createService(invalidProfile).createOrganization(
-                new CreateOrganizationRequest("myTestOrg5", token, "email"))
+                new CreateOrganizationRequest("myTestOrg5", token))
         , InvalidAuthenticationToken.class);
     assertNotNull(duration);
   }
@@ -191,7 +175,7 @@ public class OrganizationServiceTest extends Base {
   public void createOrganization_null_token_should_fail_with_NullPointerException() {
     Duration duration = expectError(
         service.createOrganization(
-                new CreateOrganizationRequest("myTestOrg5", null, "email"))
+                new CreateOrganizationRequest("myTestOrg5", null))
         , NullPointerException.class);
     assertNotNull(duration);
   }
@@ -201,7 +185,7 @@ public class OrganizationServiceTest extends Base {
   public void createOrganization_null_inner_token_should_fail_with_NullPointerException() {
     Duration duration = expectError(
         service.createOrganization(
-                new CreateOrganizationRequest("myTestOrg5", new Token(null, null), "email"))
+                new CreateOrganizationRequest("myTestOrg5", new Token(null)))
         , NullPointerException.class);
     assertNotNull(duration);
   }
@@ -210,7 +194,7 @@ public class OrganizationServiceTest extends Base {
   public void createOrganization_empty_token_should_fail_with_IllegalArgumentException() {
     Duration duration = expectError(
         service.createOrganization(
-            new CreateOrganizationRequest("myTestOrg5", new Token(null, ""), "email"))
+            new CreateOrganizationRequest("myTestOrg5", new Token("")))
         , IllegalArgumentException.class);
     assertNotNull(duration);
   }
@@ -270,7 +254,7 @@ public class OrganizationServiceTest extends Base {
     Duration duration = expectError(
         createService(testProfile)
             .deleteOrganization(
-                new DeleteOrganizationRequest(new Token(null, ""), organisationId)),
+                new DeleteOrganizationRequest(new Token(""), organisationId)),
         IllegalArgumentException.class);
     assertNotNull(duration);
   }
@@ -492,7 +476,7 @@ public class OrganizationServiceTest extends Base {
   public void getOrganizationMembers_empty_token_should_fail_with_IllegalArgumentException() {
     Duration duration = expectError(
         service.getOrganizationMembers(new GetOrganizationMembersRequest(organisationId,
-            new Token(null, "")))
+            new Token("")))
         , IllegalArgumentException.class);
     assertNotNull(duration);
   }
@@ -510,7 +494,7 @@ public class OrganizationServiceTest extends Base {
   public void getOrganizationMembers_null_inner_token_should_fail_with_NullPointerException() {
     Duration duration = expectError(
         service.getOrganizationMembers(new GetOrganizationMembersRequest(organisationId,
-            new Token(null, null)))
+            new Token(null)))
         , NullPointerException.class);
     assertNotNull(duration);
   }
@@ -630,7 +614,7 @@ public class OrganizationServiceTest extends Base {
   @Test
   public void inviteMember_empty_token_should_fail_with_IllegalArgumentException() {
     Duration duration = expectError(service.inviteMember(
-        new InviteOrganizationMemberRequest(new Token(null, ""), organisationId,
+        new InviteOrganizationMemberRequest(new Token(""), organisationId,
             testProfile5.getUserId(), Role.Member.toString())),
         IllegalArgumentException.class);
     assertNotNull(duration);
@@ -648,7 +632,7 @@ public class OrganizationServiceTest extends Base {
   @Test
   public void inviteMember_null_inner_token_should_fail_with_NullPointerException() {
     Duration duration = expectError(service.inviteMember(
-        new InviteOrganizationMemberRequest(new Token(null, null), organisationId,
+        new InviteOrganizationMemberRequest(new Token(null), organisationId,
             testProfile5.getUserId(), Role.Member.toString())),
         NullPointerException.class);
     assertNotNull(duration);
@@ -719,7 +703,7 @@ public class OrganizationServiceTest extends Base {
   @Test
   public void kickoutMember_empty_token_should_fail_with_IllegalArgumentException() {
     Duration duration = expectError(service.kickoutMember(
-        new KickoutOrganizationMemberRequest(organisationId, new Token(null, ""),
+        new KickoutOrganizationMemberRequest(organisationId, new Token(""),
             testProfile5.getUserId())),
         IllegalArgumentException.class);
     assertNotNull(duration);
@@ -736,7 +720,7 @@ public class OrganizationServiceTest extends Base {
   @Test
   public void kickoutMember_null_inner_token_should_fail_with_NullPointerException() {
     Duration duration = expectError(service.kickoutMember(
-        new KickoutOrganizationMemberRequest(organisationId, new Token(null, null),
+        new KickoutOrganizationMemberRequest(organisationId, new Token(null),
             testProfile5.getUserId())),
         NullPointerException.class);
     assertNotNull(duration);
@@ -936,7 +920,7 @@ public class OrganizationServiceTest extends Base {
   updateOrganizationMemberRole_with_null_inner_token_should_fail_with_NullPointerException() {
     Duration duration = expectError(service.updateOrganizationMemberRole(
         new UpdateOrganizationMemberRoleRequest(
-            new Token(null, null), organisationId, testProfile5.getUserId(),
+            new Token(null), organisationId, testProfile5.getUserId(),
             Role.Admin.toString())),
         NullPointerException.class);
     assertNotNull(duration);
@@ -947,7 +931,7 @@ public class OrganizationServiceTest extends Base {
   updateOrganizationMemberRole_with_empty_inner_token_should_fail_with_IllegalArgumentException() {
     Duration duration = expectError(service.updateOrganizationMemberRole(
         new UpdateOrganizationMemberRoleRequest(
-            new Token(null, ""), organisationId, testProfile5.getUserId(),
+            new Token(""), organisationId, testProfile5.getUserId(),
             Role.Admin.toString())),
         IllegalArgumentException.class);
     assertNotNull(duration);
@@ -1016,7 +1000,7 @@ public class OrganizationServiceTest extends Base {
   @Test
   public void leaveOrganization_with_empty_token_id_should_fail_with_IllegalArgumentException() {
     Duration duration = expectError(service.leaveOrganization(
-        new LeaveOrganizationRequest(new Token(null, ""), organisationId)),
+        new LeaveOrganizationRequest(new Token(""), organisationId)),
         IllegalArgumentException.class);
     assertNotNull(duration);
   }
@@ -1024,7 +1008,7 @@ public class OrganizationServiceTest extends Base {
   @Test
   public void leaveOrganization_with_null_inner_token_id_should_fail_with_NullPointerException() {
     Duration duration = expectError(service.leaveOrganization(
-        new LeaveOrganizationRequest(new Token(null, null), organisationId)),
+        new LeaveOrganizationRequest(new Token(null), organisationId)),
         NullPointerException.class);
     assertNotNull(duration);
   }
@@ -1113,7 +1097,7 @@ public class OrganizationServiceTest extends Base {
   @Test
   public void addOrganizationApiKey_empty_token_should_fail_with_IllegalArgumentException() {
     Duration duration = expectError(service.addOrganizationApiKey(
-        new AddOrganizationApiKeyRequest(new Token(null, ""), organisationId,
+        new AddOrganizationApiKeyRequest(new Token(""), organisationId,
             "api_key",
             new HashMap<>())),
         IllegalArgumentException.class);
@@ -1133,7 +1117,7 @@ public class OrganizationServiceTest extends Base {
   @Test
   public void addOrganizationApiKey_null_inner_token_should_fail_with_NullPointerException() {
     Duration duration = expectError(service.addOrganizationApiKey(
-        new AddOrganizationApiKeyRequest(new Token(null, null), organisationId,
+        new AddOrganizationApiKeyRequest(new Token(null), organisationId,
             "api_key",
             new HashMap<>())),
         NullPointerException.class);
@@ -1306,7 +1290,7 @@ public class OrganizationServiceTest extends Base {
   @Test
   public void deleteOrganizationApiKey_null_inner_token_should_fail_with_NullPointerException() {
     Duration duration = expectError(service.deleteOrganizationApiKey(
-        new DeleteOrganizationApiKeyRequest(new Token(null, null), organisationId,
+        new DeleteOrganizationApiKeyRequest(new Token(null), organisationId,
             "api_key")),
         NullPointerException.class);
     assertNotNull(duration);
@@ -1315,7 +1299,7 @@ public class OrganizationServiceTest extends Base {
   @Test
   public void deleteOrganizationApiKey_empty_token_should_fail_with_IllegalArgumentException() {
     Duration duration = expectError(service.deleteOrganizationApiKey(
-        new DeleteOrganizationApiKeyRequest(new Token(null, ""), organisationId,
+        new DeleteOrganizationApiKeyRequest(new Token(""), organisationId,
             "api_key")),
         IllegalArgumentException.class);
     assertNotNull(duration);

@@ -33,7 +33,7 @@ public final class CreateOrganization extends OrganizationInfoOperation<CreateOr
     String id = IdGenerator.generateId();
     validate(new OrganizationInfo.Builder()
         .id(id)
-        .email(request.email())
+        .email(context.profile().getEmail())
         .name(request.name())
         .ownerId(context.profile().getUserId())
         .build(), context);
@@ -57,7 +57,7 @@ public final class CreateOrganization extends OrganizationInfoOperation<CreateOr
               .id(id)
               .name(request.name())
               .ownerId(context.profile().getUserId())
-              .email(request.email())
+              .email(context.profile().getEmail())
               .secretKeyId(UUID.randomUUID().toString())
               .secretKey(IdGenerator.generateId())
               .build());

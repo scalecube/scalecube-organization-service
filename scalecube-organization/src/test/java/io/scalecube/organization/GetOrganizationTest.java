@@ -16,12 +16,15 @@ import reactor.test.StepVerifier;
 
 class GetOrganizationTest extends Base {
 
-  @BeforeEach
-  public void createOrganizationBeforeTest() {
-    organisation = createOrganization(randomString());
-    organisationId = organisation.id();
-  }
-
+  
+  /**
+  #MPA-7229 (#2)
+  Scenario: Successful info get about specific Organization
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    When the user "A" requested to get the own organization info
+    Then user "A" should receive the successful response with relevant organization data
+   */
   @Test
   public void getOrganization() {
     Duration duration =
@@ -40,7 +43,7 @@ class GetOrganizationTest extends Base {
         expectError(
             createService(testProfile5)
                 .getOrganization(
-                    new GetOrganizationRequest(new Token("foo", "bar"), organisationId)),
+                    new GetOrganizationRequest(new Token("foo"), organisationId)),
             AccessPermissionException.class);
     assertNotNull(duration);
   }
@@ -117,7 +120,7 @@ class GetOrganizationTest extends Base {
     Duration duration =
         expectError(
             createService(testProfile)
-                .getOrganization(new GetOrganizationRequest(new Token(null, ""), "")),
+                .getOrganization(new GetOrganizationRequest(new Token(""), "")),
             IllegalArgumentException.class);
     assertNotNull(duration);
   }

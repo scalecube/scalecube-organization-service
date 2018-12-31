@@ -79,7 +79,7 @@ public class UserMembershipTest extends Base {
   public void getUserMembership_null_inner_token_should_fail_with_NullPointerException() {
     Duration duration =
         expectError(
-            service.getUserOrganizationsMembership(new GetMembershipRequest(new Token(null, null))),
+            service.getUserOrganizationsMembership(new GetMembershipRequest(new Token(null))),
             NullPointerException.class);
     assertNotNull(duration);
   }
@@ -88,7 +88,7 @@ public class UserMembershipTest extends Base {
   public void getUserMembership_empty_inner_token_should_fail_with_NIllegalArgumentException() {
     Duration duration =
         expectError(
-            service.getUserOrganizationsMembership(new GetMembershipRequest(new Token(null, ""))),
+            service.getUserOrganizationsMembership(new GetMembershipRequest(new Token(""))),
             IllegalArgumentException.class);
     assertNotNull(duration);
   }
