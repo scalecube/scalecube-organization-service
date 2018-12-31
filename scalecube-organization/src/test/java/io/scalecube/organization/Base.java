@@ -93,7 +93,7 @@ public class Base {
   protected OrganizationService service;
   protected String organisationId;
   protected Organization organisation;
-  protected Token token = new Token("google", "user1");
+  protected Token token = new Token("user1");
   protected Repository<Organization, String> organizationRepository;
   protected UserOrganizationMembershipRepository orgMembersRepository;
   private OrganizationMembersRepositoryAdmin admin;
@@ -112,7 +112,7 @@ public class Base {
           @Override
           public void deleteRepository(Organization organization) {
             // dummy body
-            System.out.print(".");
+            System.out.print("'");
           }
         };
     service = createService(testProfile);
@@ -139,7 +139,7 @@ public class Base {
         consume(
             service.createOrganization(
                 new CreateOrganizationRequest(
-                    "myTestOrg5" + rand.nextInt(50) + 1, token, "email")));
+                    "myTestOrg5" + rand.nextInt(50) + 1, token)));
     assertThat(await.error(), is(nullValue()));
     assertThat(await.result(), is(notNullValue()));
     assertThat(await.result().id(), is(notNullValue()));
@@ -182,7 +182,7 @@ public class Base {
 
   protected Organization createOrganization(String name) {
     AwaitLatch<CreateOrganizationResponse> await =
-        consume(service.createOrganization(new CreateOrganizationRequest(name, token, "email")));
+        consume(service.createOrganization(new CreateOrganizationRequest(name, token)));
     assertThat(await.error(), is(nullValue()));
     return organizationRepository.findById(await.result().id()).get();
   }
