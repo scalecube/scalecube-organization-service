@@ -7,7 +7,6 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import io.scalecube.account.api.DeleteOrganizationRequest;
 import io.scalecube.account.api.GetOrganizationMembersRequest;
 import io.scalecube.account.api.InvalidAuthenticationToken;
 import io.scalecube.account.api.InviteOrganizationMemberRequest;
@@ -23,88 +22,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.provider.Arguments;
 import reactor.test.StepVerifier;
 
 public class OrganizationServiceTest extends Base {
 
  
   @Test
-  public void deleteOrganizationInvalidTokenShouldFailWithInvalidAuthenticationToken() {
-    Duration duration = expectError(
-        createService(invalidProfile)
-        .deleteOrganization(
-        new DeleteOrganizationRequest(token, organisationId)), InvalidAuthenticationToken.class);
-    assertNotNull(duration);
-  }
-
-  @Test
-  public void deleteOrganizationWithIdNotExistsShouldFailWithEntityNotFoundException() {
-    Duration duration = expectError(
-        createService(testProfile)
-            .deleteOrganization(
-                new DeleteOrganizationRequest(token, "orgIdNotExists")),
-        EntityNotFoundException.class);
-    assertNotNull(duration);
-  }
-
-  @Test
-  public void deleteOrganizationWithEmptyIdShouldFailWithIllegalArgumentException() {
-    Duration duration = expectError(
-        createService(testProfile)
-            .deleteOrganization(
-                new DeleteOrganizationRequest(token, "")),
-        IllegalArgumentException.class);
-    assertNotNull(duration);
-  }
-
-  @Test
-  public void deleteOrganizationWithNullIdShouldFailWithNullPointerException() {
-    Duration duration = expectError(
-        createService(testProfile)
-            .deleteOrganization(
-                new DeleteOrganizationRequest(token, null)),
-          NullPointerException.class);
-    assertNotNull(duration);
-  }
-
-  @Test
-  public void deleteOrganizationWithNullTokenShouldFailWithNullPointerException() {
-    Duration duration = expectError(
-        createService(testProfile)
-            .deleteOrganization(
-                new DeleteOrganizationRequest(null, organisationId)),
-        NullPointerException.class);
-    assertNotNull(duration);
-  }
-
-  @Test
-  public void deleteOrganizationWithEmptyTokenShouldFailWithIllegalArgumentException() {
-    Duration duration = expectError(
-        createService(testProfile)
-            .deleteOrganization(
-                new DeleteOrganizationRequest(new Token(""), organisationId)),
-        IllegalArgumentException.class);
-    assertNotNull(duration);
-  }
-
-  @Test
-  public void deleteOrganization() {
-    String id = createRandomOrganization();
-    Duration duration = StepVerifier
-        .create(service.deleteOrganization(new DeleteOrganizationRequest(token, id)))
-        .expectSubscription()
-        .assertNext((r) -> assertThat(r.deleted(), is(true)))
-        .expectComplete()
-        .verify();
-    deleteOrganization(id);
-    assertNotNull(duration);
-  }
-  
- @Test
   public void getOrganizationMembers() {
     addMemberToOrganization(organisationId, service, testProfile4);
     addMemberToOrganization(organisationId, service, testProfile5);
