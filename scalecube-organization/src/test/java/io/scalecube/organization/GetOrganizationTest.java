@@ -2,7 +2,7 @@ package io.scalecube.organization;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import io.scalecube.account.api.GetOrganizationRequest;
 import io.scalecube.account.api.InvalidAuthenticationToken;
@@ -10,7 +10,6 @@ import io.scalecube.account.api.Token;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import java.time.Duration;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
@@ -38,7 +37,7 @@ class GetOrganizationTest extends Base {
   }
 
   @Test
-  public void getOrganization_not_a_member_should_fail_with_AccessPermissionException() {
+  public void getOrganizationNotMemberShouldFailWithAccessPermissionException() {
     Duration duration =
         expectError(
             createService(testProfile5)
@@ -49,7 +48,7 @@ class GetOrganizationTest extends Base {
   }
 
   @Test
-  public void getOrganization_should_fail_with_EntityNotFoundException() {
+  public void getOrganizationShouldFailWithEntityNotFoundException() {
     Duration duration =
         expectError(
             service.getOrganization(new GetOrganizationRequest(token, "bla")),
@@ -58,7 +57,7 @@ class GetOrganizationTest extends Base {
   }
 
   @Test
-  public void getOrganization_should_fail_with_InvalidAuthenticationToken() {
+  public void getOrganizationShouldFailWithInvalidAuthenticationToken() {
     Duration duration =
         expectError(
             createService(invalidProfile)
@@ -68,7 +67,7 @@ class GetOrganizationTest extends Base {
   }
 
   @Test
-  public void getOrganization_with_empty_id_should_fail_with_IllegalArgumentException() {
+  public void getOrganizationWithEmptyIdShouldFailWithIllegalArgumentException() {
     Duration duration =
         expectError(
             createService(testProfile).getOrganization(new GetOrganizationRequest(token, "")),
@@ -77,7 +76,7 @@ class GetOrganizationTest extends Base {
   }
 
   @Test
-  public void getOrganization_with_null_id_should_fail_with_NullPointerException() {
+  public void getOrganizationWithNullIdShouldFailWithNullPointerException() {
     Duration duration =
         expectError(
             createService(testProfile).getOrganization(new GetOrganizationRequest(token, null)),
@@ -86,7 +85,7 @@ class GetOrganizationTest extends Base {
   }
 
   @Test
-  public void getOrganization_with_null_token_should_fail_with_NullPointerException() {
+  public void getOrganizationWithNullTokenShouldFailWithNullPointerException() {
     Duration duration =
         expectError(
             createService(testProfile)
@@ -96,7 +95,7 @@ class GetOrganizationTest extends Base {
   }
 
   @Test
-  public void getOrganization_with_invalid_token_should_fail_with_InvalidAuthenticationToken() {
+  public void getOrganizationWithInvalidTokenShouldFailWithInvalidAuthenticationToken() {
     Duration duration =
         expectError(
             createService(invalidProfile)
@@ -106,7 +105,7 @@ class GetOrganizationTest extends Base {
   }
 
   @Test
-  public void getOrganization_with_id_not_exists_should_fail_with_EntityNotFoundException() {
+  public void getOrganizationWithIdNotExistsShouldFailWithEntityNotFoundException() {
     Duration duration =
         expectError(
             createService(testProfile)
@@ -116,7 +115,7 @@ class GetOrganizationTest extends Base {
   }
 
   @Test
-  public void getOrganization_with_empty_token_should_fail_with_IllegalArgumentException() {
+  public void getOrganizationWithEmptyTokenShouldFailWithIllegalArgumentException() {
     Duration duration =
         expectError(
             createService(testProfile)

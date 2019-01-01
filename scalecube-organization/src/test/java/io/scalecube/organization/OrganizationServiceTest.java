@@ -50,7 +50,7 @@ public class OrganizationServiceTest extends Base {
 
 
   @Test
-  public void createOrganization_with_name_already_in_use_should_Fail() {
+  public void createOrganizationWithNameAlreadyInUseShouldFail() {
     Duration duration = expectError(
         service.createOrganization(
             new CreateOrganizationRequest(organisation.name(), token))
@@ -82,7 +82,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void createOrganization_with_empty_name_should_fail_with_IllegalArgumentException() {
+  public void createOrganizationWithEmptyNameShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(
         service.createOrganization(
             new CreateOrganizationRequest("",
@@ -100,7 +100,7 @@ public class OrganizationServiceTest extends Base {
   
   @ParameterizedTest
   @MethodSource("invalidOrgNames")
-  public void createOrganization_with_illigal_name_should_fail_with_IllegalArgumentException(String invalidString) {
+  public void createOrganizationWithIlligalNameShouldFailWithIllegalArgumentException(String invalidString) {
     StepVerifier.create(
         service.createOrganization(
             new CreateOrganizationRequest(invalidString,
@@ -129,7 +129,7 @@ public class OrganizationServiceTest extends Base {
 
   @ParameterizedTest
   @MethodSource("validOrgNames")
-  public void createOrganization_with_valid_name_should_not_fail_with_IllegalArgumentException(String invalidString) {
+  public void createOrganizationWithValidNameShouldNotFailWithIllegalArgumentException(String invalidString) {
     StepVerifier.create(
         service.createOrganization(
             new CreateOrganizationRequest(invalidString,
@@ -145,7 +145,7 @@ public class OrganizationServiceTest extends Base {
   }
   
   @Test
-  public void createOrganization_with_null_name_should_fail_with_NullPointerException() {
+  public void createOrganizationWithNullNameShouldFailWithNullPointerException() {
     Duration duration = expectError(
         service.createOrganization(
             new CreateOrganizationRequest(null,
@@ -163,7 +163,7 @@ public class OrganizationServiceTest extends Base {
  *   <p>Then this user should get an error message: "Token verification failed"</p>
  */
   @Test
-  public void createOrganization_should_fail_with_InvalidAuthenticationToken() {
+  public void createOrganizationShouldFailWithInvalidAuthenticationToken() {
     Duration duration = expectError(
         createService(invalidProfile).createOrganization(
                 new CreateOrganizationRequest("myTestOrg5", token))
@@ -172,7 +172,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void createOrganization_null_token_should_fail_with_NullPointerException() {
+  public void createOrganizationNullTokenShouldFailWithNullPointerException() {
     Duration duration = expectError(
         service.createOrganization(
                 new CreateOrganizationRequest("myTestOrg5", null))
@@ -182,7 +182,7 @@ public class OrganizationServiceTest extends Base {
 
 
   @Test
-  public void createOrganization_null_inner_token_should_fail_with_NullPointerException() {
+  public void createOrganizationNullInnerTokenShouldFailWithNullPointerException() {
     Duration duration = expectError(
         service.createOrganization(
                 new CreateOrganizationRequest("myTestOrg5", new Token(null)))
@@ -191,7 +191,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void createOrganization_empty_token_should_fail_with_IllegalArgumentException() {
+  public void createOrganizationEmptyTokenShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(
         service.createOrganization(
             new CreateOrganizationRequest("myTestOrg5", new Token("")))
@@ -201,7 +201,7 @@ public class OrganizationServiceTest extends Base {
   
 
   @Test
-  public void delete_organization_invalid_token_should_fail_with_InvalidAuthenticationToken() {
+  public void deleteOrganizationInvalidTokenShouldFailWithInvalidAuthenticationToken() {
     Duration duration = expectError(
         createService(invalidProfile)
         .deleteOrganization(
@@ -210,7 +210,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void delete_organization_with_id_not_exists_should_fail_with_EntityNotFoundException() {
+  public void deleteOrganizationWithIdNotExistsShouldFailWithEntityNotFoundException() {
     Duration duration = expectError(
         createService(testProfile)
             .deleteOrganization(
@@ -220,7 +220,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void delete_organization_with_empty_id_should_fail_with_IllegalArgumentException() {
+  public void deleteOrganizationWithEmptyIdShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(
         createService(testProfile)
             .deleteOrganization(
@@ -230,7 +230,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void delete_organization_with_null_id_should_fail_with_NullPointerException() {
+  public void deleteOrganizationWithNullIdShouldFailWithNullPointerException() {
     Duration duration = expectError(
         createService(testProfile)
             .deleteOrganization(
@@ -240,7 +240,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void delete_organization_with_null_token_should_fail_with_NullPointerException() {
+  public void deleteOrganizationWithNullTokenShouldFailWithNullPointerException() {
     Duration duration = expectError(
         createService(testProfile)
             .deleteOrganization(
@@ -250,7 +250,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void delete_organization_with_empty_token_should_fail_with_IllegalArgumentException() {
+  public void deleteOrganizationWithEmptyTokenShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(
         createService(testProfile)
             .deleteOrganization(
@@ -281,7 +281,7 @@ public class OrganizationServiceTest extends Base {
 */
   @Test
   public void
-    update_organization_with_existing_org_name_should_fail_with_NameAlreadyInUseException() {
+    updateOrganizationWithExistingOrgNameShouldFailWithNameAlreadyInUseException() {
     Organization localOrganization = createOrganization(randomString());
 
     Duration duration = expectError(
@@ -294,7 +294,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void update_organization_with_id_not_exists_should_fail_with_EntityNotFoundException() {
+  public void updateOrganizationWithIdNotExistsShouldFailWithEntityNotFoundException() {
     Duration duration = expectError(
         service.updateOrganization(new UpdateOrganizationRequest(
             "orgNotExists",
@@ -305,7 +305,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void update_organization_with_empty_id_should_fail_with_IllegalArgumentException() {
+  public void updateOrganizationWithEmptyIdShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(
         service.updateOrganization(new UpdateOrganizationRequest(
             "",
@@ -316,7 +316,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void update_organization_with_invalid_token_should_fail_with_InvalidToken() {
+  public void updateOrganizationWithInvalidTokenShouldFailWithInvalidToken() {
     Duration duration = expectError(
         createService(invalidProfile).updateOrganization(new UpdateOrganizationRequest(
             organisationId,
@@ -327,7 +327,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void update_organization_with_null_token_should_fail_with_NullPointerException() {
+  public void updateOrganizationWithNullTokenShouldFailWithNullPointerException() {
     Duration duration = expectError(
         createService(invalidProfile).updateOrganization(new UpdateOrganizationRequest(
             organisationId,
@@ -338,7 +338,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void update_organization_with_null_name_should_fail_with_NullPointerException() {
+  public void updateOrganizationWithNullNameShouldFailWithNullPointerException() {
     Duration duration = expectError(
         createService(testProfile).updateOrganization(new UpdateOrganizationRequest(
             organisationId,
@@ -349,7 +349,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void update_organization_with_null_email_should_fail_with_NullPointerException() {
+  public void updateOrganizationWithNullEmailShouldFailWithNullPointerException() {
     Duration duration = expectError(
         createService(testProfile).updateOrganization(new UpdateOrganizationRequest(
             organisationId,
@@ -360,7 +360,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void update_organization_with_empty_name_should_fail_with_IllegalArgumentException() {
+  public void updateOrganizationWithEmptyNameShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(
         createService(testProfile).updateOrganization(new UpdateOrganizationRequest(
             organisationId,
@@ -371,7 +371,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void update_organization_with_empty_email_should_fail_with_IllegalArgumentException() {
+  public void updateOrganizationWithEmptyEmailShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(
         createService(testProfile).updateOrganization(new UpdateOrganizationRequest(
             organisationId,
@@ -382,7 +382,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void updateOrganization_not_a_member_should_fail() {
+  public void updateOrganizationNotAMemberShouldFail() {
     expectError(createService(testProfile5)
         .updateOrganization(new UpdateOrganizationRequest(
         organisationId,
@@ -392,7 +392,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void updateOrganization_not_admin_should_fail() {
+  public void updateOrganizationNotAdminShouldFail() {
     orgMembersRepository.addMember(getOrganizationFromRepository(organisationId),
         new OrganizationMember(testProfile2.getUserId(), Role.Member.toString()));
     expectError(createService(testProfile2)
@@ -457,7 +457,7 @@ public class OrganizationServiceTest extends Base {
 
 
   @Test
-  public void getOrganizationMembers_empty_org_id_should_fail_with_IllegalArgumentException() {
+  public void getOrganizationMembersEmptyOrgIdShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(
         service.getOrganizationMembers(new GetOrganizationMembersRequest("", token))
         , IllegalArgumentException.class);
@@ -465,7 +465,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void getOrganizationMembers_null_org_id_should_fail_with_NullPointerException() {
+  public void getOrganizationMembersNullOrgIdShouldFailWithNullPointerException() {
     Duration duration = expectError(
         service.getOrganizationMembers(new GetOrganizationMembersRequest(null, token))
         , NullPointerException.class);
@@ -473,7 +473,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void getOrganizationMembers_empty_token_should_fail_with_IllegalArgumentException() {
+  public void getOrganizationMembersEmptyTokenShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(
         service.getOrganizationMembers(new GetOrganizationMembersRequest(organisationId,
             new Token("")))
@@ -482,7 +482,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void getOrganizationMembers_null_token_should_fail_with_NullPointerException() {
+  public void getOrganizationMembersNullTokenShouldFailWithNullPointerException() {
     Duration duration = expectError(
         service.getOrganizationMembers(new GetOrganizationMembersRequest(organisationId,
             null))
@@ -491,7 +491,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void getOrganizationMembers_null_inner_token_should_fail_with_NullPointerException() {
+  public void getOrganizationMembersNullInnerTokenShouldFailWithNullPointerException() {
     Duration duration = expectError(
         service.getOrganizationMembers(new GetOrganizationMembersRequest(organisationId,
             new Token(null)))
@@ -500,7 +500,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void getOrganizationMembers_should_fail_with_InvalidAuthenticationToken() {
+  public void getOrganizationMembersShouldFailWithInvalidAuthenticationToken() {
     Duration duration = expectError(createService(invalidProfile)
             .getOrganizationMembers(new GetOrganizationMembersRequest(organisationId, token))
         , InvalidAuthenticationToken.class);
@@ -508,7 +508,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void getOrganizationMembers_should_fail_with_EntityNotFoundException() {
+  public void getOrganizationMembersShouldFailWithEntityNotFoundException() {
     Duration duration = expectError(
         service.getOrganizationMembers(new GetOrganizationMembersRequest(
             "orgNotExists", token))
@@ -536,7 +536,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void inviteMember_null_role_should_fail_with_IllegalArgumentException() {
+  public void inviteMemberNullRoleShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(service.inviteMember(
       new InviteOrganizationMemberRequest(token, organisationId,
         testProfile5.getUserId(), null)),
@@ -545,7 +545,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void inviteMember_empty_role_should_fail_with_IllegalArgumentException() {
+  public void inviteMemberEmptyRoleShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(service.inviteMember(
       new InviteOrganizationMemberRequest(token, organisationId,
         testProfile5.getUserId(), "")),
@@ -554,7 +554,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void inviteMember_invalid_role_should_fail_with_IllegalArgumentException() {
+  public void inviteMemberInvalidRoleShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(service.inviteMember(
       new InviteOrganizationMemberRequest(token, organisationId,
         testProfile5.getUserId(), "bla")),
@@ -563,7 +563,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void inviteMember_higher_role_should_fail_with_AccessPermissionException() {
+  public void inviteMemberHigherRoleShouldFailWithAccessPermissionException() {
     addMemberToOrganization(organisationId, service, testProfile2, Role.Admin);
 
     Duration duration = expectError(createService(testProfile2).inviteMember(
@@ -576,7 +576,7 @@ public class OrganizationServiceTest extends Base {
 
 
   @Test
-  public void inviteMember_empty_org_id_should_fail_with_IllegalArgumentException() {
+  public void inviteMemberEmptyOrgIdShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(service.inviteMember(
         new InviteOrganizationMemberRequest(token, "",
           testProfile5.getUserId(), Role.Member.toString())),
@@ -585,7 +585,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void inviteMember_null_org_id_should_fail_with_NullPointerException() {
+  public void inviteMemberNullOrgIdShouldFailWithNullPointerException() {
     Duration duration = expectError(service.inviteMember(
         new InviteOrganizationMemberRequest(token, null,
           testProfile5.getUserId(), Role.Member.toString())),
@@ -594,7 +594,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void inviteMember_empty_user_id_should_fail_with_IllegalArgumentException() {
+  public void inviteMemberEmptyUserIdShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(service.inviteMember(
         new InviteOrganizationMemberRequest(token, organisationId,
           "", Role.Member.toString())),
@@ -603,7 +603,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void inviteMember_null_user_id_should_fail_with_NullPointerException() {
+  public void inviteMemberNullUserIdShouldFailWithNullPointerException() {
     Duration duration = expectError(service.inviteMember(
         new InviteOrganizationMemberRequest(token, organisationId,
           null, Role.Member.toString())),
@@ -612,7 +612,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void inviteMember_empty_token_should_fail_with_IllegalArgumentException() {
+  public void inviteMemberEmptyTokenShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(service.inviteMember(
         new InviteOrganizationMemberRequest(new Token(""), organisationId,
             testProfile5.getUserId(), Role.Member.toString())),
@@ -621,7 +621,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void inviteMember_null_token_should_fail_with_NullPointerException() {
+  public void inviteMemberNullTokenShouldFailWithNullPointerException() {
     Duration duration = expectError(service.inviteMember(
         new InviteOrganizationMemberRequest(null, organisationId,
             testProfile5.getUserId(), Role.Member.toString())),
@@ -630,7 +630,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void inviteMember_null_inner_token_should_fail_with_NullPointerException() {
+  public void inviteMemberNullInnerTokenShouldFailWithNullPointerException() {
     Duration duration = expectError(service.inviteMember(
         new InviteOrganizationMemberRequest(new Token(null), organisationId,
             testProfile5.getUserId(), Role.Member.toString())),
@@ -639,7 +639,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void inviteMember_org_not_exists_should_fail_with_EntityNotFoundException() {
+  public void inviteMemberOrgNotExistsShouldFailWithEntityNotFoundException() {
     expectError(service.inviteMember(
         new InviteOrganizationMemberRequest(token, "orgNotExists",
             testProfile5.getUserId(), Role.Member.toString())),
@@ -648,7 +648,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void inviteMember_should_fail_with_InvalidAuthenticationToken() {
+  public void inviteMemberShouldFailWithInvalidAuthenticationToken() {
     Duration duration = expectError(createService(invalidProfile).inviteMember(
         new InviteOrganizationMemberRequest(token, organisationId,
           testProfile5.getUserId(), Role.Member.toString())),
@@ -677,7 +677,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void kickoutMember_invalid_user_should_fail_with_InvalidAuthenticationToken() {
+  public void kickoutMemberInvalidUserShouldFailWithInvalidAuthenticationToken() {
     Duration duration = expectError(createService(invalidProfile).kickoutMember(
         new KickoutOrganizationMemberRequest(organisationId, token, testProfile5.getUserId())),
         InvalidAuthenticationToken.class);
@@ -685,7 +685,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void kickoutMember_empty_org_id_should_fail_with_IllegalArgumentException() {
+  public void kickoutMemberEmptyOrgIdShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(service.kickoutMember(
         new KickoutOrganizationMemberRequest("", token, testProfile5.getUserId())),
         IllegalArgumentException.class);
@@ -693,7 +693,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void kickoutMember_null_org_id_should_fail_with_NullPointerException() {
+  public void kickoutMemberNullOrgIdShouldFailWithNullPointerException() {
     Duration duration = expectError(service.kickoutMember(
         new KickoutOrganizationMemberRequest(null, token, testProfile5.getUserId())),
         NullPointerException.class);
@@ -701,7 +701,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void kickoutMember_empty_token_should_fail_with_IllegalArgumentException() {
+  public void kickoutMemberEmptyTokenShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(service.kickoutMember(
         new KickoutOrganizationMemberRequest(organisationId, new Token(""),
             testProfile5.getUserId())),
@@ -710,7 +710,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void kickoutMember_null_token_should_fail_with_NullPointerException() {
+  public void kickoutMemberNullTokenShouldFailWithNullPointerException() {
     Duration duration = expectError(service.kickoutMember(
         new KickoutOrganizationMemberRequest(organisationId, null, testProfile5.getUserId())),
         NullPointerException.class);
@@ -718,7 +718,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void kickoutMember_null_inner_token_should_fail_with_NullPointerException() {
+  public void kickoutMemberNullInnerTokenShouldFailWithNullPointerException() {
     Duration duration = expectError(service.kickoutMember(
         new KickoutOrganizationMemberRequest(organisationId, new Token(null),
             testProfile5.getUserId())),
@@ -727,7 +727,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void kickoutMember_empty_user_id_should_fail_with_IllegalArgumentException() {
+  public void kickoutMemberEmptyUserIdShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(service.kickoutMember(
         new KickoutOrganizationMemberRequest(organisationId, token,
             "")),
@@ -736,7 +736,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void kickoutMember_null_user_id_should_fail_with_NullPointerException() {
+  public void kickoutMemberNullUserIdShouldFailWithNullPointerException() {
     Duration duration = expectError(service.kickoutMember(
         new KickoutOrganizationMemberRequest(organisationId, token, null)),
         NullPointerException.class);
@@ -744,7 +744,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void kickoutMember_org_not_exists_should_fail_with_EntityNotFoundException() {
+  public void kickoutMemberOrgNotExistsShouldFailWithEntityNotFoundException() {
     Duration duration = expectError(service.kickoutMember(
         new KickoutOrganizationMemberRequest("orgNotExists",
             token, testProfile5.getUserId())),
@@ -753,7 +753,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void kickoutMember_not_org_owner_should_fail_with_AccessPermissionException() {
+  public void kickoutMemberNotOrgOwnerShouldFailWithAccessPermissionException() {
     Duration duration = expectError(createService(testProfile5).kickoutMember(
         new KickoutOrganizationMemberRequest(organisationId,
             token, testProfile5.getUserId())),
@@ -800,7 +800,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void updateOrganizationMemberRole_not_a_member_should_fail() {
+  public void updateOrganizationMemberRoleNotMemberShouldFail() {
     expectError(service.updateOrganizationMemberRole(
         new UpdateOrganizationMemberRoleRequest(
             token, organisationId, testProfile5.getUserId(), Role.Admin.toString())),
@@ -808,7 +808,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void updateOrganizationMemberRole_not_a_super_user_should_fail() {
+  public void updateOrganizationMemberRoleNotaSuperUserShouldFail() {
     addMemberToOrganization(organisationId, service, testProfile5);
     addMemberToOrganization(organisationId, service, testProfile2);
     expectError(createService(testProfile2).updateOrganizationMemberRole(
@@ -819,7 +819,7 @@ public class OrganizationServiceTest extends Base {
 
   @Test
   public void
-  updateOrganizationMemberRole_caller_not_owner_trying_to_promote_to_owner_should_fail() {
+  updateOrganizationMemberRoleCallerNotOwnerTryingToPromoteToOwnerShouldFail() {
     addMemberToOrganization(organisationId, service, testProfile5);
     addMemberToOrganization(organisationId, service, testProfile2);
 
@@ -834,7 +834,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void updateOrganizationMemberRole_caller_not_owner_trying_to_downgrade_user_should_fail() {
+  public void updateOrganizationMemberRoleCallerNotOwnerTryingTo_downgradeUserShouldFail() {
     addMemberToOrganization(organisationId, service, testProfile5);
     addMemberToOrganization(organisationId, service, testProfile2);
 
@@ -856,7 +856,7 @@ public class OrganizationServiceTest extends Base {
 
   @Test
   public void
-  updateOrganizationMemberRole_with_null_user_id_should_fail_with_NullPointerException() {
+  updateOrganizationMemberRoleWithNullUserIdShouldFailWithNullPointerException() {
     Duration duration = expectError(service.updateOrganizationMemberRole(
         new UpdateOrganizationMemberRoleRequest(
             token, organisationId, null, Role.Admin.toString())),
@@ -867,7 +867,7 @@ public class OrganizationServiceTest extends Base {
 
   @Test
   public void
-  updateOrganizationMemberRole_with_empty_user_id_should_fail_with_IllegalArgumentException() {
+  updateOrganizationMemberRoleWithEmptyUserIdShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(service.updateOrganizationMemberRole(
         new UpdateOrganizationMemberRoleRequest(
             token, organisationId, "", Role.Admin.toString())),
@@ -877,7 +877,7 @@ public class OrganizationServiceTest extends Base {
 
   @Test
   public void
-  updateOrganizationMemberRole_with_null_org_id_should_fail_with_NullPointerException() {
+  updateOrganizationMemberRoleWithNullOrgIdShouldFailWithNullPointerException() {
     Duration duration = expectError(service.updateOrganizationMemberRole(
         new UpdateOrganizationMemberRoleRequest(
             token, null, testProfile5.getUserId(), Role.Admin.toString())),
@@ -887,7 +887,7 @@ public class OrganizationServiceTest extends Base {
 
   @Test
   public void
-  updateOrganizationMemberRole_with_empty_org_id_should_fail_with_IllegalArgumentException() {
+  updateOrganizationMemberRoleWithEmptyOrgIdShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(service.updateOrganizationMemberRole(
         new UpdateOrganizationMemberRoleRequest(
             token, "", testProfile5.getUserId(), Role.Admin.toString())),
@@ -897,7 +897,7 @@ public class OrganizationServiceTest extends Base {
 
   @Test
   public void
-  updateOrganizationMemberRole_with_non_exist_org_should_fail_with_EntityNotFoundException() {
+  updateOrganizationMemberRoleWithNonExistOrgShouldFailWithEntityNotFoundException() {
     Duration duration = expectError(service.updateOrganizationMemberRole(
         new UpdateOrganizationMemberRoleRequest(
             token, "bla", testProfile5.getUserId(), Role.Admin.toString())),
@@ -907,7 +907,7 @@ public class OrganizationServiceTest extends Base {
 
   @Test
   public void
-  updateOrganizationMemberRole_with_null_token_should_fail_with_NullPointerException() {
+  updateOrganizationMemberRoleWithNullTokenShouldFailWithNullPointerException() {
     Duration duration = expectError(service.updateOrganizationMemberRole(
         new UpdateOrganizationMemberRoleRequest(
             null, organisationId, testProfile5.getUserId(), Role.Admin.toString())),
@@ -917,7 +917,7 @@ public class OrganizationServiceTest extends Base {
 
   @Test
   public void
-  updateOrganizationMemberRole_with_null_inner_token_should_fail_with_NullPointerException() {
+  updateOrganizationMemberRoleWithNullInnerTokenShouldFailWithNullPointerException() {
     Duration duration = expectError(service.updateOrganizationMemberRole(
         new UpdateOrganizationMemberRoleRequest(
             new Token(null), organisationId, testProfile5.getUserId(),
@@ -928,7 +928,7 @@ public class OrganizationServiceTest extends Base {
 
   @Test
   public void
-  updateOrganizationMemberRole_with_empty_inner_token_should_fail_with_IllegalArgumentException() {
+  updateOrganizationMemberRoleWithEmptyInnerTokenShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(service.updateOrganizationMemberRole(
         new UpdateOrganizationMemberRoleRequest(
             new Token(""), organisationId, testProfile5.getUserId(),
@@ -939,7 +939,7 @@ public class OrganizationServiceTest extends Base {
 
   @Test
   public void
-  updateOrganizationMemberRole_with_empty_role_should_fail_with_IllegalArgumentException() {
+  updateOrganizationMemberRoleWithEmptyRoleShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(service.updateOrganizationMemberRole(
         new UpdateOrganizationMemberRoleRequest(
             token, organisationId, testProfile5.getUserId(),
@@ -950,7 +950,7 @@ public class OrganizationServiceTest extends Base {
 
   @Test
   public void
-  updateOrganizationMemberRole_with_null_role_should_fail_with_NullPointerException() {
+  updateOrganizationMemberRoleWithNullRoleShouldFailWithNullPointerException() {
     Duration duration = expectError(service.updateOrganizationMemberRole(
         new UpdateOrganizationMemberRoleRequest(
             token, organisationId, testProfile5.getUserId(),
@@ -961,7 +961,7 @@ public class OrganizationServiceTest extends Base {
 
   @Test
   public void
-  updateOrganizationMemberRole_invalid_role_enum_value_should_fail_with_IllegalArgumentException() {
+  updateOrganizationMemberRoleInvalidRoleEnumValueShouldFailWithIllegalArgumentException() {
     addMemberToOrganization(organisationId, service, testProfile5);
     Duration duration = expectError(service.updateOrganizationMemberRole(
         new UpdateOrganizationMemberRoleRequest(
@@ -974,7 +974,7 @@ public class OrganizationServiceTest extends Base {
 
 
   @Test
-  public void leaveOrganization_with_empty_org_id_should_fail_with_IllegalArgumentException() {
+  public void leaveOrganizationWithEmptyOrgIdShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(service.leaveOrganization(
         new LeaveOrganizationRequest(token, "")),
         IllegalArgumentException.class);
@@ -982,7 +982,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void leaveOrganization_with_null_org_id_should_fail_with_NullPointerException() {
+  public void leaveOrganizationWithNullOrgIdShouldFailWithNullPointerException() {
     Duration duration = expectError(service.leaveOrganization(
         new LeaveOrganizationRequest(token, null)),
         NullPointerException.class);
@@ -990,7 +990,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void leaveOrganization_with_null_token_id_should_fail_with_NullPointerException() {
+  public void leaveOrganizationWithNullTokenIdShouldFailWithNullPointerException() {
     Duration duration = expectError(service.leaveOrganization(
         new LeaveOrganizationRequest(null, organisationId)),
         NullPointerException.class);
@@ -998,7 +998,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void leaveOrganization_with_empty_token_id_should_fail_with_IllegalArgumentException() {
+  public void leaveOrganizationWithEmptyTokenIdShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(service.leaveOrganization(
         new LeaveOrganizationRequest(new Token(""), organisationId)),
         IllegalArgumentException.class);
@@ -1006,7 +1006,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void leaveOrganization_with_null_inner_token_id_should_fail_with_NullPointerException() {
+  public void leaveOrganizationWithNullInnerTokenIdShouldFailWithNullPointerException() {
     Duration duration = expectError(service.leaveOrganization(
         new LeaveOrganizationRequest(new Token(null), organisationId)),
         NullPointerException.class);
@@ -1014,7 +1014,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void leaveOrganization_org_not_exists_should_fail_with_EntityNotFoundException() {
+  public void leaveOrganizationOrgNotExistsShouldFailWithEntityNotFoundException() {
     Duration duration = expectError(service.leaveOrganization(
         new LeaveOrganizationRequest(token, "orgNotExists")),
         EntityNotFoundException.class);
@@ -1022,7 +1022,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void leaveOrganization_invalid_user_should_fail_with_InvalidAuthenticationToken() {
+  public void leaveOrganizationInvalidUserShouldFailWithInvalidAuthenticationToken() {
     Duration duration = expectError(createService(invalidProfile).leaveOrganization(
         new LeaveOrganizationRequest(token, "orgNotExists")),
         InvalidAuthenticationToken.class);
@@ -1050,7 +1050,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void addOrganizationApiKey_not_org_owner_should_fail_with_AccessPermissionException() {
+  public void addOrganizationApiKeyNotOrgOwnerShouldFailWithAccessPermissionException() {
     Duration duration = expectError(createService(testProfile5).addOrganizationApiKey(
         new AddOrganizationApiKeyRequest(token, organisationId, "api_key",
             new HashMap<>())),
@@ -1059,7 +1059,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void addOrganizationApiKey_empty_org_id_should_fail_with_IllegalArgumentException() {
+  public void addOrganizationApiKeyEmptyOrgIdShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(service.addOrganizationApiKey(
         new AddOrganizationApiKeyRequest(token, "", "api_key",
             new HashMap<>())),
@@ -1068,7 +1068,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void addOrganizationApiKey_null_org_id_should_fail_with_NullPointerException() {
+  public void addOrganizationApiKeyNullOrgIdShouldFailWithNullPointerException() {
     Duration duration = expectError(service.addOrganizationApiKey(
         new AddOrganizationApiKeyRequest(token, null, "api_key",
             new HashMap<>())),
@@ -1077,7 +1077,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void addOrganizationApiKey_null_apiKeyName_should_fail_with_NullPointerException() {
+  public void addOrganizationApiKeyNullApiKeyNameShouldFailWithNullPointerException() {
     Duration duration = expectError(service.addOrganizationApiKey(
         new AddOrganizationApiKeyRequest(token, organisationId, null,
             new HashMap<>())),
@@ -1086,7 +1086,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void addOrganizationApiKey_empty_apiKeyName_should_fail_with_IllegalArgumentException() {
+  public void addOrganizationApiKeyEmptyApiKeyNameShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(service.addOrganizationApiKey(
         new AddOrganizationApiKeyRequest(token, organisationId, "",
             new HashMap<>())),
@@ -1095,7 +1095,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void addOrganizationApiKey_empty_token_should_fail_with_IllegalArgumentException() {
+  public void addOrganizationApiKeyEmptyTokenShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(service.addOrganizationApiKey(
         new AddOrganizationApiKeyRequest(new Token(""), organisationId,
             "api_key",
@@ -1105,7 +1105,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void addOrganizationApiKey_null_token_should_fail_with_NullPointerException() {
+  public void addOrganizationApiKeyNullTokenShouldFailWithNullPointerException() {
     Duration duration = expectError(service.addOrganizationApiKey(
         new AddOrganizationApiKeyRequest(null, organisationId, "api_key",
             new HashMap<>())),
@@ -1115,7 +1115,7 @@ public class OrganizationServiceTest extends Base {
 
 
   @Test
-  public void addOrganizationApiKey_null_inner_token_should_fail_with_NullPointerException() {
+  public void addOrganizationApiKeyNullInnerTokenShouldFailWithNullPointerException() {
     Duration duration = expectError(service.addOrganizationApiKey(
         new AddOrganizationApiKeyRequest(new Token(null), organisationId,
             "api_key",
@@ -1125,7 +1125,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void addOrganizationApiKey_with_null_claims_should_pass() {
+  public void addOrganizationApiKeyWithNullClaimsShouldPass() {
     Duration duration = StepVerifier.create(service.addOrganizationApiKey(
         new AddOrganizationApiKeyRequest(token, organisationId,
             "api_key",
@@ -1136,7 +1136,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void addOrganizationApiKey_org_not_exists_should_fail_with_EntityNotFoundException() {
+  public void addOrganizationApiKeyOrgNotExistsShouldFailWithEntityNotFoundException() {
     Duration duration = expectError(service.addOrganizationApiKey(
         new AddOrganizationApiKeyRequest(token, "bla", "api_key",
             new HashMap<>())),
@@ -1145,7 +1145,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void addOrganizationApiKey_invalid_user_should_fail_with_InvalidAuthenticationToken() {
+  public void addOrganizationApiKeyInvalidUserShouldFailWithInvalidAuthenticationToken() {
     Duration duration = expectError(createService(invalidProfile).addOrganizationApiKey(
         new AddOrganizationApiKeyRequest(token, organisationId, "api_key",
             new HashMap<>())),
@@ -1179,7 +1179,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void addOrganizationApiKey_user_not_owner_should_fail_with_AccessPermissionException() {
+  public void addOrganizationApiKeyUserNotOwnerShouldFailWithAccessPermissionException() {
     Duration duration = expectError(createService(testProfile2).addOrganizationApiKey(
         new AddOrganizationApiKeyRequest(token, organisationId, "api_key", null)),
         AccessPermissionException.class);
@@ -1187,7 +1187,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void addOrganizationApiKey_user_not_admin_should_fail_with_AccessPermissionException() {
+  public void addOrganizationApiKeyUserNotAdminShouldFailWithAccessPermissionException() {
     addMemberToOrganization(organisationId, service, testProfile2);
 
     Duration duration = expectError(createService(testProfile2).addOrganizationApiKey(
@@ -1197,7 +1197,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void addOrganizationApiKey_by_admin() {
+  public void addOrganizationApiKeyByAdmin() {
     Profile adminUser = testProfile2;
     addMemberToOrganization(organisationId, service, adminUser);
 
@@ -1223,7 +1223,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void deleteOrganizationApiKey_user_not_owner_should_fail_with_AccessPermissionException() {
+  public void deleteOrganizationApiKeyUserNotOwnerShouldFailWithAccessPermissionException() {
     Duration duration = expectError(createService(testProfile2).deleteOrganizationApiKey(
         new DeleteOrganizationApiKeyRequest(token, organisationId, "api_key")),
         AccessPermissionException.class);
@@ -1232,7 +1232,7 @@ public class OrganizationServiceTest extends Base {
 
 
   @Test
-  public void deleteOrganizationApiKey_empty_org_id_should_fail_with_IllegalArgumentException() {
+  public void deleteOrganizationApiKeyEmptyOrgIdShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(service.deleteOrganizationApiKey(
         new DeleteOrganizationApiKeyRequest(token, "", "api_key")),
         IllegalArgumentException.class);
@@ -1240,7 +1240,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void deleteOrganizationApiKey_org_not_exists_should_fail_with_EntityNotFoundException() {
+  public void deleteOrganizationApiKeyOrgNotExistsShouldFailWithEntityNotFoundException() {
     Duration duration = expectError(service.deleteOrganizationApiKey(
         new DeleteOrganizationApiKeyRequest(token, "bla", "api_key")),
         EntityNotFoundException.class);
@@ -1248,7 +1248,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void deleteOrganizationApiKey_null_org_should_fail_with_NullPointerException() {
+  public void deleteOrganizationApiKeyNullOrgShouldFailWithNullPointerException() {
     Duration duration = expectError(service.deleteOrganizationApiKey(
         new DeleteOrganizationApiKeyRequest(token, null, "api_key")),
         NullPointerException.class);
@@ -1256,7 +1256,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void deleteOrganizationApiKey_null_apiKeyName_should_fail_with_NullPointerException() {
+  public void deleteOrganizationApiKeyNullApiKeyNameShouldFailWithNullPointerException() {
     Duration duration = expectError(service.deleteOrganizationApiKey(
         new DeleteOrganizationApiKeyRequest(token, organisationId, null)),
         NullPointerException.class);
@@ -1264,7 +1264,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void deleteOrganizationApiKey_empty_name_should_fail_with_IllegalArgumentException() {
+  public void deleteOrganizationApiKeyEmptyNameShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(service.deleteOrganizationApiKey(
         new DeleteOrganizationApiKeyRequest(token, organisationId, "")),
         IllegalArgumentException.class);
@@ -1272,7 +1272,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void deleteOrganizationApiKey_invalid_user_should_fail_with_InvalidAuthenticationToken() {
+  public void deleteOrganizationApiKeyInvalidUserShouldFailWithInvalidAuthenticationToken() {
     Duration duration = expectError(createService(invalidProfile).deleteOrganizationApiKey(
         new DeleteOrganizationApiKeyRequest(token, organisationId, "api_key")),
         InvalidAuthenticationToken.class);
@@ -1280,7 +1280,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void deleteOrganizationApiKey_null_token_should_fail_with_NullPointerException() {
+  public void deleteOrganizationApiKeyNullTokenShouldFailWithNullPointerException() {
     Duration duration = expectError(service.deleteOrganizationApiKey(
         new DeleteOrganizationApiKeyRequest(null, organisationId, "api_key")),
         NullPointerException.class);
@@ -1288,7 +1288,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void deleteOrganizationApiKey_null_inner_token_should_fail_with_NullPointerException() {
+  public void deleteOrganizationApiKeyNullInnerTokenShouldFailWithNullPointerException() {
     Duration duration = expectError(service.deleteOrganizationApiKey(
         new DeleteOrganizationApiKeyRequest(new Token(null), organisationId,
             "api_key")),
@@ -1297,7 +1297,7 @@ public class OrganizationServiceTest extends Base {
   }
 
   @Test
-  public void deleteOrganizationApiKey_empty_token_should_fail_with_IllegalArgumentException() {
+  public void deleteOrganizationApiKeyEmptyTokenShouldFailWithIllegalArgumentException() {
     Duration duration = expectError(service.deleteOrganizationApiKey(
         new DeleteOrganizationApiKeyRequest(new Token(""), organisationId,
             "api_key")),
