@@ -139,8 +139,7 @@ public class Base {
     AwaitLatch<CreateOrganizationResponse> await =
         consume(
             service.createOrganization(
-                new CreateOrganizationRequest(
-                    "myTestOrg5" + rand.nextInt(50) + 1, token)));
+                new CreateOrganizationRequest("myTestOrg5" + rand.nextInt(50) + 1, token)));
     assertThat(await.error(), is(nullValue()));
     assertThat(await.result(), is(notNullValue()));
     assertThat(await.result().id(), is(notNullValue()));

@@ -18,79 +18,97 @@ import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
 public class OrganizationServiceTest extends Base {
- 
+
   @Test
   public void leaveOrganization() {
     addMemberToOrganization(organisationId, service, testProfile5);
-    Duration duration = StepVerifier
-        .create(createService(testProfile5).leaveOrganization(
-            new LeaveOrganizationRequest(token, organisationId)))
-        .expectSubscription()
-        .assertNext(x -> StepVerifier
-            .create(service.getOrganizationMembers(
-                new GetOrganizationMembersRequest(organisationId, token)))
+    Duration duration =
+        StepVerifier.create(
+                createService(testProfile5)
+                    .leaveOrganization(new LeaveOrganizationRequest(token, organisationId)))
             .expectSubscription()
-            .assertNext(r -> assertThat(Arrays.asList(r.members()),
-                not(hasItem(
-                    new OrganizationMember(testProfile5.getUserId(), Role.Member.toString())))))
-            .verifyComplete())
-        .verifyComplete();
+            .assertNext(
+                x ->
+                    StepVerifier.create(
+                            service.getOrganizationMembers(
+                                new GetOrganizationMembersRequest(organisationId, token)))
+                        .expectSubscription()
+                        .assertNext(
+                            r ->
+                                assertThat(
+                                    Arrays.asList(r.members()),
+                                    not(
+                                        hasItem(
+                                            new OrganizationMember(
+                                                testProfile5.getUserId(),
+                                                Role.Member.toString())))))
+                        .verifyComplete())
+            .verifyComplete();
     assertNotNull(duration);
   }
 
   @Test
   public void leaveOrganizationWithEmptyOrgIdShouldFailWithIllegalArgumentException() {
-    Duration duration = expectError(service.leaveOrganization(
-        new LeaveOrganizationRequest(token, "")),
-        IllegalArgumentException.class);
+    Duration duration =
+        expectError(
+            service.leaveOrganization(new LeaveOrganizationRequest(token, "")),
+            IllegalArgumentException.class);
     assertNotNull(duration);
   }
 
   @Test
   public void leaveOrganizationWithNullOrgIdShouldFailWithNullPointerException() {
-    Duration duration = expectError(service.leaveOrganization(
-        new LeaveOrganizationRequest(token, null)),
-        NullPointerException.class);
+    Duration duration =
+        expectError(
+            service.leaveOrganization(new LeaveOrganizationRequest(token, null)),
+            NullPointerException.class);
     assertNotNull(duration);
   }
 
   @Test
   public void leaveOrganizationWithNullTokenIdShouldFailWithNullPointerException() {
-    Duration duration = expectError(service.leaveOrganization(
-        new LeaveOrganizationRequest(null, organisationId)),
-        NullPointerException.class);
+    Duration duration =
+        expectError(
+            service.leaveOrganization(new LeaveOrganizationRequest(null, organisationId)),
+            NullPointerException.class);
     assertNotNull(duration);
   }
 
   @Test
   public void leaveOrganizationWithEmptyTokenIdShouldFailWithIllegalArgumentException() {
-    Duration duration = expectError(service.leaveOrganization(
-        new LeaveOrganizationRequest(new Token(""), organisationId)),
-        IllegalArgumentException.class);
+    Duration duration =
+        expectError(
+            service.leaveOrganization(new LeaveOrganizationRequest(new Token(""), organisationId)),
+            IllegalArgumentException.class);
     assertNotNull(duration);
   }
 
   @Test
   public void leaveOrganizationWithNullInnerTokenIdShouldFailWithNullPointerException() {
-    Duration duration = expectError(service.leaveOrganization(
-        new LeaveOrganizationRequest(new Token(null), organisationId)),
-        NullPointerException.class);
+    Duration duration =
+        expectError(
+            service.leaveOrganization(
+                new LeaveOrganizationRequest(new Token(null), organisationId)),
+            NullPointerException.class);
     assertNotNull(duration);
   }
 
   @Test
   public void leaveOrganizationOrgNotExistsShouldFailWithEntityNotFoundException() {
-    Duration duration = expectError(service.leaveOrganization(
-        new LeaveOrganizationRequest(token, "orgNotExists")),
-        EntityNotFoundException.class);
+    Duration duration =
+        expectError(
+            service.leaveOrganization(new LeaveOrganizationRequest(token, "orgNotExists")),
+            EntityNotFoundException.class);
     assertNotNull(duration);
   }
 
   @Test
   public void leaveOrganizationInvalidUserShouldFailWithInvalidAuthenticationToken() {
-    Duration duration = expectError(createService(invalidProfile).leaveOrganization(
-        new LeaveOrganizationRequest(token, "orgNotExists")),
-        InvalidAuthenticationToken.class);
+    Duration duration =
+        expectError(
+            createService(invalidProfile)
+                .leaveOrganization(new LeaveOrganizationRequest(token, "orgNotExists")),
+            InvalidAuthenticationToken.class);
     assertNotNull(duration);
   }
 }

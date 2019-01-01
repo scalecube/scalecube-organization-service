@@ -15,14 +15,12 @@ import reactor.test.StepVerifier;
 
 class GetOrganizationTest extends Base {
 
-  
   /**
-  #MPA-7229 (#2)
-  Scenario: Successful info get about specific Organization
-    Given the user "A" have got a valid "token" issued by relevant authority
-    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    When the user "A" requested to get the own organization info
-    Then user "A" should receive the successful response with relevant organization data
+   * #MPA-7229 (#2) Scenario: Successful info get about specific Organization Given the user "A"
+   * have got a valid "token" issued by relevant authority And only single organization
+   * "organizationId" with specified "name" and "email" already created and owned by user "A" When
+   * the user "A" requested to get the own organization info Then user "A" should receive the
+   * successful response with relevant organization data
    */
   @Test
   public void getOrganization() {
@@ -41,8 +39,7 @@ class GetOrganizationTest extends Base {
     Duration duration =
         expectError(
             createService(testProfile5)
-                .getOrganization(
-                    new GetOrganizationRequest(new Token("foo"), organisationId)),
+                .getOrganization(new GetOrganizationRequest(new Token("foo"), organisationId)),
             AccessPermissionException.class);
     assertNotNull(duration);
   }
