@@ -23,6 +23,7 @@ import io.scalecube.organization.repository.UserOrganizationMembershipRepository
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
 import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
 import io.scalecube.security.Profile;
+import java.io.File;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Objects;
@@ -116,7 +117,7 @@ public class Base {
           }
         };
     service = createService(testProfile);
-
+    new File("keystore.properties").deleteOnExit();
     // init with couchbase
     //    orgMembersRepository = CouchbaseRepositoryFactory.organizationMembers();
     //    organizationRepository = CouchbaseRepositoryFactory.organizations();
