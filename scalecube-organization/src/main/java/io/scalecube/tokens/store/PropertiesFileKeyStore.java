@@ -12,7 +12,7 @@ import java.util.Properties;
 
 class PropertiesFileKeyStore implements KeyStore {
 
-  File parentPath;
+  private File parentPath;
 
   public PropertiesFileKeyStore() {
     Iterator<String> rootDir = rootPaths.iterator();
