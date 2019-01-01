@@ -18,14 +18,10 @@ import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
 public class UserMembershipTest extends Base {
-
-  @AfterEach
-  void tearDown() throws Exception {}
 
   @Test
   public void getUserOrganizationsMembership() {
@@ -57,7 +53,7 @@ public class UserMembershipTest extends Base {
   }
 
   @Test
-  public void getUserMembership_invalid_user_should_fail_with_InvalidAuthenticationToken() {
+  public void getUserMembershipInvalidUserShouldFailWithInvalidAuthenticationToken() {
     Duration duration =
         expectError(
             createService(invalidProfile)
@@ -67,7 +63,7 @@ public class UserMembershipTest extends Base {
   }
 
   @Test
-  public void getUserMembership_null_token_should_fail_with_NullPointerException() {
+  public void getUserMembershipNullTokenShouldFailWithNullPointerException() {
     Duration duration =
         expectError(
             service.getUserOrganizationsMembership(new GetMembershipRequest(null)),
@@ -76,7 +72,7 @@ public class UserMembershipTest extends Base {
   }
 
   @Test
-  public void getUserMembership_null_inner_token_should_fail_with_NullPointerException() {
+  public void getUserMembershipNullInnerTokenShouldFailWithNullPointerException() {
     Duration duration =
         expectError(
             service.getUserOrganizationsMembership(new GetMembershipRequest(new Token(null))),
@@ -85,7 +81,7 @@ public class UserMembershipTest extends Base {
   }
 
   @Test
-  public void getUserMembership_empty_inner_token_should_fail_with_NIllegalArgumentException() {
+  public void getUserMembershipEmptyInnerTokenShouldFailWithIllegalArgumentException() {
     Duration duration =
         expectError(
             service.getUserOrganizationsMembership(new GetMembershipRequest(new Token(""))),
