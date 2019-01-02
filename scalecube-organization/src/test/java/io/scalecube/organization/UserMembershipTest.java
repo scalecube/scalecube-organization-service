@@ -55,7 +55,7 @@ public class UserMembershipTest extends Base {
   @Test
   public void getUserMembershipInvalidUserShouldFailWithInvalidAuthenticationToken() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             createService(invalidProfile)
                 .getUserOrganizationsMembership(new GetMembershipRequest(token)),
             InvalidAuthenticationToken.class);
@@ -65,7 +65,7 @@ public class UserMembershipTest extends Base {
   @Test
   public void getUserMembershipNullTokenShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.getUserOrganizationsMembership(new GetMembershipRequest(null)),
             NullPointerException.class);
     assertNotNull(duration);
@@ -74,7 +74,7 @@ public class UserMembershipTest extends Base {
   @Test
   public void getUserMembershipNullInnerTokenShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.getUserOrganizationsMembership(new GetMembershipRequest(new Token(null))),
             NullPointerException.class);
     assertNotNull(duration);
@@ -83,7 +83,7 @@ public class UserMembershipTest extends Base {
   @Test
   public void getUserMembershipEmptyInnerTokenShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.getUserOrganizationsMembership(new GetMembershipRequest(new Token(""))),
             IllegalArgumentException.class);
     assertNotNull(duration);

@@ -1,8 +1,8 @@
 package io.scalecube.organization;
 
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -41,7 +41,7 @@ public class UpdateOrganizationTest extends Base {
     Organization localOrganization = createOrganization(randomString());
 
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.updateOrganization(
                 new UpdateOrganizationRequest(
                     organisationId, token, localOrganization.name(), "update@email")),
@@ -52,7 +52,7 @@ public class UpdateOrganizationTest extends Base {
   @Test
   public void updateOrganizationWithIdNotExistsShouldFailWithEntityNotFoundException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.updateOrganization(
                 new UpdateOrganizationRequest(
                     "orgNotExists", token, "update_name", "update@email")),
@@ -63,7 +63,7 @@ public class UpdateOrganizationTest extends Base {
   @Test
   public void updateOrganizationWithEmptyIdShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.updateOrganization(
                 new UpdateOrganizationRequest("", token, "update_name", "update@email")),
             EntityNotFoundException.class);
@@ -73,7 +73,7 @@ public class UpdateOrganizationTest extends Base {
   @Test
   public void updateOrganizationWithInvalidTokenShouldFailWithInvalidToken() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             createService(invalidProfile)
                 .updateOrganization(
                     new UpdateOrganizationRequest(
@@ -85,7 +85,7 @@ public class UpdateOrganizationTest extends Base {
   @Test
   public void updateOrganizationWithNullTokenShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             createService(invalidProfile)
                 .updateOrganization(
                     new UpdateOrganizationRequest(
@@ -97,7 +97,7 @@ public class UpdateOrganizationTest extends Base {
   @Test
   public void updateOrganizationWithNullNameShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             createService(testProfile)
                 .updateOrganization(
                     new UpdateOrganizationRequest(organisationId, token, null, "update@email")),
@@ -108,7 +108,7 @@ public class UpdateOrganizationTest extends Base {
   @Test
   public void updateOrganizationWithNullEmailShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             createService(testProfile)
                 .updateOrganization(
                     new UpdateOrganizationRequest(organisationId, token, "name", null)),
@@ -119,7 +119,7 @@ public class UpdateOrganizationTest extends Base {
   @Test
   public void updateOrganizationWithEmptyNameShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             createService(testProfile)
                 .updateOrganization(
                     new UpdateOrganizationRequest(organisationId, token, "", "update@email")),
@@ -130,7 +130,7 @@ public class UpdateOrganizationTest extends Base {
   @Test
   public void updateOrganizationWithEmptyEmailShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             createService(testProfile)
                 .updateOrganization(
                     new UpdateOrganizationRequest(organisationId, token, "name", "")),
@@ -140,7 +140,7 @@ public class UpdateOrganizationTest extends Base {
 
   @Test
   public void updateOrganizationNotAMemberShouldFail() {
-    expectError(
+    assertMonoCompletesWithError(
         createService(testProfile5)
             .updateOrganization(
                 new UpdateOrganizationRequest(
@@ -153,7 +153,7 @@ public class UpdateOrganizationTest extends Base {
     orgMembersRepository.addMember(
         getOrganizationFromRepository(organisationId),
         new OrganizationMember(testProfile2.getUserId(), Role.Member.toString()));
-    expectError(
+    assertMonoCompletesWithError(
         createService(testProfile2)
             .updateOrganization(
                 new UpdateOrganizationRequest(
@@ -179,9 +179,9 @@ public class UpdateOrganizationTest extends Base {
             .expectSubscription()
             .assertNext(
                 (r) -> {
-                  assertThat("name not updated", r.name(), is("update_name"));
-                  assertThat("email not updated", r.email(), is("update@email"));
-                  assertThat("missing api key ", r.apiKeys().length, is(not(0)));
+                  assertThat("name not updated", r.name(), equalTo("update_name"));
+                  assertThat("email not updated", r.email(), equalTo("update@email"));
+                  assertThat("missing api key ", r.apiKeys().length, not(equalTo(0)));
                 })
             .verifyComplete();
     assertNotNull(duration);
@@ -190,46 +190,45 @@ public class UpdateOrganizationTest extends Base {
   @Test
   public void updateOrganizationMemberRole() {
     addMemberToOrganization(organisationId, service, testProfile5);
-    Duration duration =
-        StepVerifier.create(
-                service.updateOrganizationMemberRole(
-                    new UpdateOrganizationMemberRoleRequest(
-                        token, organisationId, testProfile5.getUserId(), Role.Admin.toString())))
-            .expectSubscription()
-            .assertNext(
-                x ->
-                    StepVerifier.create(
-                            createService(testProfile5)
-                                .getOrganizationMembers(
-                                    new GetOrganizationMembersRequest(organisationId, token)))
-                        .expectSubscription()
-                        .assertNext(
-                            r ->
-                                assertTrue(
-                                    Arrays.stream(r.members())
-                                        .anyMatch(
-                                            i ->
-                                                Objects.equals(i.id(), testProfile5.getUserId())
-                                                    && Objects.equals(
-                                                        i.role(), Role.Admin.toString())))))
-            .verifyComplete();
-    assertNotNull(duration);
+    StepVerifier.create(
+            service.updateOrganizationMemberRole(
+                new UpdateOrganizationMemberRoleRequest(
+                    token, organisationId, testProfile5.getUserId(), Role.Admin.toString())))
+        .expectSubscription()
+        .assertNext(
+            x ->
+                StepVerifier.create(
+                        createService(testProfile5)
+                            .getOrganizationMembers(
+                                new GetOrganizationMembersRequest(organisationId, token)))
+                    .expectSubscription()
+                    .assertNext(
+                        r ->
+                            assertTrue(
+                                Arrays.stream(r.members())
+                                    .anyMatch(
+                                        i ->
+                                            Objects.equals(i.id(), testProfile5.getUserId())
+                                                && Objects.equals(
+                                                    i.role(), Role.Admin.toString())))))
+        .verifyComplete();
   }
 
   @Test
   public void updateOrganizationMemberRoleNotMemberShouldFail() {
-    expectError(
-        service.updateOrganizationMemberRole(
-            new UpdateOrganizationMemberRoleRequest(
-                token, organisationId, testProfile5.getUserId(), Role.Admin.toString())),
-        NotAnOrganizationMemberException.class);
+    StepVerifier.create(
+            service.updateOrganizationMemberRole(
+                new UpdateOrganizationMemberRoleRequest(
+                    token, organisationId, testProfile5.getUserId(), Role.Admin.toString())))
+        .expectSubscription()
+        .verifyError(NotAnOrganizationMemberException.class);
   }
 
   @Test
   public void updateOrganizationMemberRoleNotaSuperUserShouldFail() {
     addMemberToOrganization(organisationId, service, testProfile5);
     addMemberToOrganization(organisationId, service, testProfile2);
-    expectError(
+    assertMonoCompletesWithError(
         createService(testProfile2)
             .updateOrganizationMemberRole(
                 new UpdateOrganizationMemberRoleRequest(
@@ -247,7 +246,7 @@ public class UpdateOrganizationTest extends Base {
         service.updateOrganizationMemberRole(
             new UpdateOrganizationMemberRoleRequest(
                 token, organisationId, testProfile2.getUserId(), Role.Admin.toString())));
-    expectError(
+    assertMonoCompletesWithError(
         createService(testProfile2)
             .updateOrganizationMemberRole(
                 new UpdateOrganizationMemberRoleRequest(
@@ -256,7 +255,7 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void updateOrganizationMemberRoleCallerNotOwnerTryingTo_downgradeUserShouldFail() {
+  public void updateOrganizationMemberRoleCallerNotOwnerTryingToDowngradeUserShouldFail() {
     addMemberToOrganization(organisationId, service, testProfile5);
     addMemberToOrganization(organisationId, service, testProfile2);
 
@@ -272,7 +271,7 @@ public class UpdateOrganizationTest extends Base {
                 token, organisationId, testProfile2.getUserId(), Role.Admin.toString())));
 
     // admin tries to downgrade an owner should fail
-    expectError(
+    assertMonoCompletesWithError(
         createService(testProfile2)
             .updateOrganizationMemberRole(
                 new UpdateOrganizationMemberRoleRequest(
@@ -283,7 +282,7 @@ public class UpdateOrganizationTest extends Base {
   @Test
   public void updateOrganizationMemberRoleWithNullUserIdShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.updateOrganizationMemberRole(
                 new UpdateOrganizationMemberRoleRequest(
                     token, organisationId, null, Role.Admin.toString())),
@@ -294,7 +293,7 @@ public class UpdateOrganizationTest extends Base {
   @Test
   public void updateOrganizationMemberRoleWithEmptyUserIdShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.updateOrganizationMemberRole(
                 new UpdateOrganizationMemberRoleRequest(
                     token, organisationId, "", Role.Admin.toString())),
@@ -305,7 +304,7 @@ public class UpdateOrganizationTest extends Base {
   @Test
   public void updateOrganizationMemberRoleWithNullOrgIdShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.updateOrganizationMemberRole(
                 new UpdateOrganizationMemberRoleRequest(
                     token, null, testProfile5.getUserId(), Role.Admin.toString())),
@@ -316,7 +315,7 @@ public class UpdateOrganizationTest extends Base {
   @Test
   public void updateOrganizationMemberRoleWithEmptyOrgIdShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.updateOrganizationMemberRole(
                 new UpdateOrganizationMemberRoleRequest(
                     token, "", testProfile5.getUserId(), Role.Admin.toString())),
@@ -327,7 +326,7 @@ public class UpdateOrganizationTest extends Base {
   @Test
   public void updateOrganizationMemberRoleWithNonExistOrgShouldFailWithEntityNotFoundException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.updateOrganizationMemberRole(
                 new UpdateOrganizationMemberRoleRequest(
                     token, "bla", testProfile5.getUserId(), Role.Admin.toString())),
@@ -338,7 +337,7 @@ public class UpdateOrganizationTest extends Base {
   @Test
   public void updateOrganizationMemberRoleWithNullTokenShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.updateOrganizationMemberRole(
                 new UpdateOrganizationMemberRoleRequest(
                     null, organisationId, testProfile5.getUserId(), Role.Admin.toString())),
@@ -349,7 +348,7 @@ public class UpdateOrganizationTest extends Base {
   @Test
   public void updateOrganizationMemberRoleWithNullInnerTokenShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.updateOrganizationMemberRole(
                 new UpdateOrganizationMemberRoleRequest(
                     new Token(null),
@@ -364,7 +363,7 @@ public class UpdateOrganizationTest extends Base {
   public void
       updateOrganizationMemberRoleWithEmptyInnerTokenShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.updateOrganizationMemberRole(
                 new UpdateOrganizationMemberRoleRequest(
                     new Token(""),
@@ -378,7 +377,7 @@ public class UpdateOrganizationTest extends Base {
   @Test
   public void updateOrganizationMemberRoleWithEmptyRoleShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.updateOrganizationMemberRole(
                 new UpdateOrganizationMemberRoleRequest(
                     token, organisationId, testProfile5.getUserId(), "")),
@@ -389,7 +388,7 @@ public class UpdateOrganizationTest extends Base {
   @Test
   public void updateOrganizationMemberRoleWithNullRoleShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.updateOrganizationMemberRole(
                 new UpdateOrganizationMemberRoleRequest(
                     token, organisationId, testProfile5.getUserId(), null)),
@@ -402,7 +401,7 @@ public class UpdateOrganizationTest extends Base {
       updateOrganizationMemberRoleInvalidRoleEnumValueShouldFailWithIllegalArgumentException() {
     addMemberToOrganization(organisationId, service, testProfile5);
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.updateOrganizationMemberRole(
                 new UpdateOrganizationMemberRoleRequest(
                     token, organisationId, testProfile5.getUserId(), "invalid role enum value")),

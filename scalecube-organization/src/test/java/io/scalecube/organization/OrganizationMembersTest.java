@@ -55,7 +55,7 @@ public class OrganizationMembersTest extends Base {
   @Test
   public void getOrganizationMembersEmptyOrgIdShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.getOrganizationMembers(new GetOrganizationMembersRequest("", token)),
             IllegalArgumentException.class);
     assertNotNull(duration);
@@ -64,7 +64,7 @@ public class OrganizationMembersTest extends Base {
   @Test
   public void getOrganizationMembersNullOrgIdShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.getOrganizationMembers(new GetOrganizationMembersRequest(null, token)),
             NullPointerException.class);
     assertNotNull(duration);
@@ -73,7 +73,7 @@ public class OrganizationMembersTest extends Base {
   @Test
   public void getOrganizationMembersEmptyTokenShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.getOrganizationMembers(
                 new GetOrganizationMembersRequest(organisationId, new Token(""))),
             IllegalArgumentException.class);
@@ -83,7 +83,7 @@ public class OrganizationMembersTest extends Base {
   @Test
   public void getOrganizationMembersNullTokenShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.getOrganizationMembers(new GetOrganizationMembersRequest(organisationId, null)),
             NullPointerException.class);
     assertNotNull(duration);
@@ -92,7 +92,7 @@ public class OrganizationMembersTest extends Base {
   @Test
   public void getOrganizationMembersNullInnerTokenShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.getOrganizationMembers(
                 new GetOrganizationMembersRequest(organisationId, new Token(null))),
             NullPointerException.class);
@@ -102,7 +102,7 @@ public class OrganizationMembersTest extends Base {
   @Test
   public void getOrganizationMembersShouldFailWithInvalidAuthenticationToken() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             createService(invalidProfile)
                 .getOrganizationMembers(new GetOrganizationMembersRequest(organisationId, token)),
             InvalidAuthenticationToken.class);
@@ -112,7 +112,7 @@ public class OrganizationMembersTest extends Base {
   @Test
   public void getOrganizationMembersShouldFailWithEntityNotFoundException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.getOrganizationMembers(
                 new GetOrganizationMembersRequest("orgNotExists", token)),
             EntityNotFoundException.class);

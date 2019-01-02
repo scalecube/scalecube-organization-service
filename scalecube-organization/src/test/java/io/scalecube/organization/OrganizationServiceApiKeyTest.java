@@ -46,7 +46,7 @@ public class OrganizationServiceApiKeyTest extends Base {
   @Test
   public void addOrganizationApiKeyNotOrgOwnerShouldFailWithAccessPermissionException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             createService(testProfile5)
                 .addOrganizationApiKey(
                     new AddOrganizationApiKeyRequest(
@@ -58,7 +58,7 @@ public class OrganizationServiceApiKeyTest extends Base {
   @Test
   public void addOrganizationApiKeyEmptyOrgIdShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.addOrganizationApiKey(
                 new AddOrganizationApiKeyRequest(token, "", "api_key", new HashMap<>())),
             IllegalArgumentException.class);
@@ -68,7 +68,7 @@ public class OrganizationServiceApiKeyTest extends Base {
   @Test
   public void addOrganizationApiKeyNullOrgIdShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.addOrganizationApiKey(
                 new AddOrganizationApiKeyRequest(token, null, "api_key", new HashMap<>())),
             NullPointerException.class);
@@ -78,7 +78,7 @@ public class OrganizationServiceApiKeyTest extends Base {
   @Test
   public void addOrganizationApiKeyNullApiKeyNameShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.addOrganizationApiKey(
                 new AddOrganizationApiKeyRequest(token, organisationId, null, new HashMap<>())),
             NullPointerException.class);
@@ -88,7 +88,7 @@ public class OrganizationServiceApiKeyTest extends Base {
   @Test
   public void addOrganizationApiKeyEmptyApiKeyNameShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.addOrganizationApiKey(
                 new AddOrganizationApiKeyRequest(token, organisationId, "", new HashMap<>())),
             IllegalArgumentException.class);
@@ -98,7 +98,7 @@ public class OrganizationServiceApiKeyTest extends Base {
   @Test
   public void addOrganizationApiKeyEmptyTokenShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.addOrganizationApiKey(
                 new AddOrganizationApiKeyRequest(
                     new Token(""), organisationId, "api_key", new HashMap<>())),
@@ -109,7 +109,7 @@ public class OrganizationServiceApiKeyTest extends Base {
   @Test
   public void addOrganizationApiKeyNullTokenShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.addOrganizationApiKey(
                 new AddOrganizationApiKeyRequest(null, organisationId, "api_key", new HashMap<>())),
             NullPointerException.class);
@@ -119,7 +119,7 @@ public class OrganizationServiceApiKeyTest extends Base {
   @Test
   public void addOrganizationApiKeyNullInnerTokenShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.addOrganizationApiKey(
                 new AddOrganizationApiKeyRequest(
                     new Token(null), organisationId, "api_key", new HashMap<>())),
@@ -142,7 +142,7 @@ public class OrganizationServiceApiKeyTest extends Base {
   @Test
   public void addOrganizationApiKeyOrgNotExistsShouldFailWithEntityNotFoundException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.addOrganizationApiKey(
                 new AddOrganizationApiKeyRequest(token, "bla", "api_key", new HashMap<>())),
             EntityNotFoundException.class);
@@ -152,7 +152,7 @@ public class OrganizationServiceApiKeyTest extends Base {
   @Test
   public void addOrganizationApiKeyInvalidUserShouldFailWithInvalidAuthenticationToken() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             createService(invalidProfile)
                 .addOrganizationApiKey(
                     new AddOrganizationApiKeyRequest(
@@ -194,7 +194,7 @@ public class OrganizationServiceApiKeyTest extends Base {
   @Test
   public void addOrganizationApiKeyUserNotOwnerShouldFailWithAccessPermissionException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             createService(testProfile2)
                 .addOrganizationApiKey(
                     new AddOrganizationApiKeyRequest(token, organisationId, "api_key", null)),
@@ -207,7 +207,7 @@ public class OrganizationServiceApiKeyTest extends Base {
     addMemberToOrganization(organisationId, service, testProfile2);
 
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             createService(testProfile2)
                 .addOrganizationApiKey(
                     new AddOrganizationApiKeyRequest(token, organisationId, "api_key", null)),

@@ -50,7 +50,7 @@ public class LeaveOrganizationTest extends Base {
   @Test
   public void leaveOrganizationWithEmptyOrgIdShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.leaveOrganization(new LeaveOrganizationRequest(token, "")),
             IllegalArgumentException.class);
     assertNotNull(duration);
@@ -59,7 +59,7 @@ public class LeaveOrganizationTest extends Base {
   @Test
   public void leaveOrganizationWithNullOrgIdShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.leaveOrganization(new LeaveOrganizationRequest(token, null)),
             NullPointerException.class);
     assertNotNull(duration);
@@ -68,7 +68,7 @@ public class LeaveOrganizationTest extends Base {
   @Test
   public void leaveOrganizationWithNullTokenIdShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.leaveOrganization(new LeaveOrganizationRequest(null, organisationId)),
             NullPointerException.class);
     assertNotNull(duration);
@@ -77,7 +77,7 @@ public class LeaveOrganizationTest extends Base {
   @Test
   public void leaveOrganizationWithEmptyTokenIdShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.leaveOrganization(new LeaveOrganizationRequest(new Token(""), organisationId)),
             IllegalArgumentException.class);
     assertNotNull(duration);
@@ -86,7 +86,7 @@ public class LeaveOrganizationTest extends Base {
   @Test
   public void leaveOrganizationWithNullInnerTokenIdShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.leaveOrganization(
                 new LeaveOrganizationRequest(new Token(null), organisationId)),
             NullPointerException.class);
@@ -96,7 +96,7 @@ public class LeaveOrganizationTest extends Base {
   @Test
   public void leaveOrganizationOrgNotExistsShouldFailWithEntityNotFoundException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.leaveOrganization(new LeaveOrganizationRequest(token, "orgNotExists")),
             EntityNotFoundException.class);
     assertNotNull(duration);
@@ -105,7 +105,7 @@ public class LeaveOrganizationTest extends Base {
   @Test
   public void leaveOrganizationInvalidUserShouldFailWithInvalidAuthenticationToken() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             createService(invalidProfile)
                 .leaveOrganization(new LeaveOrganizationRequest(token, "orgNotExists")),
             InvalidAuthenticationToken.class);

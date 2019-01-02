@@ -55,7 +55,7 @@ public class InviteMemberTest extends Base {
   @Test
   public void inviteMemberNullRoleShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.inviteMember(
                 new InviteOrganizationMemberRequest(
                     token, organisationId, testProfile5.getUserId(), null)),
@@ -66,7 +66,7 @@ public class InviteMemberTest extends Base {
   @Test
   public void inviteMemberEmptyRoleShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.inviteMember(
                 new InviteOrganizationMemberRequest(
                     token, organisationId, testProfile5.getUserId(), "")),
@@ -77,7 +77,7 @@ public class InviteMemberTest extends Base {
   @Test
   public void inviteMemberInvalidRoleShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.inviteMember(
                 new InviteOrganizationMemberRequest(
                     token, organisationId, testProfile5.getUserId(), "bla")),
@@ -90,7 +90,7 @@ public class InviteMemberTest extends Base {
     addMemberToOrganization(organisationId, service, testProfile2, Role.Admin);
 
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             createService(testProfile2)
                 .inviteMember(
                     new InviteOrganizationMemberRequest(
@@ -102,7 +102,7 @@ public class InviteMemberTest extends Base {
   @Test
   public void inviteMemberEmptyOrgIdShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.inviteMember(
                 new InviteOrganizationMemberRequest(
                     token, "", testProfile5.getUserId(), Role.Member.toString())),
@@ -113,7 +113,7 @@ public class InviteMemberTest extends Base {
   @Test
   public void inviteMemberNullOrgIdShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.inviteMember(
                 new InviteOrganizationMemberRequest(
                     token, null, testProfile5.getUserId(), Role.Member.toString())),
@@ -124,7 +124,7 @@ public class InviteMemberTest extends Base {
   @Test
   public void inviteMemberEmptyUserIdShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.inviteMember(
                 new InviteOrganizationMemberRequest(
                     token, organisationId, "", Role.Member.toString())),
@@ -135,7 +135,7 @@ public class InviteMemberTest extends Base {
   @Test
   public void inviteMemberNullUserIdShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.inviteMember(
                 new InviteOrganizationMemberRequest(
                     token, organisationId, null, Role.Member.toString())),
@@ -146,7 +146,7 @@ public class InviteMemberTest extends Base {
   @Test
   public void inviteMemberEmptyTokenShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.inviteMember(
                 new InviteOrganizationMemberRequest(
                     new Token(""),
@@ -160,7 +160,7 @@ public class InviteMemberTest extends Base {
   @Test
   public void inviteMemberNullTokenShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.inviteMember(
                 new InviteOrganizationMemberRequest(
                     null, organisationId, testProfile5.getUserId(), Role.Member.toString())),
@@ -171,7 +171,7 @@ public class InviteMemberTest extends Base {
   @Test
   public void inviteMemberNullInnerTokenShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.inviteMember(
                 new InviteOrganizationMemberRequest(
                     new Token(null),
@@ -184,7 +184,7 @@ public class InviteMemberTest extends Base {
 
   @Test
   public void inviteMemberOrgNotExistsShouldFailWithEntityNotFoundException() {
-    expectError(
+    assertMonoCompletesWithError(
         service.inviteMember(
             new InviteOrganizationMemberRequest(
                 token, "orgNotExists", testProfile5.getUserId(), Role.Member.toString())),
@@ -195,7 +195,7 @@ public class InviteMemberTest extends Base {
   @Test
   public void inviteMemberShouldFailWithInvalidAuthenticationToken() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             createService(invalidProfile)
                 .inviteMember(
                     new InviteOrganizationMemberRequest(

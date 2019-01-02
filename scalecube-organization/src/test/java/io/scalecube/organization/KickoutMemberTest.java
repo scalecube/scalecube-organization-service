@@ -52,7 +52,7 @@ public class KickoutMemberTest extends Base {
   @Test
   public void kickoutMemberInvalidUserShouldFailWithInvalidAuthenticationToken() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             createService(invalidProfile)
                 .kickoutMember(
                     new KickoutOrganizationMemberRequest(
@@ -64,7 +64,7 @@ public class KickoutMemberTest extends Base {
   @Test
   public void kickoutMemberEmptyOrgIdShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.kickoutMember(
                 new KickoutOrganizationMemberRequest("", token, testProfile5.getUserId())),
             IllegalArgumentException.class);
@@ -74,7 +74,7 @@ public class KickoutMemberTest extends Base {
   @Test
   public void kickoutMemberNullOrgIdShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.kickoutMember(
                 new KickoutOrganizationMemberRequest(null, token, testProfile5.getUserId())),
             NullPointerException.class);
@@ -84,7 +84,7 @@ public class KickoutMemberTest extends Base {
   @Test
   public void kickoutMemberEmptyTokenShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.kickoutMember(
                 new KickoutOrganizationMemberRequest(
                     organisationId, new Token(""), testProfile5.getUserId())),
@@ -95,7 +95,7 @@ public class KickoutMemberTest extends Base {
   @Test
   public void kickoutMemberNullTokenShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.kickoutMember(
                 new KickoutOrganizationMemberRequest(
                     organisationId, null, testProfile5.getUserId())),
@@ -106,7 +106,7 @@ public class KickoutMemberTest extends Base {
   @Test
   public void kickoutMemberNullInnerTokenShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.kickoutMember(
                 new KickoutOrganizationMemberRequest(
                     organisationId, new Token(null), testProfile5.getUserId())),
@@ -117,7 +117,7 @@ public class KickoutMemberTest extends Base {
   @Test
   public void kickoutMemberEmptyUserIdShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.kickoutMember(new KickoutOrganizationMemberRequest(organisationId, token, "")),
             IllegalArgumentException.class);
     assertNotNull(duration);
@@ -126,7 +126,7 @@ public class KickoutMemberTest extends Base {
   @Test
   public void kickoutMemberNullUserIdShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.kickoutMember(
                 new KickoutOrganizationMemberRequest(organisationId, token, null)),
             NullPointerException.class);
@@ -136,7 +136,7 @@ public class KickoutMemberTest extends Base {
   @Test
   public void kickoutMemberOrgNotExistsShouldFailWithEntityNotFoundException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.kickoutMember(
                 new KickoutOrganizationMemberRequest(
                     "orgNotExists", token, testProfile5.getUserId())),
@@ -147,7 +147,7 @@ public class KickoutMemberTest extends Base {
   @Test
   public void kickoutMemberNotOrgOwnerShouldFailWithAccessPermissionException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             createService(testProfile5)
                 .kickoutMember(
                     new KickoutOrganizationMemberRequest(

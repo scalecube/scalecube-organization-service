@@ -24,7 +24,7 @@ public class CreateOrganizationTest extends Base {
   @Test
   public void createOrganizationWithNameAlreadyInUseShouldFail() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.createOrganization(new CreateOrganizationRequest(organisation.name(), token)),
             NameAlreadyInUseException.class);
     assertNotNull(duration);
@@ -63,7 +63,7 @@ public class CreateOrganizationTest extends Base {
   @Test
   public void createOrganizationWithEmptyNameShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.createOrganization(new CreateOrganizationRequest("", token)),
             IllegalArgumentException.class);
     assertNotNull(duration);
@@ -109,7 +109,7 @@ public class CreateOrganizationTest extends Base {
   @Test
   public void createOrganizationWithNullNameShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.createOrganization(new CreateOrganizationRequest(null, token)),
             NullPointerException.class);
     assertNotNull(duration);
@@ -129,7 +129,7 @@ public class CreateOrganizationTest extends Base {
   @Test
   public void createOrganizationShouldFailWithInvalidAuthenticationToken() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             createService(invalidProfile)
                 .createOrganization(new CreateOrganizationRequest("myTestOrg5", token)),
             InvalidAuthenticationToken.class);
@@ -139,7 +139,7 @@ public class CreateOrganizationTest extends Base {
   @Test
   public void createOrganizationNullTokenShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.createOrganization(new CreateOrganizationRequest("myTestOrg5", null)),
             NullPointerException.class);
     assertNotNull(duration);
@@ -148,7 +148,7 @@ public class CreateOrganizationTest extends Base {
   @Test
   public void createOrganizationNullInnerTokenShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.createOrganization(
                 new CreateOrganizationRequest("myTestOrg5", new Token(null))),
             NullPointerException.class);
@@ -158,7 +158,7 @@ public class CreateOrganizationTest extends Base {
   @Test
   public void createOrganizationEmptyTokenShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.createOrganization(new CreateOrganizationRequest("myTestOrg5", new Token(""))),
             IllegalArgumentException.class);
     assertNotNull(duration);

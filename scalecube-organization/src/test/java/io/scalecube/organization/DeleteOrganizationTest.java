@@ -19,7 +19,7 @@ public class DeleteOrganizationTest extends Base {
   @Test
   public void deleteOrganizationApiKeyUserNotOwnerShouldFailWithAccessPermissionException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             createService(testProfile2)
                 .deleteOrganizationApiKey(
                     new DeleteOrganizationApiKeyRequest(token, organisationId, "api_key")),
@@ -30,7 +30,7 @@ public class DeleteOrganizationTest extends Base {
   @Test
   public void deleteOrganizationApiKeyEmptyOrgIdShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.deleteOrganizationApiKey(
                 new DeleteOrganizationApiKeyRequest(token, "", "api_key")),
             IllegalArgumentException.class);
@@ -40,7 +40,7 @@ public class DeleteOrganizationTest extends Base {
   @Test
   public void deleteOrganizationApiKeyOrgNotExistsShouldFailWithEntityNotFoundException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.deleteOrganizationApiKey(
                 new DeleteOrganizationApiKeyRequest(token, "bla", "api_key")),
             EntityNotFoundException.class);
@@ -50,7 +50,7 @@ public class DeleteOrganizationTest extends Base {
   @Test
   public void deleteOrganizationApiKeyNullOrgShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.deleteOrganizationApiKey(
                 new DeleteOrganizationApiKeyRequest(token, null, "api_key")),
             NullPointerException.class);
@@ -60,7 +60,7 @@ public class DeleteOrganizationTest extends Base {
   @Test
   public void deleteOrganizationApiKeyNullApiKeyNameShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.deleteOrganizationApiKey(
                 new DeleteOrganizationApiKeyRequest(token, organisationId, null)),
             NullPointerException.class);
@@ -70,7 +70,7 @@ public class DeleteOrganizationTest extends Base {
   @Test
   public void deleteOrganizationApiKeyEmptyNameShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.deleteOrganizationApiKey(
                 new DeleteOrganizationApiKeyRequest(token, organisationId, "")),
             IllegalArgumentException.class);
@@ -80,7 +80,7 @@ public class DeleteOrganizationTest extends Base {
   @Test
   public void deleteOrganizationApiKeyInvalidUserShouldFailWithInvalidAuthenticationToken() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             createService(invalidProfile)
                 .deleteOrganizationApiKey(
                     new DeleteOrganizationApiKeyRequest(token, organisationId, "api_key")),
@@ -91,7 +91,7 @@ public class DeleteOrganizationTest extends Base {
   @Test
   public void deleteOrganizationApiKeyNullTokenShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.deleteOrganizationApiKey(
                 new DeleteOrganizationApiKeyRequest(null, organisationId, "api_key")),
             NullPointerException.class);
@@ -101,7 +101,7 @@ public class DeleteOrganizationTest extends Base {
   @Test
   public void deleteOrganizationApiKeyNullInnerTokenShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.deleteOrganizationApiKey(
                 new DeleteOrganizationApiKeyRequest(new Token(null), organisationId, "api_key")),
             NullPointerException.class);
@@ -111,7 +111,7 @@ public class DeleteOrganizationTest extends Base {
   @Test
   public void deleteOrganizationApiKeyEmptyTokenShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             service.deleteOrganizationApiKey(
                 new DeleteOrganizationApiKeyRequest(new Token(""), organisationId, "api_key")),
             IllegalArgumentException.class);
@@ -121,7 +121,7 @@ public class DeleteOrganizationTest extends Base {
   @Test
   public void deleteOrganizationInvalidTokenShouldFailWithInvalidAuthenticationToken() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             createService(invalidProfile)
                 .deleteOrganization(new DeleteOrganizationRequest(token, organisationId)),
             InvalidAuthenticationToken.class);
@@ -131,7 +131,7 @@ public class DeleteOrganizationTest extends Base {
   @Test
   public void deleteOrganizationWithIdNotExistsShouldFailWithEntityNotFoundException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             createService(testProfile)
                 .deleteOrganization(new DeleteOrganizationRequest(token, "orgIdNotExists")),
             EntityNotFoundException.class);
@@ -141,7 +141,7 @@ public class DeleteOrganizationTest extends Base {
   @Test
   public void deleteOrganizationWithEmptyIdShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             createService(testProfile).deleteOrganization(new DeleteOrganizationRequest(token, "")),
             IllegalArgumentException.class);
     assertNotNull(duration);
@@ -150,7 +150,7 @@ public class DeleteOrganizationTest extends Base {
   @Test
   public void deleteOrganizationWithNullIdShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             createService(testProfile)
                 .deleteOrganization(new DeleteOrganizationRequest(token, null)),
             NullPointerException.class);
@@ -160,7 +160,7 @@ public class DeleteOrganizationTest extends Base {
   @Test
   public void deleteOrganizationWithNullTokenShouldFailWithNullPointerException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             createService(testProfile)
                 .deleteOrganization(new DeleteOrganizationRequest(null, organisationId)),
             NullPointerException.class);
@@ -170,7 +170,7 @@ public class DeleteOrganizationTest extends Base {
   @Test
   public void deleteOrganizationWithEmptyTokenShouldFailWithIllegalArgumentException() {
     Duration duration =
-        expectError(
+        assertMonoCompletesWithError(
             createService(testProfile)
                 .deleteOrganization(new DeleteOrganizationRequest(new Token(""), organisationId)),
             IllegalArgumentException.class);

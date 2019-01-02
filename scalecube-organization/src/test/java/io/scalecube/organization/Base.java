@@ -172,7 +172,7 @@ public class Base {
         .build();
   }
 
-  protected static <T> Duration expectError(Mono<T> mono, Class<? extends Throwable> exception) {
+  protected static <T> Duration assertMonoCompletesWithError(Mono<T> mono, Class<? extends Throwable> exception) {
     return StepVerifier.create(mono).expectSubscription().expectError(exception).verify();
   }
 
