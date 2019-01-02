@@ -2,7 +2,6 @@ package io.scalecube.tokens;
 
 import io.scalecube.account.api.ApiKey;
 import io.scalecube.jwt.WebToken;
-
 import java.util.Map;
 
 /**

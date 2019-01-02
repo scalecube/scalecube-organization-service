@@ -7,7 +7,6 @@ import io.scalecube.account.api.OrganizationInfo;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.tokens.TokenVerifier;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;

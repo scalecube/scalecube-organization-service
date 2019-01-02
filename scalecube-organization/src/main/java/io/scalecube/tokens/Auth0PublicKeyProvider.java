@@ -9,7 +9,6 @@ import io.scalecube.tokens.jwk.Jwk;
 import io.scalecube.tokens.jwk.JwkException;
 import io.scalecube.tokens.jwk.JwkProvider;
 import io.scalecube.tokens.jwk.UrlJwkProvider;
-
 import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.Objects;

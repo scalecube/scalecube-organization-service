@@ -1,9 +1,5 @@
 package io.scalecube.account.api;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Represents an Organization.
  */

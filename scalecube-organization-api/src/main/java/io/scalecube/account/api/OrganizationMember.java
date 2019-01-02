@@ -38,10 +38,13 @@ public class OrganizationMember {
     if (!(obj instanceof OrganizationMember)) {
       return super.equals(obj);
     }
-
     OrganizationMember other = (OrganizationMember)obj;
-
     return Objects.equals(id, other.id);
+  }
+  
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.id);
   }
 
   @Override

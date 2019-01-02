@@ -11,7 +11,6 @@ import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.security.Profile;
 import io.scalecube.tokens.TokenVerifier;
-import java.util.Objects;
 
 /**
  * Encapsulates the processing of a request to update the role of an organization member.

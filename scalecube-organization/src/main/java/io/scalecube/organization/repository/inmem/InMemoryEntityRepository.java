@@ -1,13 +1,11 @@
 package io.scalecube.organization.repository.inmem;
 
 import io.scalecube.organization.repository.Repository;
-
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 
 /**
  * Abstract base in-memory <Code>Repository</Code> implementation.

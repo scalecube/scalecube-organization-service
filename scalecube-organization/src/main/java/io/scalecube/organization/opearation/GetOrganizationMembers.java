@@ -7,7 +7,6 @@ import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.tokens.TokenVerifier;
-
 import java.util.Collection;
 
 public class GetOrganizationMembers extends ServiceOperation<GetOrganizationMembersRequest,

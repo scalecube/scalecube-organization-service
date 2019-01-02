@@ -11,7 +11,6 @@ import java.util.Map;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
-
 public class WebToken {
 
   private final String issuer;
@@ -31,10 +30,21 @@ public class WebToken {
    * @param claims Token claims.
    * @return A string representation of a token.
    */
-  public String createToken(String id, String audience,
-      Long ttlMillis, String keyId, String secretKey,
+  public String createToken(
+      String id,
+      String audience,
+      long ttlMillis,
+      String keyId,
+      String secretKey,
       Map<String, String> claims) {
-    return createWebToken(id, issuer, subject, audience, ttlMillis, keyId, secretKey,
+    return createWebToken(
+        id,
+        issuer,
+        subject,
+        audience,
+        ttlMillis,
+        keyId,
+        secretKey,
         claims == null ? new HashMap<>() : claims);
   }
 
@@ -47,11 +57,12 @@ public class WebToken {
    * @param ttlMillis contains ttl information.
    * @return returns string if valid.
    */
-  private String createWebToken(String id,
+  private String createWebToken(
+      String id,
       String issuer,
       String subject,
       String audience,
-      Long ttlMillis,
+      long ttlMillis,
       String keyId,
       String secretKey,
       Map<String, String> claims) {
@@ -64,29 +75,29 @@ public class WebToken {
 
     // We will sign our JWT with our ApiKey secret
     byte[] apiKeySecretBytes = DatatypeConverter.parseBase64Binary(secretKey);
-    Key signingKey = new SecretKeySpec(apiKeySecretBytes,
-        signatureAlgorithm.getJcaName());
+    Key signingKey = new SecretKeySpec(apiKeySecretBytes, signatureAlgorithm.getJcaName());
 
     // Let's set the JWT Claims
-    JwtBuilder builder = Jwts.builder()
-        .setId(id)
-        .setHeaderParam("kid", keyId)
-        .setIssuedAt(now)
-        .setSubject(subject).setIssuer(issuer)
-        .setAudience(audience)
-        .signWith(signatureAlgorithm, signingKey);
+    JwtBuilder builder =
+        Jwts.builder()
+            .setId(id)
+            .setHeaderParam("kid", keyId)
+            .setIssuedAt(now)
+            .setSubject(subject)
+            .setIssuer(issuer)
+            .setAudience(audience)
+            .signWith(signatureAlgorithm, signingKey);
 
     for (Map.Entry<String, String> entry : claims.entrySet()) {
       builder.claim(entry.getKey(), entry.getValue());
     }
     // if it has been specified, let's add the expiration
-    if (ttlMillis != null && ttlMillis >= 0) {
+    if (ttlMillis >= 0) {
       long expMillis = nowMillis + ttlMillis;
-
-      if (expMillis > 0) {
-        Date exp = new Date(expMillis);
-        builder.setExpiration(exp);
-      }
+      Date exp = new Date(expMillis);
+      builder.setExpiration(exp);
+    } else {
+      builder.setExpiration(new Date(Long.MAX_VALUE));
     }
 
     // Builds the JWT and serializes it to a compact, URL-safe string
@@ -106,8 +117,9 @@ public class WebToken {
 
     // Make sure id, subject, and issuer are correct
     if (claims != null
-        && (claims.getId().equals(id) && claims.getSubject().equals(subject) && claims.getIssuer()
-        .equals(issuer))) {
+        && claims.getId().equals(id)
+        && claims.getSubject().equals(subject)
+        && claims.getIssuer().equals(issuer)) {
       // Make sure expiration is in the future
       long nowMillis = System.currentTimeMillis();
       Date now = new Date(nowMillis);
@@ -128,11 +140,11 @@ public class WebToken {
     Claims claims = null;
     try {
       // This line will throw an exception if it is not a signed JWS (as expected)
-      claims = Jwts.parser()
-          .setSigningKey(DatatypeConverter
-              .parseBase64Binary(secretKey))
-          .parseClaimsJws(jwt)
-          .getBody();
+      claims =
+          Jwts.parser()
+              .setSigningKey(DatatypeConverter.parseBase64Binary(secretKey))
+              .parseClaimsJws(jwt)
+              .getBody();
     } catch (Exception ex) {
       System.out.println(ex.getMessage());
     }
@@ -142,6 +154,4 @@ public class WebToken {
   public Claims parse(String token, String secretKey) {
     return parseWebToken(token, secretKey);
   }
-
 }
-

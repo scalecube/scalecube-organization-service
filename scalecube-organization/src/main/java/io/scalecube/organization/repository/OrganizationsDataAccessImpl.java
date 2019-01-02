@@ -7,10 +7,7 @@ import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.Role;
 import io.scalecube.organization.repository.exception.DuplicateKeyException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
-import io.scalecube.organization.repository.exception.InvalidInputException;
-import io.scalecube.organization.repository.exception.NameAlreadyInUseException;
 import io.scalecube.security.Profile;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;

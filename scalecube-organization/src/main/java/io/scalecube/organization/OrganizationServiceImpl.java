@@ -44,10 +44,8 @@ import io.scalecube.organization.repository.Repository;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
 import io.scalecube.tokens.TokenVerification;
 import io.scalecube.tokens.TokenVerifier;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import reactor.core.publisher.Mono;
 
 /**
