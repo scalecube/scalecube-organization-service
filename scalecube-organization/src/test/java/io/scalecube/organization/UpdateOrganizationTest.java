@@ -1,9 +1,8 @@
 package io.scalecube.organization;
 
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.scalecube.account.api.AddOrganizationApiKeyRequest;
@@ -19,7 +18,6 @@ import io.scalecube.account.api.UpdateOrganizationRequest;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.organization.repository.exception.NameAlreadyInUseException;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
@@ -39,103 +37,80 @@ public class UpdateOrganizationTest extends Base {
   @Test
   public void updateOrganizationWithExistingOrgNameShouldFailWithNameAlreadyInUseException() {
     Organization localOrganization = createOrganization(randomString());
-
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.updateOrganization(
-                new UpdateOrganizationRequest(
-                    organisationId, token, localOrganization.name(), "update@email")),
-            NameAlreadyInUseException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.updateOrganization(
+            new UpdateOrganizationRequest(
+                organisationId, token, localOrganization.name(), "update@email")),
+        NameAlreadyInUseException.class);
   }
 
   @Test
   public void updateOrganizationWithIdNotExistsShouldFailWithEntityNotFoundException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.updateOrganization(
-                new UpdateOrganizationRequest(
-                    "orgNotExists", token, "update_name", "update@email")),
-            EntityNotFoundException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.updateOrganization(
+            new UpdateOrganizationRequest("orgNotExists", token, "update_name", "update@email")),
+        EntityNotFoundException.class);
   }
 
   @Test
   public void updateOrganizationWithEmptyIdShouldFailWithIllegalArgumentException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.updateOrganization(
-                new UpdateOrganizationRequest("", token, "update_name", "update@email")),
-            EntityNotFoundException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.updateOrganization(
+            new UpdateOrganizationRequest("", token, "update_name", "update@email")),
+        EntityNotFoundException.class);
   }
 
   @Test
   public void updateOrganizationWithInvalidTokenShouldFailWithInvalidToken() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            createService(invalidProfile)
-                .updateOrganization(
-                    new UpdateOrganizationRequest(
-                        organisationId, token, "update_name", "update@email")),
-            InvalidAuthenticationToken.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        createService(invalidProfile)
+            .updateOrganization(
+                new UpdateOrganizationRequest(
+                    organisationId, token, "update_name", "update@email")),
+        InvalidAuthenticationToken.class);
   }
 
   @Test
   public void updateOrganizationWithNullTokenShouldFailWithNullPointerException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            createService(invalidProfile)
-                .updateOrganization(
-                    new UpdateOrganizationRequest(
-                        organisationId, null, "update_name", "update@email")),
-            NullPointerException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        createService(invalidProfile)
+            .updateOrganization(
+                new UpdateOrganizationRequest(organisationId, null, "update_name", "update@email")),
+        NullPointerException.class);
   }
 
   @Test
   public void updateOrganizationWithNullNameShouldFailWithNullPointerException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            createService(testProfile)
-                .updateOrganization(
-                    new UpdateOrganizationRequest(organisationId, token, null, "update@email")),
-            NullPointerException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        createService(testProfile)
+            .updateOrganization(
+                new UpdateOrganizationRequest(organisationId, token, null, "update@email")),
+        NullPointerException.class);
   }
 
   @Test
   public void updateOrganizationWithNullEmailShouldFailWithNullPointerException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            createService(testProfile)
-                .updateOrganization(
-                    new UpdateOrganizationRequest(organisationId, token, "name", null)),
-            NullPointerException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        createService(testProfile)
+            .updateOrganization(new UpdateOrganizationRequest(organisationId, token, "name", null)),
+        NullPointerException.class);
   }
 
   @Test
   public void updateOrganizationWithEmptyNameShouldFailWithIllegalArgumentException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            createService(testProfile)
-                .updateOrganization(
-                    new UpdateOrganizationRequest(organisationId, token, "", "update@email")),
-            IllegalArgumentException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        createService(testProfile)
+            .updateOrganization(
+                new UpdateOrganizationRequest(organisationId, token, "", "update@email")),
+        IllegalArgumentException.class);
   }
 
   @Test
   public void updateOrganizationWithEmptyEmailShouldFailWithIllegalArgumentException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            createService(testProfile)
-                .updateOrganization(
-                    new UpdateOrganizationRequest(organisationId, token, "name", "")),
-            IllegalArgumentException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        createService(testProfile)
+            .updateOrganization(new UpdateOrganizationRequest(organisationId, token, "name", "")),
+        IllegalArgumentException.class);
   }
 
   @Test
@@ -170,21 +145,20 @@ public class UpdateOrganizationTest extends Base {
         service.addOrganizationApiKey(
             new AddOrganizationApiKeyRequest(
                 token, organisationId, "testApiKey", new HashMap<>())));
-    Duration duration =
-        StepVerifier.create(
-                createService(testAdminProfile)
-                    .updateOrganization(
-                        new UpdateOrganizationRequest(
-                            organisationId, token, "update_name", "update@email")))
-            .expectSubscription()
-            .assertNext(
-                (r) -> {
-                  assertThat("name not updated", r.name(), equalTo("update_name"));
-                  assertThat("email not updated", r.email(), equalTo("update@email"));
-                  assertThat("missing api key ", r.apiKeys().length, not(equalTo(0)));
-                })
-            .verifyComplete();
-    assertNotNull(duration);
+
+    StepVerifier.create(
+            createService(testAdminProfile)
+                .updateOrganization(
+                    new UpdateOrganizationRequest(
+                        organisationId, token, "update_name", "update@email")))
+        .expectSubscription()
+        .assertNext(
+            (r) -> {
+              assertThat("name not updated", r.name(), equalTo("update_name"));
+              assertThat("email not updated", r.email(), equalTo("update@email"));
+              assertThat("missing api key ", r.apiKeys().length, not(equalTo(0)));
+            })
+        .verifyComplete();
   }
 
   @Test
@@ -281,131 +255,104 @@ public class UpdateOrganizationTest extends Base {
 
   @Test
   public void updateOrganizationMemberRoleWithNullUserIdShouldFailWithNullPointerException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.updateOrganizationMemberRole(
-                new UpdateOrganizationMemberRoleRequest(
-                    token, organisationId, null, Role.Admin.toString())),
-            NullPointerException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.updateOrganizationMemberRole(
+            new UpdateOrganizationMemberRoleRequest(
+                token, organisationId, null, Role.Admin.toString())),
+        NullPointerException.class);
   }
 
   @Test
   public void updateOrganizationMemberRoleWithEmptyUserIdShouldFailWithIllegalArgumentException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.updateOrganizationMemberRole(
-                new UpdateOrganizationMemberRoleRequest(
-                    token, organisationId, "", Role.Admin.toString())),
-            IllegalArgumentException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.updateOrganizationMemberRole(
+            new UpdateOrganizationMemberRoleRequest(
+                token, organisationId, "", Role.Admin.toString())),
+        IllegalArgumentException.class);
   }
 
   @Test
   public void updateOrganizationMemberRoleWithNullOrgIdShouldFailWithNullPointerException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.updateOrganizationMemberRole(
-                new UpdateOrganizationMemberRoleRequest(
-                    token, null, testProfile5.getUserId(), Role.Admin.toString())),
-            NullPointerException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.updateOrganizationMemberRole(
+            new UpdateOrganizationMemberRoleRequest(
+                token, null, testProfile5.getUserId(), Role.Admin.toString())),
+        NullPointerException.class);
   }
 
   @Test
   public void updateOrganizationMemberRoleWithEmptyOrgIdShouldFailWithIllegalArgumentException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.updateOrganizationMemberRole(
-                new UpdateOrganizationMemberRoleRequest(
-                    token, "", testProfile5.getUserId(), Role.Admin.toString())),
-            IllegalArgumentException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.updateOrganizationMemberRole(
+            new UpdateOrganizationMemberRoleRequest(
+                token, "", testProfile5.getUserId(), Role.Admin.toString())),
+        IllegalArgumentException.class);
   }
 
   @Test
   public void updateOrganizationMemberRoleWithNonExistOrgShouldFailWithEntityNotFoundException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.updateOrganizationMemberRole(
-                new UpdateOrganizationMemberRoleRequest(
-                    token, "bla", testProfile5.getUserId(), Role.Admin.toString())),
-            EntityNotFoundException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.updateOrganizationMemberRole(
+            new UpdateOrganizationMemberRoleRequest(
+                token, "bla", testProfile5.getUserId(), Role.Admin.toString())),
+        EntityNotFoundException.class);
   }
 
   @Test
   public void updateOrganizationMemberRoleWithNullTokenShouldFailWithNullPointerException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.updateOrganizationMemberRole(
-                new UpdateOrganizationMemberRoleRequest(
-                    null, organisationId, testProfile5.getUserId(), Role.Admin.toString())),
-            NullPointerException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.updateOrganizationMemberRole(
+            new UpdateOrganizationMemberRoleRequest(
+                null, organisationId, testProfile5.getUserId(), Role.Admin.toString())),
+        NullPointerException.class);
   }
 
   @Test
   public void updateOrganizationMemberRoleWithNullInnerTokenShouldFailWithNullPointerException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.updateOrganizationMemberRole(
-                new UpdateOrganizationMemberRoleRequest(
-                    new Token(null),
-                    organisationId,
-                    testProfile5.getUserId(),
-                    Role.Admin.toString())),
-            NullPointerException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.updateOrganizationMemberRole(
+            new UpdateOrganizationMemberRoleRequest(
+                new Token(null), organisationId, testProfile5.getUserId(), Role.Admin.toString())),
+        NullPointerException.class);
   }
 
   @Test
   public void
       updateOrganizationMemberRoleWithEmptyInnerTokenShouldFailWithIllegalArgumentException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.updateOrganizationMemberRole(
-                new UpdateOrganizationMemberRoleRequest(
-                    new Token(""),
-                    organisationId,
-                    testProfile5.getUserId(),
-                    Role.Admin.toString())),
-            IllegalArgumentException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.updateOrganizationMemberRole(
+            new UpdateOrganizationMemberRoleRequest(
+                new Token(""), organisationId, testProfile5.getUserId(), Role.Admin.toString())),
+        IllegalArgumentException.class);
   }
 
   @Test
   public void updateOrganizationMemberRoleWithEmptyRoleShouldFailWithIllegalArgumentException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.updateOrganizationMemberRole(
-                new UpdateOrganizationMemberRoleRequest(
-                    token, organisationId, testProfile5.getUserId(), "")),
-            IllegalArgumentException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.updateOrganizationMemberRole(
+            new UpdateOrganizationMemberRoleRequest(
+                token, organisationId, testProfile5.getUserId(), "")),
+        IllegalArgumentException.class);
   }
 
   @Test
   public void updateOrganizationMemberRoleWithNullRoleShouldFailWithNullPointerException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.updateOrganizationMemberRole(
-                new UpdateOrganizationMemberRoleRequest(
-                    token, organisationId, testProfile5.getUserId(), null)),
-            NullPointerException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.updateOrganizationMemberRole(
+            new UpdateOrganizationMemberRoleRequest(
+                token, organisationId, testProfile5.getUserId(), null)),
+        NullPointerException.class);
   }
 
   @Test
   public void
       updateOrganizationMemberRoleInvalidRoleEnumValueShouldFailWithIllegalArgumentException() {
     addMemberToOrganization(organisationId, service, testProfile5);
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.updateOrganizationMemberRole(
-                new UpdateOrganizationMemberRoleRequest(
-                    token, organisationId, testProfile5.getUserId(), "invalid role enum value")),
-            IllegalArgumentException.class);
-    assertNotNull(duration);
+
+    assertMonoCompletesWithError(
+        service.updateOrganizationMemberRole(
+            new UpdateOrganizationMemberRoleRequest(
+                token, organisationId, testProfile5.getUserId(), "invalid role enum value")),
+        IllegalArgumentException.class);
   }
 }

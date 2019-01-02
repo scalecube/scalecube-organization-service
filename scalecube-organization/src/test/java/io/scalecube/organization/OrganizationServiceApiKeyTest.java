@@ -3,7 +3,6 @@ package io.scalecube.organization;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import io.scalecube.account.api.AddOrganizationApiKeyRequest;
 import io.scalecube.account.api.DeleteOrganizationApiKeyRequest;
@@ -15,7 +14,6 @@ import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.security.Profile;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.stream.Collectors;
@@ -29,190 +27,157 @@ public class OrganizationServiceApiKeyTest extends Base {
   public void addOrganizationApiKey() {
     final HashMap<String, String> claims = new HashMap<>();
     claims.put("role", "Owner");
-    Duration duration =
-        StepVerifier.create(
-                service.addOrganizationApiKey(
-                    new AddOrganizationApiKeyRequest(token, organisationId, "apiKey", claims)))
-            .expectSubscription()
-            .assertNext(
-                x -> {
-                  Organization org = getOrganizationFromRepository(organisationId);
-                  assertThat(org.apiKeys()[0].name(), is("apiKey"));
-                })
-            .verifyComplete();
-    assertNotNull(duration);
+    StepVerifier.create(
+            service.addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(token, organisationId, "apiKey", claims)))
+        .expectSubscription()
+        .assertNext(
+            x -> {
+              Organization org = getOrganizationFromRepository(organisationId);
+              assertThat(org.apiKeys()[0].name(), is("apiKey"));
+            })
+        .verifyComplete();
   }
 
   @Test
   public void addOrganizationApiKeyNotOrgOwnerShouldFailWithAccessPermissionException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            createService(testProfile5)
-                .addOrganizationApiKey(
-                    new AddOrganizationApiKeyRequest(
-                        token, organisationId, "api_key", new HashMap<>())),
-            AccessPermissionException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        createService(testProfile5)
+            .addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(
+                    token, organisationId, "api_key", new HashMap<>())),
+        AccessPermissionException.class);
   }
 
   @Test
   public void addOrganizationApiKeyEmptyOrgIdShouldFailWithIllegalArgumentException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.addOrganizationApiKey(
-                new AddOrganizationApiKeyRequest(token, "", "api_key", new HashMap<>())),
-            IllegalArgumentException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.addOrganizationApiKey(
+            new AddOrganizationApiKeyRequest(token, "", "api_key", new HashMap<>())),
+        IllegalArgumentException.class);
   }
 
   @Test
   public void addOrganizationApiKeyNullOrgIdShouldFailWithNullPointerException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.addOrganizationApiKey(
-                new AddOrganizationApiKeyRequest(token, null, "api_key", new HashMap<>())),
-            NullPointerException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.addOrganizationApiKey(
+            new AddOrganizationApiKeyRequest(token, null, "api_key", new HashMap<>())),
+        NullPointerException.class);
   }
 
   @Test
   public void addOrganizationApiKeyNullApiKeyNameShouldFailWithNullPointerException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.addOrganizationApiKey(
-                new AddOrganizationApiKeyRequest(token, organisationId, null, new HashMap<>())),
-            NullPointerException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.addOrganizationApiKey(
+            new AddOrganizationApiKeyRequest(token, organisationId, null, new HashMap<>())),
+        NullPointerException.class);
   }
 
   @Test
   public void addOrganizationApiKeyEmptyApiKeyNameShouldFailWithIllegalArgumentException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.addOrganizationApiKey(
-                new AddOrganizationApiKeyRequest(token, organisationId, "", new HashMap<>())),
-            IllegalArgumentException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.addOrganizationApiKey(
+            new AddOrganizationApiKeyRequest(token, organisationId, "", new HashMap<>())),
+        IllegalArgumentException.class);
   }
 
   @Test
   public void addOrganizationApiKeyEmptyTokenShouldFailWithIllegalArgumentException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.addOrganizationApiKey(
-                new AddOrganizationApiKeyRequest(
-                    new Token(""), organisationId, "api_key", new HashMap<>())),
-            IllegalArgumentException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.addOrganizationApiKey(
+            new AddOrganizationApiKeyRequest(
+                new Token(""), organisationId, "api_key", new HashMap<>())),
+        IllegalArgumentException.class);
   }
 
   @Test
   public void addOrganizationApiKeyNullTokenShouldFailWithNullPointerException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.addOrganizationApiKey(
-                new AddOrganizationApiKeyRequest(null, organisationId, "api_key", new HashMap<>())),
-            NullPointerException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.addOrganizationApiKey(
+            new AddOrganizationApiKeyRequest(null, organisationId, "api_key", new HashMap<>())),
+        NullPointerException.class);
   }
 
   @Test
   public void addOrganizationApiKeyNullInnerTokenShouldFailWithNullPointerException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.addOrganizationApiKey(
-                new AddOrganizationApiKeyRequest(
-                    new Token(null), organisationId, "api_key", new HashMap<>())),
-            NullPointerException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.addOrganizationApiKey(
+            new AddOrganizationApiKeyRequest(
+                new Token(null), organisationId, "api_key", new HashMap<>())),
+        NullPointerException.class);
   }
 
   @Test
   public void addOrganizationApiKeyWithNullClaimsShouldPass() {
-    Duration duration =
-        StepVerifier.create(
-                service.addOrganizationApiKey(
-                    new AddOrganizationApiKeyRequest(token, organisationId, "api_key", null)))
-            .expectSubscription()
-            .assertNext(Assertions::assertNotNull)
-            .verifyComplete();
-    assertNotNull(duration);
+    StepVerifier.create(
+            service.addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(token, organisationId, "api_key", null)))
+        .expectSubscription()
+        .assertNext(Assertions::assertNotNull)
+        .verifyComplete();
   }
 
   @Test
   public void addOrganizationApiKeyOrgNotExistsShouldFailWithEntityNotFoundException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.addOrganizationApiKey(
-                new AddOrganizationApiKeyRequest(token, "bla", "api_key", new HashMap<>())),
-            EntityNotFoundException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.addOrganizationApiKey(
+            new AddOrganizationApiKeyRequest(token, "bla", "api_key", new HashMap<>())),
+        EntityNotFoundException.class);
   }
 
   @Test
   public void addOrganizationApiKeyInvalidUserShouldFailWithInvalidAuthenticationToken() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            createService(invalidProfile)
-                .addOrganizationApiKey(
-                    new AddOrganizationApiKeyRequest(
-                        token, organisationId, "api_key", new HashMap<>())),
-            InvalidAuthenticationToken.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        createService(invalidProfile)
+            .addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(
+                    token, organisationId, "api_key", new HashMap<>())),
+        InvalidAuthenticationToken.class);
   }
 
   @Test
   public void deleteOrganizationApiKey() {
-    Duration duration =
-        StepVerifier.create(
-                service.addOrganizationApiKey(
-                    new AddOrganizationApiKeyRequest(
-                        token,
-                        organisationId,
-                        "apiKey",
-                        Arrays.asList("assertion")
-                            .stream()
-                            .collect(Collectors.toMap(x -> x, x -> x)))))
-            .expectSubscription()
-            .assertNext(
-                x ->
-                    StepVerifier.create(
-                            service.deleteOrganizationApiKey(
-                                new DeleteOrganizationApiKeyRequest(
-                                    token, organisationId, "apiKey")))
-                        .expectSubscription()
-                        .assertNext(
-                            k -> {
-                              Organization org = getOrganizationFromRepository(organisationId);
-                              assertThat(org.apiKeys(), emptyArray());
-                            })
-                        .verifyComplete())
-            .verifyComplete();
-    assertNotNull(duration);
+
+    StepVerifier.create(
+            service.addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(
+                    token,
+                    organisationId,
+                    "apiKey",
+                    Arrays.asList("assertion").stream().collect(Collectors.toMap(x -> x, x -> x)))))
+        .expectSubscription()
+        .assertNext(
+            x ->
+                StepVerifier.create(
+                        service.deleteOrganizationApiKey(
+                            new DeleteOrganizationApiKeyRequest(token, organisationId, "apiKey")))
+                    .expectSubscription()
+                    .assertNext(
+                        k -> {
+                          Organization org = getOrganizationFromRepository(organisationId);
+                          assertThat(org.apiKeys(), emptyArray());
+                        })
+                    .verifyComplete())
+        .verifyComplete();
   }
 
   @Test
   public void addOrganizationApiKeyUserNotOwnerShouldFailWithAccessPermissionException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            createService(testProfile2)
-                .addOrganizationApiKey(
-                    new AddOrganizationApiKeyRequest(token, organisationId, "api_key", null)),
-            AccessPermissionException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        createService(testProfile2)
+            .addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(token, organisationId, "api_key", null)),
+        AccessPermissionException.class);
   }
 
   @Test
   public void addOrganizationApiKeyUserNotAdminShouldFailWithAccessPermissionException() {
     addMemberToOrganization(organisationId, service, testProfile2);
-
-    Duration duration =
-        assertMonoCompletesWithError(
-            createService(testProfile2)
-                .addOrganizationApiKey(
-                    new AddOrganizationApiKeyRequest(token, organisationId, "api_key", null)),
-            AccessPermissionException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        createService(testProfile2)
+            .addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(token, organisationId, "api_key", null)),
+        AccessPermissionException.class);
   }
 
   @Test
@@ -227,18 +192,16 @@ public class OrganizationServiceApiKeyTest extends Base {
                 token, organisationId, adminUser.getUserId(), Role.Admin.toString())));
 
     // add api key by admin
-    Duration duration =
-        StepVerifier.create(
-                createService(adminUser)
-                    .addOrganizationApiKey(
-                        new AddOrganizationApiKeyRequest(token, organisationId, "apiKey", null)))
-            .expectSubscription()
-            .assertNext(
-                x -> {
-                  Organization org = getOrganizationFromRepository(organisationId);
-                  assertThat(org.apiKeys()[0].name(), is("apiKey"));
-                })
-            .verifyComplete();
-    assertNotNull(duration);
+    StepVerifier.create(
+            createService(adminUser)
+                .addOrganizationApiKey(
+                    new AddOrganizationApiKeyRequest(token, organisationId, "apiKey", null)))
+        .expectSubscription()
+        .assertNext(
+            x -> {
+              Organization org = getOrganizationFromRepository(organisationId);
+              assertThat(org.apiKeys()[0].name(), is("apiKey"));
+            })
+        .verifyComplete();
   }
 }

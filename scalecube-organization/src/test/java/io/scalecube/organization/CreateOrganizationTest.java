@@ -138,30 +138,23 @@ public class CreateOrganizationTest extends Base {
 
   @Test
   public void createOrganizationNullTokenShouldFailWithNullPointerException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.createOrganization(new CreateOrganizationRequest("myTestOrg5", null)),
-            NullPointerException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.createOrganization(new CreateOrganizationRequest("myTestOrg5", null)),
+        NullPointerException.class);
   }
 
   @Test
   public void createOrganizationNullInnerTokenShouldFailWithNullPointerException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.createOrganization(
-                new CreateOrganizationRequest("myTestOrg5", new Token(null))),
-            NullPointerException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.createOrganization(new CreateOrganizationRequest("myTestOrg5", new Token(null))),
+        NullPointerException.class);
   }
 
   @Test
   public void createOrganizationEmptyTokenShouldFailWithIllegalArgumentException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.createOrganization(new CreateOrganizationRequest("myTestOrg5", new Token(""))),
-            IllegalArgumentException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.createOrganization(new CreateOrganizationRequest("myTestOrg5", new Token(""))),
+        IllegalArgumentException.class);
   }
 
   public static Stream<Arguments> invalidOrgNames() {

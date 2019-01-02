@@ -2,14 +2,12 @@ package io.scalecube.organization;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import io.scalecube.account.api.GetOrganizationRequest;
 import io.scalecube.account.api.InvalidAuthenticationToken;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
-import java.time.Duration;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
@@ -24,100 +22,78 @@ class GetOrganizationTest extends Base {
    */
   @Test
   public void getOrganization() {
-    Duration duration =
-        StepVerifier.create(
-                service.getOrganization(new GetOrganizationRequest(token, organisationId)))
-            .expectSubscription()
-            .assertNext((r) -> assertThat(r.id(), is(organisationId)))
-            .expectComplete()
-            .verify();
-    assertNotNull(duration);
+    StepVerifier.create(service.getOrganization(new GetOrganizationRequest(token, organisationId)))
+        .expectSubscription()
+        .assertNext((r) -> assertThat(r.id(), is(organisationId)))
+        .expectComplete()
+        .verify();
   }
 
   @Test
   public void getOrganizationNotMemberShouldFailWithAccessPermissionException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            createService(testProfile5)
-                .getOrganization(new GetOrganizationRequest(new Token("foo"), organisationId)),
-            AccessPermissionException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        createService(testProfile5)
+            .getOrganization(new GetOrganizationRequest(new Token("foo"), organisationId)),
+        AccessPermissionException.class);
   }
 
   @Test
   public void getOrganizationShouldFailWithEntityNotFoundException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.getOrganization(new GetOrganizationRequest(token, "bla")),
-            EntityNotFoundException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.getOrganization(new GetOrganizationRequest(token, "bla")),
+        EntityNotFoundException.class);
   }
 
   @Test
   public void getOrganizationShouldFailWithInvalidAuthenticationToken() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            createService(invalidProfile)
-                .getOrganization(new GetOrganizationRequest(token, organisationId)),
-            InvalidAuthenticationToken.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        createService(invalidProfile)
+            .getOrganization(new GetOrganizationRequest(token, organisationId)),
+        InvalidAuthenticationToken.class);
   }
 
   @Test
   public void getOrganizationWithEmptyIdShouldFailWithIllegalArgumentException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            createService(testProfile).getOrganization(new GetOrganizationRequest(token, "")),
-            IllegalArgumentException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        createService(testProfile).getOrganization(new GetOrganizationRequest(token, "")),
+        IllegalArgumentException.class);
   }
 
   @Test
   public void getOrganizationWithNullIdShouldFailWithNullPointerException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            createService(testProfile).getOrganization(new GetOrganizationRequest(token, null)),
-            NullPointerException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        createService(testProfile).getOrganization(new GetOrganizationRequest(token, null)),
+        NullPointerException.class);
   }
 
   @Test
   public void getOrganizationWithNullTokenShouldFailWithNullPointerException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            createService(testProfile)
-                .getOrganization(new GetOrganizationRequest(null, organisationId)),
-            NullPointerException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        createService(testProfile)
+            .getOrganization(new GetOrganizationRequest(null, organisationId)),
+        NullPointerException.class);
   }
 
   @Test
   public void getOrganizationWithInvalidTokenShouldFailWithInvalidAuthenticationToken() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            createService(invalidProfile)
-                .getOrganization(new GetOrganizationRequest(token, organisationId)),
-            InvalidAuthenticationToken.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        createService(invalidProfile)
+            .getOrganization(new GetOrganizationRequest(token, organisationId)),
+        InvalidAuthenticationToken.class);
   }
 
   @Test
   public void getOrganizationWithIdNotExistsShouldFailWithEntityNotFoundException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            createService(testProfile)
-                .getOrganization(new GetOrganizationRequest(token, "orgIdNotExists")),
-            EntityNotFoundException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        createService(testProfile)
+            .getOrganization(new GetOrganizationRequest(token, "orgIdNotExists")),
+        EntityNotFoundException.class);
   }
 
   @Test
   public void getOrganizationWithEmptyTokenShouldFailWithIllegalArgumentException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            createService(testProfile)
-                .getOrganization(new GetOrganizationRequest(new Token(""), "")),
-            IllegalArgumentException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        createService(testProfile).getOrganization(new GetOrganizationRequest(new Token(""), "")),
+        IllegalArgumentException.class);
   }
 }

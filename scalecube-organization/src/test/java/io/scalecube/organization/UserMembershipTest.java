@@ -11,7 +11,6 @@ import io.scalecube.account.api.OrganizationInfo;
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.Token;
 import io.scalecube.security.Profile;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -54,39 +53,31 @@ public class UserMembershipTest extends Base {
 
   @Test
   public void getUserMembershipInvalidUserShouldFailWithInvalidAuthenticationToken() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            createService(invalidProfile)
-                .getUserOrganizationsMembership(new GetMembershipRequest(token)),
-            InvalidAuthenticationToken.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        createService(invalidProfile)
+            .getUserOrganizationsMembership(new GetMembershipRequest(token)),
+        InvalidAuthenticationToken.class);
   }
 
   @Test
   public void getUserMembershipNullTokenShouldFailWithNullPointerException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.getUserOrganizationsMembership(new GetMembershipRequest(null)),
-            NullPointerException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.getUserOrganizationsMembership(new GetMembershipRequest(null)),
+        NullPointerException.class);
   }
 
   @Test
   public void getUserMembershipNullInnerTokenShouldFailWithNullPointerException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.getUserOrganizationsMembership(new GetMembershipRequest(new Token(null))),
-            NullPointerException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.getUserOrganizationsMembership(new GetMembershipRequest(new Token(null))),
+        NullPointerException.class);
   }
 
   @Test
   public void getUserMembershipEmptyInnerTokenShouldFailWithIllegalArgumentException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.getUserOrganizationsMembership(new GetMembershipRequest(new Token(""))),
-            IllegalArgumentException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.getUserOrganizationsMembership(new GetMembershipRequest(new Token(""))),
+        IllegalArgumentException.class);
   }
 
   @Test
