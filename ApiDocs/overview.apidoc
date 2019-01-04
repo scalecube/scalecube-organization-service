@@ -1,21 +1,23 @@
-
 /**
 * @api {Transport protocols} / Getting Started
 * @apiName GettingStarted
 * @apiGroup Overview
-*
-* @apiDescription Configuration service enable you to integrate the API in order to create and manage the separate repositories purposed for entity collection and storage.
+* @apiVersion 0.0.0-CURRENT
+* @apiDescription Organization service enable you to integrate the API in order to create and manage the organizations.
+* Appropriate permission level (roles: Owner/Admin) is required to manage the organization from the relevant member's perspective besides the origin owner abilities.
+* Thus each organization could be deleted or relevant credentials updated, valid members could be invited to and removed from the relevant organization as do the
+* granted members roles (Owner/Admin/Member) could be updated and each member could get the info about the organization and it's membership.
+* Organization managers could provide and delete the relevant API keys (permission level with appropriate assigned roles: (Owner/Admin/Member)) which are vital feature
+* for the <a href="http://scalecube.io/configuration-service/index.html">Configuration service</a> management and security purpose and don't relates to the organization members similar roles.
 *
 *
 * <b>Getting Started</b>
 *
 *
-* All API endpoints are documented below.
+* All API endpoints are documented below and require the <a href="http://scalecube.io/configuration-service/index.html">Configuration service</a> host address.
 * <br> You can try out any query in realtime using our interactive API.
-* Actually all methods require API key authorization since they provide a specific permission level for the each user.
-* So there is a necessity to get the API key (token - assigned with relevant role Member/Admin/Owner) issued via Organization Service which is basically purposed for organization managers
-* who provide such kind permission level to potential costumers.
-* <br>Thus, we recommend you first to be granted with valid API key assigned with relevant role (permission level) to be able to use this API key across all service endpoints.
+* Actually service requires token authentication, so there is a necessity to get the token issued via secured authority.
+* <br>Thus, we recommend you first to get the <a href="https://manage.auth0.com/">Auth0</a> token whereby to perform the valid requests across all service endpoints.
 *
 * Validation for the object entities is handled by scalecube services and do the next upon the request object:
 * >~ ignores any excessive keys and values added besides the required parameters
@@ -23,27 +25,28 @@
 */
 
 /**
-* @api {API Gateway protocols} / General Definitions
+* @api {Host addresses} / General Definitions
 * @apiName GeneralDefinitions
 * @apiGroup Overview
-
+* @apiVersion 0.0.0-CURRENT
 * @apiDescription The request should contain the following structure upon the transport protocols are used:
                     <ul>
 								   <b>Websocket</b>
-                                   <li> 1. "q": The query of the relevant service path </li>
-                                   <li> 2. "sid": The identifier of the stream id. </li>
-                                   <li> 3. "d": The request data (parameters and values). </li>
+                                   <li> "q": The query of the relevant service path </li>
+                                   <li> "sid": The identifier of the stream id. </li>
+                                   <li> "d": The request data (parameters and values). </li>
 								   <b>RSocket</b>
-								   <li> 1. "metadata" which contains object "q": The query of the relevant service path </li>
-                                   <li> 2. "data" object: The request data (parameters and values). </li>
+								   <li> "metadata" which contains object "q": The query of the relevant service path </li>
+                                   <li> "data" object: The request data (parameters and values). </li>
 								   <b>HTTP</b>
-								   <li> 1. "headers": Content-Type json </li>
-                                   <li> 2. "body" json object: The request data (parameters and values). </li>
+								   <li> add the "/organizations/method_name" to the host </li>
+								   <li> "headers": Content-Type json </li>
+                                   <li> "body" json object: The request data (parameters and values). </li>
                     </ul>
 
 * @apiParamExample {json} Request-Example Websocket:
                     {
-                        "q": "/io.scalecube.configuration.api.ServiceName/method_name",
+                        "q": "/organizations/method_name",
                         "sid": 1,
                         "d": {
                                 "relevant request parameters and values"
@@ -53,7 +56,7 @@
 * @apiParamExample {json} Request-Example RSocket:
                     {
                         "metadata": {
-                            "q": "/io.scalecube.configuration.api.ServiceName/method_name",
+                            "q": "/organizations/method_name",
                             }
                             "d": {
                                     "relevant request parameters and values"
@@ -71,11 +74,12 @@
   * @api {Host addresses} / Interactive API Explorer
   * @apiName InteractiveAPIExplorer
   * @apiGroup Overview
-  * @apiDescription Please follow the steps below to connect and run commands via Sandbox:
+  * @apiVersion 0.0.0-CURRENT
+  * @apiDescription For example <b>Websocket</b> connection is one of the accessible ways to use the API, so please follow the steps below to connect and perform requests via Sandbox:
   <ul>
-                 <li> 1. Enter to the sandbox: <a href="http://scalecube.io/api-sandbox/app/index.html">Scalecube sandbox</a> </li>
-                 <li> 2. Click on the Settings button and enter the environment: wss://configuration-service-7070.genesis.om2.com </li>
-                 <li> 3. Import the exchange.json file path <a href="https://raw.githubusercontent.com/PavloPetrina/JsonData/master/OrganizationServiceALL.json">Organization service contracts.json</a></li>
-                 <li> 4. Click on the Connect button (now you are connected to the environment) and push "Send"</li>
+                 <li> Navigate to the sandbox: <a href="http://scalecube.io/api-sandbox/app/index.html">Scalecube sandbox</a> </li>
+                 <li> Click on the <b>Settings</b> button and choose the relevant <b>transort</b> and host <b>address</b>: wss://configuration-service-7070.genesis.om2.com </li>
+                 <li> Click on <b>Import icon</b> and copy-paste the template.json file path <a href="https://raw.githubusercontent.com/PavloPetrina/JsonData/master/OrganizationServiceALL.json">Organization service endpoints.json</a></li>
+                 <li> Click on the <b>Connect</b> button (now you are connected to the environment) and push <b>Send</b> button to make your request</li>
   </ul>
 */

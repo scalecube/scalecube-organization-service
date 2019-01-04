@@ -1,0 +1,207 @@
+{
+  "text": "<span class='brand-name icon node-icon'><span style='padding-right: 0px' class='text-white text-bold'>ORG</span><span class='text-blue text-bold'>Service</span></span>",
+  "id": "1",
+  "type": "ORG",
+  "backColor": "black",
+  "nodes": [{
+    "id": "2",
+    "text": "createOrganization",
+    "backColor": "black",
+    "data": {
+      "q": "/organizations/create",
+      "sid": 1,
+      "d": {
+        "token": {
+          "issuer": "auth0",
+          "token": "PUT IN YOUR VALID TOKEN"
+        },
+        "name": "CUSTOM THE NAME OF YOUR ORGANIZATION",
+        "email": "CUSTOM THE E-MAIL OF YOUR ORGANIZATION"
+      }
+    }
+
+  }, {
+    "id": "3",
+    "text": "getOrganization",
+    "backColor": "black",
+    "data": {
+      "q": "/organizations/getOrganization",
+      "sid": 1,
+      "d": {
+        "token": {
+          "issuer": "auth0",
+          "token": "PUT IN YOUR VALID TOKEN"
+        },
+        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB"
+
+      }
+    }
+  }, {
+    "id": "4",
+    "text": "UpdateOrganization",
+    "backColor": "black",
+    "data": {
+      "q": "/organizations/updateOrganization",
+      "sid": 1,
+      "d": {
+        "token": {
+          "issuer": "auth0",
+          "token": "PUT IN YOUR VALID TOKEN"
+        },
+        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB",
+        "name": "CUSTOM THE NEW NAME OF YOUR ORGANIZATION",
+        "email": "CUSTOM THE NEW E-MAIL OF YOUR ORGANIZATION"
+      }
+    }
+  }, {
+    "id": "5",
+    "text": "deleteOrganization",
+    "backColor": "black",
+    "data": {
+      "q": "/organizations/delete",
+      "sid": 1,
+      "d": {
+        "token": {
+          "issuer": "auth0",
+          "token": "PUT IN YOUR VALID TOKEN"
+        },
+        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB"
+
+      }
+    }
+
+  }, {
+    "id": "6",
+    "text": "InviteMember",
+    "backColor": "black",
+    "data": {
+      "q": "/organizations/inviteMember",
+      "sid": 1,
+      "d": {
+        "token": {
+          "issuer": "auth0",
+          "token": "PUT IN YOUR VALID TOKEN"
+        },
+        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB",
+        "userId": "[Auth0 generated Client ID]@clients"
+      }
+    }
+  }, {
+    "id": "7",
+    "text": "kickoutMember",
+    "backColor": "black",
+    "data": {
+      "q": "/organizations/kickoutMember",
+      "sid": 1,
+      "d": {
+        "token": {
+          "issuer": "auth0",
+          "token": "PUT IN YOUR VALID TOKEN"
+        },
+        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB",
+        "userId": "[Auth0 generated Client ID]@clients"
+      }
+    }
+  }, {
+    "id": "8",
+    "text": "leaveOrganization",
+    "backColor": "black",
+    "data": {
+      "q": "/organizations/leaveOrganization",
+      "sid": 1,
+      "d": {
+        "token": {
+          "issuer": "auth0",
+          "token": "PUT IN YOUR VALID TOKEN"
+        },
+        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB"
+
+      }
+    }
+  }, {
+    "id": "9",
+    "text": "UpdateOrganizationMemberRole",
+    "backColor": "black",
+    "data": {
+      "q": "/organizations/updateOrganizationMemberRole",
+      "sid": 1,
+      "d": {
+        "token": {
+          "issuer": "auth0",
+          "token": "PUT IN YOUR VALID TOKEN"
+        },
+        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB",
+        "userId": "[Auth0 generated Client ID]@clients",
+        "role": "ASSIGN THE NEW ROLE OWNER/ADMIN/MEMBER (PERMISSION LEVEL FOR THE ORG MANAGE (NO RELEVANCE TO API KEY ROLE)"
+      }
+    }
+  }, {
+    "id": "10",
+    "text": "getOrganizationMembers",
+    "backColor": "black",
+    "data": {
+      "q": "/organizations/getOrganizationMembers",
+      "sid": 1,
+      "d": {
+        "token": {
+          "issuer": "auth0",
+          "token": "PUT IN YOUR VALID TOKEN"
+        },
+        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB"
+
+      }
+    }
+  }, {
+    "id": "11",
+    "text": "getUserOrganizationMembership",
+    "backColor": "black",
+    "data": {
+      "q": "/organizations/getUserOrganizationsMembership",
+      "sid": 1,
+      "d": {
+        "token": {
+          "issuer": "auth0",
+          "token": "PUT IN YOUR VALID TOKEN"
+        }
+
+      }
+    }
+  },  {
+    "id": "12",
+    "text": "addOrganizationApiKey",
+    "backColor": "black",
+    "data": {
+      "q": "/organizations/addOrganizationApiKey",
+      "sid": 1,
+      "d": {
+        "token": {
+          "issuer": "auth0",
+          "token": "PUT IN YOUR VALID TOKEN"
+        },
+        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB",
+        "apiKeyName": "CUSTOM SOME NAME FOR API KEY",
+        "claims": {
+          "role": "ASSIGN THE ROLE OWNER/ADMIN/MEMBER (PERMISSION LEVEL FOR API KEY)"
+        }
+      }
+    }
+  }, {
+    "id": "13",
+    "text": "deleteOrganizationApiKey",
+    "backColor": "black",
+    "data": {
+      "q": "/organizations/deleteOrganizationApiKey",
+      "sid": 1,
+      "d": {
+        "token": {
+          "issuer": "auth0",
+          "token": "PUT IN YOUR VALID TOKEN"
+        },
+        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB",
+        "apiKeyName": "STORED NAME OF THE RELEVANT API KEY"
+      }
+    }
+
+  }]
+
+}

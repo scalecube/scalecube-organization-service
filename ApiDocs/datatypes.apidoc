@@ -1,9 +1,9 @@
-
 /**
 * @api {Transport protocols} / Summary
 * @apiName Datatypes
+* @apiVersion 0.0.0-CURRENT
 * @apiGroup Datatypes
 * @apiDescription This chapter will detail datatypes that require specific format for or support a specific set of values.
-<br> Currently implemented validation for specific parameters which value type is string and can only contain characters
+<br> Currently the validation is implemented for specific parameters which value type is string and can only contain characters
 in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent. Appropriate validation will be added soon.
 */
