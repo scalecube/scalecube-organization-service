@@ -17,7 +17,7 @@
 * All API endpoints are documented below and require the <a href="http://scalecube.io/configuration-service/index.html">Configuration service</a> host address.
 * <br> You can try out any query in realtime using our interactive API.
 * Actually service requires token authentication, so there is a necessity to get the token issued via secured authority.
-* <br>Thus, we recommend you first to get the <a href="https://manage.auth0.com/">Auth0</a> token whereby to perform the valid requests across all service endpoints.
+* <br>Thus, we recommend you first to create an account in <a href="https://manage.auth0.com/">Auth0</a> and issue the token whereby to perform the valid requests across all service endpoints.
 *
 * Validation for the object entities is handled by scalecube services and do the next upon the request object:
 * >~ ignores any excessive keys and values added besides the required parameters
@@ -39,7 +39,7 @@
 								   <li> "metadata" which contains object "q": The query of the relevant service path </li>
                                    <li> "data" object: The request data (parameters and values). </li>
 								   <b>HTTP</b>
-								   <li> add the "/organizations/method_name" to the host </li>
+								   <li> add the "/organizations/method_name" to the host and use the "POST" method</li>
 								   <li> "headers": Content-Type json </li>
                                    <li> "body" json object: The request data (parameters and values). </li>
                     </ul>
