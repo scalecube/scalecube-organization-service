@@ -172,8 +172,8 @@ public class Base {
         .build();
   }
 
-  protected static <T> Duration assertMonoCompletesWithError(Mono<T> mono, Class<? extends Throwable> exception) {
-    return StepVerifier.create(mono).expectSubscription().expectError(exception).verify();
+  protected static <T> void assertMonoCompletesWithError(Mono<T> mono, Class<? extends Throwable> exception) {
+    StepVerifier.create(mono).expectSubscription().expectError(exception).verify();
   }
 
   protected Organization getOrganizationFromRepository(String organisationId) {

@@ -2,14 +2,12 @@ package io.scalecube.organization;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import io.scalecube.account.api.CreateOrganizationRequest;
 import io.scalecube.account.api.GetOrganizationRequest;
 import io.scalecube.account.api.InvalidAuthenticationToken;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.repository.exception.NameAlreadyInUseException;
-import java.time.Duration;
 import java.util.Objects;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -21,14 +19,7 @@ import reactor.test.StepVerifier;
 
 public class CreateOrganizationTest extends Base {
 
-  @Test
-  public void createOrganizationWithNameAlreadyInUseShouldFail() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.createOrganization(new CreateOrganizationRequest(organisation.name(), token)),
-            NameAlreadyInUseException.class);
-    assertNotNull(duration);
-  }
+
 
   /**
    * #MPA-7229 (#1)
@@ -49,24 +40,20 @@ public class CreateOrganizationTest extends Base {
   @Test
   public void createOrganization() {
     String id = createRandomOrganization();
-    Duration duration =
-        StepVerifier.create(service.getOrganization(new GetOrganizationRequest(token, id)))
-            .expectSubscription()
-            .assertNext((r) -> assertThat(r.id(), is(id)))
-            .verifyComplete();
+    StepVerifier.create(service.getOrganization(new GetOrganizationRequest(token, id)))
+    .expectSubscription()
+    .assertNext((r) -> assertThat(r.id(), is(id)))
+    .verifyComplete();
 
     deleteOrganization(id);
 
-    assertNotNull(duration);
   }
 
   @Test
   public void createOrganizationWithEmptyNameShouldFailWithIllegalArgumentException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.createOrganization(new CreateOrganizationRequest("", token)),
-            IllegalArgumentException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.createOrganization(new CreateOrganizationRequest("", token)),
+        IllegalArgumentException.class);
   }
 
   /**
@@ -108,11 +95,9 @@ public class CreateOrganizationTest extends Base {
 
   @Test
   public void createOrganizationWithNullNameShouldFailWithNullPointerException() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            service.createOrganization(new CreateOrganizationRequest(null, token)),
-            NullPointerException.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        service.createOrganization(new CreateOrganizationRequest(null, token)),
+        NullPointerException.class);
   }
 
   /**
@@ -128,14 +113,27 @@ public class CreateOrganizationTest extends Base {
    */
   @Test
   public void createOrganizationShouldFailWithInvalidAuthenticationToken() {
-    Duration duration =
-        assertMonoCompletesWithError(
-            createService(invalidProfile)
-                .createOrganization(new CreateOrganizationRequest("myTestOrg5", token)),
-            InvalidAuthenticationToken.class);
-    assertNotNull(duration);
+    assertMonoCompletesWithError(
+        createService(invalidProfile)
+        .createOrganization(new CreateOrganizationRequest("myTestOrg5", token)),
+        InvalidAuthenticationToken.class);
   }
-
+  
+/**
+ *   #MPA-7229 (#1.2)
+*  Scenario: Fail to create the Organization with the name which already exists (duplicate)
+*    Given the user "A" have got a valid "token" issued by relevant authority
+*    And the organization "organizationId" with specified "name" and "email" already created and owned by user "B"
+*    When the user "A" requested to create the organization with the existent user's "B" organization "name" and some or the same "email"
+*    Then user "A" should get an error message: "Organization name: 'org "B" name' already in use"
+ */
+  @Test
+  public void createOrganizationWithNameAlreadyInUseShouldFail() {
+    assertMonoCompletesWithError(
+        service.createOrganization(new CreateOrganizationRequest(organisation.name(), token)),
+        NameAlreadyInUseException.class);
+  }
+  
   @Test
   public void createOrganizationNullTokenShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
