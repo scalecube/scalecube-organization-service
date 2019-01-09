@@ -1,15 +1,12 @@
 /**
- * @api {updateOrganization endpoint} organizations/updateOrganization Edit the Organization
- * @apiName UpdateOrganization
+ * @api {getUserOrganizationsMembership endpoint} organizations/getUserOrganizationsMembership Get member's Organizations
+ * @apiName getUserOrganizationsMembership
  * @apiGroup Organization
  *
- * @apiDescription This operation enables origin owner (founder) to optionally update (edit) the specific organization
- * information either name or email and allowable only for organization members who possess one of manager's roles (Owner/Admin)
+ * @apiDescription This operation enables to get the list of all relevant organizations (full info) which the
+ * valid (authorized by relevant authority - Auth0) user steeped into as the member as do the origin owner (founder)
  *
  * @apiParam {Object} token The requested token issued by relevant authority (Auth0)
- * @apiParam {String} organizationId Already stored id for the specific organization
- * @apiParam {String} name New specified organization name
- * @apiParam {String} email New specified organization e-mail
  *
  * @apiSuccess {Array} apiKeys List of all API keys (objects) for the relevant organization
  * @apiSuccess {String} id Stored id for the specific organization
@@ -32,25 +29,33 @@
  *                      ZGVudGlhbHMgY3JlYXRlOmRldmljZV9jcmVkZW50aWFscyByZWFkOnJ1bGVzIHVwZGF0ZTpydWxlcyBkZWxldGU6cnVsZXMgY3JlYXRlOnJ1bGVzIHJlYWQ6cnVsZXNfY29uZmlncyB1cGR
  *                      hdGU6cnVsZXNfY29uZmlncyBkZWxldGU6cnVsZXNfY29uZmlncyByZWFkOmVtYWlsX3Byb3ZpZGVyIHVwZGF0ZTplbWFpbF9wcm92aWRlciBkZWxldGU6ZW1haWxfcHJvdmlkZXIgY3JlYXR
  *                      lOmVtYWlsX3Byb3ZpZGVyIGJsYWNrbGlzdDp0b2tlbnMgcmVhZDpzdGF0cyByZWFkOnRlbmFudF9zZXR0aW5ncyB1cGRhdGU6dGVuYW50X3NldHRpbmdzIHJlYWQ6bG9ncyByZWFkOnNoaWVs"
- *                 },
- *         "organizationId":"ORG-EA40B924B51BF3FF5611",
- *         "name":"newSpecifiedOrganizationName",
- *         "email":"newSpecifiedOrganization@email.com"
+ *                 }
  *     }
  *
- * @apiSuccessExample Success-Response (Extends OrganizationInfo):
+ * @apiSuccessExample Success-Response (Extends OrganizationInfos):
  *     {
- *         "apiKeys":[],
- *         "id":"ORG-EA40B924B51BF3FF5611",
- *         "name":"newSpecifiedOrganizationName",
- *         "email":"newSpecifiedOrganization@email.com",
- *         "ownerId":"PpgvNAZwXYLq5RvUIj6bA3V4eLk0Ekp7@clients"
- *     }
  *
- * @apiError {String} field Organization e-mail wasn't specified
+ *         "organizations":[
+ *                            {
+ *                              "apiKeys":[],
+ *                              "id":"ORG-ACF8F702CE82DE56D974",
+ *                              "name":"NewSpecifiedOrganizationName",
+ *                              "email":"NewspecifiedOrganization@email.com",
+ *                              "ownerId":"DJMWEi19k7jxM1LasBqWAdne7oBsIH7p@clients"
+ *                          },
+ *                            {
+ *                              "apiKeys":[],
+ *                              "id":"ORG-EA40B924B51BF3FF5611",
+ *                              "name":"specifiedOrganizationName",
+ *                              "email":"specifiedOrganization@email.com",
+ *                              "ownerId":"PpgvNAZwXYLq5RvUIj6bA3V4eLk0Ekp7@clients"
+ *                            }
+ *                        ]
+ *     }
+ * @apiError {String} field Invalid or expired token
  * @apiErrorExample {json} Error-Response:
  *     {
  *        errorCode":500,
- *        "errorMessage":"Organization email cannot be empty"
+ *        "errorMessage":"Token verification failed"
  *     }
  */

@@ -1,15 +1,16 @@
 /**
- * @api {updateOrganization endpoint} organizations/updateOrganization Edit the Organization
- * @apiName UpdateOrganization
- * @apiGroup Organization
+ * @api {delete endpoint} organizations/addOrganizationApiKey Create the API key
+ * @apiName AddOrganizationApiKey
+ * @apiGroup ApiKey
  *
- * @apiDescription This operation enables origin owner (founder) to optionally update (edit) the specific organization
- * information either name or email and allowable only for organization members who possess one of manager's roles (Owner/Admin)
+ * @apiDescription This operation enables origin owner (founder) to create the API key (token) with assigned role (permission level - Owner/Admin/Member)
+ * in the relevant organization and allowable only for organization members who possess one of manager's roles (Owner/Admin). API keys with relevant assigned roles
+ * don't relate to the organization members' similar roles and they purposed for the appropriate permission level (write or read) provision for <a href="http://scalecube.io/configuration-service/index.html">Configuration service</a> usage
  *
  * @apiParam {Object} token The requested token issued by relevant authority (Auth0)
  * @apiParam {String} organizationId Already stored id for the specific organization
- * @apiParam {String} name New specified organization name
- * @apiParam {String} email New specified organization e-mail
+ * @apiParam {String} apiKeyName Specified name for the relevant API key
+ * @apiParam {Map<String,String>} claims Specified role (Owner/Admin/Member - permission level for the relevant API key)
  *
  * @apiSuccess {Array} apiKeys List of all API keys (objects) for the relevant organization
  * @apiSuccess {String} id Stored id for the specific organization
@@ -34,23 +35,31 @@
  *                      lOmVtYWlsX3Byb3ZpZGVyIGJsYWNrbGlzdDp0b2tlbnMgcmVhZDpzdGF0cyByZWFkOnRlbmFudF9zZXR0aW5ncyB1cGRhdGU6dGVuYW50X3NldHRpbmdzIHJlYWQ6bG9ncyByZWFkOnNoaWVs"
  *                 },
  *         "organizationId":"ORG-EA40B924B51BF3FF5611",
- *         "name":"newSpecifiedOrganizationName",
- *         "email":"newSpecifiedOrganization@email.com"
+ *         "apiKeyName": "specifiedApiKeyName",
+ *         "claims": {
+ *                      "role": "Owner"
+ *                   }
  *     }
  *
  * @apiSuccessExample Success-Response (Extends OrganizationInfo):
  *     {
- *         "apiKeys":[],
+ *         "apiKeys":[
+ *                      {
+ *                           "name":"specifiedApiKeyName",
+ *                           "claims":{"role":"Owner"},
+ *                           "key":"eyJraWQiOiIyODQyYzFkYS0zMTFjZDlhNzU4NjViNTkiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJPE1NDQ0NTA4MTksInN1YiI6Ik9SRy1BQ0Y4X0.RVhFs4WENT2_cR7Jy_1yB7YStO0d5V9Va43Q7lVqarU"
+ *                      }
+ *                   ],
  *         "id":"ORG-EA40B924B51BF3FF5611",
- *         "name":"newSpecifiedOrganizationName",
- *         "email":"newSpecifiedOrganization@email.com",
+ *         "name":"specifiedOrganizationName",
+ *         "email":"specifiedOrganization@email.com",
  *         "ownerId":"PpgvNAZwXYLq5RvUIj6bA3V4eLk0Ekp7@clients"
  *     }
  *
- * @apiError {String} field Organization e-mail wasn't specified
- * @apiErrorExample {json} Error-Response:
+ * @apiError {String} field API key name duplication
+ * @apiErrorExample {json} Error-Response (Not implemented):
  *     {
  *        errorCode":500,
- *        "errorMessage":"Organization email cannot be empty"
+ *        "errorMessage":"apiKey name:'specifiedApiKeyName' already exists"
  *     }
  */

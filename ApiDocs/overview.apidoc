@@ -4,7 +4,7 @@
 * @apiGroup Overview
 * @apiVersion 0.0.0-CURRENT
 * @apiDescription Organization service enable you to integrate the API in order to create and manage the organizations.
-* Appropriate permission level (roles: Owner/Admin) is required to manage the organization from the relevant member's perspective besides the origin owner abilities.
+* Appropriate permission level (roles: Owner/Admin) is required to manage the organization from the relevant member's perspective besides the origin owner (founder) abilities.
 * Thus each organization could be deleted or relevant credentials updated, valid members could be invited to and removed from the relevant organization as do the
 * granted members roles (Owner/Admin/Member) could be updated and each member could get the info about the organization and it's membership.
 * Organization managers could provide and delete the relevant API keys (permission level with appropriate assigned roles: (Owner/Admin/Member)) which are vital feature

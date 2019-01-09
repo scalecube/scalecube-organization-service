@@ -1,9 +1,10 @@
 /**
  * @api {create endpoint} organizations/create Create new Organization
- * @apiName Create
- * @apiGroup CreateOrganization
+ * @apiName CreateOrganization
+ * @apiGroup Organization
  *
- * @apiDescription This operation enable you (origin owner/founder) to create the specific organization and store its metadata (information)
+ * @apiDescription This operation enables origin owner (founder) to create the specific organization and store its metadata (information)
+ *
  * @apiParam {Object} token The requested token issued by relevant authority (Auth0)
  * @apiParam {String} name Specified organization name
  * @apiParam {String} email Specified organization e-mail
@@ -17,7 +18,6 @@
  * @apiParamExample {json} Request-Example:
  *     {
  *         "token": {
- *                      "issuer":"auth0",
  *                      "token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IlJUSkROekJFTXpjNFJEUTFSa0UzTkRZM05FWkVOemM1TUVWQ1JFRXdOREF6UWtFelF6QkRNQSJ9.
  *                      eyJpc3MiOiJodHRwczovL3BhdmxvLmF1dGgwLmNvbS8iLCJzdWIiOiJQcGd2TkFad1hZTHE1UnZVSWo2YkEzVjRlTGswRWtDM0BjbGllbnRzIiwiYXVkIjoiaHR0cHM6Ly9w
  *                      YXZsby5hdXRoMC5jb20vYXBpL3YyLyIsImlhdCI6MTU0NjYwNjM3OCwiZXhwIjoxNTQ5MTk4Mzc4LCJhenAiOiJQcGd2TkFad1hZTHE1UnZVSWo2YkEzVjRlTGswRWtDMyIsInNj
