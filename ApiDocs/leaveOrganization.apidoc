@@ -2,7 +2,7 @@
  * @api {endpoint / leaveOrganization} /organizations/leaveOrganization Leave the Organization
  * @apiName LeaveOrganization
  * @apiGroup Organization
- *
+ * @apiVersion 0.0.0-CURRENT
  * @apiDescription This operation enables to step-out from the specific organization and allowable for each organization
  * member as do for origin owner (founder). Nevertheless at least one Owner (origin or granted one) should be persisted in the organization
  *

@@ -2,7 +2,7 @@
  * @api {endpoint / getUserOrganizationsMembership} /organizations/getUserOrganizationsMembership Get the user membership
  * @apiName getUserOrganizationsMembership
  * @apiGroup Organization
- *
+ * @apiVersion 0.0.0-CURRENT
  * @apiDescription This operation enables to get the list of all relevant organizations (full info) which the
  * valid (authorized by relevant authority - Auth0) user steeped into as the member as do the origin owner (founder)
  *

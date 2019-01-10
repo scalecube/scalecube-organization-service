@@ -2,7 +2,7 @@
  * @api {endpoint / inviteMember} /organizations/inviteMember Invite the member to Organization
  * @apiName InviteMember
  * @apiGroup Member
- *
+ * @apiVersion 0.0.0-CURRENT
  * @apiDescription This operation enables origin owner (founder) to invite a valid member (which id issued by relevant authority - Auth0)
  * to step into specific organization and allowable only for organization members who possess one of manager's roles (Owner/Admin)
  *

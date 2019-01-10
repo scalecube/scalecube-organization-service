@@ -2,7 +2,7 @@
  * @api {endpoint / kickoutMember} /organizations/kickoutMember Remove the member from Organization
  * @apiName KickoutMember
  * @apiGroup Member
- *
+ * @apiVersion 0.0.0-CURRENT
  * @apiDescription This operation enables origin owner (founder) to remove the existent organization member and allowable
  * only for organization members who possess one of manager's roles (Owner/Admin). Nevertheless at least one Owner (origin or granted one) should be persisted in the organization
  *

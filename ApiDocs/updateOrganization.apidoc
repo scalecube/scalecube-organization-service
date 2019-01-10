@@ -2,7 +2,7 @@
  * @api {endpoint / updateOrganization} /organizations/updateOrganization Edit the Organization
  * @apiName UpdateOrganization
  * @apiGroup Organization
- *
+ * @apiVersion 0.0.0-CURRENT
  * @apiDescription This operation enables origin owner (founder) to optionally update (edit) the specific organization
  * information either name or email and allowable only for organization members who possess one of manager's roles (Owner/Admin)
  *

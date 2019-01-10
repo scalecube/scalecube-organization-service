@@ -1,6 +1,6 @@
 /**
  * @apiDefine BadRequestError
- *
+ * @apiVersion 0.0.0-CURRENT
  * @apiError BadRequestError The request didn't pass validation
  *
  * @apiErrorExample Error-Response:

@@ -2,7 +2,7 @@
  * @api {endpoint / deleteOrganizationApiKey} /organizations/deleteOrganizationApiKey Delete the API key
  * @apiName DeleteOrganizationApiKey
  * @apiGroup ApiKey
- *
+ * @apiVersion 0.0.0-CURRENT
  * @apiDescription This operation enables origin owner (founder) to delete the stored API key (token) in the relevant organization
  * and allowable only for organization members who possess one of manager's roles (Owner/Admin). API keys with relevant assigned roles
  * don't relate to the organization members' similar roles and they purposed for the appropriate permission level (write or read) provision for <a href="http://scalecube.io/configuration-service/index.html">Configuration service</a> usage
