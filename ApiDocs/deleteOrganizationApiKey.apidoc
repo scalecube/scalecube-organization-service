@@ -1,5 +1,5 @@
 /**
- * @api {delete endpoint} organizations/deleteOrganizationApiKey Delete the API key
+ * @api {endpoint / deleteOrganizationApiKey} /organizations/deleteOrganizationApiKey Delete the API key
  * @apiName DeleteOrganizationApiKey
  * @apiGroup ApiKey
  *

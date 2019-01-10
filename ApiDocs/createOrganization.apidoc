@@ -1,5 +1,5 @@
 /**
- * @api {create endpoint} organizations/create Create new Organization
+ * @api {endpoint / create} /organizations/create Create new Organization
  * @apiName CreateOrganization
  * @apiGroup Organization
  *

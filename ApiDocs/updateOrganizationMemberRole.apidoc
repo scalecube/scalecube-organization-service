@@ -1,12 +1,12 @@
 /**
- * @api {updateOrganizationMemberRole endpoint} organizations/updateOrganizationMemberRole Update the Organization member's role
+ * @api {endpoint / updateOrganizationMemberRole} /organizations/updateOrganizationMemberRole Update the Organization member's role
  * @apiName UpdateOrganizationMemberRole
  * @apiGroup Member
  *
  * @apiDescription This operation enables origin owner (founder) to upgrade/downgrade relevant member role in the specific organization
  * and allowable only for organization members who possess one of manager's roles (Owner/Admin). Nevertheless any of the members who posses manager's roles
- * couldn't downgrade as do the upgrade by themselves just only the members with relevant manager's roles are able to do that
- *+
+ * couldn't downgrade or upgrade themselves and just only the members with relevant manager's roles are able to do that
+ *
  * @apiParam {Object} token The requested token issued by relevant authority (Auth0)
  * @apiParam {String} organizationId Already stored id for the specific organization
  * @apiParam {String} userId Already stored id for the specific organization issued by relevant authority (Auth0)

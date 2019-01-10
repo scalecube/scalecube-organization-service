@@ -1,5 +1,5 @@
 /**
- * @api {getUserOrganizationsMembership endpoint} organizations/getUserOrganizationsMembership Get member's Organizations
+ * @api {endpoint / getUserOrganizationsMembership} /organizations/getUserOrganizationsMembership Get the user membership
  * @apiName getUserOrganizationsMembership
  * @apiGroup Organization
  *

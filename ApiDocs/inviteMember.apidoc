@@ -1,10 +1,11 @@
 /**
- * @api {inviteMember endpoint} organizations/inviteMember Invite the member to Organization
+ * @api {endpoint / inviteMember} /organizations/inviteMember Invite the member to Organization
  * @apiName InviteMember
  * @apiGroup Member
  *
  * @apiDescription This operation enables origin owner (founder) to invite a valid member (which id issued by relevant authority - Auth0)
  * to step into specific organization and allowable only for organization members who possess one of manager's roles (Owner/Admin)
+ *
  * @apiParam {Object} token The requested token issued by relevant authority (Auth0)
  * @apiParam {String} organizationId Already stored id for the specific organization
  * @apiParam {String} userId Already stored id for the specific organization issued by relevant authority (Auth0)
@@ -40,6 +41,6 @@
  * @apiErrorExample {json} Error-Response:
  *     {
  *        errorCode":500,
- *        "errorMessage":"user: '"DJMWEi19k7jxM1LasBqWAdne7oBsIJ5t@clients', name: 'null', not in role Owner or Admin of organization: 'specifiedOrganizationName'"
+ *        "errorMessage":"user: 'DJMWEi19k7jxM1LasBqWAdne7oBsIJ5t@clients', name: 'null', not in role Owner or Admin of organization: 'specifiedOrganizationName'"
  *     }
  */

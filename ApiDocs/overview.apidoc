@@ -1,20 +1,20 @@
 /**
-* @api {Transport protocols} / Getting Started
+* @api {Host addresses} / Getting Started
 * @apiName GettingStarted
 * @apiGroup Overview
 * @apiVersion 0.0.0-CURRENT
 * @apiDescription Organization service enable you to integrate the API in order to create and manage the organizations.
-* Appropriate permission level (roles: Owner/Admin) is required to manage the organization from the relevant member's perspective besides the origin owner (founder) abilities.
+* Besides the origin owner (founder) abilities there is necessity for relevant organization members to achieve appropriate permission level (roles: Owner/Admin) for manage.
 * Thus each organization could be deleted or relevant credentials updated, valid members could be invited to and removed from the relevant organization as do the
-* granted members roles (Owner/Admin/Member) could be updated and each member could get the info about the organization and it's membership.
-* Organization managers could provide and delete the relevant API keys (permission level with appropriate assigned roles: (Owner/Admin/Member)) which are vital feature
+* granted members roles (Owner/Admin/Member) could be updated and each member could get the info about the organization and own membership.
+* Organization managers could provide and delete the relevant API keys (permission level with appropriate assigned roles: Owner/Admin/Member) which are vital leverage
 * for the <a href="http://scalecube.io/configuration-service/index.html">Configuration service</a> management and security purpose and don't relates to the organization members similar roles.
 *
 *
 * <b>Getting Started</b>
 *
 *
-* All API endpoints are documented below and require the <a href="http://scalecube.io/configuration-service/index.html">Configuration service</a> host address.
+* All API endpoints documented below are the integral part of <a href="http://scalecube.io/configuration-service/index.html">Configuration service</a> host address.
 * <br> You can try out any query in realtime using our interactive API.
 * Actually service requires token authentication, so there is a necessity to get the token issued via secured authority.
 * <br>Thus, we recommend you first to create an account in <a href="https://manage.auth0.com/">Auth0</a> and issue the token whereby to perform the valid requests across all service endpoints.
@@ -25,7 +25,7 @@
 */
 
 /**
-* @api {Host addresses} / General Definitions
+* @api {Transport protocols} / General Definitions
 * @apiName GeneralDefinitions
 * @apiGroup Overview
 * @apiVersion 0.0.0-CURRENT

@@ -1,10 +1,10 @@
 /**
- * @api {kickoutMember endpoint} organizations/kickoutMember Remove the member from Organization
+ * @api {endpoint / kickoutMember} /organizations/kickoutMember Remove the member from Organization
  * @apiName KickoutMember
  * @apiGroup Member
  *
  * @apiDescription This operation enables origin owner (founder) to remove the existent organization member and allowable
- * only for organization members who possess one of manager's roles (Owner/Admin). Nevertheless at least one organization Owner should be persisted in the organization
+ * only for organization members who possess one of manager's roles (Owner/Admin). Nevertheless at least one Owner (origin or granted one) should be persisted in the organization
  *
  * @apiParam {Object} token The requested token issued by relevant authority (Auth0)
  * @apiParam {String} organizationId Already stored id for the specific organization
@@ -38,7 +38,7 @@
  *
  *     }
  *
- * @apiError {String} field Invalid action upon the single owner role (origin either granted) is trying to be removed from relevant organization
+ * @apiError {String} field Invalid action upon the single (last one) organization Owner requested to be removed from the relevant organization
  * @apiErrorExample {json} Error-Response:
  *     {
  *        errorCode":500,

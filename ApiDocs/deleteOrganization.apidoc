@@ -1,5 +1,5 @@
 /**
- * @api {delete endpoint} organizations/delete Delete the Organization
+ * @api {endpoint / delete} /organizations/delete Delete the Organization
  * @apiName DeleteOrganization
  * @apiGroup Organization
  *

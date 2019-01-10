@@ -1,5 +1,5 @@
 /**
- * @api {getOrganization endpoint} organizations/getOrganization Get Organization info
+ * @api {endpoint / getOrganization} /organizations/getOrganization Get Organization info
  * @apiName GetOrganization
  * @apiGroup Organization
  *

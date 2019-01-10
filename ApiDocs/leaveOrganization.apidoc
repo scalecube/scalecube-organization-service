@@ -1,10 +1,10 @@
 /**
- * @api {leaveOrganization endpoint} organizations/leaveOrganization Step-out from Organization
+ * @api {endpoint / leaveOrganization} /organizations/leaveOrganization Leave the Organization
  * @apiName LeaveOrganization
  * @apiGroup Organization
  *
- * @apiDescription This operation enables to leave (step-out) from the specific organization and allowable for each
- * organization member as do for origin owner (founder). Nevertheless at least one organization Owner should be persisted in the organization
+ * @apiDescription This operation enables to step-out from the specific organization and allowable for each organization
+ * member as do for origin owner (founder). Nevertheless at least one Owner (origin or granted one) should be persisted in the organization
  *
  * @apiParam {Object} token The requested token issued by relevant authority (Auth0)
  * @apiParam {String} organizationId Already stored id for the specific organization
@@ -35,7 +35,7 @@
  *
  *     }
  *
- * @apiError {String} field Invalid action upon the single owner (origin either granted) requested to be removed from relevant organization
+ * @apiError {String} field Invalid action upon the single (last one) organization Owner requested to be removed from the relevant organization
  * @apiErrorExample {json} Error-Response:
  *     {
  *        errorCode":500,

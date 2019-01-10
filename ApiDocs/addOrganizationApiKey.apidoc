@@ -1,5 +1,5 @@
 /**
- * @api {delete endpoint} organizations/addOrganizationApiKey Create the API key
+ * @api {addOrganizationApiKey endpoint} organizations/addOrganizationApiKey Create the API key
  * @apiName AddOrganizationApiKey
  * @apiGroup ApiKey
  *
@@ -10,7 +10,7 @@
  * @apiParam {Object} token The requested token issued by relevant authority (Auth0)
  * @apiParam {String} organizationId Already stored id for the specific organization
  * @apiParam {String} apiKeyName Specified name for the relevant API key
- * @apiParam {Map<String,String>} claims Specified role (Owner/Admin/Member - permission level for the relevant API key)
+ * @apiParam {Object} claims (Map<String,String>) Specified role (Owner/Admin/Member - permission level for the relevant API key)
  *
  * @apiSuccess {Array} apiKeys List of all API keys (objects) for the relevant organization
  * @apiSuccess {String} id Stored id for the specific organization

@@ -1,9 +1,9 @@
 /**
- * @api {getOrganizationMembers endpoint} organizations/getOrganizationMembers Find Organization members
+ * @api {endpoint / getOrganizationMembers} /organizations/getOrganizationMembers Get the Organization members
  * @apiName getOrganizationMembers
  * @apiGroup Member
  *
- * @apiDescription This operation enables origin owner (founder) to find all the members in the relevant organization and allowable for each organization member
+ * @apiDescription This operation enables origin owner (founder) to fetch all the members in the relevant organization and allowable for each organization member
  *
  * @apiParam {Object} token The requested token issued by relevant authority (Auth0)
  * @apiParam {String} organizationId Already stored id for the specific organization
@@ -38,10 +38,10 @@
  *                   ]
  *     }
  *
- * @apiError {String} field Invalid action upon the single owner (origin either granted) is trying to be removed from relevant organization
+ * @apiError {String} field Invalid or non-existent organization id
  * @apiErrorExample {json} Error-Response:
  *     {
  *        errorCode":500,
- *        "errorMessage":"At least one Owner should be persisted in the organization: 'ORG-EA40B924B51BF3FF5611'"
+ *        "errorMessage":"ORG-EA40B924B51BF3FF56NON"
  *     }
  */
