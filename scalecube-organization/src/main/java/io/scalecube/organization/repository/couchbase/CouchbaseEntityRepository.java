@@ -27,7 +27,6 @@ import rx.Observable;
  */
 abstract class CouchbaseEntityRepository<T, I extends String> implements Repository<T, I> {
 
-  private static final String BUCKET = ".bucket";
   private final CouchbaseExceptionTranslator exceptionTranslator =
       new CouchbaseExceptionTranslator();
   private final TranslationService translationService = new JacksonTranslationService();
@@ -37,13 +36,11 @@ abstract class CouchbaseEntityRepository<T, I extends String> implements Reposit
   private String bucketName;
 
   CouchbaseEntityRepository(
-      CouchbaseSettings settings, Cluster cluster, String alias, Class<T> type) {
+      CouchbaseSettings settings, Cluster cluster, String bucketName, Class<T> type) {
     this.settings = requireNonNull(settings);
     this.cluster = requireNonNull(cluster);
     this.type = requireNonNull(type);
-    if (alias != null) {
-      this.bucketName = settings.getProperty(alias + BUCKET);
-    }
+    this.bucketName = bucketName;
   }
 
   String getBucketName() {
@@ -146,7 +143,7 @@ abstract class CouchbaseEntityRepository<T, I extends String> implements Reposit
   }
 
   protected Bucket client() {
-    return cluster.openBucket(bucketName, settings.getCouchbasePassword());
+    return cluster.openBucket(bucketName, settings.password());
   }
 
   private <R> Observable<R> executeAsync(Observable<R> asyncAction) {

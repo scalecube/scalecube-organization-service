@@ -1,15 +1,12 @@
 package io.scalecube.server;
 
 import io.scalecube.account.api.OrganizationService;
-import io.scalecube.config.ConfigRegistry;
 import io.scalecube.config.ConfigRegistryConfiguration;
 import io.scalecube.organization.OrganizationServiceImpl;
 import io.scalecube.organization.repository.couchbase.CouchbaseRepositoryFactory;
 import io.scalecube.organization.repository.couchbase.CouchbaseSettings;
 import io.scalecube.services.Microservices;
-import io.scalecube.services.transport.api.Address;
-import java.util.List;
-import java.util.Optional;
+import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +26,12 @@ public class OrganizationServiceRunner {
   }
 
   private static void start() {
-    DiscoveryOptions discoveryOptions = discoveryOptions();
+    DiscoveryOptions discoveryOptions =
+        ConfigRegistryConfiguration.configRegistry()
+            .objectProperty("io.scalecube.organization", DiscoveryOptions.class)
+            .value()
+            .orElseThrow(() -> new IllegalStateException("Couldn't load discovery options"));
+
     LOGGER.info("Starting organization service on {}", discoveryOptions);
 
     Microservices.builder()
@@ -46,68 +48,36 @@ public class OrganizationServiceRunner {
   }
 
   private static OrganizationService createOrganizationService() {
-    CouchbaseSettings settings = new CouchbaseSettings();
+    CouchbaseSettings settings =
+        ConfigRegistryConfiguration.configRegistry()
+            .objectProperty(
+                new HashMap<String, String>() {
+                  {
+                    put("hosts", "couchbase.hosts");
+                    put("username", "couchbase.username");
+                    put("password", "couchbase.password");
+                    put("userRoles", "organizations.members.userRoles");
+                    put("bucketNamePattern", "organizations.members.bucketNamePattern");
+                    put("bucketType", "organizations.members.bucketType");
+                    put("bucketQuota", "organizations.members.bucketQuota");
+                    put("bucketReplicas", "organizations.members.bucketReplicas");
+                    put("bucketIndexReplicas", "organizations.members.bucketIndexReplicas");
+                    put("bucketEnableFlush", "organizations.members.bucketEnableFlush");
+                    put("organizationsBucketName", "organizations.bucket");
+                  }
+                },
+                CouchbaseSettings.class)
+            .value()
+            .orElseThrow(() -> new IllegalStateException("Couldn't load couchbase settings"));
+
+    System.err.println(settings);
+
     CouchbaseRepositoryFactory factory = new CouchbaseRepositoryFactory(settings);
+
     return new OrganizationServiceImpl.Builder()
         .organizationRepository(factory.organizations())
         .organizationMembershipRepository(factory.organizationMembers())
         .organizationMembershipRepositoryAdmin(factory.organizationMembersRepositoryAdmin())
         .build();
-  }
-
-  private static DiscoveryOptions discoveryOptions() {
-    ConfigRegistry configRegistry = ConfigRegistryConfiguration.configRegistry();
-    return configRegistry
-        .objectProperty("io.scalecube.organization", DiscoveryOptions.class)
-        .value()
-        .orElseThrow(() -> new IllegalStateException("Couldn't load discovery options"));
-  }
-
-  public static class DiscoveryOptions {
-
-    private List<String> seeds;
-    private Integer servicePort;
-    private Integer discoveryPort;
-    private String memberHost;
-    private Integer memberPort;
-
-    public int servicePort() {
-      return servicePort != null ? servicePort : 0;
-    }
-
-    public Integer discoveryPort() {
-      return discoveryPort;
-    }
-
-    /**
-     * Returns seeds as an {@link Address}'s array.
-     *
-     * @return {@link Address}'s array
-     */
-    public Address[] seeds() {
-      return Optional.ofNullable(seeds)
-          .map(seeds -> seeds.stream().map(Address::from).toArray(Address[]::new))
-          .orElse(new Address[0]);
-    }
-
-    public String memberHost() {
-      return memberHost;
-    }
-
-    public Integer memberPort() {
-      return memberPort;
-    }
-
-    @Override
-    public String toString() {
-      final StringBuilder sb = new StringBuilder("DiscoveryOptions{");
-      sb.append("seeds=").append(seeds);
-      sb.append(", servicePort=").append(servicePort);
-      sb.append(", discoveryPort=").append(discoveryPort);
-      sb.append(", memberHost=").append(memberHost);
-      sb.append(", memberPort=").append(memberPort);
-      sb.append('}');
-      return sb.toString();
-    }
   }
 }

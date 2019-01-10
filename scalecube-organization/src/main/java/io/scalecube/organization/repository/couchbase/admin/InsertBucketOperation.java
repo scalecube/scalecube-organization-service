@@ -7,16 +7,17 @@ final class InsertBucketOperation extends Operation<BucketSettings> {
 
   @Override
   public BucketSettings execute(AdminOperationContext context) {
-    return context.cluster()
+    return context
+        .cluster()
         .clusterManager()
         .insertBucket(
             new DefaultBucketSettings.Builder()
-                .type(context.settings().getOrgMembersBucketType())
+                .type(context.settings().bucketType())
                 .name(context.name())
-                .quota(context.settings().getOrgMembersBucketQuota()) // megabytes
-                .replicas(context.settings().getOrgMembersBucketReplicas())
-                .indexReplicas(context.settings().getOrgMembersBucketIndexReplicas())
-                .enableFlush(context.settings().getOrgMembersBucketEnableFlush())
+                .quota(context.settings().bucketQuota())
+                .replicas(context.settings().bucketReplicas())
+                .indexReplicas(context.settings().bucketIndexReplicas())
+                .enableFlush(context.settings().bucketEnableFlush())
                 .build());
   }
 }

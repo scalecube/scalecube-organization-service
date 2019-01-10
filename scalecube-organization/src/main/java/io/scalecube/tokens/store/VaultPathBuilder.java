@@ -1,41 +1,23 @@
 package io.scalecube.tokens.store;
 
-import com.bettercloud.vault.EnvironmentLoader;
-import io.scalecube.config.AppConfiguration;
-import java.util.Objects;
+import io.scalecube.config.ConfigRegistry;
+import io.scalecube.config.ConfigRegistryConfiguration;
+import io.scalecube.config.StringConfigProperty;
 
 final class VaultPathBuilder {
-  private String vaultTokenKeysPath;
+
+  private StringConfigProperty vaultSecretsPath;
+  private StringConfigProperty apiKeysPathPattern;
 
   VaultPathBuilder() {
-    String vaultSecretPathPrefix = new EnvironmentLoader()
-        .loadVariable("VAULT_SECRETS_PATH");
-    String pattern = getVaultPathPattern();
-    vaultTokenKeysPath = String.format(pattern, vaultSecretPathPrefix);
+    ConfigRegistry configRegistry = ConfigRegistryConfiguration.configRegistry();
+
+    vaultSecretsPath = configRegistry.stringProperty("VAULT_SECRETS_PATH");
+    apiKeysPathPattern = configRegistry.stringProperty("api.keys.path.pattern");
   }
 
   String getPath(String alias) {
-    return getVaultSecretPath().concat(alias);
-  }
-
-  private String getVaultSecretPath() {
-    if (vaultTokenKeysPath == null) {
-      vaultTokenKeysPath = String.format(getVaultPathPattern(), getVaultKeyValueEngine());
-    }
-    return vaultTokenKeysPath;
-  }
-
-  private static String getVaultPathPattern() {
-    final AppConfiguration settings = AppConfiguration.builder().build();
-    String vaultSecretPath = settings.getProperty("vault.secret.path");
-    Objects.requireNonNull(vaultSecretPath, "missing vault.secret.path");
-    return vaultSecretPath;
-  }
-
-  private String getVaultKeyValueEngine() {
-    EnvironmentLoader environmentLoader = new EnvironmentLoader();
-    String vaultKeyValueEngine = environmentLoader.loadVariable("VAULT_SECRETS_PATH");
-    Objects.requireNonNull(vaultKeyValueEngine,  "missing 'VAULT_SECRETS_PATH' env variable");
-    return vaultKeyValueEngine;
+    return String.format(apiKeysPathPattern.valueOrThrow(), vaultSecretsPath.valueOrThrow())
+        .concat(alias);
   }
 }

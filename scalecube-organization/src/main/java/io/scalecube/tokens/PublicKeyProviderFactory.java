@@ -1,20 +1,17 @@
 package io.scalecube.tokens;
 
-import io.scalecube.config.AppConfiguration;
-
-import java.util.Objects;
+import io.scalecube.config.ConfigRegistryConfiguration;
 
 /**
  * A factory class used to load the system PublicKeyProvider as it specified in the app settings
- *   file. The class entry name is mandatory
+ * file. The class entry name is mandatory.
  */
 class PublicKeyProviderFactory {
 
   private static final String PUBLIC_KEY_PROVIDER = "public.key.provider";
   private static Class<?> publicKeyProvider;
 
-  private PublicKeyProviderFactory() {
-  }
+  private PublicKeyProviderFactory() {}
 
   /**
    * Reads the PublicKeyProvider class name from app settings and return an instance.
@@ -30,11 +27,11 @@ class PublicKeyProviderFactory {
   }
 
   private static void loadPublicKeyProviderClass() {
-    String className = AppConfiguration
-        .builder()
-        .build()
-        .getProperty(PUBLIC_KEY_PROVIDER);
-    Objects.requireNonNull(className, "Missing public.key.provider");
+    String className =
+        ConfigRegistryConfiguration.configRegistry()
+            .stringProperty("public.key.provider")
+            .valueOrThrow();
+
     try {
       publicKeyProvider = Class.forName(className);
     } catch (ClassNotFoundException ex) {
@@ -49,8 +46,8 @@ class PublicKeyProviderFactory {
       if (obj instanceof PublicKeyProvider) {
         return (PublicKeyProvider) obj;
       }
-      throw new PublicKeyProviderException(obj.getClass() + " is not assignable from "
-          + PublicKeyProvider.class);
+      throw new PublicKeyProviderException(
+          obj.getClass() + " is not assignable from " + PublicKeyProvider.class);
     } catch (InstantiationException | IllegalAccessException ex) {
       throw new PublicKeyProviderException(ex);
     }
