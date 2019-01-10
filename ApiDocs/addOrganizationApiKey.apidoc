@@ -1,5 +1,5 @@
 /**
- * @api {addOrganizationApiKey endpoint} organizations/addOrganizationApiKey Create the API key
+ * @api {endpoint / addOrganizationApiKey} organizations/addOrganizationApiKey Create the API key
  * @apiName AddOrganizationApiKey
  * @apiGroup ApiKey
  *
