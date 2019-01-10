@@ -70,8 +70,6 @@ public class OrganizationServiceRunner {
             .value()
             .orElseThrow(() -> new IllegalStateException("Couldn't load couchbase settings"));
 
-    System.err.println(settings);
-
     CouchbaseRepositoryFactory factory = new CouchbaseRepositoryFactory(settings);
 
     return new OrganizationServiceImpl.Builder()
