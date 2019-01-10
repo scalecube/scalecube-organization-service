@@ -1,0 +1,35 @@
+/**
+ * @apiDefine BadRequestError
+ * @apiVersion 0.0.0-CURRENT
+ * @apiError BadRequestError The request didn't pass validation
+ *
+ * @apiErrorExample Error-Response:
+ * {
+ *   "errorCode": "400"
+ *   "errorMessage": "Bad request."
+ * }
+ */
+
+/**
+ * @apiDefine InternalServerError
+ *
+ * @apiError (Error 500) InternalServerError Error happened during request processing
+ *
+ * @apiErrorExample Error-Response:
+ * {
+ *   "errorCode": "500"
+ *   "errorMessage": "Error message"
+ * }
+ */
+
+/**
+ * @apiDefine ServiceUnavailableError
+ *
+ * @apiError (Error 503) ServiceUnavailableError Service in not available to accept requests
+ *
+ * @apiErrorExample Error-Response:
+ * {
+ *   "errorCode": "503"
+ *   "errorMessage": "No reachable member with such service: %s"
+ * }
+ */
