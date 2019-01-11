@@ -1,6 +1,6 @@
 package io.scalecube.tokens;
 
-import io.scalecube.config.ConfigRegistryConfiguration;
+import io.scalecube.config.AppConfiguration;
 import io.scalecube.config.StringConfigProperty;
 
 /**
@@ -10,7 +10,7 @@ import io.scalecube.config.StringConfigProperty;
 class PublicKeyProviderFactory {
 
   private static final StringConfigProperty publicKeyProviderClassName =
-      ConfigRegistryConfiguration.configRegistry().stringProperty("public.key.provider");
+      AppConfiguration.configRegistry().stringProperty("public.key.provider");
   private static Class<?> publicKeyProvider;
 
   private PublicKeyProviderFactory() {}

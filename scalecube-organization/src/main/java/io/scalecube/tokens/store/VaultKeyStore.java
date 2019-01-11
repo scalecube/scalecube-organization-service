@@ -4,8 +4,8 @@ import com.bettercloud.vault.Vault;
 import com.bettercloud.vault.VaultConfig;
 import com.bettercloud.vault.VaultException;
 import com.bettercloud.vault.response.LogicalResponse;
+import io.scalecube.config.AppConfiguration;
 import io.scalecube.config.ConfigRegistry;
-import io.scalecube.config.ConfigRegistryConfiguration;
 import io.scalecube.tokens.KeyStoreException;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +39,7 @@ class VaultKeyStore implements KeyStore {
       throw new RuntimeException(ex);
     }
 
-    ConfigRegistry configRegistry = ConfigRegistryConfiguration.configRegistry();
+    ConfigRegistry configRegistry = AppConfiguration.configRegistry();
     maxRetries = configRegistry.intValue(VAULT_MAX_RETRIES_KEY, MAX_RETRIES);
     retryIntervalMilliseconds = configRegistry.intValue(VAULT_RETRY_INTERVAL_MILLISECONDS,
         RETRY_INTERVAL_MILLISECONDS);

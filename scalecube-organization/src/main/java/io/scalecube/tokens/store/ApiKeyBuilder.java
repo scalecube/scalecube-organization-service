@@ -4,7 +4,7 @@ import io.scalecube.account.api.AddOrganizationApiKeyRequest;
 import io.scalecube.account.api.ApiKey;
 import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.Role;
-import io.scalecube.config.ConfigRegistryConfiguration;
+import io.scalecube.config.AppConfiguration;
 import io.scalecube.config.LongConfigProperty;
 import io.scalecube.tokens.JwtApiKey;
 import java.util.HashMap;
@@ -17,7 +17,7 @@ public final class ApiKeyBuilder {
   private static final String ISSUER = "scalecube.io";
   private static final long DEFAULT_TOKEN_EXPIRATION = 2678400000L;
   private static final LongConfigProperty tokenExpiration =
-      ConfigRegistryConfiguration.configRegistry().longProperty("token.expiration");
+      AppConfiguration.configRegistry().longProperty("token.expiration");
 
   /**
    * Builds an APiKey based on the <code>organization</code>, <ocde>claims</ocde> and <code>

@@ -1,7 +1,7 @@
 package io.scalecube.tokens.store;
 
+import io.scalecube.config.AppConfiguration;
 import io.scalecube.config.ConfigRegistry;
-import io.scalecube.config.ConfigRegistryConfiguration;
 import io.scalecube.config.StringConfigProperty;
 
 final class VaultPathBuilder {
@@ -10,7 +10,7 @@ final class VaultPathBuilder {
   private StringConfigProperty apiKeysPathPattern;
 
   VaultPathBuilder() {
-    ConfigRegistry configRegistry = ConfigRegistryConfiguration.configRegistry();
+    ConfigRegistry configRegistry = AppConfiguration.configRegistry();
 
     vaultSecretsPath = configRegistry.stringProperty("VAULT_SECRETS_PATH");
     apiKeysPathPattern = configRegistry.stringProperty("api.keys.path.pattern");

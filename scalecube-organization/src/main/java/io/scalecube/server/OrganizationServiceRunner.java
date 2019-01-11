@@ -1,7 +1,7 @@
 package io.scalecube.server;
 
 import io.scalecube.account.api.OrganizationService;
-import io.scalecube.config.ConfigRegistryConfiguration;
+import io.scalecube.config.AppConfiguration;
 import io.scalecube.organization.OrganizationServiceImpl;
 import io.scalecube.organization.repository.couchbase.CouchbaseRepositoryFactory;
 import io.scalecube.organization.repository.couchbase.CouchbaseSettings;
@@ -28,7 +28,7 @@ public class OrganizationServiceRunner {
 
   private static void start() {
     DiscoveryOptions discoveryOptions =
-        ConfigRegistryConfiguration.configRegistry()
+        AppConfiguration.configRegistry()
             .objectProperty("io.scalecube.organization", DiscoveryOptions.class)
             .value()
             .orElseThrow(() -> new IllegalStateException("Couldn't load discovery options"));
@@ -50,7 +50,7 @@ public class OrganizationServiceRunner {
 
   private static OrganizationService createOrganizationService() {
     CouchbaseSettings settings =
-        ConfigRegistryConfiguration.configRegistry()
+        AppConfiguration.configRegistry()
             .objectProperty(couchbaseSettingsBindingMap(), CouchbaseSettings.class)
             .value()
             .orElseThrow(() -> new IllegalStateException("Couldn't load couchbase settings"));
