@@ -20,9 +20,9 @@ public final class CouchbaseRepositoryFactory {
    */
   public CouchbaseRepositoryFactory(CouchbaseSettings settings) {
     this.settings = settings;
-    List<String> nodes = settings.getCouchbaseClusterNodes();
+    List<String> nodes = settings.hosts();
     adminCluster = nodes.isEmpty() ? CouchbaseCluster.create() : CouchbaseCluster.create(nodes);
-    adminCluster.authenticate(settings.getCouchbaseUsername(), settings.getCouchbasePassword());
+    adminCluster.authenticate(settings.username(), settings.password());
     cluster = nodes.isEmpty() ? CouchbaseCluster.create() : CouchbaseCluster.create(nodes);
   }
 
