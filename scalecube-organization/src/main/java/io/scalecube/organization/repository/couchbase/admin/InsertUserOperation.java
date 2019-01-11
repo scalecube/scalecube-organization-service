@@ -9,7 +9,8 @@ final class InsertUserOperation extends Operation<Boolean> {
 
   @Override
   public Boolean execute(AdminOperationContext context) {
-    context.cluster()
+    context
+        .cluster()
         .clusterManager()
         .upsertUser(
             AuthDomain.LOCAL,
@@ -18,8 +19,9 @@ final class InsertUserOperation extends Operation<Boolean> {
                 .password(PasswordGenerator.md5Hash(context.organization().id()))
                 .name(context.name())
                 .roles(
-                    context.settings()
-                        .getOrgMemberUserRoles()
+                    context
+                        .settings()
+                        .userRoles()
                         .stream()
                         .map(role -> new UserRole(role, context.name()))
                         .collect(Collectors.toList())));

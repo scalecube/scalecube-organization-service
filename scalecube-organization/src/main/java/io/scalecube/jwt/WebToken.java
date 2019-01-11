@@ -4,12 +4,10 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
@@ -34,7 +32,7 @@ public class WebToken {
    * @return A string representation of a token.
    */
   public String createToken(String id, String audience,
-      long ttlMillis, String keyId, String secretKey,
+      Long ttlMillis, String keyId, String secretKey,
       Map<String, String> claims) {
     return createWebToken(id, issuer, subject, audience, ttlMillis, keyId, secretKey,
         claims == null ? new HashMap<>() : claims);
@@ -53,7 +51,7 @@ public class WebToken {
       String issuer,
       String subject,
       String audience,
-      long ttlMillis,
+      Long ttlMillis,
       String keyId,
       String secretKey,
       Map<String, String> claims) {
@@ -82,12 +80,13 @@ public class WebToken {
       builder.claim(entry.getKey(), entry.getValue());
     }
     // if it has been specified, let's add the expiration
-    if (ttlMillis >= 0) {
+    if (ttlMillis != null && ttlMillis >= 0) {
       long expMillis = nowMillis + ttlMillis;
-      Date exp = new Date(expMillis);
-      builder.setExpiration(exp);
-    } else {
-      builder.setExpiration(new Date(Long.MAX_VALUE));
+
+      if (expMillis > 0) {
+        Date exp = new Date(expMillis);
+        builder.setExpiration(exp);
+      }
     }
 
     // Builds the JWT and serializes it to a compact, URL-safe string

@@ -1,103 +1,81 @@
 package io.scalecube.organization.repository.couchbase;
 
 import com.couchbase.client.java.bucket.BucketType;
-import io.scalecube.config.ConfigRegistryConfiguration;
-import io.scalecube.organization.repository.exception.DataAccessResourceFailureException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
 public final class CouchbaseSettings {
 
-  private static final String ORG_MEMBERS_BUCKET_SUFFIX = "org.members.bucket.suffix";
-  private static final String ORG_MEMBERS_USER_ROLES = "org.members.bucket.user.roles";
-  private static final String ORG_MEMBERS_BUCKET_TYPE = "org.members.bucket.type";
-  private static final String ORG_MEMBERS_BUCKET_QUOTA = "org.members.bucket.quota";
-  private static final String ORG_MEMBERS_BUCKET_REPLICAS = "org.members.bucket.replicas";
-  private static final String ORG_MEMBERS_BUCKET_INDEX_REPLICAS =
-      "org.members.bucket.indexReplicas";
-  private static final String ORG_MEMBERS_BUCKET_ENABLE_FLUSH = "org.members.bucket.enableFlush";
-  private static final String COUCHBASE_SETTINGS_PROPERTIES = "/couchbase-settings.properties";
-  private static final String LIST_SPLITERATOR = ",";
-  private final Properties settings;
-  private List<String> orgMemberUserRoles;
-  private final CouchbaseProperties couchbaseProperties;
+  private List<String> hosts;
+  private String username;
+  private String password;
+  private List<String> userRoles;
+  private String bucketNamePattern;
+  private String bucketType;
+  private int bucketQuota;
+  private int bucketReplicas;
+  private boolean bucketIndexReplicas;
+  private boolean bucketEnableFlush;
+  private String organizationsBucketName;
 
-  /**
-   * Creates couchbase settings with the config registry.
-   */
-  public CouchbaseSettings() {
-    settings = new Properties();
-
-    try {
-      couchbaseProperties =
-          ConfigRegistryConfiguration.configRegistry()
-              .objectProperty("couchbase", CouchbaseProperties.class)
-              .value()
-              .orElseThrow(() -> new DataAccessResourceFailureException(
-                  "failed to get couchbase properties"));
-      settings.load(getClass().getResourceAsStream(COUCHBASE_SETTINGS_PROPERTIES));
-    } catch (Exception ex) {
-      throw new DataAccessResourceFailureException("Failed to initialize", ex);
-    }
+  public List<String> hosts() {
+    return hosts;
   }
 
-  public BucketType getOrgMembersBucketType() {
-    return Enum.valueOf(BucketType.class, getProperty(ORG_MEMBERS_BUCKET_TYPE));
+  public String username() {
+    return username;
   }
 
-  public int getOrgMembersBucketQuota() {
-    return Integer.valueOf(getProperty(ORG_MEMBERS_BUCKET_QUOTA));
+  public String password() {
+    return password;
   }
 
-  public int getOrgMembersBucketReplicas() {
-    return Integer.valueOf(getProperty(ORG_MEMBERS_BUCKET_REPLICAS));
+  public List<String> userRoles() {
+    return userRoles;
   }
 
-  public boolean getOrgMembersBucketIndexReplicas() {
-    return Boolean.valueOf(getProperty(ORG_MEMBERS_BUCKET_INDEX_REPLICAS));
+  public String bucketNamePattern() {
+    return bucketNamePattern;
   }
 
-  public boolean getOrgMembersBucketEnableFlush() {
-    return Boolean.valueOf(getProperty(ORG_MEMBERS_BUCKET_ENABLE_FLUSH));
+  public BucketType bucketType() {
+    return BucketType.valueOf(bucketType);
   }
 
-  String getCouchbaseUsername() {
-    return couchbaseProperties.username();
+  public int bucketQuota() {
+    return bucketQuota;
   }
 
-  String getCouchbasePassword() {
-    return couchbaseProperties.password();
+  public int bucketReplicas() {
+    return bucketReplicas;
   }
 
-  List<String> getCouchbaseClusterNodes() {
-    return couchbaseProperties.hosts() == null
-        ? Collections.EMPTY_LIST
-        : couchbaseProperties.hosts();
+  public boolean bucketIndexReplicas() {
+    return bucketIndexReplicas;
   }
 
-  /**
-   * Returns a list of configured roles of the organization members bucket user.
-   * Align with Couchbase new RBAC bucket authorization model.
-   * @return list of configured couchbase roles
-   */
-  public List<String> getOrgMemberUserRoles() {
-    if (orgMemberUserRoles == null) {
-      String value = getProperty(ORG_MEMBERS_USER_ROLES);
-      orgMemberUserRoles = value.length() > 0
-          ? Arrays.asList(value.split(LIST_SPLITERATOR))
-          : new ArrayList<>();
-    }
-    return orgMemberUserRoles;
+  public boolean bucketEnableFlush() {
+    return bucketEnableFlush;
   }
 
-  String getOrgMembersBucketSuffix() {
-    return getProperty(ORG_MEMBERS_BUCKET_SUFFIX);
+  public String organizationsBucketName() {
+    return organizationsBucketName;
   }
 
-  String getProperty(String key) {
-    return settings.getProperty(key);
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder("CouchbaseSettings{");
+    sb.append("hosts=").append(hosts);
+    sb.append(", username='").append(username).append('\'');
+    sb.append(", password='").append(password).append('\'');
+    sb.append(", userRoles=").append(userRoles);
+    sb.append(", bucketNamePattern='").append(bucketNamePattern).append('\'');
+    sb.append(", bucketType='").append(bucketType).append('\'');
+    sb.append(", bucketQuota=").append(bucketQuota);
+    sb.append(", bucketReplicas=").append(bucketReplicas);
+    sb.append(", bucketIndexReplicas=").append(bucketIndexReplicas);
+    sb.append(", bucketEnableFlush=").append(bucketEnableFlush);
+    sb.append(", organizationsBucketName='").append(organizationsBucketName).append('\'');
+    sb.append('}');
+    return sb.toString();
   }
 }
