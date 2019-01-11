@@ -15,7 +15,6 @@ public final class ApiKeyBuilder {
 
   private static final String ROLE_KEY = "role";
   private static final String ISSUER = "scalecube.io";
-  private static final long DEFAULT_TOKEN_EXPIRATION = 2678400000L;
   private static final LongConfigProperty tokenExpiration =
       AppConfiguration.configRegistry().longProperty("token.expiration");
 
@@ -43,7 +42,7 @@ public final class ApiKeyBuilder {
         .claims(tokenClaims)
         .id(organization.id())
         .audience(organization.id())
-        .expiration(calculateTokenExpiration())
+        .expiration(tokenExpiration.value().orElse(null))
         .build(organization.secretKeyId(), organization.secretKey());
   }
 
@@ -54,9 +53,5 @@ public final class ApiKeyBuilder {
       return false;
     }
     return true;
-  }
-
-  private static long calculateTokenExpiration() {
-    return System.currentTimeMillis() + tokenExpiration.value(DEFAULT_TOKEN_EXPIRATION);
   }
 }
