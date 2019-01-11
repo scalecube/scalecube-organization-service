@@ -7,6 +7,7 @@ import io.scalecube.organization.repository.couchbase.CouchbaseRepositoryFactory
 import io.scalecube.organization.repository.couchbase.CouchbaseSettings;
 import io.scalecube.services.Microservices;
 import java.util.HashMap;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,23 +51,7 @@ public class OrganizationServiceRunner {
   private static OrganizationService createOrganizationService() {
     CouchbaseSettings settings =
         ConfigRegistryConfiguration.configRegistry()
-            .objectProperty(
-                new HashMap<String, String>() {
-                  {
-                    put("hosts", "couchbase.hosts");
-                    put("username", "couchbase.username");
-                    put("password", "couchbase.password");
-                    put("userRoles", "organizations.members.userRoles");
-                    put("bucketNamePattern", "organizations.members.bucketNamePattern");
-                    put("bucketType", "organizations.members.bucketType");
-                    put("bucketQuota", "organizations.members.bucketQuota");
-                    put("bucketReplicas", "organizations.members.bucketReplicas");
-                    put("bucketIndexReplicas", "organizations.members.bucketIndexReplicas");
-                    put("bucketEnableFlush", "organizations.members.bucketEnableFlush");
-                    put("organizationsBucketName", "organizations.bucket");
-                  }
-                },
-                CouchbaseSettings.class)
+            .objectProperty(couchbaseSettingsBindingMap(), CouchbaseSettings.class)
             .value()
             .orElseThrow(() -> new IllegalStateException("Couldn't load couchbase settings"));
 
@@ -77,5 +62,23 @@ public class OrganizationServiceRunner {
         .organizationMembershipRepository(factory.organizationMembers())
         .organizationMembershipRepositoryAdmin(factory.organizationMembersRepositoryAdmin())
         .build();
+  }
+
+  private static Map<String, String> couchbaseSettingsBindingMap() {
+    Map<String, String> bindingMap = new HashMap<>();
+
+    bindingMap.put("hosts", "couchbase.hosts");
+    bindingMap.put("username", "couchbase.username");
+    bindingMap.put("password", "couchbase.password");
+    bindingMap.put("userRoles", "organizations.members.userRoles");
+    bindingMap.put("bucketNamePattern", "organizations.members.bucketNamePattern");
+    bindingMap.put("bucketType", "organizations.members.bucketType");
+    bindingMap.put("bucketQuota", "organizations.members.bucketQuota");
+    bindingMap.put("bucketReplicas", "organizations.members.bucketReplicas");
+    bindingMap.put("bucketIndexReplicas", "organizations.members.bucketIndexReplicas");
+    bindingMap.put("bucketEnableFlush", "organizations.members.bucketEnableFlush");
+    bindingMap.put("organizationsBucketName", "organizations.bucket");
+
+    return bindingMap;
   }
 }

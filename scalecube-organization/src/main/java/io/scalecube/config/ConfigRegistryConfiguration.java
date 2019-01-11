@@ -23,15 +23,15 @@ public class ConfigRegistryConfiguration {
     ConfigRegistrySettings.Builder builder =
         ConfigRegistrySettings.builder()
             .reloadIntervalSec(RELOAD_INTERVAL_SEC)
-            .addListener(new Slf4JConfigEventListener())
-            .addLastSource("sys_prop", new SystemPropertiesConfigSource())
-            .addLastSource("env_var", new SystemEnvironmentConfigSource())
-            .addLastSource("cp", new ClassPathConfigSource(PATH_PREDICATE));
+            .addListener(new Slf4JConfigEventListener());
 
     // for test purposes without vault access
     if (System.getenv().get("VAULT_ADDR") != null) {
-      builder.addFirstSource("vault", VaultConfigSource.builder().build());
+      builder.addLastSource("vault", VaultConfigSource.builder().build());
     }
+    builder.addLastSource("sys_prop", new SystemPropertiesConfigSource());
+    builder.addLastSource("env_var", new SystemEnvironmentConfigSource());
+    builder.addLastSource("cp", new ClassPathConfigSource(PATH_PREDICATE));
 
     configRegistry = ConfigRegistry.create(builder.build());
   }
