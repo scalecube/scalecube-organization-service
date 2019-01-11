@@ -5,17 +5,19 @@ import io.scalecube.account.api.ApiKey;
 import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.Role;
 import io.scalecube.config.ConfigRegistryConfiguration;
+import io.scalecube.config.LongConfigProperty;
 import io.scalecube.tokens.JwtApiKey;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TimeZone;
 
 /** Represent a class that encapsulate the logic of constructing an ApiKey. */
 public final class ApiKeyBuilder {
 
   private static final String ROLE_KEY = "role";
   private static final String ISSUER = "scalecube.io";
+  private static final long DEFAULT_TOKEN_EXPIRATION = 2678400000L;
+  private static final LongConfigProperty tokenExpiration =
+      ConfigRegistryConfiguration.configRegistry().longProperty("token.expiration");
 
   /**
    * Builds an APiKey based on the <code>organization</code>, <ocde>claims</ocde> and <code>
@@ -41,7 +43,7 @@ public final class ApiKeyBuilder {
         .claims(tokenClaims)
         .id(organization.id())
         .audience(organization.id())
-        .expiration(tryGetTokenExpiration())
+        .expiration(calculateTokenExpiration())
         .build(organization.secretKeyId(), organization.secretKey());
   }
 
@@ -54,15 +56,7 @@ public final class ApiKeyBuilder {
     return true;
   }
 
-  private static long tryGetTokenExpiration() {
-    Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-
-    long tokenExpiration =
-        ConfigRegistryConfiguration.configRegistry()
-            .longProperty("token.expiration")
-            .value(2678399982L);
-
-    calendar.setTimeInMillis(System.currentTimeMillis() + tokenExpiration);
-    return calendar.getTimeInMillis();
+  private static long calculateTokenExpiration() {
+    return System.currentTimeMillis() + tokenExpiration.value(DEFAULT_TOKEN_EXPIRATION);
   }
 }
