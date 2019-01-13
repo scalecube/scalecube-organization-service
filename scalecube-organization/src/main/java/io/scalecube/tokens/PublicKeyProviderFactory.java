@@ -2,6 +2,7 @@ package io.scalecube.tokens;
 
 import io.scalecube.config.AppConfiguration;
 import java.util.Objects;
+
 /**
  * A factory class used to load the system PublicKeyProvider as it specified in the app settings
  *   file. The class entry name is mandatory
