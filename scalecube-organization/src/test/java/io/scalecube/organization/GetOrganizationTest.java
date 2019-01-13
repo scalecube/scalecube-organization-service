@@ -22,9 +22,9 @@ class GetOrganizationTest extends Base {
    */
   @Test
   public void getOrganization() {
-    StepVerifier.create(service.getOrganization(new GetOrganizationRequest(token, organisationId)))
+    StepVerifier.create(service.getOrganization(new GetOrganizationRequest(token, organizationId)))
         .expectSubscription()
-        .assertNext((r) -> assertThat(r.id(), is(organisationId)))
+        .assertNext((r) -> assertThat(r.id(), is(organizationId)))
         .expectComplete()
         .verify();
   }
@@ -33,7 +33,7 @@ class GetOrganizationTest extends Base {
   public void getOrganizationNotMemberShouldFailWithAccessPermissionException() {
     assertMonoCompletesWithError(
         createService(testProfile5)
-            .getOrganization(new GetOrganizationRequest(new Token("foo"), organisationId)),
+            .getOrganization(new GetOrganizationRequest(new Token("foo"), organizationId)),
         AccessPermissionException.class);
   }
 
@@ -48,7 +48,7 @@ class GetOrganizationTest extends Base {
   public void getOrganizationShouldFailWithInvalidAuthenticationToken() {
     assertMonoCompletesWithError(
         createService(invalidProfile)
-            .getOrganization(new GetOrganizationRequest(token, organisationId)),
+            .getOrganization(new GetOrganizationRequest(token, organizationId)),
         InvalidAuthenticationToken.class);
   }
 
@@ -70,7 +70,7 @@ class GetOrganizationTest extends Base {
   public void getOrganizationWithNullTokenShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         createService(testProfile)
-            .getOrganization(new GetOrganizationRequest(null, organisationId)),
+            .getOrganization(new GetOrganizationRequest(null, organizationId)),
         NullPointerException.class);
   }
 
@@ -78,7 +78,7 @@ class GetOrganizationTest extends Base {
   public void getOrganizationWithInvalidTokenShouldFailWithInvalidAuthenticationToken() {
     assertMonoCompletesWithError(
         createService(invalidProfile)
-            .getOrganization(new GetOrganizationRequest(token, organisationId)),
+            .getOrganization(new GetOrganizationRequest(token, organizationId)),
         InvalidAuthenticationToken.class);
   }
 

@@ -91,8 +91,9 @@ public class Base {
           .givenName("lname")
           .claims(Collections.singletonMap("role", "Admin"))
           .build();
+
   protected OrganizationService service;
-  protected String organisationId;
+  protected String organizationId;
   protected Organization organisation;
   protected Token token = new Token("user1");
   protected Repository<Organization, String> organizationRepository;
@@ -151,14 +152,14 @@ public class Base {
   }
 
   protected void addMemberToOrganization(
-      String organisationId, OrganizationService service, Profile profile) {
-    addMemberToOrganization(organisationId, service, profile, Role.Member);
+      String organisationId, Profile profile) {
+    addMemberToOrganization(organisationId, profile, Role.Member);
   }
 
   protected void addMemberToOrganization(
-      String organisationId, OrganizationService service, Profile profile, Role role) {
+      String organisationId, Profile profile, Role role) {
     consume(
-        service.inviteMember(
+        this.service.inviteMember(
             new InviteOrganizationMemberRequest(
                 token, organisationId, profile.getUserId(), role.toString())));
   }
@@ -190,7 +191,7 @@ public class Base {
   @AfterEach
   public void deleteOrganizationAfterTest() {
     AwaitLatch<DeleteOrganizationResponse> await =
-        consume(service.deleteOrganization(new DeleteOrganizationRequest(token, organisationId)));
+        consume(service.deleteOrganization(new DeleteOrganizationRequest(token, organizationId)));
     assertThat(await.error(), is(nullValue()));
     assertTrue(await.result().deleted(), "failed to delete organization");
   }
@@ -198,7 +199,7 @@ public class Base {
   @BeforeEach
   public void createOrganizationBeforeTest() {
     organisation = createOrganization(randomString());
-    organisationId = organisation.id();
+    organizationId = organisation.id();
   }
 
   /**

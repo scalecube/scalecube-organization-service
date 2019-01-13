@@ -26,9 +26,9 @@ public class UserMembershipTest extends Base {
   public void getUserOrganizationsMembership() {
     String orgId1 = createOrganization("testOrg1").id();
     String orgId2 = createOrganization("testOrg2").id();
-    addMemberToOrganization(organisationId, service, testProfile);
-    addMemberToOrganization(orgId1, service, testProfile);
-    addMemberToOrganization(orgId2, service, testProfile);
+    addMemberToOrganization(organizationId, testProfile);
+    addMemberToOrganization(orgId1, testProfile);
+    addMemberToOrganization(orgId2, testProfile);
 
     assertNotNull(
         StepVerifier.create(service.getUserOrganizationsMembership(new GetMembershipRequest(token)))
@@ -42,8 +42,8 @@ public class UserMembershipTest extends Base {
                   assertThat(
                       orgId2 + " is expected", ids.get().anyMatch(i -> Objects.equals(orgId2, i)));
                   assertThat(
-                      organisationId + " is expected",
-                      ids.get().anyMatch(i -> Objects.equals(organisationId, i)));
+                      organizationId + " is expected",
+                      ids.get().anyMatch(i -> Objects.equals(organizationId, i)));
                 })
             .verifyComplete());
 
@@ -82,8 +82,8 @@ public class UserMembershipTest extends Base {
 
   @Test
   public void getOrganizationMembership() {
-    addMemberToOrganization(organisationId, service, testProfile);
-    assertGetOrganizationsMembership(organisationId, testProfile);
+    addMemberToOrganization(organizationId, testProfile);
+    assertGetOrganizationsMembership(organizationId, testProfile);
   }
 
   private void assertGetOrganizationsMembership(String organisationId, Profile profile) {

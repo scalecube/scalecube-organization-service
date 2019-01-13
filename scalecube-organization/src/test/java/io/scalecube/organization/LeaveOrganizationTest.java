@@ -19,17 +19,17 @@ public class LeaveOrganizationTest extends Base {
 
   @Test
   public void leaveOrganization() {
-    addMemberToOrganization(organisationId, service, testProfile5);
+    addMemberToOrganization(organizationId, testProfile5);
 
     StepVerifier.create(
             createService(testProfile5)
-                .leaveOrganization(new LeaveOrganizationRequest(token, organisationId)))
+                .leaveOrganization(new LeaveOrganizationRequest(token, organizationId)))
         .expectSubscription()
         .assertNext(
             x ->
                 StepVerifier.create(
                         service.getOrganizationMembers(
-                            new GetOrganizationMembersRequest(organisationId, token)))
+                            new GetOrganizationMembersRequest(organizationId, token)))
                     .expectSubscription()
                     .assertNext(
                         r ->
@@ -60,21 +60,21 @@ public class LeaveOrganizationTest extends Base {
   @Test
   public void leaveOrganizationWithNullTokenIdShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
-        service.leaveOrganization(new LeaveOrganizationRequest(null, organisationId)),
+        service.leaveOrganization(new LeaveOrganizationRequest(null, organizationId)),
         NullPointerException.class);
   }
 
   @Test
   public void leaveOrganizationWithEmptyTokenIdShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
-        service.leaveOrganization(new LeaveOrganizationRequest(new Token(""), organisationId)),
+        service.leaveOrganization(new LeaveOrganizationRequest(new Token(""), organizationId)),
         IllegalArgumentException.class);
   }
 
   @Test
   public void leaveOrganizationWithNullInnerTokenIdShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
-        service.leaveOrganization(new LeaveOrganizationRequest(new Token(null), organisationId)),
+        service.leaveOrganization(new LeaveOrganizationRequest(new Token(null), organizationId)),
         NullPointerException.class);
   }
 

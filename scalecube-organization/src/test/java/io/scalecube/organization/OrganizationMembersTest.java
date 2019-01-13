@@ -23,12 +23,12 @@ public class OrganizationMembersTest extends Base {
 
   @Test
   public void getOrganizationMembers() {
-    addMemberToOrganization(organisationId, service, testProfile4);
-    addMemberToOrganization(organisationId, service, testProfile5);
+    addMemberToOrganization(organizationId, testProfile4);
+    addMemberToOrganization(organizationId, testProfile5);
 
     StepVerifier.create(
             service.getOrganizationMembers(
-                new GetOrganizationMembersRequest(organisationId, token)))
+                new GetOrganizationMembersRequest(organizationId, token)))
         .expectSubscription()
         .assertNext(
             (r) -> {
@@ -66,14 +66,14 @@ public class OrganizationMembersTest extends Base {
   public void getOrganizationMembersEmptyTokenShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         service.getOrganizationMembers(
-            new GetOrganizationMembersRequest(organisationId, new Token(""))),
+            new GetOrganizationMembersRequest(organizationId, new Token(""))),
         IllegalArgumentException.class);
   }
 
   @Test
   public void getOrganizationMembersNullTokenShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
-        service.getOrganizationMembers(new GetOrganizationMembersRequest(organisationId, null)),
+        service.getOrganizationMembers(new GetOrganizationMembersRequest(organizationId, null)),
         NullPointerException.class);
   }
 
@@ -81,7 +81,7 @@ public class OrganizationMembersTest extends Base {
   public void getOrganizationMembersNullInnerTokenShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.getOrganizationMembers(
-            new GetOrganizationMembersRequest(organisationId, new Token(null))),
+            new GetOrganizationMembersRequest(organizationId, new Token(null))),
         NullPointerException.class);
   }
 
@@ -89,7 +89,7 @@ public class OrganizationMembersTest extends Base {
   public void getOrganizationMembersShouldFailWithInvalidAuthenticationToken() {
     assertMonoCompletesWithError(
         createService(invalidProfile)
-            .getOrganizationMembers(new GetOrganizationMembersRequest(organisationId, token)),
+            .getOrganizationMembers(new GetOrganizationMembersRequest(organizationId, token)),
         InvalidAuthenticationToken.class);
   }
 

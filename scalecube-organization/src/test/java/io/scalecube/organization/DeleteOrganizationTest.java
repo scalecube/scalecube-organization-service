@@ -3,11 +3,9 @@ package io.scalecube.organization;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-import io.scalecube.account.api.DeleteOrganizationApiKeyRequest;
 import io.scalecube.account.api.DeleteOrganizationRequest;
 import io.scalecube.account.api.InvalidAuthenticationToken;
 import io.scalecube.account.api.Token;
-import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
@@ -15,100 +13,11 @@ import reactor.test.StepVerifier;
 public class DeleteOrganizationTest extends Base {
 
   @Test
-  public void deleteOrganizationApiKeyUserNotOwnerShouldFailWithAccessPermissionException() {
-    assertMonoCompletesWithError(
-        createService(testProfile2)
-            .deleteOrganizationApiKey(
-                new DeleteOrganizationApiKeyRequest(token, organisationId, "api_key")),
-        AccessPermissionException.class);
-  }
-
-  @Test
-  public void deleteOrganizationApiKeyEmptyOrgIdShouldFailWithIllegalArgumentException() {
-    assertMonoCompletesWithError(
-        service.deleteOrganizationApiKey(new DeleteOrganizationApiKeyRequest(token, "", "api_key")),
-        IllegalArgumentException.class);
-  }
-
-  @Test
-  public void deleteOrganizationApiKeyOrgNotExistsShouldFailWithEntityNotFoundException() {
-
-    assertMonoCompletesWithError(
-        service.deleteOrganizationApiKey(
-            new DeleteOrganizationApiKeyRequest(token, "bla", "api_key")),
-        EntityNotFoundException.class);
-  }
-
-  @Test
-  public void deleteOrganizationApiKeyNullOrgShouldFailWithNullPointerException() {
-
-    assertMonoCompletesWithError(
-        service.deleteOrganizationApiKey(
-            new DeleteOrganizationApiKeyRequest(token, null, "api_key")),
-        NullPointerException.class);
-  }
-
-  @Test
-  public void deleteOrganizationApiKeyNullApiKeyNameShouldFailWithNullPointerException() {
-
-    assertMonoCompletesWithError(
-        service.deleteOrganizationApiKey(
-            new DeleteOrganizationApiKeyRequest(token, organisationId, null)),
-        NullPointerException.class);
-  }
-
-  @Test
-  public void deleteOrganizationApiKeyEmptyNameShouldFailWithIllegalArgumentException() {
-
-    assertMonoCompletesWithError(
-        service.deleteOrganizationApiKey(
-            new DeleteOrganizationApiKeyRequest(token, organisationId, "")),
-        IllegalArgumentException.class);
-  }
-
-  @Test
-  public void deleteOrganizationApiKeyInvalidUserShouldFailWithInvalidAuthenticationToken() {
-
-    assertMonoCompletesWithError(
-        createService(invalidProfile)
-            .deleteOrganizationApiKey(
-                new DeleteOrganizationApiKeyRequest(token, organisationId, "api_key")),
-        InvalidAuthenticationToken.class);
-  }
-
-  @Test
-  public void deleteOrganizationApiKeyNullTokenShouldFailWithNullPointerException() {
-
-    assertMonoCompletesWithError(
-        service.deleteOrganizationApiKey(
-            new DeleteOrganizationApiKeyRequest(null, organisationId, "api_key")),
-        NullPointerException.class);
-  }
-
-  @Test
-  public void deleteOrganizationApiKeyNullInnerTokenShouldFailWithNullPointerException() {
-
-    assertMonoCompletesWithError(
-        service.deleteOrganizationApiKey(
-            new DeleteOrganizationApiKeyRequest(new Token(null), organisationId, "api_key")),
-        NullPointerException.class);
-  }
-
-  @Test
-  public void deleteOrganizationApiKeyEmptyTokenShouldFailWithIllegalArgumentException() {
-
-    assertMonoCompletesWithError(
-        service.deleteOrganizationApiKey(
-            new DeleteOrganizationApiKeyRequest(new Token(""), organisationId, "api_key")),
-        IllegalArgumentException.class);
-  }
-
-  @Test
   public void deleteOrganizationInvalidTokenShouldFailWithInvalidAuthenticationToken() {
 
     assertMonoCompletesWithError(
         createService(invalidProfile)
-            .deleteOrganization(new DeleteOrganizationRequest(token, organisationId)),
+            .deleteOrganization(new DeleteOrganizationRequest(token, organizationId)),
         InvalidAuthenticationToken.class);
   }
 
@@ -142,23 +51,29 @@ public class DeleteOrganizationTest extends Base {
 
     assertMonoCompletesWithError(
         createService(testProfile)
-            .deleteOrganization(new DeleteOrganizationRequest(null, organisationId)),
+            .deleteOrganization(new DeleteOrganizationRequest(null, organizationId)),
         NullPointerException.class);
   }
 
   @Test
   public void deleteOrganizationWithEmptyTokenShouldFailWithIllegalArgumentException() {
-
     assertMonoCompletesWithError(
         createService(testProfile)
-            .deleteOrganization(new DeleteOrganizationRequest(new Token(""), organisationId)),
+            .deleteOrganization(new DeleteOrganizationRequest(new Token(""), organizationId)),
         IllegalArgumentException.class);
   }
-
+  
+/**
+ *   #MPA-7229 (#4)
+*  Scenario: Successful delete of specific Organization
+*    Given the user "A" have got a valid "token" issued by relevant authority
+*    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+*    When the user "A" requested to delete own organization "organizationId"
+*   Then user "A" should receive the successful response object: "deleted":true,"organizationId":"org "A" organizationId"
+ */
   @Test
   public void deleteOrganization() {
     String id = createRandomOrganization();
-
     StepVerifier.create(service.deleteOrganization(new DeleteOrganizationRequest(token, id)))
         .expectSubscription()
         .assertNext((r) -> assertThat(r.deleted(), is(true)))

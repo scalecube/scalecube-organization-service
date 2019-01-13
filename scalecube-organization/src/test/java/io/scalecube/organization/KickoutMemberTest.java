@@ -21,17 +21,17 @@ public class KickoutMemberTest extends Base {
 
   @Test
   public void kickoutMember() {
-    addMemberToOrganization(organisationId, service, testProfile5);
+    addMemberToOrganization(organizationId, testProfile5);
     StepVerifier.create(
             service.kickoutMember(
                 new KickoutOrganizationMemberRequest(
-                    organisationId, token, testProfile5.getUserId())))
+                    organizationId, token, testProfile5.getUserId())))
         .expectSubscription()
         .assertNext(
             x ->
                 StepVerifier.create(
                         service.getOrganizationMembers(
-                            new GetOrganizationMembersRequest(organisationId, token)))
+                            new GetOrganizationMembersRequest(organizationId, token)))
                     .expectSubscription()
                     .assertNext(
                         r -> {
@@ -51,7 +51,7 @@ public class KickoutMemberTest extends Base {
         createService(invalidProfile)
             .kickoutMember(
                 new KickoutOrganizationMemberRequest(
-                    organisationId, token, testProfile5.getUserId())),
+                    organizationId, token, testProfile5.getUserId())),
         InvalidAuthenticationToken.class);
   }
 
@@ -76,7 +76,7 @@ public class KickoutMemberTest extends Base {
     assertMonoCompletesWithError(
         service.kickoutMember(
             new KickoutOrganizationMemberRequest(
-                organisationId, new Token(""), testProfile5.getUserId())),
+                organizationId, new Token(""), testProfile5.getUserId())),
         IllegalArgumentException.class);
   }
 
@@ -84,7 +84,7 @@ public class KickoutMemberTest extends Base {
   public void kickoutMemberNullTokenShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.kickoutMember(
-            new KickoutOrganizationMemberRequest(organisationId, null, testProfile5.getUserId())),
+            new KickoutOrganizationMemberRequest(organizationId, null, testProfile5.getUserId())),
         NullPointerException.class);
   }
 
@@ -93,21 +93,21 @@ public class KickoutMemberTest extends Base {
     assertMonoCompletesWithError(
         service.kickoutMember(
             new KickoutOrganizationMemberRequest(
-                organisationId, new Token(null), testProfile5.getUserId())),
+                organizationId, new Token(null), testProfile5.getUserId())),
         NullPointerException.class);
   }
 
   @Test
   public void kickoutMemberEmptyUserIdShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
-        service.kickoutMember(new KickoutOrganizationMemberRequest(organisationId, token, "")),
+        service.kickoutMember(new KickoutOrganizationMemberRequest(organizationId, token, "")),
         IllegalArgumentException.class);
   }
 
   @Test
   public void kickoutMemberNullUserIdShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
-        service.kickoutMember(new KickoutOrganizationMemberRequest(organisationId, token, null)),
+        service.kickoutMember(new KickoutOrganizationMemberRequest(organizationId, token, null)),
         NullPointerException.class);
   }
 
@@ -125,7 +125,7 @@ public class KickoutMemberTest extends Base {
         createService(testProfile5)
             .kickoutMember(
                 new KickoutOrganizationMemberRequest(
-                    organisationId, token, testProfile5.getUserId())),
+                    organizationId, token, testProfile5.getUserId())),
         AccessPermissionException.class);
   }
 }
