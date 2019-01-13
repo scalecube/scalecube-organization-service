@@ -9,6 +9,7 @@ import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.tokens.TokenVerifier;
 import io.scalecube.tokens.store.ApiKeyBuilder;
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 public class AddOrganizationApiKey extends ServiceOperation<AddOrganizationApiKeyRequest,
     GetOrganizationResponse> {
@@ -43,6 +44,13 @@ public class AddOrganizationApiKey extends ServiceOperation<AddOrganizationApiKe
     requireNonNullOrEmpty(request.organizationId(),
         "organizationId is a required argument");
     requireNonNullOrEmpty(request.apiKeyName(), "apiKeyName is a required argument");
+    Organization organization = getOrganization(request.organizationId());
+    boolean alreadyExists = Stream.of(organization.apiKeys())
+        .anyMatch(existingKey -> existingKey.name().equals(request.apiKeyName()));
+    if (alreadyExists) {
+      throw new IllegalArgumentException("apiKeyName already exists");
+    }
+    
   }
 
   @Override
