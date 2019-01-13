@@ -35,7 +35,6 @@ public final class CreateOrganization extends OrganizationInfoOperation<CreateOr
         .id(id)
         .email(context.profile().getEmail())
         .name(request.name())
-        .ownerId(context.profile().getUserId())
         .build(), context);
     Organization organization = createOrganization(request, context, id);
     persistOrganizationSecret(context, organization);
@@ -45,8 +44,7 @@ public final class CreateOrganization extends OrganizationInfoOperation<CreateOr
             .id(organization.id())
             .name(organization.name())
             .apiKeys(organization.apiKeys())
-            .email(organization.email())
-            .ownerId(organization.ownerId()));
+            .email(organization.email()));
   }
 
   private Organization createOrganization(CreateOrganizationRequest request,
@@ -56,7 +54,6 @@ public final class CreateOrganization extends OrganizationInfoOperation<CreateOr
           Organization.builder()
               .id(id)
               .name(request.name())
-              .ownerId(context.profile().getUserId())
               .email(context.profile().getEmail())
               .secretKeyId(UUID.randomUUID().toString())
               .secretKey(IdGenerator.generateId())

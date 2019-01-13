@@ -19,7 +19,6 @@ public abstract class OrganizationInfoOperation<I, O> extends ServiceOperation<I
         "organizationId is a required argument");
     requireNonNullOrEmpty(info.email(), "Organization email cannot be empty");
     requireNonNullOrEmpty(info.name(), "Organization name cannot be empty");
-    requireNonNullOrEmpty(info.ownerId(), "Organization owner id cannot be empty");
     boolean invalidOrgNameValid = !info.name().matches(VALID_ORG_NAME_CHARS_REGEX);
 
     if (invalidOrgNameValid) {

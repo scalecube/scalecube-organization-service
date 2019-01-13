@@ -70,7 +70,7 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
     try {
       membershipRepository.addMember(
           organization,
-          new OrganizationMember(organization.ownerId(), Role.Owner.toString()));
+          new OrganizationMember(owner.getUserId(), Role.Owner.toString()));
       return organizations.save(organization.id(), organization);
     } catch (Throwable throwable) {
       // rollback

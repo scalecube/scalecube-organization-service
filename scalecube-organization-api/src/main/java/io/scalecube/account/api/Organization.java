@@ -11,8 +11,6 @@ public class Organization {
 
   private String id;
 
-  private String ownerId;
-
   private String secretKey;
 
   private String email;
@@ -25,19 +23,14 @@ public class Organization {
   Organization() {
   }
 
-  private Organization(String id, String name, String ownerId, String secretKeyId, String secretKey,
+  private Organization(String id, String name, String secretKeyId, String secretKey,
       ApiKey[] apiKeys, String email) {
     this.id = id;
-    this.ownerId = ownerId;
     this.secretKeyId = secretKeyId;
     this.secretKey = secretKey;
     this.apiKeys = apiKeys;
     this.name = name;
     this.email = email;
-  }
-
-  public String ownerId() {
-    return this.ownerId;
   }
 
   public String id() {
@@ -70,8 +63,6 @@ public class Organization {
 
   public static class Builder {
 
-    private String ownerId;
-
     private String name;
 
     private ApiKey[] apiKeys = {};
@@ -86,11 +77,6 @@ public class Organization {
 
     public Builder id(String id) {
       this.id = id;
-      return this;
-    }
-
-    public Builder ownerId(String ownerId) {
-      this.ownerId = ownerId;
       return this;
     }
 
@@ -130,19 +116,19 @@ public class Organization {
       String email = this.email == null ? source.email : this.email;
       String name = this.name == null ? source.name : this.name;
       ApiKey[] apiKeys = this.apiKeys == null ? source.apiKeys : this.apiKeys;
-      return new Organization(source.id(), name, source.ownerId(), source.secretKeyId(),
-          source.secretKey(), apiKeys, email);
+      return new Organization(source.id(), name, source.secretKeyId(), source.secretKey(),
+          apiKeys, email);
     }
 
     public Organization build() {
-      return new Organization("ORG-" + this.id, this.name, this.ownerId, this.secretKeyId,
-          this.secretKey, this.apiKeys, this.email);
+      return new Organization("ORG-" + this.id, this.name, this.secretKeyId, this.secretKey,
+          this.apiKeys, this.email);
     }
   }
 
   @Override
   public String toString() {
     return "Organization [name=" + name + ", apiKey=" + apiKeys + ", id=" + id
-        + ", ownerId=" + ownerId + "]";
+        + "]";
   }
 }

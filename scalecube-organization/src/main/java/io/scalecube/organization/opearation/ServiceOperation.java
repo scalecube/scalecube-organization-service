@@ -88,8 +88,7 @@ public abstract class ServiceOperation<I, O> {
         .id(organization.id())
         .name(organization.name())
         .apiKeys(organization.apiKeys())
-        .email(organization.email())
-        .ownerId(organization.ownerId()));
+        .email(organization.email()));
   }
 
   protected static void requireNonNullOrEmpty(Object object, String message) {
@@ -112,8 +111,8 @@ public abstract class ServiceOperation<I, O> {
 
   protected boolean isOwner(Organization organization, Profile profile)
       throws EntityNotFoundException, AccessPermissionException {
-    return Objects.equals(organization.ownerId(), profile.getUserId())
-        || isInRole(profile.getUserId(), organization, Role.Owner);
+    return // Objects.equals(organization.ownerId(), profile.getUserId())        || 
+        isInRole(profile.getUserId(), organization, Role.Owner);
   }
 
   protected boolean isSuperUser(Organization organization, Profile profile)

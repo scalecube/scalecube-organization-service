@@ -31,7 +31,6 @@ public class GetUserOrganizationsMembership extends ServiceOperation<GetMembersh
             .name(item.name())
             .apiKeys(item.apiKeys())
             .email(item.email())
-            .ownerId(item.ownerId())
             .build()).collect(Collectors.toList());
 
     return new GetMembershipResponse(

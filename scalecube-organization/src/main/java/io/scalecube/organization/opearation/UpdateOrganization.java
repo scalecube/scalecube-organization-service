@@ -34,7 +34,6 @@ public class UpdateOrganization extends OrganizationInfoOperation<UpdateOrganiza
             .name(orgUpdate.name())
             .apiKeys(orgUpdate.apiKeys())
             .email(orgUpdate.email())
-            .ownerId(orgUpdate.ownerId())
     );
   }
 
@@ -47,7 +46,6 @@ public class UpdateOrganization extends OrganizationInfoOperation<UpdateOrganiza
         .id(request.organizationId())
         .email(request.email())
         .name(request.name())
-        .ownerId(getOrganization(request.organizationId()).ownerId())
         .build(), context);
 
   }
