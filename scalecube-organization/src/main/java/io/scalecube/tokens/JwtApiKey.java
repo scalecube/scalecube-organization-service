@@ -40,7 +40,7 @@ public class JwtApiKey extends ApiKey {
     private Map<String, String> claims;
     private String id;
     private String name;
-    private long tokenTimeToLiveInMillis;
+    private Long tokenTimeToLiveInMillis;
     private String audience;
 
     public Builder name(String name) {
@@ -68,7 +68,7 @@ public class JwtApiKey extends ApiKey {
       return this;
     }
 
-    public Builder expiration(long tokenTimeToLiveInMillis) {
+    public Builder expiration(Long tokenTimeToLiveInMillis) {
       this.tokenTimeToLiveInMillis = tokenTimeToLiveInMillis;
       return this;
     }

@@ -16,7 +16,7 @@ class CouchbaseOrganizationRepository
   private static final String NAME_PROPERTY = "name";
 
   CouchbaseOrganizationRepository(CouchbaseSettings settings, Cluster cluster) {
-    super(settings, cluster, "organizations", Organization.class);
+    super(settings, cluster, settings.organizationsBucketName(), Organization.class);
   }
 
   @Override
