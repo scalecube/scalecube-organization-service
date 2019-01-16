@@ -16,7 +16,7 @@
 
   <properties>
     <mainClass>io.scalecube.server.OrganizationServiceRunner</mainClass>
-    <extratags>${env.TRAVIS_COMMIT}</extratags>
+    <!--<extratags>${env.TRAVIS_COMMIT}</extratags>-->
   </properties>
 
   <dependencies>
