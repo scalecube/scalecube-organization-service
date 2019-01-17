@@ -10,7 +10,8 @@
   "order": [
     "Overview",
     "GettingStarted",
-    "Datatypes",
+    "TransportProtocols",
+    "InteractiveAPIExplorer",
     "CreateOrganization",
     "GetOrganization",
     "UpdateOrganization",
