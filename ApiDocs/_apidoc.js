@@ -63,7 +63,8 @@
   "order": [
     "Overview",
     "GettingStarted",
-    "Datatypes",
+    "TransportProtocols",
+    "InteractiveAPIExplorer",
     "CreateOrganization",
     "GetOrganization",
     "UpdateOrganization",
@@ -90,9 +91,8 @@
   "order": [
     "Overview",
     "GettingStarted",
-    "General Definitions",
+    "TransportProtocols",
     "InteractiveAPIExplorer",
-    "Datatypes",
     "CreateOrganization",
     "GetOrganization",
     "UpdateOrganization",
@@ -695,53 +695,6 @@ in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent. Appropriat
 * >~ ignores any excessive keys and values added besides the required parameters
 * ><br>~ doesn't ignore the keys duplicates and takes the last values which applied for each of the relevant key duplicate
 */
-
-/**
-* @api {Transport protocols} / General Definitions
-* @apiName GeneralDefinitions
-* @apiGroup Overview
-* @apiVersion 2.0.15
-* @apiDescription The request should contain the following structure upon the transport protocols are used:
-                    <ul>
-								   <b>Websocket</b>
-                                   <li> "q": The query of the relevant service path </li>
-                                   <li> "sid": The identifier of the stream id. </li>
-                                   <li> "d": The request data (parameters and values). </li>
-								   <b>RSocket</b>
-								   <li> "metadata" which contains object "q": The query of the relevant service path </li>
-                                   <li> "data" object: The request data (parameters and values). </li>
-								   <b>HTTP</b>
-								   <li> add the "/organizations/method_name" to the host and use the "POST" method</li>
-								   <li> "headers": Content-Type json </li>
-                                   <li> "body" json object: The request data (parameters and values). </li>
-                    </ul>
-
-* @apiParamExample {json} Request-Example Websocket:
-                    {
-                        "q": "/organizations/method_name",
-                        "sid": 1,
-                        "d": {
-                                "relevant request parameters and values"
-                             }
-                    }
-
-* @apiParamExample {json} Request-Example RSocket:
-                    {
-                        "metadata": {
-                            "q": "/organizations/method_name",
-                            }
-                            "d": {
-                                    "relevant request parameters and values"
-                            }
-                    }
-
-* @apiParamExample {json} Request-Example HTTP:
-                    {
-                                    "relevant request parameters and values"
-                    }
-
-*/
-
 /**
   * @api {Host addresses} / Interactive API Explorer
   * @apiName InteractiveAPIExplorer

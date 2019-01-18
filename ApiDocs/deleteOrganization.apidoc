@@ -3,8 +3,7 @@
  * @apiName DeleteOrganization
  * @apiGroup Organization
  * @apiVersion 0.0.0-CURRENT
- * @apiDescription This operation enables origin owner (founder) to delete the specific organization and allowable only
- * for organization members who possess one of manager's roles (Owner/Admin)
+ * @apiDescription This operation enables owner only to delete the specific organization
  *
  * @apiParam {Object} token The requested token issued by relevant authority (Auth0)
  * @apiParam {String} organizationId Already stored id for the specific organization
