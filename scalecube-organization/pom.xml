@@ -4,18 +4,17 @@
   <parent>
     <groupId>io.scalecube</groupId>
     <artifactId>scalecube-organization-parent</artifactId>
-    <version>2.0.15-SNAPSHOT</version>
+    <version>2.0.15</version>
   </parent>
 
   <artifactId>scalecube-organization</artifactId>
   <packaging>jar</packaging>
 
   <name>scalecube-organization</name>
-  <url>http://maven.apache.org</url>
 
   <properties>
-    <serviceName>${project.artifactId}</serviceName>
     <mainClass>io.scalecube.server.OrganizationServiceRunner</mainClass>
+    <!--<extratags>${env.TRAVIS_COMMIT}</extratags>-->
   </properties>
 
   <dependencies>
@@ -108,15 +107,14 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
+        <artifactId>maven-jar-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
       </plugin>
       <plugin>
         <groupId>com.spotify</groupId>
         <artifactId>dockerfile-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <artifactId>maven-dependency-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

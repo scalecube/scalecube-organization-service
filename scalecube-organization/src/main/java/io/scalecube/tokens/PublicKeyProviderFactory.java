@@ -1,15 +1,16 @@
 package io.scalecube.tokens;
 
 import io.scalecube.config.AppConfiguration;
-import java.util.Objects;
+import io.scalecube.config.StringConfigProperty;
 
 /**
  * A factory class used to load the system PublicKeyProvider as it specified in the app settings
- *   file. The class entry name is mandatory
+ * file. The class entry name is mandatory.
  */
 class PublicKeyProviderFactory {
 
-  private static final String PUBLIC_KEY_PROVIDER = "public.key.provider";
+  private static final StringConfigProperty publicKeyProviderClassName =
+      AppConfiguration.configRegistry().stringProperty("public.key.provider");
   private static Class<?> publicKeyProvider;
 
   private PublicKeyProviderFactory() {
@@ -29,11 +30,8 @@ class PublicKeyProviderFactory {
   }
 
   private static void loadPublicKeyProviderClass() {
-    String publicKeyProviderClassName = AppConfiguration.configRegistry()
-        .stringValue(PUBLIC_KEY_PROVIDER, null);
-    Objects.requireNonNull(publicKeyProviderClassName, "Missing public.key.provider");
     try {
-      publicKeyProvider = Class.forName(publicKeyProviderClassName);
+      publicKeyProvider = Class.forName(publicKeyProviderClassName.valueOrThrow());
     } catch (ClassNotFoundException ex) {
       throw new PublicKeyProviderException(ex);
     }

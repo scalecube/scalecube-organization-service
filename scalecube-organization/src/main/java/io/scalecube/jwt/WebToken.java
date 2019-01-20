@@ -33,7 +33,7 @@ public class WebToken {
   public String createToken(
       String id,
       String audience,
-      long ttlMillis,
+      Long ttlMillis,
       String keyId,
       String secretKey,
       Map<String, String> claims) {
@@ -57,12 +57,12 @@ public class WebToken {
    * @param ttlMillis contains ttl information.
    * @return returns string if valid.
    */
-  private String createWebToken(
+  private static String createWebToken(
       String id,
       String issuer,
       String subject,
       String audience,
-      long ttlMillis,
+      Long ttlMillis,
       String keyId,
       String secretKey,
       Map<String, String> claims) {
@@ -92,12 +92,13 @@ public class WebToken {
       builder.claim(entry.getKey(), entry.getValue());
     }
     // if it has been specified, let's add the expiration
-    if (ttlMillis >= 0) {
+    if (ttlMillis != null && ttlMillis >= 0) {
       long expMillis = nowMillis + ttlMillis;
-      Date exp = new Date(expMillis);
-      builder.setExpiration(exp);
-    } else {
-      builder.setExpiration(new Date(Long.MAX_VALUE));
+
+      if (expMillis > 0) {
+        Date exp = new Date(expMillis);
+        builder.setExpiration(exp);
+      }
     }
 
     // Builds the JWT and serializes it to a compact, URL-safe string
