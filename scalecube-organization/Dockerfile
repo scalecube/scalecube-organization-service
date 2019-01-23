@@ -1,5 +1,4 @@
 FROM openjdk:8
-MAINTAINER support@jivygroup.com
 
 ARG EXECUTABLE_JAR
 
