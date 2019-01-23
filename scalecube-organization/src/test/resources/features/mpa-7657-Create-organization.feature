@@ -1,15 +1,6 @@
-Feature: tests for organization service management.
+Feature: Creation of the Organization
 
-  As a user I would like to create and manage my organization.
-
-  For example:
-
-  - add new organization, update it, be sure the changes are saved inquiring the current state and be able to delete my organization
-  - invite the members to my organization and remove each "member" out from it
-  - get know all the members steeped in my organization
-  - leave the organization as former "member" and know if still got the membership in any of the other organization
-  - update the roles of each member in my Organization according to all accessible roles with appropriate permission level
-  - grant the permission level (API-key) for members according to relevant role and change this permission level or even delete it
+  As a authorized user I would like to create my organization.
 
 
   #CREATE ORG
@@ -18,7 +9,7 @@ Feature: tests for organization service management.
   Scenario: Successful creation of the Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     When user "A" requested to create the organization with specified non-existent "name" and some "email"
-    Then new organization "organizationId" owned by user "A" should be created with relevant permission "owner" and relevant credentials
+    Then user "A" should receive successful response with relevant organization details and relevant permission "owner"
     And "secret" for the relevant organization should be stored in Vault
 
 
