@@ -1,117 +1,124 @@
 /**
-* @api {Host addresses} / Getting Started
-* @apiName GettingStarted
-* @apiGroup Overview
-* @apiVersion 0.0.0-CURRENT
-* @apiDescription Organization service enable you to integrate the API in order to create and manage the organizations.
-* Besides the origin owner unique ability to create the organization there is a necessity for each organization member aimed
-* for manage purpose to achieve appropriate managers' permission level (roles: Owner/Admin) granted by other managers of the relevant organization.
-* Thus each organization could be deleted or relevant credentials updated, authorized users could be invited to and removed from the relevant organization,
-* each member could get the info about the relevant organization and also to know the own membership in the all relevant organizations.
-* Organization managers could provide and delete the relevant API keys (permission level with appropriate assigned role: Owner/Admin/Member) which are vital leverage
-* for the <a href="http://scalecube.io/configuration-service/index.html">Configuration service</a> management and security purpose.
-* >Note: API key assigned with relevant role (Owner/Admin/Member) don't corresponds with the organization members similar roles.
-*
-*
-* <b>Getting Started</b>
-*
-*
-* All API endpoints documented below are the integral part of <a href="http://scalecube.io/configuration-service/index.html">Configuration service</a> host address.
-* <br> You can try out any query in realtime using our interactive API.
-* Actually service requires authentication, so there is a necessity to get the token issued via secured authority.
-* Thus, we recommend you first to create an account in <a href="https://manage.auth0.com/">Auth0</a> and issue the token whereby to perform the valid requests across all service endpoints.
-*
-* <b>Validation</b> for the object entities is handled by <b>Scalecube</b> services and do the next upon the request object:
-* >~ ignores any excessive keys and values added besides the required parameters
-* ><br>~ doesn't ignore the keys duplicates and takes the last values which applied for each of the relevant key duplicate
-*
-* >Contracts validation is implemented for specific parameters which value type is string and can only contain characters
-* in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent. Appropriate validation will be added soon.
-*/
-
-/**
-* @api {Host address} / Transport protocols API
-* @apiName TransportProtocols
-* @apiGroup Overview
-* @apiVersion 0.0.0-CURRENT
-* @apiDescription Upon relevant <b>host address</b> was set the <b>request</b> should contain the following structure according to transport protocol usage:
-                    <ul>
-						  <b>Websocket (WS)</b><a href="https://github.com/scalecube/scalecube-services/wiki/Web-Socket-API"> API</a>
-                           <li> "q": The query of the relevant service name and method used </li>
-                           <li> "sid": The stream identifier (couldn't be duplicated in the current stream connection)</li>
-                           <li> "d": The request data object (keys and values) </li>
-						  <br><b>RSocket (RS)</b><a href="https://github.com/scalecube/scalecube-services/wiki/Rsocket-API"> API</a>
-						    <li> "metadata": object which contains "q": The query of the relevant service name and method used </li>
-                           <li> "d": object: The request data (parameters and values) </li>
-						  <br><b>HTTP</b> (service name and method used should be added to the relevant host address)
-						    <li> "headers": Content-Type application/json </li>
-                           <li> "body" json: The request data object (parameters and values) </li>
-                           <li>  request "method": POST </li>
-                    </ul>
-
-* @apiParamExample {json} Request-Example (WS):
-                    {
-                        "q": "/serviceName/method_name",
-                        "sid":int,
-                        "d": {
-                                "relevant request parameters and values"
-                             }
-                    }
-
-* @apiParamExample {json} Request-Example (RS):
-                    {
-                       "metadata": {
-                           "q": "/serviceName/method_name"
-                                   },
-                           "data": {
-                                      "relevant request parameters and values"
-                                   }
-                    }
-
-* @apiParamExample {json} Request-Example (HTTP):
-                    {
-                       "relevant request parameters and values"
-                    }
-
-* @apiSuccessExample Response-Example (WS):
-                    {
-                        "q":"/serviceName/method_name",
-                        "sid":int,
-                        "d":{
-                               "relevant response parameters and values"
-                            }
-                    }
-                    {
-                        "sig":1,
-                        "sid":int
-                    }
-
-* @apiSuccessExample Response-Example (RS):
-                    {
-                        "data":{
-                                  "relevant response parameters and values"
-                        },
-                        "metadata":{
-                          "q": "/serviceName/method_name"
-                        }
-                    }
-
-* @apiSuccessExample Response-Example (HTTP):
-                    {
-                       "relevant response parameters and values"
-                    }
-*/
-
-/**
-  * @api {Host address} / Interactive API Explorer
-  * @apiName InteractiveAPIExplorer
+  * @api . Getting Started
+  * @apiName GettingStarted
   * @apiGroup Overview
   * @apiVersion 0.0.0-CURRENT
-  * @apiDescription For example <b>Websocket</b> connection is one of the accessible ways to use the API, so please follow the steps below to connect and run commands via Sandbox:
-  <ul>
-                 <li> Navigate to the sandbox: <a href="http://scalecube.io/api-sandbox/app/index.html">Scalecube sandbox</a> </li>
-                 <li> Click on the <b>Settings</b> button and choose the relevant <b>transport</b> and host <b>address</b>: wss://localhost:port </li>
-                 <li> Click on <b>Import icon</b> and copy-paste the template.json file path <a href="https://raw.githubusercontent.com/scalecube/scalecube-organization-service/master/API-Calls-examples.json">Organization service endpoints.json</a></li>
-                 <li> Click on the <b>Connect</b> button (now you are connected to the environment) and push <b>Send</b> button to make your request</li>
-  </ul>
-*/
+  * @apiDescription Organization service enable you to integrate the API in order to create and manage the organizations.
+  * Besides the origin owner unique ability to create the organization there is a necessity for each organization member aimed
+  * for manage purpose to achieve appropriate managers' permission level (roles: Owner/Admin) granted by other managers of the relevant organization.
+  * Thus each organization could be deleted or relevant credentials updated, authorized users could be invited to and removed from the relevant organization,
+  * each member could get the info about the relevant organization and also to know the own membership in the all relevant organizations.
+  * Organization managers could provide and delete the relevant API keys (permission level with appropriate assigned role: Owner/Admin/Member) which are vital leverage
+  * for the <a href="http://scalecube.io/configuration-service/index.html">Configuration service</a> management and security purpose.
+  * >Note: API key assigned with relevant role (Owner/Admin/Member) don't corresponds with the organization members similar roles.
+  *
+  *
+  * <b>Getting Started</b>
+  *
+  *
+  * All API endpoints documented below are the integral part of <a href="http://scalecube.io/configuration-service/index.html">Configuration service</a> <a href="https://github.com/jivygroup/exchange/wiki/Configuration-&-Organization-services-host-addresses"><b>host address</b></a>.
+  * <br> You can try out any query in realtime using our interactive API.
+  * Actually service requires authentication, so there is a necessity to get the token issued via secured authority.
+  * Thus, we recommend you first to create an account in <a href="https://manage.auth0.com/">Auth0</a> and issue the token whereby to perform the valid requests across all service endpoints.
+  *
+  * <b>Validation</b> for the object entities is handled by <b>Scalecube</b> services and do the next upon the request object:
+  * >~ ignores any excessive keys and values added besides the required parameters
+  * ><br>~ doesn't ignore the keys duplicates and takes the last values which applied for each of the relevant key duplicate
+  *
+  * >Contracts validation is implemented for specific parameters which value type is string and can only contain characters
+  * in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent. Appropriate validation will be added soon.
+  */
+
+  /**
+  * @api . Transport protocols API
+  * @apiName TransportProtocols
+  * @apiGroup Overview
+  * @apiVersion 0.0.0-CURRENT
+  * @apiPermission Successful requests and responses
+  * @apiDescription You are able to manage the service API through the three types of transport protocols which are supported.
+  * <br>Upon relevant <a href="https://github.com/jivygroup/exchange/wiki/Configuration-&-Organization-services-host-addresses"><b>Host address</b></a> was set the <b>request</b> should contain the following structure according to transport protocol usage:
+                      <ul>
+  						  <b>Websocket (WS)</b>
+                             <li> "q": The query of the relevant service name and method used </li>
+                             <li> "sid": The stream identifier (couldn't be reused upon current stream connection is opened)</li>
+                             <li> "d": The request data object (parameters and values) </li>
+  						  <br><b>RSocket (RS)</b>
+  						   <li> "metadata": object which contains "q": The query of the relevant service name and method used </li>
+                             <li> "d": object: The request data (parameters and values) </li>
+  						  <br><b>HTTP</b> (service name and method used should be added to the relevant host address)
+  						   <li> "headers": Content-Type application/json </li>
+                             <li> "body" json: The request data object (parameters and values) </li>
+                             <li>  request "method": POST </li>
+                      </ul>
+
+  * @apiParamExample {json} WebSocket:
+                      Request:
+                      {
+                          "q": "/serviceName/method_name",
+                          "sid":int,
+                          "d": {
+                                  "relevant request parameters and values"
+                               }
+                      }
+
+                      Response:
+                      {
+                          "q":"/serviceName/method_name",
+                          "sid":int,
+                          "d":{
+                                 "relevant response parameters and values"
+                              }
+                      }
+                      {
+                          "sig":1,
+                          "sid":int
+                      }
+
+  * @apiParamExample {json} RSocket:
+                      Request:
+                      {
+                         "metadata": {
+                             "q": "/serviceName/method_name"
+                                     },
+                             "data": {
+                                        "relevant request parameters and values"
+                                     }
+                      }
+
+                      Response:
+                      {
+                          "data":{
+                                    "relevant response parameters and values"
+                          },
+                          "metadata":{
+                            "q": "/serviceName/method_name"
+                          }
+                      }
+  * @apiParamExample {json} HTTP:
+                      Request:
+                      https://localhost:port/serviceName/method_name (endpoint url)
+
+                      Body:
+                      {
+                         "relevant request parameters and values"
+                      }
+
+                      Response:
+                      {
+                         "relevant response parameters and values"
+                      }
+  */
+
+ /**
+   * @api  . Interactive API Explorer
+   * @apiName InteractiveAPIExplorer
+   * @apiGroup Overview
+   * @apiVersion 0.0.0-CURRENT
+   * @apiDescription <b>WebSocket and RSocket</b> transports are accessible to apply via in-house developed API Explorer called <b>Sandbox</b> thus to connect and run follow up the next steps:
+   <ul>
+                  <li> Navigate to the sandbox: <a href="http://scalecube.io/api-sandbox/app/index.html">Scalecube sandbox</a> </li>
+                  <li> Click on the <b>Settings</b> button then set the relevant <a href="https://github.com/jivygroup/exchange/wiki/Configuration-&-Organization-services-host-addresses"><b>Host address</b></a> for the chosen <b>transport</b> </li>
+                  <li> Click on <b>Import icon</b> and copy-paste the template.json file path for <a href="https://raw.githubusercontent.com/scalecube/scalecube-organization-service/master/API-Calls-examples.json">Organization service endpoints.json</a></li>
+                  <li> Click on the <b>Connect</b> button (now you are connected to the environment) and push <b>Send</b> button to make your request</li>
+   </ul>
+ */

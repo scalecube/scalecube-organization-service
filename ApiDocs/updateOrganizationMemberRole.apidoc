@@ -1,48 +1,124 @@
 /**
- * @api {endpoint / updateOrganizationMemberRole} /organizations/updateOrganizationMemberRole Update the Organization member's role
- * @apiName UpdateOrganizationMemberRole
- * @apiGroup Member
- * @apiVersion 0.0.0-CURRENT
- * @apiDescription This operation enables origin owner (founder) to upgrade/downgrade relevant member role in the specific organization
- * and allowable only for organization members who possess one of manager's roles (Owner/Admin). Nevertheless any of the members who posses manager's roles
- * couldn't downgrade or upgrade themselves and just only the members with relevant manager's roles are able to do that
- *
- * @apiParam {Object} token The requested token issued by relevant authority (Auth0)
- * @apiParam {String} organizationId Already stored id for the specific organization
- * @apiParam {String} userId Already stored id for the specific organization issued by relevant authority (Auth0)
- *
- * @apiSuccess Acknowledgment Empty object
- *
- * @apiParamExample {json} Request-Example:
- *     {
- *         "token": {
- *                      "token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IlJUSkROekJFTXpjNFJEUTFSa0UzTkRZM05FWkVOemM1TUVWQ1JFRXdOREF6UWtFelF6QkRNQSJ9.
- *                      eyJpc3MiOiJodHRwczovL3BhdmxvLmF1dGgwLmNvbS8iLCJzdWIiOiJQcGd2TkFad1hZTHE1UnZVSWo2YkEzVjRlTGswRWtDM0BjbGllbnRzIiwiYXVkIjoiaHR0cHM6Ly9w
- *                      YXZsby5hdXRoMC5jb20vYXBpL3YyLyIsImlhdCI6MTU0NjYwNjM3OCwiZXhwIjoxNTQ5MTk4Mzc4LCJhenAiOiJQcGd2TkFad1hZTHE1UnZVSWo2YkEzVjRlTGswRWtDMyIsInNj
- *                      b3BlIjoicmVhZDpjbGllbnRfZ3JhbnRzIGNyZWF0ZTpjbGllbnRfZ3JhbnRzIGRlbGV0ZTpjbGllbnRfZ3JhbnRzIHVwZGF0ZTpjbGllbnRfZ3JhbnRzIHJlYWQ6dXNlcnMgdXBkY
- *                      XRlOnVzZXJzIGRlbGV0ZTp1c2VycyBjcmVhdGU6dXNlcnMgcmVhZDp1c2Vyc19hcHBfbWV0YWRhdGEgdXBkYXRlOnVzZXJzX2FwcF9tZXRhZGF0YSBkZWxldGU6dXNlcnNfYXBwX21
- *                      ldGFkYXRhIGNyZWF0ZTp1c2Vyc19hcHBfbWV0YWRhdGEgY3JlYXRlOnVzZXJfdGlja2V0cyByZWFkOmNsaWVudHMgdXBkYXRlOmNsaWVudHMgZGVsZXRlOmNsaWVudHMgY3JlYXRlOm
- *                      NsaWVudHMgcmVhZDpjbGllbnRfa2V5cyB1cGRhdGU6Y2xpZW50X2tleXMgZGVsZXRlOmNsaWVudF9rZXlzIGNyZWF0ZTpjbGllbnRfa2V5cyByZWFkOmNvbm5lY3Rpb25zIHVwZGF0ZT
- *                      pjb25uZWN0aW9ucyBkZWxldGU6Y29ubmVjdGlvbnMgY3JlYXRlOmNvbm5lY3Rpb25zIHJlYWQ6cmVzb3VyY2Vfc2VydmVycyB1cGRhdGU6cmVzb3VyY2Vfc2VydmVycyBkZWxldGU6cm
- *                      Vzb3VyY2Vfc2VydmVycyBjcmVhdGU6cmVzb3VyY2Vfc2VydmVycyByZWFkOmRldmljZV9jcmVkZW50aWFscyB1cGRhdGU6ZGV2aWNlX2NyZWRlbnRpYWxzIGRlbGV0ZTpkZXZpY2VfY3Jl
- *                      ZGVudGlhbHMgY3JlYXRlOmRldmljZV9jcmVkZW50aWFscyByZWFkOnJ1bGVzIHVwZGF0ZTpydWxlcyBkZWxldGU6cnVsZXMgY3JlYXRlOnJ1bGVzIHJlYWQ6cnVsZXNfY29uZmlncyB1cGR
- *                      hdGU6cnVsZXNfY29uZmlncyBkZWxldGU6cnVsZXNfY29uZmlncyByZWFkOmVtYWlsX3Byb3ZpZGVyIHVwZGF0ZTplbWFpbF9wcm92aWRlciBkZWxldGU6ZW1haWxfcHJvdmlkZXIgY3JlYXR
- *                      lOmVtYWlsX3Byb3ZpZGVyIGJsYWNrbGlzdDp0b2tlbnMgcmVhZDpzdGF0cyByZWFkOnRlbmFudF9zZXR0aW5ncyB1cGRhdGU6dGVuYW50X3NldHRpbmdzIHJlYWQ6bG9ncyByZWFkOnNoaWVs"
- *                 },
- *         "organizationId":"ORG-EA40B924B51BF3FF5611",
- *         "userId": "PpgvNAZwXYLq5RvUIj6bA3V4eLk0Ekv@clients",
- *         "role": "Owner"
- *     }
- *
- * @apiSuccessExample Success-Response:
- *     {
- *
- *     }
- *
- * @apiError {String} field valid user isn't the member (outsider) of the specified organization
- * @apiErrorExample {json} Error-Response:
- *     {
- *        errorCode":500,
- *        "errorMessage":"user: 'null', name: 'DJMWEi19k7jxM1LasBqWAdne7oBsImPy@clients', is not a member of organization: 'ORG-EA40B924B51BF3FF5611"
- *     }
- */
+  * @api {ServiceMethod: updateOrganizationMemberRole} /organizations/updateOrganizationMemberRole updateOrganizationMemberRole
+  * @apiName UpdateOrganizationMemberRole
+  * @apiGroup Member
+  * @apiVersion 0.0.0-CURRENT
+  * @apiPermission Request / Response / Error-response
+  *
+  * @apiDescription This operation enables only organization managers <b>(Owner/Admin)</b> to upgrade/downgrade relevant organization member role.
+  * <br>Any of the members who posses Admin role couldn't upgrade themselves whereby only the members with higher - Owner roles are able to do that.
+  * Nevertheless any member with Admin or Owner role could downgrade themselves as do the members with Owner role could downgrade the members with Admin role
+  * Permission level (Owner/Admin/Member) for each API key is automatically updated to the relevant one upon the managers who already issued these API keys were
+  * upgraded or downgraded to one of the accessible roles (Owner/Admin/Member) in the organization.
+  *
+  * <br>Permission level (Owner/Admin/Member) of each API key issued by organization managers also updated to relevant  upon that operation thus become invalid
+  *
+  * @apiParam {Object} token The requested token issued by relevant authority (Auth0)
+  * @apiParam {String} organizationId Already stored id for the specific organization
+  * @apiParam {String} userId Already stored id for the specific organization issued by relevant authority (Auth0)
+  * @apiParam {String} role any of accessible member's role (Owner/Admin/Member)
+  *
+  * @apiSuccess Acknowledgment Empty object
+  *
+  * @apiError {String} field user isn't the member (outsider) of the specified organization
+  *
+  * @apiErrorExample {json} WebSocket
+  * Request:
+  *     {
+  *         "q":"/organizations/updateOrganizationMemberRole",
+  *         "sid": 1,
+  *         "d":{
+  *                "token": {
+  *                            "token":"Auth0-TOKEN"
+  *                },
+  *                "organizationId":"ORG-ID",
+  *                "userId": "id@clients",
+  *                "role": "Owner"
+  *         }
+  *     }
+  *
+  * Response:
+  *     {
+  *         "q":"/organizations/updateOrganizationMemberRole",
+  *         "sid":1,
+  *         "d":{}
+  *
+  *     }
+  *
+  *     {
+  *         "sig":1,
+  *         "sid":1
+  *     }
+  *
+  * Error Response:
+  *     {
+  *         "sig":2,
+  *         "q":"/io.scalecube.services.error/500",
+  *         "sid":1,
+  *         "d":{
+  *                "errorCode":500,
+  *                "errorMessage":"user: 'null', name: 'id@clients', is not a member of organization: 'ORG-ID'"
+  *         }
+  *     }
+  *
+  * @apiErrorExample {json} RSocket
+  * Request:
+  *     {
+  *         "metadata":{
+  *                      "q": "/organizations/updateOrganizationMemberRole"
+  *         },
+  *         "data":{
+  *                   "token": {
+  *                               "token":"Auth0-TOKEN"
+  *                   },
+  *                   "organizationId":"ORG-ID",
+  *                   "userId": "id@clients",
+  *                   "role": "Admin"
+  *         }
+  *     }
+  *
+  * Response:
+  *     {
+  *         "data":{},
+  *         "metadata":{
+  *           "q": "/organizations/updateOrganizationMemberRole"
+  *         }
+  *     }
+  *
+  * Error Response:
+  *     {
+  *         "data":{
+  *                   "errorCode":500,
+  *                   "errorMessage":"user: 'null', name: 'id@clients', is not a member of organization: 'ORG-ID'"
+  *         },
+  *         "metadata":{
+  *                      "q":"/io.scalecube.services.error/500"
+  *         }
+  *     }
+  *
+  * @apiErrorExample{json} HTTP
+  * Request:
+  * https://localhost:port/organizations/updateOrganizationMemberRole (endpoint url)
+  *
+  * Body:
+  *     {
+  *         "token": {
+  *                     "token":"Auth0-TOKEN"
+  *         },
+  *         "organizationId":"ORG-ID",
+  *         "userId": "id@clients",
+  *         "role": "Member"
+  *     }
+  *
+  * Response:
+  *     {
+  *
+  *     }
+  *
+  * Error Response:
+  *     {
+  *         "errorCode":500,
+  *         "errorMessage":"user: 'null', name: 'id@clients', is not a member of organization: 'ORG-ID'"
+  *     }
+  */
+ 

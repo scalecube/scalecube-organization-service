@@ -3,7 +3,6 @@
   "version": "0.0.0-CURRENT",
   "description": "Organization service API",
   "title": "API documentation for the Organization Service",
-  "url" : "Websocket: wss://localhost:port/\nRSocket: wss://localhost:port/\nHTTP: https://localhost:port",
   "template": {
     "forceLanguage" : "en"
   },
@@ -16,12 +15,12 @@
     "GetOrganization",
     "UpdateOrganization",
     "DeleteOrganization",
-    "InviteMember",
-    "KickoutMember",
     "LeaveOrganization",
-    "UpdateOrganizationMemberRole",
-    "GetOrganizationMembers",
     "GetUserOrganizationsMembership",
+    "InviteMember",
+    "GetOrganizationMembers",
+    "UpdateOrganizationMemberRole",
+    "KickoutMember",
     "AddOrganizationApiKey",
     "DeleteOrganizationApiKey"
   ]
