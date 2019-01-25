@@ -4,10 +4,10 @@
   * @apiGroup Overview
   * @apiVersion 0.0.0-CURRENT
   * @apiDescription Organization service enable you to integrate the API in order to create and manage the organizations.
-  * Besides the origin owner unique ability to create the organization there is a necessity for each organization member aimed
-  * for manage purpose to achieve appropriate managers' permission level (roles: Owner/Admin) granted by other managers of the relevant organization.
+  * Besides the origin owner unique ability to create the organization there is a necessity for each organization member to achieve appropriate
+  * managers' permission level (roles: Owner/Admin) granted by other managers of the relevant organization for management ability.
   * Thus each organization could be deleted or relevant credentials updated, authorized users could be invited to and removed from the relevant organization,
-  * each member could get the info about the relevant organization and also to know the own membership in the all relevant organizations.
+  * each member could get the info about the relevant organization and also to know the own membership in the all related organizations.
   * Organization managers could provide and delete the relevant API keys (permission level with appropriate assigned role: Owner/Admin/Member) which are vital leverage
   * for the <a href="http://scalecube.io/configuration-service/index.html">Configuration service</a> management and security purpose.
   * >Note: API key assigned with relevant role (Owner/Admin/Member) don't corresponds with the organization members similar roles.
