@@ -6,7 +6,7 @@ Feature: Organization service members management - Invite member
   #MPA-7229 (#1)
   Scenario: Successful "member" invitation to multiple Organizations which belongs to different owners
     Given each of the users "A" and "B" have got a valid "token" issued by relevant authority
-    And only two organizations "organizationId" with specified "name" and "email" which don't contain any "member" already created and owned by each of the user's "A" and "B"
+    And only two organizations "organizationId" with specified "name" and "email" already created and owned by each of the user's "A" and "B"
     And the user "C" have got the "userId" issued by relevant authority
     When each of the users "A" and "B" requested to invite the user "C" to step into own organization "organizationId"
     Then the user "C" should become the "member" in each from both organizations which belong to the users "A" and "B" accordingly
@@ -16,7 +16,7 @@ Feature: Organization service members management - Invite member
   #MPA-7229 (#2)
   Scenario: Successful "member" invitation to multiple Organizations which belongs to single owner
     Given the user "A" have got a valid "token" issued by relevant authority
-    And several organizations "organizationId-1" and "organizationId-2" with specified "names" and "emails" which don't contain any "member" already created and owned by user "A"
+    And several organizations "organizationId-1" and "organizationId-2" with specified "names" and "emails" already created and owned by user "A"
     And the user "B" have got the "userId" issued by relevant authority
     When the user "A" requested to invite the user "B" to step into each own organization "organizationId-1" and "organizationId-2"
     Then the user "B" should become the "member" in each of both user's "A" organizations
@@ -82,7 +82,7 @@ Feature: Organization service members management - Invite member
     And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization and promoted to "owner" role
     And the user "C" have got the "userId" issued by relevant authority
     And the user "A" was removed from own organization "organizationId"
-    When the user "A" requested to invite user "C" to step into former user's "A" organization "organizationId"
+    When the user "A" requested to invite user "C" to step into own former organization
     Then user "A" should get an error message: "user: 'userId "A"', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
 
 

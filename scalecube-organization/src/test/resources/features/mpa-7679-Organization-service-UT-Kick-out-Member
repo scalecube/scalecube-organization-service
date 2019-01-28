@@ -38,7 +38,7 @@ Feature: Organization service members management - Kick-out member
   Scenario: Fail to remove (kick-out) the single owner from relevant Organization upon own decision
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    When the user "A" requested to remove himself from own organization "organizationId"
+    When the user "A" requested to remove himself from own organization
     Then user "A" should get an error message: "At least one Owner should be persisted in the organization: 'organizationId'"
 
 
@@ -66,7 +66,7 @@ Feature: Organization service members management - Kick-out member
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
     And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization and promoted to "owner" role
     And the user "B" requested to remove the user "A" from user's "A" organization
-    When the user "A" and requested to remove the user "B" from user's "A" organization
+    When the user "A" requested to remove the user "B" from user's "A" organization
     Then user "A" should get an error message: "user: 'userId "A"', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
 
 
