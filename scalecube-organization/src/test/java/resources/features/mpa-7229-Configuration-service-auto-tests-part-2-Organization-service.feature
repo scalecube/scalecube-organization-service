@@ -274,7 +274,7 @@ Feature: Basic CRUD tests for organization service.
 
 
 
-  #INVITE MEMBER  - SHOULD WE RETURN INFO ABOUT INVITED MEMBER INSTEAD OF PLAIN ACKNOWLEDGEMENT???
+  +#INVITE MEMBER  - SHOULD WE RETURN INFO ABOUT INVITED MEMBER INSTEAD OF PLAIN ACKNOWLEDGEMENT???
 
   #MPA-7229 (#5)
   Scenario: Successful "member" invitation to multiple Organizations which belongs to different owners
@@ -371,7 +371,7 @@ Feature: Basic CRUD tests for organization service.
 
 
 
-  #KICK-OUT MEMBER - SHOULD WE RETURN INFO ABOUT REMOVED MEMBER INSTEAD OF PLAIN ACKNOWLEDGEMENT???
+  +#KICK-OUT MEMBER - SHOULD WE RETURN INFO ABOUT REMOVED MEMBER INSTEAD OF PLAIN ACKNOWLEDGEMENT???
 
   #MPA-7229 (#6)
   Scenario: Successful remove (kick-out) of specific "member" from a specific Organization
@@ -456,7 +456,7 @@ Feature: Basic CRUD tests for organization service.
 
 
 
-  #GET MEMBER FROM ORG
+  +#GET MEMBER FROM ORG
 
   #MPA-7229 (#7)
   Scenario: Successful get the list of all the members from the specific Organization (Members in Organizations) by the origin owner
@@ -712,7 +712,7 @@ Feature: Basic CRUD tests for organization service.
 
 
 
-
+  +#MEMBER ROLE UPDATE
 
   #MPA-7229 (#12)
   Scenario: Successful upgrade of specific member to admin role in the relevant Organization by the origin owner

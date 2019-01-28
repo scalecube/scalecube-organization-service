@@ -1,9 +1,7 @@
-
-
 Feature: Organization service members management - Get member
 
+  I'm as the organization Owner or Admin want to get the list of existing members who steep into my organization.
 
-  #GET MEMBER FROM ORG
 
   #MPA-7229 (#7)
   Scenario: Successful get the list of all the members from the specific Organization (Members in Organizations) by the origin owner

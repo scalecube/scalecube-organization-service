@@ -1,245 +1,102 @@
 
-Feature: Organization service members management
+Feature: Organization service members management - Update member role
 
 
-
-#MPA-7229 (#5)
-  Scenario: Successful "member" invitation to multiple Organizations which belongs to different owners
-    Given each of the users "A" and "B" have got a valid "token" issued by relevant authority
-    And only two organizations "organizationId" with specified "name" and "email" which don't contain any "member" already created and owned by each of the user's "A" and "B"
-    And the user "C" have got the "userId" issued by relevant authority
-    When the user "A" requested to invite the user "C" to step into user's "A" organization "organizationId"
-    And the user "B" requested to invite the user "C" to step into user's "B" organization "organizationId"
-    Then the user "C" should become the "member" in each of both organizations which belong to the users "A" and "B" accordingly
-
-
-  #MPA-7229 (#5.1)
-  Scenario: Successful "member" invitation to multiple Organizations which belongs to single owner
+  #MPA-7229 (#12)
+  Scenario: Successful upgrade of specific member to admin role in the relevant Organization by the origin owner
     Given the user "A" have got a valid "token" issued by relevant authority
-    And several organizations "organizationId" with specified "name" and "email" which don't contain any "member" already created and owned by single user "A"
-    And the user "B" have got the "userId" issued by relevant authority
-    When the user "A" requested to invite the user "B" to step into each organization which belongs to user "A"
-    Then the user "B" should become the "member" in each of both user's "A" organizations
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And the user "B" have got the "userId" issued by relevant authority and became the "member" of the user's "A" organization
+    When the user "A" requested to update the user "B" role "member" to "admin" in user's "A" organization
+    Then user's "B" role in user's "A" organization should be updated to "admin"
 
 
-  #MPA-7229 (#5.2)
-  Scenario: Successful invitation of the "member" into specific Organization upon it's existent "member" was granted with admin role
+  #MPA-7229 (#12.1)
+  Scenario: Successful upgrade of specific member to owner role in the relevant Organization by the admin
     Given the user "A" have got a valid "token" issued by relevant authority
-    And only single organization "organizationId" with specified "name" and "email" which doesn't contain any "member" already created and owned by this user "A"
-    And the user "B" who had the "member" role in the user's "A" organization was assigned with "admin" role by the owner
-    And the user "C" have got the "userId" issued by relevant authority
-    When the user "B" requested to invite user "C" to step into user's "A" organization "organizationId"
-    Then the user "C" should become the "member" of user's "A" organization
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And the user "B" have got the "userId" issued by relevant authority and became the "admin" of the user's "A" organization
+    And the user "C" have got the "userId" issued by relevant authority and became the "member" of the user's "A" organization
+    When the user "B" requested to update the user "C" role "member" to "owner" in user's "A" organization
+    Then user's "C" role in user's "A" organization should be updated to "admin"
 
 
-  #MPA-7229 (#5.3)
-  Scenario: Successful invitation of the "member" into specific Organization upon it's existent "member" was granted with owner role
+  #MPA-7229 (#12.2)
+  Scenario: Successful downgrade of "admin" role in the relevant Organization by the origin owner
     Given the user "A" have got a valid "token" issued by relevant authority
-    And only single organization "organizationId" with specified "name" and "email" which doesn't contain any "member" already created and owned by this user "A"
-    And the user "B" who had the "member" role in the user's "A" organization was assigned with "owner" role by the owner
-    And the user "C" have got the "userId" issued by relevant authority
-    When the user "B" requested to invite user "C" to step into user's "A" organization "organizationId"
-    Then the user "C" should become the "member" of user's "A" organization
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And the user "B" have got the "userId" issued by relevant authority and became the "admin" of the user's "A" organization
+    When the user "A" requested to update the user "B" role "admin" to "member" in user's "A" organization
+    Then user's "B" role in user's "A" organization should be updated to "member"
 
 
-  #MPA-7229 (#5.4) - SHOULD WE ALLOW IF THE ORIGIN OWNER WAS REMOVED ???
-  Scenario: Successful invitation of a "member" into specific Organization upon the origin owner was removed from own Organization
+  #MPA-7229 (#12.3)
+  Scenario: Successful downgrade of the granted "owner" role by the some member granted with "admin" role
     Given the user "A" have got a valid "token" issued by relevant authority
-    And only single organization "organizationId" with specified "name" and "email" which doesn't contain any "member" already created and owned by user "A"
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And the user "B" have got the "userId" issued by relevant authority and became the "owner" of the user's "A" organization
+    And the user "C" have got the "userId" issued by relevant authority and became the "admin" of the user's "A" organization
+    When the user "C" requested to update the user "B" role "owner" to "admin" in user's "A" organization
+    Then user's "B" role in user's "A" organization should be updated to "admin"
+
+
+  #MPA-7229 (#12.4) - SHOULD WE ALLOW IF THE ORIGIN OWNER WAS REMOVED ???
+  Scenario: Successful upgrade of specific admin to owner role in the relevant Organization by the origin owner who was removed from own Organization
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And the user "B" have got the "userId" issued by relevant authority and became the "admin" of the user's "A" organization
     And the user "A" was removed from user's "A" organization by its own decision
-    And the user "C" have got the "userId" issued by relevant
-    When the user "A" requested to invite the user "C" to step into user's "A" organization "organizationId"
-    Then the user "C" should become the "member" of user's "A" organization
+    When the user "A" requested to update the user "B" role "admin" to "owner" in user's "A" organization
+    Then user's "B" role in user's "A" organization should be updated to "owner"
 
 
-  #MPA-7229 (#5.5) - SHOULD WE RETURN THE RELEVANT ERROR - USER ALREADY INVITED TO "ORG-ID" ???
-  Scenario: Ignore to invite the existent "member" (duplicate) to the same Organization
-    Given the user "A" have got a valid "token" issued by relevant authority
-    And only single organization "organizationId" with specified "name" and "email" already created and owned by this user "A"
-    And the user "B" have got the "userId" issued by relevant authority and became the "member" of the user's "A" organization
-    When the user "A" requested to invite the existent user "B" to step into organization of user's "A" again
-    Then the user "B" shouldn't be duplicated as the existent "member" in the user's "A" organization and ignored by the system
-
-
-  #MPA-7229 (#5.6)
-  Scenario: Fail to invite the user to specific Organization if the token is invalid (expired)
-    Given a user "D" have got the invalid either expired "token"
-    When user "D" requested to invite some user "userId" to some organization "organizationId"
-    Then user "D" should receive the error message: "Token verification failed"
-
-
-  #MPA-7229 (#5.7)
-  Scenario: Fail to invite user into specific Organization upon the host is not the member of the relevant Organization with appropriate permission level (role)
-    Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
-    And only single organization "organizationId" with specified "name" and "email" which doesn't contain any "member" already created and owned by user "A"
-    And the user "C" have got the "userId" issued by relevant authority
-    When the user "A" applied "token" of the user "B" and requested to invite the user "C" to step into user's "A" organization
-    Then user "A" should get an error message: "user: 'userId "B"', name: 'null', not in role Owner or Admin of organization: 'org "B" name'"
-
-
-  #MPA-7229 (#5.8)
-  Scenario: Fail to invite the user into specific Organization upon the valid token have "member" role permission level
-    Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
-    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And the user "B" who have got the "userId" issued by relevant authority became the "member" of the user's "A" organization
-    And the user "C" have got the "userId" issued by relevant authority
-    When the user "B" requested to invite the user "C" to step into user's "A" organization
-    Then user "B" should get an error message: "user: 'userId "B"', name: 'null', not in role Owner or Admin of organization: 'org "B" name'"
-
-
-  #MPA-7229 (#5.9) - SHOULD WE RETURN THE RELEVANT ERROR - USER AUTHENTICATION IS FAILED ???
-  Scenario: Fail to invite the user to specific Organization upon this user is unauthorized (invalid or non-existent)
+  #MPA-7229 (#12.5) - SHOULD WE PROHIBIT ???
+  Scenario: Successful downgrade of origin Organization owner to member role either by granted admin or owner role
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And the user "D" have got the invalid "userId"
-    When the user "A" requested to invite the user "D" to step into user's "A" organization
-    Then user "D" shouldn't become the "member" of the user's "A" organization and user "A" should get the empty object
+    And the user "B" have got the "userId" issued by relevant authority and became the "admin" of the user's "A" organization
+    When the user "B" requested to update the user "A" role origin "owner" to "member" in user's "A" organization
+    Then user's "A" role in user's "A" organization should be updated to "member"
 
 
+  #MPA-7229 (#12.6)
+  Scenario: Fail to update some member role in some Organization if the token is invalid (expired)
+    Given a user "A" have got the invalid either expired "token"
+    When the user "A" requested to update the "some" user role "admin" to "owner" in some organization
+    Then user "A" should receive the error message: "Token verification failed"
 
 
-  #KICK-OUT MEMBER - SHOULD WE RETURN INFO ABOUT REMOVED MEMBER INSTEAD OF PLAIN ACKNOWLEDGEMENT???
-
-  #MPA-7229 (#6)
-  Scenario: Successful remove (kick-out) of specific "member" from a specific Organization
-    Given the user "A" have got a valid "token" issued by relevant authority
-    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And the user "B" have got the "userId" issued by relevant authority and became the "member" of the user's "A" organization
-    When the user "A" requested to remove the user "B" from user's "A" organization
-    Then user "B" should abandon user's "A" organization and user "A" should get the empty object
-
-
-  #MPA-7229 (#6.1)
-  Scenario: Successful remove (kick-out) the owner of a specific Organization
-    Given the user "A" have got a valid "token" and "userId" issued by relevant authority
-    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And the user "B" who had the "admin" role in the user's "A" organization was assigned with "owner" role by the owner
-    When the user "A" requested to remove himself from user's "A" organization by its own decision
-    Then user "A" should abandon own organization
-
-
-  #MPA-7229 (#6.2)
-  Scenario: Successful remove (kick-out) of the "member" from specific Organization upon it's existent "member" was granted with "admin" role
-    Given the user "A" have got a valid "token" issued by relevant authority
-    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And each of the users "B" and "C" who have got the "userId" issued by relevant authority became the "member" of the user's "A" organization
-    And the user's "B" "member" role in the user's "A" organization was upgraded to "admin" role by the owner
-    When the user "B" requested to remove user "C" from user's "A" organization "organizationId"
-    Then user "C" should abandon user's "A" organization and user "B" should get the empty object
-
-
-  #MPA-7229 (#6.3)
-  Scenario: Successful remove (kick-out) of the "member" from specific Organization upon it's existent "member" was granted with "owner" role
-    Given the user "A" have got a valid "token" issued by relevant authority
-    And only single organization "organizationId" with specified "name" and "email" already created and owned by this user "A"
-    And each of the users "B" and "C" who have got the "userId" issued by relevant authority became the "member" of the user's "A" organization
-    And the user's "B" "member" role in the user's "A" organization was assigned to "owner" role by the owner
-    When the user "B" requested to remove user "C" from user's "A" organization "organizationId"
-    Then user "C" should abandon user's "A" organization and user "B" should get the empty object
-
-
-  #MPA-7229 (#6.4)
-  Scenario: Fail to remove (kick-out)the single owner from Organization
-    Given the user "A" have got a valid "token" issued by relevant authority
-    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    When the user "A" requested to remove himself from own organization "organizationId"
-    Then user "A" should get an error message: "At least one Owner should be persisted in the organization: 'organizationId'"
-
-
-  #MPA-7229 (#6.2)
-  Scenario: Fail to remove the user from specific Organization if the token is invalid (expired)
-    Given a user "D" have got the invalid either expired "token"
-    When user "D" requested to remove some user "userId" from some organization "organizationId"
-    Then user "D" should receive the error message: "Token verification failed"
-
-
-  #MPA-7229 (#6.3)
-  Scenario: Fail to remove the a specific "member" from a specific Organization upon the host is not the member of the relevant Organization with appropriate permission level (role)
-    Given each of the users "A", "B" and "C" have got personal valid "token" issued by relevant authority
-    And only single organization "organizationId" with specified "name" and "email" which doesn't contain any "member" already created and owned by user "A"
-    And the user "B" who have got the "userId" issued by relevant authority became the "member" of the user's "A" organization
-    And the user "C" have got the "userId" issued by relevant authority
-    When the user "C" applied own "token" and requested to remove the user "B" from user's "A" organization
-    Then user "C" should get an error message: "user: 'userId "C"', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
-
-
-  #MPA-7229 (#6.4)
-  Scenario: Fail to remove the user from specific Organization upon the valid token have "member" role permission level
-    Given each of the users "A", "B" and "C" have got personal valid "token" issued by relevant authority
-    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And each of the users "B" and "C" who have got the "userId" issued by relevant authority became the "member" of the user's "A" organization
-    When the user "B" requested to remove the user "C" from user's "A" organization
-    Then user "B" should get an error message: "user: 'userId "B"', name: 'null', not in role Owner or Admin of organization: 'org "B" name'"
-
-
-  #MPA-7229 (#6.5)
-  Scenario: Fail to remove the user from specific Organization upon this user is not a member (non-existent) of the relevant Organization
-    Given the user "A" have got a valid "token" issued by relevant authority
-    And only single organization "organizationId" with specified "name" and "email" which doesn't contain any "member" already created and owned by user "A"
-    And the user "B" have got the "userId" issued by relevant authority and became the "member" of the user's "A" organization
-    And the user "D" have got the "userId" issued by relevant authority
-    When the user "A" requested to remove the user "D" from the user's "A" organization
-    Then any existent "member" shouldn't be removed from the user's "A" organization and user "A" should get the empty object
-
-
-
-  #GET MEMBER FROM ORG
-
-  #MPA-7229 (#7)
-  Scenario: Successful get the list of all the members from the specific Organization (Members in Organizations) by the origin owner
-    Given the user "A" have got a valid "token" issued by relevant authority
-    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And each of the users "B" and "C" have got the "userId" issued by relevant authority and both became the members of the user's "A" organization
-    When the user "A" requested to get all members from own organization
-    Then user "A" should receive successful response with list of all the members of the own organization i.e. users "B" and "C" including the owner "A"
-
-
-  #MPA-7229 (#7.1)
-  Scenario: Successful get the list of all the members from the specific Organization (Members in Organizations) by some member from the relevant Organization
-    Given the user "A" have got a valid "token" issued by relevant authority
-    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And each of the users "B" and "C" have got the "userId" issued by relevant authority and both became the members of the user's "A" organization
-    When the user "B" requested to get all members from user's "A" organization
-    Then user "B" should receive successful response with list of all the members of the own organization i.e. users "B" and "C" including the owner "A"
-
-
-  #MPA-7229 (#7.2) - SHOULD WE ALLOW IF THE ORIGIN OWNER WAS REMOVED ???
-  Scenario: Successful get the list of all the members from the specific Organization upon the origin owner was removed from own Organization
-    Given the user "A" have got a valid "token" issued by relevant authority
-    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And the user "B" have got the "userId" issued by relevant authority and became the "member" of the user's "A" organization
-    And the user "A" was removed from user's "A" organization by its own decision
-    When the user "A" requested to get the list of all the members from own organization
-    Then user "A" should receive successful response with list of all the members of the own organization i.e. user "B" only
-
-
-  #MPA-7229 (#7.3)
-  Scenario: Fail to get the user from specific Organization if the token is invalid (expired)
-    Given a user "D" have got the invalid either expired "token"
-    When user "D" requested to get some user from some organization "organizationId"
-    Then user "D" should receive the error message: "Token verification failed"
-
-
-  #MPA-7229 (#7.4) - SHOULD WE RETURNS MESSAGE - NO MEMBERS WERE FOUND???
-  Scenario: Do not get any "member" from a specific Organization if nobody steeped in
-    Given the user "A" have got a valid "token" issued by relevant authority
-    And the organization "organizationId" with specified "name" and "email" which doesn't contain any "member" already created and owned by user "A"
-    When the user "A" requested to get all members from own organization
-    Then user "A" should receive successful response with empty object
-
-
-  #MPA-7229 (#7.6)
-  Scenario: Fail to get the members from a specific Organization upon the host is not the member of the relevant Organization
+  #MPA-7229 (#12.6)
+  Scenario: Fail to update some member role in the related Organization upon the user hadn't became the member in it with relevant role (permission level)
     Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
     And the user "C" have got the "userId" issued by relevant authority and became the "member" of the user's "A" organization
-    When the user "A" applied "token" of the user "B" and requested to get all the members from the user's "A" organization
-    Then user "A" should get an error message: "user: 'userId "B"', name: 'null', is not a "member" of organization: 'user "A" organizationId'"
+    When the user "A" applied "token" of user "B" and requested to update the user "C" role "member" to "admin" in user's "A" organization
+    Then user "A" should get an error message: "user: 'userId "B"', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
 
 
-  #MPA-7229 (#7.7)
-  Scenario: Fail to get members from non-existent Organization
+  #MPA-7229 (#12.7)
+  Scenario: Fail to update some of the accessible member roles in the relevant Organization upon the member doesn't have the appropriate permission level
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    When the user "A" requested to get all the members from non-existent organization "organizationId"
+    And the user "B" have got the "userId" issued by relevant authority and became the "admin" of the user's "A" organization
+    And the user "C" have got the "userId" issued by relevant authority and became the "member" of the user's "A" organization
+    When the user "C" requested to update the user "B" role "admin" to "member" in user's "A" organization
+    Then user "C" should get an error message: "user: 'userId "C"', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
+
+
+  #MPA-7229 (#12.8)
+  Scenario: Fail to update some of the member roles in the non-existent Organization
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And there is no organization was created and stored
+    When the user "A" requested to update the "some" user "role" in the non-existent organization "organizationId"
     Then user "A" should receive the error message: "organizationId" doesn't exist
+
+
+  #MPA-7229 (#12.9)
+  Scenario: Fail to delete non-existent (invalid) API key (token) from specific Organization
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" which doesn't contain any "member" already created and owned by user "A"
+    When the user "A" requested to update some "role" of the "non-existent" user in user's "A" organization
+    Then any of the stored API keys shouldn't be deleted from the user's "A" organization "organizationId"
+    And user "A" should get an error message: "user: 'userId "non-existent"', is not a member of organization: 'org "A" name'"
