@@ -1,108 +1,163 @@
 
 Feature: Organization service members management - Update member role
 
-  I'm as the organization Owner or Admin want update the existing members roles (permission level) in my organization.
+  Organization Owner or Admin should be able to update the existing members roles (permission level) in relevant organization.
   Any of the members who posses Admin role couldn't upgrade themselves whereby only the members with higher - Owner roles are able to do that.
   Nevertheless any member with Admin or Owner role could downgrade themselves as do the members with Owner role could downgrade the members with Admin role.
   Permission level (Owner/Admin/Member) for each API key is automatically updated to the relevant one upon the managers who already issued these API keys
-  were upgraded or downgraded to one of the accessible roles (Owner/Admin/Member) in the organization
+  were upgraded or downgraded to one of the accessible roles (Owner/Admin/Member) in the organization.
+  Nevertheless at leas one organization owner should be persisted.
 
+
+  #__________________________________________________POSITIVE___________________________________________________________
 
   #MPA-7229 (#1)
-  Scenario: Successful upgrade of specific member to admin role in the relevant Organization by the origin owner
+  Scenario: Successful upgrade of specific "member" to "admin" role in the relevant Organization by the "owner"
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And the user "B" have got the "userId" issued by relevant authority and became the "member" of the user's "A" organization
-    When the user "A" requested to update the user "B" role "member" to "admin" in user's "A" organization
+    And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with a "member" role
+    When the user "A" requested to update the user "B" role to "admin" in the own organization
     Then user's "B" role in user's "A" organization should be updated to "admin"
+    And user "A" should get successful response with the empty object
 
 
   #MPA-7229 (#2)
-  Scenario: Successful upgrade of specific member to owner role in the relevant Organization by the admin
+  Scenario: Successful upgrade of specific "member" to "owner" role in the relevant Organization by another "owner"
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And the user "B" have got the "userId" issued by relevant authority and became the "admin" of the user's "A" organization
-    And the user "C" have got the "userId" issued by relevant authority and became the "member" of the user's "A" organization
-    When the user "B" requested to update the user "C" role "member" to "owner" in user's "A" organization
-    Then user's "C" role in user's "A" organization should be updated to "admin"
+    And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with a "member" role
+    When the user "A" requested to update the user "B" role to "owner" in the own organization
+    Then user's "B" role in user's "A" organization should be updated to "owner"
+    And user "A" should get successful response with the empty object
 
 
   #MPA-7229 (#3)
-  Scenario: Successful downgrade of "admin" role in the relevant Organization by the origin owner
+  Scenario: Successful upgrade of "admin" to "owner" role in the relevant Organization by another "owner"
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And the user "B" have got the "userId" issued by relevant authority and became the "admin" of the user's "A" organization
-    When the user "A" requested to update the user "B" role "admin" to "member" in user's "A" organization
-    Then user's "B" role in user's "A" organization should be updated to "member"
+    And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with a "admin" role
+    When the user "A" requested to update the user "B" role to "owner" in the own organization
+    Then user's "B" role in user's "A" organization should be updated to "owner"
+    And user "A" should get successful response with the empty object
 
 
   #MPA-7229 (#4)
-  Scenario: Successful downgrade of the granted "owner" role by the some member granted with "admin" role
+  Scenario: Successful upgrade of specific "member" to "admin" role in the relevant Organization by the "admin"
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And the user "B" have got the "userId" issued by relevant authority and became the "owner" of the user's "A" organization
-    And the user "C" have got the "userId" issued by relevant authority and became the "admin" of the user's "A" organization
-    When the user "C" requested to update the user "B" role "owner" to "admin" in user's "A" organization
+    And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with a "admin" role
+    And the user "C" who have got the "userId" issued by relevant authority was invited to user's "A" organization with a "member" role
+    When the user "B" requested to update the user "C" role to "admin" in the user's "A" organization
+    Then user's "C" role in user's "A" organization should be updated to "admin"
+    And user "B" should get successful response with the empty object
+
+
+  #MPA-7229 (#5)
+  Scenario: Successful downgrade of the "owner" to "admin" role in the relevant Organization by another "owner"
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with a "owner" role
+    When the user "A" requested to update the user "B" role to "admin" in the user's "A" organization
     Then user's "B" role in user's "A" organization should be updated to "admin"
+    And user "A" should get successful response with the empty object
 
 
-  #MPA-7229 (#5) - SHOULD WE ALLOW IF THE ORIGIN OWNER WAS REMOVED ???
-  Scenario: Successful upgrade of specific admin to owner role in the relevant Organization by the origin owner who was removed from own Organization
+  #MPA-7229 (#6)
+  Scenario: Successful downgrade of the "owner" to "member" role in the relevant Organization by another "owner"
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And the user "B" have got the "userId" issued by relevant authority and became the "admin" of the user's "A" organization
-    And the user "A" was removed from user's "A" organization by its own decision
-    When the user "A" requested to update the user "B" role "admin" to "owner" in user's "A" organization
-    Then user's "B" role in user's "A" organization should be updated to "owner"
-
-
-  #MPA-7229 (#6) - SHOULD WE PROHIBIT ???
-  Scenario: Successful downgrade of origin Organization owner to member role either by granted admin or owner role
-    Given the user "A" have got a valid "token" issued by relevant authority
-    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And the user "B" have got the "userId" issued by relevant authority and became the "admin" of the user's "A" organization
-    When the user "B" requested to update the user "A" role origin "owner" to "member" in user's "A" organization
-    Then user's "A" role in user's "A" organization should be updated to "member"
+    And each of the users "B" and "C" who have got the "userId" issued by relevant authority were invited to user's "A" organization both with "owner" role
+    When the user "B" requested to update the user "C" role to "member" in the user's "A" organization
+    Then user's "C" role in user's "A" organization should be updated to "member"
+    And user "B" should get successful response with the empty object
 
 
   #MPA-7229 (#7)
-  Scenario: Fail to update some member role in some Organization if the token is invalid (expired)
-    Given a user "A" have got the invalid either expired "token"
-    When the user "A" requested to update the "some" user role "admin" to "owner" in some organization
-    Then user "A" should receive the error message: "Token verification failed"
+  Scenario: Successful downgrade of the "admin" to "member" role in the relevant Organization by the "owner"
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with a "admin" role
+    And the user "C" who have got the "userId" issued by relevant authority was invited to user's "A" organization with a "owner" role
+    When the user "C" requested to update the user "B" role to "member" in the user's "A" organization
+    Then user's "B" role in user's "A" organization should be updated to "member"
+    And user "C" should get successful response with the empty object
 
 
   #MPA-7229 (#8)
-  Scenario: Fail to update some member role in the related Organization upon the user hadn't became the member in it with relevant role (permission level)
-    Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
+  Scenario: Successful downgrade "admin" to "member" role in the relevant Organization by another "admin"
+    Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And the user "C" have got the "userId" issued by relevant authority and became the "member" of the user's "A" organization
-    When the user "A" applied "token" of user "B" and requested to update the user "C" role "member" to "admin" in user's "A" organization
-    Then user "A" should get an error message: "user: 'userId "B"', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
+    And each of the users "B" and "C" who have got the "userId" issued by relevant authority were invited to user's "A" organization both with "admin" role
+    When the user "B" requested to update the user "C" role to "member" in the user's "A" organization
+    Then user's "C" role in user's "A" organization should be updated to "member"
+    And user "B" should get successful response with the empty object
 
 
   #MPA-7229 (#9)
-  Scenario: Fail to update some of the accessible member roles in the relevant Organization upon the member doesn't have the appropriate permission level
+  Scenario: Successful downgrade yourself as the "owner" to "member" either "admin" role in the relevant Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And the user "B" have got the "userId" issued by relevant authority and became the "admin" of the user's "A" organization
-    And the user "C" have got the "userId" issued by relevant authority and became the "member" of the user's "A" organization
-    When the user "C" requested to update the user "B" role "admin" to "member" in user's "A" organization
-    Then user "C" should get an error message: "user: 'userId "C"', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
+    And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with a "owner" role
+    When the user "A" requested to update himself to role "member" either "admin" in the user's "A" organization
+    Then user's "A" role in own organization should be updated to "member" either "admin"
+    And user "A" should get successful response with the empty object
 
 
   #MPA-7229 (#10)
-  Scenario: Fail to update some of the member roles in the non-existent Organization
+  Scenario: Successful downgrade yourself as "admin" to "member" role in the relevant Organization
     Given the user "A" have got a valid "token" issued by relevant authority
-    And there is no organization was created and stored
-    When the user "A" requested to update the "some" user "role" in the non-existent organization "organizationId"
-    Then user "A" should receive the error message: "organizationId" doesn't exist
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with a "admin" role
+    When the user "B" requested to update himself to role "member" in the user's "A" organization
+    Then user's "B" role in own organization should be updated to "member"
+    And user "B" should get successful response with the empty object
 
+
+  #__________________________________________________NEGATIVE___________________________________________________________
 
   #MPA-7229 (#11)
-  Scenario: Fail to delete non-existent (invalid) API key (token) from specific Organization
+  Scenario: Fail to downgrade yourself as the single "owner" to "member" either "admin" role in the relevant Organization
     Given the user "A" have got a valid "token" issued by relevant authority
-    And only single organization "organizationId" with specified "name" and "email" which doesn't contain any "member" already created and owned by user "A"
-    When the user "A" requested to update some "role" of the "non-existent" user in user's "A" organization
-    Then any of the stored API keys shouldn't be deleted from the user's "A" organization "organizationId"
-    And user "A" should get an error message: "user: 'userId "non-existent"', is not a member of organization: 'org "A" name'"
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    When the user "A" requested to update himself to role "member" either "admin" in the user's "A" organization
+    Then user "A" should get an error message: "At least one Owner should be persisted in the organization: 'organizationId'"
+
+
+
+  #MPA-7229 (#12)
+  Scenario: Fail to upgrade a "member" either "admin" to "owner" role in the relevant Organization by the "admin"
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with a "member" role
+    And the user "C" who have got the "userId" issued by relevant authority was invited to user's "A" organization with a "admin" role
+    When the user "C" requested to update himself and the user "B" to role "owner" in the user's "A" organization
+    Then user "C" for both requests should get an error message: ""user: 'userId "C"', name: 'null', not in role Owner of organization: 'org "A" name'"
+
+
+
+  #MPA-7229 (#13)
+  Scenario: Fail to update any accessible member role in the relevant Organization by the "member"
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with a "admin" role
+    And the user "C" who have got the "userId" issued by relevant authority was invited to user's "A" organization with a "member" role
+    When the user "C" requested to update the user "B" to role "member" in the user's "A" organization
+    Then user "C" should get an error message: ""user: 'userId "C"', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
+
+
+  #MPA-7229 (#14)
+  Scenario: Fail to update any accessible member role in the relevant Organization by the owner who was removed from own Organization
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with a "owner" role
+    And the user "C" who have got the "userId" issued by relevant authority was invited to user's "A" organization with a "member" role
+    And the user "B" requested to remove the user "A" from user's "A" organization
+    When the user "A" requested to update the user "C" to role "admin" in the user's "A" organization
+    Then user "A" should get an error message: ""user: 'userId "A"', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
+
+
+  #MPA-7229 (#15)
+  Scenario: Fail to update some member role in some Organization if the token is invalid (expired)
+    Given a user "D" have got the invalid either expired "token"
+    When the user "D" requested to update the some user role in some organization
+    Then user "D" should receive the error message: "Token verification failed"
