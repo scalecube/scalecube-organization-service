@@ -78,7 +78,8 @@
           "token": "PUT IN YOUR VALID TOKEN"
         },
         "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB",
-        "userId": "[Auth0 generated Client ID]@clients"
+        "userId": "[Auth0 generated Client ID]@clients",
+        "role":"ASSIGN THE ROLE OWNER/ADMIN/MEMBER (PERMISSION LEVEL FOR ORGANIZATION MEMEBERS)"
       }
     }
   }, {
