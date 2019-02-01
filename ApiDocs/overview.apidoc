@@ -10,7 +10,8 @@
   * each member could get the info about the relevant organization and also to know the own membership in the all related organizations.
   * Organization managers could provide and delete the relevant API keys (permission level with appropriate assigned role: Owner/Admin/Member) which are vital leverage
   * for the <a href="http://scalecube.io/configuration-service/index.html">Configuration service</a> management and security purpose.
-  * >Note: API key assigned with relevant role (Owner/Admin/Member) don't corresponds with the organization members similar roles.
+  * >Note: Note: API key assigned with relevant role (Owner/Admin/Member) corresponds with the organization members' similar roles
+  * only upon some of these roles were updated in the relevant organization thus the API keys already issued by such updated managers roles acquiring relevant permission level
   *
   *
   * <b>Getting Started</b>

@@ -1,0 +1,139 @@
+Feature: Organization service API keys management - Add API key
+
+  Organization Owner or Admin should be able to create the API keys for the relevant organization with appropriate
+  permission level (members roles: Owner/Admin/Member) to be granted for Configuration service users.
+  Thus owners could issue the API keys with all accessible roles but the admins are restricted by the "Admin" or "Member" role API keys issuing.
+  Permission level (Owner/Admin/Member) for each API key is automatically updated to the relevant one upon the managers who already issued these API keys
+  were upgraded or downgraded to one of the accessible roles (Owner/Admin/Member) in the relevant organization.
+
+
+  #__________________________________________________POSITIVE___________________________________________________________
+  
+
+  #MPA-7229 (#1)
+  Scenario: Successful adding the API keys (token) for relevant Organization with all accessible roles by Owner
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    When the user "A" requested to add each accessible API key "name" for own organization with assigned roles: "owner", "admin" and "member"
+    Then each of the API keys with assigned roles: "owner", "admin" and "member" should be emitted for the relevant organization
+    And the relevant secrets should be stored in the Vault only
+
+
+  #MPA-7229 (#2)
+  Scenario: Successful adding the API keys (token) with "admin" and "member" roles for relevant Organization by Admin
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with an "admin" role
+    When the user "B" requested to add the API keys "name" for user's "A" organization with assigned roles: "admin" and "member"
+    Then each of the API keys with assigned roles: "admin" and "member" should be emitted for the relevant organization
+    And the relevant secrets should be stored in the Vault only
+
+
+  #MPA-7229 (#3)
+  Scenario: Permission level of the "owner" API key (token) successfully downgraded to "admin" API key upon the Organization owner was downgraded to "admin"
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And the user "A" requested to add each accessible API key "name" for own organization with assigned roles: "owner", "owner", "admin" and "member"
+    And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with an "owner" role
+    When the user "B" requested to update the user "A" role to "admin" in the user's "A" organization
+    Then the API keys with assigned role "owner" should be updated to "admin" but the resting API keys "admin" and "member" should kept their roles
+    And the API keys with assigned roles: "admin", "admin", "admin" and "member" should be persisted for the relevant organization
+    And the relevant secrets should be updated and stored in the Vault
+
+
+  #MPA-7229 (#4)
+  Scenario: Permission level of the "owner" and "admin" API key (token) successfully downgraded to "member" API keys upon the Organization "owner" was downgraded to "member"
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And the user "A" requested to add each accessible API key "name" for own organization with assigned roles: "owner", "admin" and "member"
+    And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with an "owner" role
+    When the user "B" requested to update the user "A" role to "member" in the user's "A" organization
+    Then all the API keys with managers' roles should be updated to "member" and the resting "member" API key should kept its role
+    And the API keys with assigned roles: "member", "member" and "member" should be persisted for the relevant organization
+    And the relevant secrets should be updated and stored in the Vault
+
+
+  #MPA-7229 (#5)
+  Scenario: Permission level of the "admin" API key (token) successfully downgraded to "member" API key upon the Organization "admin" was downgraded to "member"
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with an "admin" role
+    And the user "B" requested to add the API key "name" for user's "A" organization with assigned role "admin"
+    When the user "A" requested to update the user "B" role to "member" in the own organization
+    Then the API key with assigned role "admin" should be updated to "member"
+    And only one API key with assigned role: "member" should be persisted for the relevant organization
+    And the relevant secret should be updated and stored in the Vault
+
+
+  #MPA-7229 (#6)
+  Scenario: Permission level of the "member" API key (token) successfully upgraded to "admin" API key upon the Organization "member" was promoted to "admin" again
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with an "admin" role
+    And the user "B" requested to add the API keys "name" for user's "A" organization with assigned roles: "member" and "admin"
+    When the user "A" requested to update the user "B" role to "member" in the own organization
+    And the user "A" requested to update the user "B" role to "admin" in the own organization
+    Then the API key with assigned role "member" should be updated to "admin" and the resting "admin" API key should kept its role
+    And the API keys with assigned roles: "admin" and "admin" should be persisted for the relevant organization
+    And the relevant secret should be updated and stored in the Vault
+
+
+  #MPA-7229 (#7)
+  Scenario: Permission level of the "member" and "admin" API keys (token) successfully upgraded to "owner" API keys upon the Organization "admin" was promoted to "owner" again
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with an "owner" role
+    And the user "B" requested to add each accessible API key "name" for user's "A" organization with assigned roles: "member", "admin" and "owner"
+    When the user "A" requested to update the user "B" role to "admin" in the own organization
+    And the user "A" requested to update the user "B" role to "owner" in the own organization
+    Then the API keys with assigned roles "member" and "admin" should be updated to "owner"
+    And the API keys with assigned roles: "owner", "owner" and "owner" should be persisted for the relevant organization
+    And the relevant secrets should be updated and stored in the Vault
+
+
+
+  #__________________________________________________NEGATIVE___________________________________________________________
+
+
+  #MPA-7229 (#8)
+  Scenario: Fail to add some of accessible API keys (token) for a relevant Organization upon the relevant "member" doesn't have appropriate permission level
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with a "member" role
+    When the user "B" requested to add the API key "name" for user's "A" organization with assigned role "member"
+    Then user "B" should get an error message: "user: 'userId "B"', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
+
+
+  #MPA-7229 (#9)
+  Scenario: Fail to add some of accessible API keys (token) with the duplicate "name" for a relevant Organization
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And the user "A" added API key "specifiedApiKeyName" for own organization with assigned role "owner"
+    When the user "A" requested to add the API key with the existent "specifiedApiKeyName" for user's "A" organization assigned with any accessible role
+    Then user "A" should receive the error message like:"apiKey name:'specifiedApiKeyName' already exists"
+
+
+  #MPA-7229 (#10)
+  Scenario: Fail to add some of accessible API keys (token) for relevant Organization upon the owner was removed from own Organization
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with an "owner" role
+    And the user "A" was removed from user's "A" organization
+    When the user "A" requested to add the API key "name" for former organization with assigned role "admin"
+    Then user "A" should get an error message: "user: 'userId "B"', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
+
+
+  #MPA-7229 (#11)
+  Scenario: Fail to add the API key (token) for a relevant Organization upon the assigned role is invalid (differs from allowed)
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    When the user "A" requested to add the API key "name" for user's "A" organization assigned with invalid "role" like "boss"
+    Then user "A" should receive the error message: "role": 'boss' is invalid"
+
+
+  #MPA-7229 (#12)
+  Scenario: Fail to add the API key (token) for a relevant Organization if the token is invalid (expired)
+    Given a user have got the invalid either expired "token"
+    When this user requested to add some API key for some Organization
+    Then this user should receive the error message: "Token verification failed"
+
