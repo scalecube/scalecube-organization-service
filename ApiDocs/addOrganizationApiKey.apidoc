@@ -8,8 +8,6 @@
   * @apiDescription This operation enables only organization managers <b>(Owner/Admin)</b> to create the API key (token) for the relevant organization and further
   * to be used by potential users of the <a href="http://scalecube.io/configuration-service/index.html">Configuration service</a> according to appropriate permission level.
   * Each API key got the unique name which couldn't be duplicated. Thus owners could issue the API keys with all accessible roles but the admins are restricted by the "Admin" or "Member" role API keys issuing.
-  * <br>Permission level (Owner/Admin/Member) for each API key is automatically updated to the relevant one upon the managers who already issued these API keys were
-  * upgraded or downgraded to one of the accessible roles (Owner/Admin/Member) in the relevant organization
   *
   * @apiParam {Object} token The requested token issued by relevant authority (Auth0)
   * @apiParam {String} organizationId Already stored org-id for the specific organization
