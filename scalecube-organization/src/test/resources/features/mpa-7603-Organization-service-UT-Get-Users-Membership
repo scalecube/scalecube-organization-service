@@ -1,0 +1,36 @@
+Feature: Organization service Members management - Get members membership
+
+  Any member should be able to know own membership in each relevant Organization the members was invited (steep in).
+
+
+
+  #__________________________________________________POSITIVE___________________________________________________________
+  
+
+    #MPA-7603 (#8)
+  Scenario: Successful get the list of all Organizations in each the user became a "member" (Membership in Organizations)
+    Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
+    And only two organizations "organizationId" with specified "name" and "email" already created and owned by each of the user's "A" and "B"
+    And the user "C" have got the "userId" issued by relevant authority and became the "member" of the users' "A" and "B" organizations
+    When the user "C" requested to get the Membership
+    Then user "C" should receive successful response with list of all the Organizations i.e. "A" and "B" in which user "C" was invited (became a member with accessible role)
+
+
+  #MPA-7603 (#8.1) - SHOULD WE RETURNS MESSAGE - NO ORGANIZATIONS WERE FOUND???
+  Scenario: Do not get any Organization data upon the user hasn't became a member (wasn't invited) to any of the relevant Organizations
+    Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" which doesn't contain any "member" already created and owned by user "A"
+    And the user "C" have got the "userId" issued by relevant authority
+    When the user "C" requested to get the Membership
+    Then user "C" should receive successful response with empty object
+
+
+  #__________________________________________________NEGATIVE___________________________________________________________
+
+
+    #MPA-7603 (#8.2)
+  Scenario: Fail to get the Membership in Organizations upon the token is invalid (expired)
+    Given a user have got the invalid either expired "token"
+    When this user requested to get membership from some organization
+    Then this should receive the error message: "Token verification failed"
+
