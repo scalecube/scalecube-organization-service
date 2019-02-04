@@ -1,7 +1,13 @@
 Feature: Organization service members management - Kick-out member
 
   Organization Owner or Admin should be able to kick-out (remove) existing members from relevant organization.
-  Nevertheless at leas one organization owner should be persisted
+  Nevertheless at least one organization owner should be persisted
+
+  /**
+  * #Note for the future implementation after the refactoring:
+  * #Permission level for managers (Owner/Admin) API keys is automatically updated to the "member" one upon the managers who already issued these API keys
+  * #were removed from the relevant organization.
+  */
 
 
   #__________________________________________________POSITIVE___________________________________________________________
@@ -67,6 +73,32 @@ Feature: Organization service members management - Kick-out member
     When the user "B" requested to remove himself from user's "A" organization
     Then user "B" should be removed from user's "A" organization
     And user "B" should get successful response with the empty object
+
+
+  /**
+    * ##MPA-7679 (#7) - API key permission level is updated to "member" role upon the related manager was removed from organization
+    * #Scenario: Admin API key (token) for relevant Organization is downgraded to "member" one upon the issuer (Owner) of that API key was removed from Organization
+    *  #Given the user "A" have got a valid "token" issued by relevant authority
+    *  #And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    *  #And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with an "owner" role
+    *  #And the user "B" requested to add the API key "name" for user's "A" organization with assigned role "owner"
+    *  #When the user "B" was removed (kicked-out) from user's "A" organization
+    *  #Then the API key with assigned role "owner" should be updated to "member"
+    *  #And the relevant secret should be updated and stored in the Vault
+    *  #And the API key with assigned role "member" should be persisted for the relevant organization
+    *
+    *
+    * ##MPA-7679 (#8) - API key permission level is updated to "member" role upon the related manager was removed from organization
+    * #Scenario: Admin API key (token) for relevant Organization is downgraded to "member" one upon the issuer (Admin) of that API key was removed from Organization
+    *  #Given the user "A" have got a valid "token" issued by relevant authority
+    *  #And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    *  #And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with an "admin" role
+    *  #And the user "B" requested to add the API key "name" for user's "A" organization with assigned role "admin"
+    *  #When the user "B" was removed (kicked-out) from user's "A" organization
+    *  #Then the API key with assigned role "admin" should be updated to "member"
+    *  #And the relevant secret should be updated and stored in the Vault
+    *  #And the API key with assigned role "member" should be persisted for the relevant organization
+    */
 
 
   #__________________________________________________NEGATIVE___________________________________________________________
