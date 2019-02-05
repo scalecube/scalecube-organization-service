@@ -3,7 +3,7 @@ MAINTAINER support@jivygroup.com
 
 ARG EXECUTABLE_JAR
 
-WORKDIR /opt/om2
+WORKDIR /opt/scalecube
 
 COPY target/lib lib
 COPY target/${EXECUTABLE_JAR}.jar app.jar
