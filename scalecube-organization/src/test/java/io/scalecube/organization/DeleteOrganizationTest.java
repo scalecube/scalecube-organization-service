@@ -75,10 +75,9 @@ public class DeleteOrganizationTest extends Base {
   public void deleteOrganization() {
     String id = createRandomOrganization();
     StepVerifier.create(service.deleteOrganization(new DeleteOrganizationRequest(token, id)))
-        .expectSubscription()
         .assertNext((r) -> assertThat(r.deleted(), is(true)))
         .expectComplete()
         .verify();
-    deleteOrganization(id);
+//    deleteOrganization(id);
   }
 }

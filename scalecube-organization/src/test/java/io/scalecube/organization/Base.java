@@ -1,13 +1,10 @@
 package io.scalecube.organization;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import io.scalecube.Await;
-import io.scalecube.Await.AwaitLatch;
 import io.scalecube.account.api.CreateOrganizationRequest;
 import io.scalecube.account.api.CreateOrganizationResponse;
 import io.scalecube.account.api.DeleteOrganizationRequest;
@@ -29,7 +26,9 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -137,18 +136,21 @@ public class Base {
 
   protected String createRandomOrganization() {
     Random rand = new Random();
-    AwaitLatch<CreateOrganizationResponse> await =
-        consume(
+    AtomicReference<CreateOrganizationResponse> createdOrg = new AtomicReference<>();
+    StepVerifier.create(
             service.createOrganization(
-                new CreateOrganizationRequest("myTestOrg5" + rand.nextInt(50) + 1, token)));
-    assertThat(await.error(), is(nullValue()));
-    assertThat(await.result(), is(notNullValue()));
-    assertThat(await.result().id(), is(notNullValue()));
-    return await.result().id();
+                new CreateOrganizationRequest("myTestOrg5" + rand.nextInt(50) + 1, token)))
+        .consumeNextWith(createdOrg::set)
+        .verifyComplete();
+
+    assertThat(createdOrg.get().id(), notNullValue());
+    return createdOrg.get().id();
   }
 
   protected void deleteOrganization(String id) {
-    consume(service.deleteOrganization(new DeleteOrganizationRequest(token, id)));
+    StepVerifier.create(service.deleteOrganization(new DeleteOrganizationRequest(token, id)))
+        .assertNext(Assertions::assertNotNull)
+        .verifyComplete();
   }
 
   protected void addMemberToOrganization(
@@ -158,10 +160,12 @@ public class Base {
 
   protected void addMemberToOrganization(
       String organisationId, Profile profile, Role role) {
-    consume(
+    StepVerifier.create(
         this.service.inviteMember(
             new InviteOrganizationMemberRequest(
-                token, organisationId, profile.getUserId(), role.toString())));
+                token, organisationId, profile.getUserId(), role.toString())))
+    .assertNext(Assertions::assertNotNull)
+    .verifyComplete();
   }
 
   protected OrganizationService createService(Profile profile) {
@@ -182,18 +186,19 @@ public class Base {
   }
 
   protected Organization createOrganization(String name) {
-    AwaitLatch<CreateOrganizationResponse> await =
-        consume(service.createOrganization(new CreateOrganizationRequest(name, token)));
-    assertThat(await.error(), is(nullValue()));
-    return organizationRepository.findById(await.result().id()).get();
+    AtomicReference<CreateOrganizationResponse> createdOrganizationId = new AtomicReference<>();
+    StepVerifier.create(service.createOrganization(new CreateOrganizationRequest(name, token))).
+      consumeNextWith(createdOrganizationId::set).verifyComplete();
+    
+    return organizationRepository.findById(createdOrganizationId.get().id()).get();
   }
 
   @AfterEach
   public void deleteOrganizationAfterTest() {
-    AwaitLatch<DeleteOrganizationResponse> await =
-        consume(service.deleteOrganization(new DeleteOrganizationRequest(token, organizationId)));
-    assertThat(await.error(), is(nullValue()));
-    assertTrue(await.result().deleted(), "failed to delete organization");
+    StepVerifier.create(
+            service.deleteOrganization(new DeleteOrganizationRequest(token, organizationId)))
+        .assertNext(result -> assertTrue(result.deleted(), "failed to delete organization"))
+        .verifyComplete();
   }
 
   @BeforeEach
@@ -202,17 +207,4 @@ public class Base {
     organizationId = organisation.id();
   }
 
-  /**
-   * Subscribe to the mono argument and request unbounded demand
-   *
-   * @param mono publisher
-   * @param <T> type of response
-   * @return mono consume or error
-   */
-  protected static <T> AwaitLatch<T> consume(Mono<T> mono) {
-    AwaitLatch<T> await = Await.one();
-    mono.subscribe(await::result, await::error);
-    await.timeout(2, TimeUnit.SECONDS);
-    return await;
-  }
 }

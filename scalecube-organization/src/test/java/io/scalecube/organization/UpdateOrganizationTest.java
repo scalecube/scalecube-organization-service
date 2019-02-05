@@ -21,6 +21,8 @@ import io.scalecube.organization.repository.exception.NameAlreadyInUseException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.function.Consumer;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
@@ -57,7 +59,7 @@ public class UpdateOrganizationTest extends Base {
     assertMonoCompletesWithError(
         service.updateOrganization(
             new UpdateOrganizationRequest("", token, "update_name", "update@email")),
-        EntityNotFoundException.class);
+        IllegalArgumentException.class);
   }
 
   @Test
@@ -141,10 +143,12 @@ public class UpdateOrganizationTest extends Base {
     orgMembersRepository.addMember(
         getOrganizationFromRepository(organizationId),
         new OrganizationMember(testAdminProfile.getUserId(), Role.Admin.toString()));
-    consume(
-        service.addOrganizationApiKey(
-            new AddOrganizationApiKeyRequest(
-                token, organizationId, "testApiKey", new HashMap<>())));
+ 
+    StepVerifier.create(service.addOrganizationApiKey(
+        new AddOrganizationApiKeyRequest(
+            token, organizationId, "testApiKey", new HashMap<>())))
+    .assertNext(Assertions::assertNotNull)
+    .verifyComplete();
 
     StepVerifier.create(
             createService(testAdminProfile)
@@ -216,10 +220,13 @@ public class UpdateOrganizationTest extends Base {
     addMemberToOrganization(organizationId, testProfile2);
 
     // upgrade to admin
-    consume(
+    StepVerifier.create(
         service.updateOrganizationMemberRole(
             new UpdateOrganizationMemberRoleRequest(
-                token, organizationId, testProfile2.getUserId(), Role.Admin.toString())));
+                token, organizationId, testProfile2.getUserId(), Role.Admin.toString())))
+    .assertNext(Assertions::assertNotNull)
+    .verifyComplete();
+    
     assertMonoCompletesWithError(
         createService(testProfile2)
             .updateOrganizationMemberRole(
@@ -234,15 +241,21 @@ public class UpdateOrganizationTest extends Base {
     addMemberToOrganization(organizationId, testProfile2);
 
     // upgrade to owner
-    consume(
+    
+    StepVerifier.create(
         service.updateOrganizationMemberRole(
             new UpdateOrganizationMemberRoleRequest(
-                token, organizationId, testProfile5.getUserId(), Role.Owner.toString())));
+                token, organizationId, testProfile5.getUserId(), Role.Owner.toString())))
+    .assertNext(Assertions::assertNotNull)
+    .verifyComplete();
+    
     // upgrade to admin
-    consume(
+    StepVerifier.create(
         service.updateOrganizationMemberRole(
             new UpdateOrganizationMemberRoleRequest(
-                token, organizationId, testProfile2.getUserId(), Role.Admin.toString())));
+                token, organizationId, testProfile2.getUserId(), Role.Admin.toString())))
+    .assertNext(Assertions::assertNotNull)
+    .verifyComplete();
 
     // admin tries to downgrade an owner should fail
     assertMonoCompletesWithError(

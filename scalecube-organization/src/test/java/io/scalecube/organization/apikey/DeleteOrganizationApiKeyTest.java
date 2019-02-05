@@ -13,9 +13,11 @@ import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
+@Disabled
 public class DeleteOrganizationApiKeyTest extends Base {
 
   /**
