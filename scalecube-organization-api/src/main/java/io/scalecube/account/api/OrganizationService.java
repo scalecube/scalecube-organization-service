@@ -2,11 +2,11 @@ package io.scalecube.account.api;
 
 import io.scalecube.services.annotations.Service;
 import io.scalecube.services.annotations.ServiceMethod;
-
 import reactor.core.publisher.Mono;
 
 @Service("organizations")
 public interface OrganizationService {
+
   @ServiceMethod("create")
   Mono<CreateOrganizationResponse> createOrganization(CreateOrganizationRequest request);
 
@@ -45,4 +45,6 @@ public interface OrganizationService {
   Mono<UpdateOrganizationMemberRoleResponse> updateOrganizationMemberRole(
       UpdateOrganizationMemberRoleRequest request);
 
+  @ServiceMethod
+  Mono<PublicKey> getPublicKey(String keyId);
 }
