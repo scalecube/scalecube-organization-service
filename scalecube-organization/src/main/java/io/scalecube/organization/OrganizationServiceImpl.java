@@ -18,8 +18,8 @@ import io.scalecube.account.api.KickoutOrganizationMemberRequest;
 import io.scalecube.account.api.KickoutOrganizationMemberResponse;
 import io.scalecube.account.api.LeaveOrganizationRequest;
 import io.scalecube.account.api.LeaveOrganizationResponse;
-import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationService;
+import io.scalecube.account.api.PublicKey;
 import io.scalecube.account.api.ServiceOperationException;
 import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
 import io.scalecube.account.api.UpdateOrganizationMemberRoleResponse;
@@ -44,10 +44,11 @@ import io.scalecube.organization.repository.Repository;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
 import io.scalecube.tokens.TokenVerification;
 import io.scalecube.tokens.TokenVerifier;
-
+import io.scalecube.tokens.store.KeyStoreFactory;
+import java.security.Key;
+import java.security.KeyPairGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import reactor.core.publisher.Mono;
 
 /**
@@ -55,14 +56,17 @@ import reactor.core.publisher.Mono;
  */
 public class OrganizationServiceImpl implements OrganizationService {
 
-  private final TokenVerifier tokenVerifier;
-  private final OrganizationsDataAccess repository;
   private static final Logger logger = LoggerFactory.getLogger(OrganizationServiceImpl.class);
 
+  private final TokenVerifier tokenVerifier;
+  private final OrganizationsDataAccess repository;
+  private final KeyPairGenerator keyPairGenerator;
+
   private OrganizationServiceImpl(OrganizationsDataAccess repository,
-      TokenVerifier tokenVerifier) {
+      TokenVerifier tokenVerifier, KeyPairGenerator keyPairGenerator) {
     this.repository = repository;
     this.tokenVerifier = tokenVerifier;
+    this.keyPairGenerator = keyPairGenerator;
   }
 
   /**
@@ -84,6 +88,7 @@ public class OrganizationServiceImpl implements OrganizationService {
             .builder()
             .tokenVerifier(tokenVerifier)
             .repository(repository)
+            .keyPairGenerator(keyPairGenerator)
             .build()
             .execute(request);
 
@@ -330,12 +335,23 @@ public class OrganizationServiceImpl implements OrganizationService {
     });
   }
 
+  @Override
+  public Mono<PublicKey> getPublicKey(String keyId) {
+    return Mono.defer(
+        () -> {
+          Key key = KeyStoreFactory.get().getPublicKey(keyId);
+          return Mono.just(
+              new PublicKey(key.getAlgorithm(), key.getFormat(), key.getEncoded(), keyId));
+        });
+  }
+
   public static class Builder {
 
     private Repository<Organization, String> organizationRepository;
     private TokenVerifier tokenVerifier;
     private UserOrganizationMembershipRepository organizationMembershipRepository;
     private OrganizationMembersRepositoryAdmin organizationMembersRepositoryAdmin;
+    private KeyPairGenerator keyPairGenerator;
 
     /**
      * Construct an OrganizationService object with the provided parameters.
@@ -349,9 +365,10 @@ public class OrganizationServiceImpl implements OrganizationService {
           .members(organizationMembershipRepository)
           .repositoryAdmin(organizationMembersRepositoryAdmin)
           .build();
-      return new OrganizationServiceImpl(repository, tokenVerifier == null
-          ? new TokenVerification()
-          : tokenVerifier);
+      return new OrganizationServiceImpl(
+          repository,
+          tokenVerifier == null ? new TokenVerification() : tokenVerifier,
+          keyPairGenerator);
     }
 
     public Builder organizationRepository(
@@ -374,6 +391,11 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     Builder tokenVerifier(TokenVerifier tokenVerifier) {
       this.tokenVerifier = tokenVerifier;
+      return this;
+    }
+
+    public Builder keyPairGenerator(KeyPairGenerator keyPairGenerator) {
+      this.keyPairGenerator = keyPairGenerator;
       return this;
     }
   }

@@ -21,8 +21,7 @@
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>scalecube-organization-api</artifactId>
-      <!-- TODO: change to project.version after implementing new API -->
-      <version>2.0.16</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>

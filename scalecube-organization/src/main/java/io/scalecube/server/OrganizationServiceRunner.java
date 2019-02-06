@@ -6,6 +6,8 @@ import io.scalecube.organization.OrganizationServiceImpl;
 import io.scalecube.organization.repository.couchbase.CouchbaseRepositoryFactory;
 import io.scalecube.organization.repository.couchbase.CouchbaseSettings;
 import io.scalecube.services.Microservices;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -26,7 +28,7 @@ public class OrganizationServiceRunner {
     Thread.currentThread().join();
   }
 
-  private static void start() {
+  private static void start() throws NoSuchAlgorithmException {
     DiscoveryOptions discoveryOptions =
         AppConfiguration.configRegistry()
             .objectProperty("io.scalecube.organization", DiscoveryOptions.class)
@@ -48,7 +50,7 @@ public class OrganizationServiceRunner {
         .startAwait();
   }
 
-  private static OrganizationService createOrganizationService() {
+  private static OrganizationService createOrganizationService() throws NoSuchAlgorithmException {
     CouchbaseSettings settings =
         AppConfiguration.configRegistry()
             .objectProperty(couchbaseSettingsBindingMap(), CouchbaseSettings.class)
@@ -61,6 +63,7 @@ public class OrganizationServiceRunner {
         .organizationRepository(factory.organizations())
         .organizationMembershipRepository(factory.organizationMembers())
         .organizationMembershipRepositoryAdmin(factory.organizationMembersRepositoryAdmin())
+        .keyPairGenerator(keyPairGenerator())
         .build();
   }
 
@@ -80,5 +83,15 @@ public class OrganizationServiceRunner {
     bindingMap.put("organizationsBucketName", "organizations.bucket");
 
     return bindingMap;
+  }
+
+  private static KeyPairGenerator keyPairGenerator() throws NoSuchAlgorithmException {
+    String algorithm = AppConfiguration.configRegistry().stringValue("crypto.algorithm", "RSA");
+    int keySize = AppConfiguration.configRegistry().intValue("crypto.key.size", 4096);
+
+    KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(algorithm);
+    keyPairGenerator.initialize(keySize);
+
+    return keyPairGenerator;
   }
 }
