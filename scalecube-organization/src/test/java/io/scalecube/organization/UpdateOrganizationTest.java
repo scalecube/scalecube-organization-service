@@ -21,7 +21,6 @@ import io.scalecube.organization.repository.exception.NameAlreadyInUseException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
-import java.util.function.Consumer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;

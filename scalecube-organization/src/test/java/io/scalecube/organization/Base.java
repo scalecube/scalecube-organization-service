@@ -2,13 +2,11 @@ package io.scalecube.organization;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsNull.notNullValue;
-import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.scalecube.account.api.CreateOrganizationRequest;
 import io.scalecube.account.api.CreateOrganizationResponse;
 import io.scalecube.account.api.DeleteOrganizationRequest;
-import io.scalecube.account.api.DeleteOrganizationResponse;
 import io.scalecube.account.api.InviteOrganizationMemberRequest;
 import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationService;
@@ -21,11 +19,9 @@ import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository
 import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
 import io.scalecube.security.Profile;
 import java.io.File;
-import java.time.Duration;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;

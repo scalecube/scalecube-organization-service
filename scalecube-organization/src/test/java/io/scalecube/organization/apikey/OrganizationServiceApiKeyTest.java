@@ -25,11 +25,13 @@ import reactor.test.StepVerifier;
 
 @Disabled
 public class OrganizationServiceApiKeyTest extends Base {
+  
+  private String apiKeyName = "apiKey" + System.currentTimeMillis();
+  
   public static Role[] roles() {
     return Role.values();
   }
 
-  String apiKeyName = "apiKey" + System.currentTimeMillis();
 
   /**
    * #MPA-7229 (#10)</br> Scenario: Successful adding of API key (token) for a specific Organization
