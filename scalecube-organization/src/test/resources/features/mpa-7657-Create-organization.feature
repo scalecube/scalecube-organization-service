@@ -1,3 +1,5 @@
+@Configuration-service-production-ready
+
 Feature: Creation of the Organization
 
   As a authorized user I would like to create my organization.

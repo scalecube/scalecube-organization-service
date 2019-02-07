@@ -1,3 +1,5 @@
+@Configuration-service-production-ready
+
 Feature: Delete of the Organization
 
   As a user I would like to delete my organization.
