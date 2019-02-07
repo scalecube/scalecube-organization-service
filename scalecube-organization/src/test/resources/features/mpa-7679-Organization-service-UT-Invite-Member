@@ -1,3 +1,5 @@
+@Configuration-service-production-ready
+
 Feature: Organization service members management - Invite member
 
   Organization Owner or Admin should be able to invite authorized users to relevant organization.

@@ -1,3 +1,5 @@
+@Configuration-service-production-ready
+
 Feature: Organization service Members management - Get members membership
 
   Any member should be able to know own membership in each relevant Organization the member was invited (steep in).

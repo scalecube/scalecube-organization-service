@@ -1,3 +1,5 @@
+@Configuration-service-production-ready
+
 Feature: Organization service members management - Kick-out member
 
   Organization Owner or Admin should be able to kick-out (remove) existing members from relevant organization.

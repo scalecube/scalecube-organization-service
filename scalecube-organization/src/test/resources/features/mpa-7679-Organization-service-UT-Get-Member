@@ -1,3 +1,5 @@
+@Configuration-service-production-ready
+
 Feature: Organization service members management - Get members
 
   Organization Owner or Admin should be able to get the list of all existing members who steep into relevant organization.

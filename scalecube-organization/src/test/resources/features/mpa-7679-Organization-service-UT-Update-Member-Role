@@ -1,3 +1,5 @@
+@Configuration-service-production-ready
+
 Feature: Organization service members management - Update member role
 
   Organization Owner or Admin should be able to update the existing members roles (permission level) in relevant organization.
