@@ -12,6 +12,8 @@ import io.scalecube.account.api.GetOrganizationMembersRequest;
 import io.scalecube.account.api.GetOrganizationMembersResponse;
 import io.scalecube.account.api.GetOrganizationRequest;
 import io.scalecube.account.api.GetOrganizationResponse;
+import io.scalecube.account.api.GetPublicKeyRequest;
+import io.scalecube.account.api.GetPublicKeyResponse;
 import io.scalecube.account.api.InviteOrganizationMemberRequest;
 import io.scalecube.account.api.InviteOrganizationMemberResponse;
 import io.scalecube.account.api.KickoutOrganizationMemberRequest;
@@ -19,7 +21,6 @@ import io.scalecube.account.api.KickoutOrganizationMemberResponse;
 import io.scalecube.account.api.LeaveOrganizationRequest;
 import io.scalecube.account.api.LeaveOrganizationResponse;
 import io.scalecube.account.api.OrganizationService;
-import io.scalecube.account.api.PublicKey;
 import io.scalecube.account.api.ServiceOperationException;
 import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
 import io.scalecube.account.api.UpdateOrganizationMemberRoleResponse;
@@ -336,12 +337,13 @@ public class OrganizationServiceImpl implements OrganizationService {
   }
 
   @Override
-  public Mono<PublicKey> getPublicKey(String keyId) {
+  public Mono<GetPublicKeyResponse> getPublicKey(GetPublicKeyRequest request) {
     return Mono.defer(
         () -> {
-          Key key = KeyStoreFactory.get().getPublicKey(keyId);
+          Key key = KeyStoreFactory.get().getPublicKey(request.keyId());
           return Mono.just(
-              new PublicKey(key.getAlgorithm(), key.getFormat(), key.getEncoded(), keyId));
+              new GetPublicKeyResponse(
+                  key.getAlgorithm(), key.getFormat(), key.getEncoded(), request.keyId()));
         });
   }
 
