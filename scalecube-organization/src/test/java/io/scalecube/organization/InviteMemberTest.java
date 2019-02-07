@@ -1,23 +1,15 @@
 package io.scalecube.organization;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.scalecube.account.api.GetOrganizationMembersRequest;
 import io.scalecube.account.api.InvalidAuthenticationToken;
 import io.scalecube.account.api.InviteOrganizationMemberRequest;
-import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import java.util.Arrays;
-import java.util.Objects;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
@@ -31,20 +23,12 @@ public class InviteMemberTest extends Base {
                 new GetOrganizationMembersRequest(organizationId, token)))
         .expectSubscription()
         .assertNext(
-            (r) -> {
-              Supplier<Stream<OrganizationMember>> members = () -> Arrays.stream(r.members());
-
-              assertThat(
-                  members.get().map(OrganizationMember::id).collect(Collectors.toList()),
-                  hasItem(testProfile2.getUserId()));
-              assertThat(
-                  members
-                      .get()
-                      .filter(i -> Objects.equals(i.id(), testProfile2.getUserId()))
-                      .findFirst()
-                      .orElseThrow(IllegalStateException::new),
-                  is(notNullValue()));
-            })
+            response ->
+                assertTrue(
+                    Arrays.stream(response.members())
+                        .filter(member -> testProfile2.getUserId().equals(member.id()))
+                        .findFirst()
+                        .isPresent()))
         .verifyComplete();
   }
 
@@ -155,7 +139,6 @@ public class InviteMemberTest extends Base {
             new InviteOrganizationMemberRequest(
                 token, "orgNotExists", testProfile5.getUserId(), Role.Member.toString())),
         EntityNotFoundException.class);
-    assertThat(true, is(true));
   }
 
   @Test

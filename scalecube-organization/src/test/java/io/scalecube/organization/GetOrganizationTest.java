@@ -1,7 +1,6 @@
 package io.scalecube.organization;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.scalecube.account.api.GetOrganizationRequest;
 import io.scalecube.account.api.InvalidAuthenticationToken;
@@ -24,7 +23,7 @@ class GetOrganizationTest extends Base {
   public void getOrganization() {
     StepVerifier.create(service.getOrganization(new GetOrganizationRequest(token, organizationId)))
         .expectSubscription()
-        .assertNext((r) -> assertThat(r.id(), is(organizationId)))
+        .assertNext(response -> assertEquals(response.id(), organizationId))
         .expectComplete()
         .verify();
   }

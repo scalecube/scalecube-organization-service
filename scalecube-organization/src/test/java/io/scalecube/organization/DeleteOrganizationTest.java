@@ -1,7 +1,6 @@
 package io.scalecube.organization;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.scalecube.account.api.DeleteOrganizationRequest;
 import io.scalecube.account.api.InvalidAuthenticationToken;
@@ -75,9 +74,8 @@ public class DeleteOrganizationTest extends Base {
   public void deleteOrganization() {
     String id = createRandomOrganization();
     StepVerifier.create(service.deleteOrganization(new DeleteOrganizationRequest(token, id)))
-        .assertNext((r) -> assertThat(r.deleted(), is(true)))
+        .assertNext(response -> assertTrue(response.deleted()))
         .expectComplete()
         .verify();
-//    deleteOrganization(id);
   }
 }

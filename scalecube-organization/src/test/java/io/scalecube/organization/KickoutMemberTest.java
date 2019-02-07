@@ -34,9 +34,9 @@ public class KickoutMemberTest extends Base {
                             new GetOrganizationMembersRequest(organizationId, token)))
                     .expectSubscription()
                     .assertNext(
-                        r -> {
+                        response -> {
                           List<String> members =
-                              Arrays.stream(r.members())
+                              Arrays.stream(response.members())
                                   .map(OrganizationMember::id)
                                   .collect(Collectors.toList());
                           assertThat(members, not(hasItem(testProfile5.getUserId())));

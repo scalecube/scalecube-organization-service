@@ -31,9 +31,9 @@ public class OrganizationMembersTest extends Base {
                 new GetOrganizationMembersRequest(organizationId, token)))
         .expectSubscription()
         .assertNext(
-            (r) -> {
-              Supplier<Stream<OrganizationMember>> members = () -> Arrays.stream(r.members());
-              assertThat(r.members().length, is(3));
+            response -> {
+              Supplier<Stream<OrganizationMember>> members = () -> Arrays.stream(response.members());
+              assertThat(response.members().length, is(3));
               long membersCount =
                   members
                       .get()

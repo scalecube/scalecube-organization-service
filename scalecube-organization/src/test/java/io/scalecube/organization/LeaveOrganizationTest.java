@@ -32,9 +32,9 @@ public class LeaveOrganizationTest extends Base {
                             new GetOrganizationMembersRequest(organizationId, token)))
                     .expectSubscription()
                     .assertNext(
-                        r ->
+                        response ->
                             assertThat(
-                                Arrays.asList(r.members()),
+                                Arrays.asList(response.members()),
                                 not(
                                     hasItem(
                                         new OrganizationMember(
