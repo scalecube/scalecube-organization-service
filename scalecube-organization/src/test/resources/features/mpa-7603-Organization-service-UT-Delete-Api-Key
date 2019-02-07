@@ -1,3 +1,5 @@
+@Configuration-service-production-ready
+
 Feature: Organization service API keys management - Delete API key
 
   Organization Owner or Admin should be able to delete the API keys which were issued for the relevant organization.

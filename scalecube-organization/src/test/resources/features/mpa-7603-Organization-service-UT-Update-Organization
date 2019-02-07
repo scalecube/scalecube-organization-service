@@ -1,3 +1,5 @@
+@Configuration-service-production-ready
+
 Feature: Organization service Org management - Update Organization
 
   Organization managers should be able to update relevant Organization.

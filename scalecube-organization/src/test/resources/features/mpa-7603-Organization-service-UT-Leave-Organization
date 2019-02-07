@@ -1,3 +1,5 @@
+@Configuration-service-production-ready
+
 Feature: Organization service Org management - Leave Organization
 
   Any member of the relevant Organization should be able to leave it by own decision.

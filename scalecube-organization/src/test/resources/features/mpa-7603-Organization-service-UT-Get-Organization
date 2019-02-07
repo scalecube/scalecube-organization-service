@@ -1,3 +1,5 @@
+@Configuration-service-production-ready
+
 Feature: Organization service Org management - Get Organization
 
   Organization members should be able to get extended info about relevant Organization.
