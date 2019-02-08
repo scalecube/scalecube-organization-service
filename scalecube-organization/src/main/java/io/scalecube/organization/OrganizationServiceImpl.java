@@ -46,7 +46,6 @@ import io.scalecube.organization.repository.UserOrganizationMembershipRepository
 import io.scalecube.tokens.TokenVerification;
 import io.scalecube.tokens.TokenVerifier;
 import io.scalecube.tokens.store.KeyStoreFactory;
-import java.security.Key;
 import java.security.KeyPairGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -338,13 +337,19 @@ public class OrganizationServiceImpl implements OrganizationService {
 
   @Override
   public Mono<GetPublicKeyResponse> getPublicKey(GetPublicKeyRequest request) {
-    return Mono.defer(
-        () -> {
-          Key key = KeyStoreFactory.get().getPublicKey(request.keyId());
-          return Mono.just(
-              new GetPublicKeyResponse(
-                  key.getAlgorithm(), key.getFormat(), key.getEncoded(), request.keyId()));
-        });
+    return Mono.fromRunnable(() -> logger.debug("getPublicKey: enter, request: {}", request))
+        .then(Mono.fromCallable(() -> KeyStoreFactory.get().getPublicKey(request.keyId())))
+        .map(
+            publicKey ->
+                new GetPublicKeyResponse(
+                    publicKey.getAlgorithm(),
+                    publicKey.getFormat(),
+                    publicKey.getEncoded(),
+                    request.keyId()))
+        .doOnSuccess(
+            response ->
+                logger.debug("getPublicKey: exit: response: {}, request: {}", response, request))
+        .doOnSuccess(response -> logger.debug("getPublicKey: ERROR: request: {}", request));
   }
 
   public static class Builder {
