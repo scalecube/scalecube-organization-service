@@ -3,9 +3,12 @@ package io.scalecube.tokens.store;
 import com.bettercloud.vault.Vault;
 import com.bettercloud.vault.VaultConfig;
 import com.bettercloud.vault.VaultException;
+import com.bettercloud.vault.api.Logical;
 import com.bettercloud.vault.response.LogicalResponse;
 import io.scalecube.config.AppConfiguration;
 import io.scalecube.config.ConfigRegistry;
+import io.scalecube.config.IntConfigProperty;
+import io.scalecube.config.StringConfigProperty;
 import io.scalecube.tokens.KeyStoreException;
 import java.security.Key;
 import java.security.KeyFactory;
@@ -31,19 +34,24 @@ import org.slf4j.LoggerFactory;
  */
 class VaultKeyStore implements KeyStore {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(VaultKeyStore.class);
+
   private static final String PUBLIC_KEY = "public-key";
   private static final String PRIVATE_KEY = "private-key";
+  private static final int DEFAULT_MAX_RETRIES = 5;
+  private static final int DEFAULT_RETRY_INTERVAL_MILLISECONDS = 1000;
 
-  private final VaultPathBuilder vaultPathBuilder = new VaultPathBuilder();
-  private Vault vault;
-  private final int maxRetries;
-  private static final int RETRY_INTERVAL_MILLISECONDS = 1000;
-  private final int retryIntervalMilliseconds;
-  private static final String VAULT_MAX_RETRIES_KEY = "vault.max.retries";
-  private static final int MAX_RETRIES = 5;
-  private static final String VAULT_RETRY_INTERVAL_MILLISECONDS =
-      "vault.retry.interval.milliseconds";
-  private static final Logger LOGGER = LoggerFactory.getLogger(VaultKeyStore.class);
+  private static final ConfigRegistry configRegistry = AppConfiguration.configRegistry();
+
+  private final IntConfigProperty maxRetries = configRegistry.intProperty("vault.max.retries");
+  private final IntConfigProperty retryInterval =
+      configRegistry.intProperty("vault.retry.interval.milliseconds");
+  private StringConfigProperty vaultSecretsPath =
+      configRegistry.stringProperty("VAULT_SECRETS_PATH");
+  private StringConfigProperty apiKeysPathPattern =
+      configRegistry.stringProperty("api.keys.path.pattern");
+
+  private final Vault vault;
 
   VaultKeyStore() {
     try {
@@ -51,24 +59,23 @@ class VaultKeyStore implements KeyStore {
     } catch (VaultException ex) {
       throw new RuntimeException(ex);
     }
-
-    ConfigRegistry configRegistry = AppConfiguration.configRegistry();
-    maxRetries = configRegistry.intValue(VAULT_MAX_RETRIES_KEY, MAX_RETRIES);
-    retryIntervalMilliseconds =
-        configRegistry.intValue(VAULT_RETRY_INTERVAL_MILLISECONDS, RETRY_INTERVAL_MILLISECONDS);
   }
 
   @Override
   public void store(String alias, KeyPair keyPair) throws KeyStoreException {
     String path = null;
     try {
-      path = vaultPathBuilder.getPath(alias);
+      path = getPath(alias);
+
       LOGGER.debug("Writing key to Vault path: '{}'", path);
-      final Map<String, Object> keys = new HashMap<>();
+
+      Map<String, Object> keys = new HashMap<>();
+
       keys.put(PUBLIC_KEY, encodeKey(keyPair.getPublic()));
       keys.put(PRIVATE_KEY, encodeKey(keyPair.getPrivate()));
-      LogicalResponse write =
-          vault.withRetries(maxRetries, retryIntervalMilliseconds).logical().write(path, keys);
+
+      LogicalResponse write = vaultLogical().write(path, keys);
+
       LOGGER.debug(
           "Key written to Vault path: '{}' REST response code: '{}' ",
           path,
@@ -81,19 +88,12 @@ class VaultKeyStore implements KeyStore {
 
   @Override
   public PublicKey getPublicKey(String keyId) {
-    String path = vaultPathBuilder.getPath(keyId);
+    String path = getPath(keyId);
 
     try {
-      String publicKeyEncoded =
-          vault
-              .withRetries(maxRetries, retryIntervalMilliseconds)
-              .logical()
-              .read(path)
-              .getData()
-              .get(PUBLIC_KEY);
+      String publicKeyEncoded = vaultLogical().read(path).getData().get(PUBLIC_KEY);
 
-      X509EncodedKeySpec publicKeySpec =
-          new X509EncodedKeySpec(Base64.getDecoder().decode(publicKeyEncoded));
+      KeySpec publicKeySpec = new X509EncodedKeySpec(Base64.getDecoder().decode(publicKeyEncoded));
 
       return KeyFactory.getInstance("RSA").generatePublic(publicKeySpec);
     } catch (VaultException e) {
@@ -107,16 +107,10 @@ class VaultKeyStore implements KeyStore {
 
   @Override
   public PrivateKey getPrivateKey(String keyId) {
-    String path = vaultPathBuilder.getPath(keyId);
+    String path = getPath(keyId);
 
     try {
-      String privateKeyEncoded =
-          vault
-              .withRetries(maxRetries, retryIntervalMilliseconds)
-              .logical()
-              .read(path)
-              .getData()
-              .get(PRIVATE_KEY);
+      String privateKeyEncoded = vaultLogical().read(path).getData().get(PRIVATE_KEY);
 
       KeySpec privateKeySpec =
           new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyEncoded));
@@ -129,6 +123,19 @@ class VaultKeyStore implements KeyStore {
       LOGGER.error("Error reconstructing private key", path, e);
       throw new KeyStoreException(e);
     }
+  }
+
+  private Logical vaultLogical() {
+    return vault
+        .withRetries(
+            maxRetries.value().orElse(DEFAULT_MAX_RETRIES),
+            retryInterval.value().orElse(DEFAULT_RETRY_INTERVAL_MILLISECONDS))
+        .logical();
+  }
+
+  private String getPath(String alias) {
+    return String.format(apiKeysPathPattern.valueOrThrow(), vaultSecretsPath.valueOrThrow())
+        .concat(alias);
   }
 
   private String encodeKey(Key key) {
