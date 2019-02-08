@@ -87,7 +87,7 @@ public class OrganizationServiceRunner {
 
   private static KeyPairGenerator keyPairGenerator() throws NoSuchAlgorithmException {
     String algorithm = AppConfiguration.configRegistry().stringValue("crypto.algorithm", "RSA");
-    int keySize = AppConfiguration.configRegistry().intValue("crypto.key.size", 4096);
+    int keySize = AppConfiguration.configRegistry().intValue("crypto.key.size", 2048);
 
     KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(algorithm);
     keyPairGenerator.initialize(keySize);
