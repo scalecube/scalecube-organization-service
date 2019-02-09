@@ -38,7 +38,7 @@
     <netty.version>4.1.31.Final</netty.version>
     <commons-codec.version>1.10</commons-codec.version>
     <hamcrest-library.version>1.3</hamcrest-library.version>
-    <auth0-jwks-rsa.version>0.7.0</auth0-jwks-rsa.version>
+    <auth0-jwks-rsa.version>0.6.0</auth0-jwks-rsa.version>
   </properties>
 
   <modules>
