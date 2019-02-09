@@ -1,6 +1,6 @@
 package io.scalecube.account.api;
 
-public final class PublicKey {
+public final class GetPublicKeyResponse {
 
   private String algorithm;
   private String format;
@@ -12,7 +12,7 @@ public final class PublicKey {
    *
    * @deprecated for instantiation purposes.
    */
-  PublicKey() {}
+  GetPublicKeyResponse() {}
 
   /**
    * Creates new instance with information about public key.
@@ -22,7 +22,7 @@ public final class PublicKey {
    * @param key the encoded key
    * @param keyId the key identifier
    */
-  public PublicKey(String algorithm, String format, byte[] key, String keyId) {
+  public GetPublicKeyResponse(String algorithm, String format, byte[] key, String keyId) {
     this.algorithm = algorithm;
     this.format = format;
     this.key = key;

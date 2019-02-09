@@ -2,8 +2,8 @@ package io.scalecube.organization.repository.couchbase;
 
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
-import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationMember;
+import io.scalecube.organization.Organization;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
 import io.scalecube.organization.repository.couchbase.admin.PasswordGenerator;
 import java.util.Collection;

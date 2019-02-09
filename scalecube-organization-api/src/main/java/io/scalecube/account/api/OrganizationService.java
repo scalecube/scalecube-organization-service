@@ -46,5 +46,5 @@ public interface OrganizationService {
       UpdateOrganizationMemberRoleRequest request);
 
   @ServiceMethod
-  Mono<PublicKey> getPublicKey(String keyId);
+  Mono<GetPublicKeyResponse> getPublicKey(GetPublicKeyRequest request);
 }
