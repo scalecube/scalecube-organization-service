@@ -2,7 +2,6 @@ package io.scalecube.tokens;
 
 import io.scalecube.account.api.Token;
 import io.scalecube.security.Profile;
-
 import java.util.Objects;
 
 public class TokenVerification implements TokenVerifier {

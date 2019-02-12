@@ -2,20 +2,17 @@ package io.scalecube.organization.opearation;
 
 import io.scalecube.account.api.GetOrganizationResponse;
 import io.scalecube.account.api.InvalidAuthenticationToken;
-import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationInfo;
 import io.scalecube.account.api.OrganizationNotFound;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.ServiceOperationException;
 import io.scalecube.account.api.Token;
-
+import io.scalecube.organization.Organization;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
-
 import io.scalecube.security.Profile;
 import io.scalecube.tokens.TokenVerifier;
-
 import java.util.Objects;
 
 
