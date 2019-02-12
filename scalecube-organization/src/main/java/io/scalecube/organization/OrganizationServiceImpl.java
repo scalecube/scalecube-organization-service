@@ -349,7 +349,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         .doOnSuccess(
             response ->
                 logger.debug("getPublicKey: exit: response: {}, request: {}", response, request))
-        .doOnSuccess(response -> logger.debug("getPublicKey: ERROR: request: {}", request));
+        .doOnError(th -> logger.error("getPublicKey: ERROR: {}", th));
   }
 
   public static class Builder {
