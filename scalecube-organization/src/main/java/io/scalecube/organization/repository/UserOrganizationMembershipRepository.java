@@ -1,8 +1,7 @@
 package io.scalecube.organization.repository;
 
-import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationMember;
-
+import io.scalecube.organization.Organization;
 import java.util.Collection;
 import java.util.Optional;
 

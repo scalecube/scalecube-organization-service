@@ -4,9 +4,7 @@ import io.scalecube.account.api.Token;
 import io.scalecube.security.JwtAuthenticator;
 import io.scalecube.security.JwtAuthenticatorImpl;
 import io.scalecube.security.Profile;
-
 import java.security.PublicKey;
-
 import java.util.Objects;
 import java.util.Optional;
 

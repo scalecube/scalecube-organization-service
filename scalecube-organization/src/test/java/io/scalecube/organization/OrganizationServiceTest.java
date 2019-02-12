@@ -12,7 +12,27 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.scalecube.Await;
 import io.scalecube.Await.AwaitLatch;
-import io.scalecube.account.api.*;
+import io.scalecube.account.api.AddOrganizationApiKeyRequest;
+import io.scalecube.account.api.CreateOrganizationRequest;
+import io.scalecube.account.api.CreateOrganizationResponse;
+import io.scalecube.account.api.DeleteOrganizationApiKeyRequest;
+import io.scalecube.account.api.DeleteOrganizationRequest;
+import io.scalecube.account.api.DeleteOrganizationResponse;
+import io.scalecube.account.api.GetMembershipRequest;
+import io.scalecube.account.api.GetOrganizationMembersRequest;
+import io.scalecube.account.api.GetOrganizationRequest;
+import io.scalecube.account.api.InvalidAuthenticationToken;
+import io.scalecube.account.api.InviteOrganizationMemberRequest;
+import io.scalecube.account.api.KickoutOrganizationMemberRequest;
+import io.scalecube.account.api.LeaveOrganizationRequest;
+import io.scalecube.account.api.NotAnOrganizationMemberException;
+import io.scalecube.account.api.OrganizationInfo;
+import io.scalecube.account.api.OrganizationMember;
+import io.scalecube.account.api.OrganizationService;
+import io.scalecube.account.api.Role;
+import io.scalecube.account.api.Token;
+import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
+import io.scalecube.account.api.UpdateOrganizationRequest;
 import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
 import io.scalecube.organization.repository.Repository;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
@@ -22,7 +42,8 @@ import io.scalecube.organization.repository.exception.NameAlreadyInUseException;
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
 import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
 import io.scalecube.security.Profile;
-import java.nio.charset.Charset;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -35,12 +56,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 public class OrganizationServiceTest {
+
+  private static KeyPairGenerator keyPairGenerator;
 
   private final Profile testProfile = new Profile(
       "1",
@@ -108,12 +132,18 @@ public class OrganizationServiceTest {
   private UserOrganizationMembershipRepository orgMembersRepository;
   private OrganizationMembersRepositoryAdmin admin;
 
-  public OrganizationServiceTest() {
+  @BeforeAll
+  static void beforeAll() throws NoSuchAlgorithmException {
+    keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+    keyPairGenerator.initialize(2048);
+  }
+
+  public OrganizationServiceTest() throws NoSuchAlgorithmException {
     init();
     service = createService(testProfile);
   }
 
-  private void init() {
+  private void init() throws NoSuchAlgorithmException {
     orgMembersRepository = new InMemoryUserOrganizationMembershipRepository();
     organizationRepository = new InMemoryOrganizationRepository();
     admin = new OrganizationMembersRepositoryAdmin() {
@@ -1583,6 +1613,7 @@ public class OrganizationServiceTest {
         .organizationMembershipRepository(orgMembersRepository)
         .organizationMembershipRepositoryAdmin(admin)
         .tokenVerifier((t) -> Objects.equals(profile, invalidProfile) ? null : profile)
+        .keyPairGenerator(keyPairGenerator)
         .build();
   }
 

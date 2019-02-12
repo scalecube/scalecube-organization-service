@@ -2,7 +2,6 @@ package io.scalecube.organization.repository.couchbase.admin;
 
 import com.couchbase.client.java.cluster.BucketSettings;
 import com.couchbase.client.java.query.N1qlQueryResult;
-import java.util.List;
 
 /**
  * Factory class for constructing admin operation classes.
