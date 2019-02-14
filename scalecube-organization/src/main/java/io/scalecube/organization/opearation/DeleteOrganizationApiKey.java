@@ -10,17 +10,17 @@ import io.scalecube.tokens.TokenVerifier;
 import java.util.Arrays;
 import java.util.List;
 
-public class DeleteOrganizationApiKey extends ServiceOperation<DeleteOrganizationApiKeyRequest,
-    GetOrganizationResponse> {
+public class DeleteOrganizationApiKey
+    extends ServiceOperation<DeleteOrganizationApiKeyRequest, GetOrganizationResponse> {
 
-  private DeleteOrganizationApiKey(TokenVerifier tokenVerifier,
-      OrganizationsDataAccess repository) {
+  private DeleteOrganizationApiKey(
+      TokenVerifier tokenVerifier, OrganizationsDataAccess repository) {
     super(tokenVerifier, repository);
   }
 
   @Override
-  protected GetOrganizationResponse process(DeleteOrganizationApiKeyRequest request,
-      OperationServiceContext context) throws Throwable {
+  protected GetOrganizationResponse process(
+      DeleteOrganizationApiKeyRequest request, OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
 
     if (organization.apiKeys() == null) {
@@ -30,23 +30,25 @@ public class DeleteOrganizationApiKey extends ServiceOperation<DeleteOrganizatio
     checkSuperUserAccess(organization, context.profile());
 
     List<ApiKey> apiKeys = Arrays.asList(organization.apiKeys());
-    Organization newOrg = Organization.builder().apiKey(apiKeys.stream()
-        .filter(api -> !api.name().equals(request.apiKeyName())).toArray(
-            ApiKey[]::new)).copy(organization);
+    Organization newOrg =
+        Organization.builder()
+            .apiKey(
+                apiKeys
+                    .stream()
+                    .filter(api -> !api.name().equals(request.apiKeyName()))
+                    .toArray(ApiKey[]::new))
+            .copy(organization);
 
     context.repository().updateOrganizationDetails(context.profile(), organization, newOrg);
 
     return getOrganizationResponse(newOrg);
   }
 
-
-
   @Override
-  protected void validate(DeleteOrganizationApiKeyRequest request,
-      OperationServiceContext context) throws Throwable {
+  protected void validate(DeleteOrganizationApiKeyRequest request, OperationServiceContext context)
+      throws Throwable {
     super.validate(request, context);
-    requireNonNullOrEmpty(request.organizationId(),
-        "organizationId is a required argument");
+    requireNonNullOrEmpty(request.organizationId(), "organizationId is a required argument");
     requireNonNullOrEmpty(request.apiKeyName(), "apiKeyName is a required argument");
   }
 

@@ -7,9 +7,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
-/**
- * Default JSON implementation of <code>TranslationService</code>.
- */
+/** Default JSON implementation of <code>TranslationService</code>. */
 class JacksonTranslationService implements TranslationService {
 
   private final ObjectMapper objectMapper = new ObjectMapper();

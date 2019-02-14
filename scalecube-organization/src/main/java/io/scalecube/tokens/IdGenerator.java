@@ -6,14 +6,13 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public final class IdGenerator {
 
-  /**
-   * The default message digest algorithm to use if we cannot use the requested one.
-   */
+  /** The default message digest algorithm to use if we cannot use the requested one. */
   private static final String DEFAULT_ALGORITHM = "MD5";
+
   private static final int DEFAULT_SIZE = 10;
 
-  private static ThreadLocal<MessageDigest> digestHolder = ThreadLocal
-      .withInitial(IdGenerator::getDigest);
+  private static ThreadLocal<MessageDigest> digestHolder =
+      ThreadLocal.withInitial(IdGenerator::getDigest);
 
   /**
    * Generates a unique id using this class default algorithm and byte array size.
@@ -70,13 +69,4 @@ public final class IdGenerator {
     }
     return digest;
   }
-
-  @Override
-  public final String toString() {
-    // This is to make the point that we need toString to return something
-    // that includes some sort of system identifier as does the default.
-    // Don't change this unless you really know what you are doing.
-    return super.toString();
-  }
-
 }

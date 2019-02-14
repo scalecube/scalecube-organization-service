@@ -7,17 +7,16 @@ import io.scalecube.organization.Organization;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.tokens.TokenVerifier;
 
-public class DeleteOrganization extends ServiceOperation<DeleteOrganizationRequest,
-    DeleteOrganizationResponse> {
+public class DeleteOrganization
+    extends ServiceOperation<DeleteOrganizationRequest, DeleteOrganizationResponse> {
 
-  private DeleteOrganization(TokenVerifier tokenVerifier,
-      OrganizationsDataAccess repository) {
+  private DeleteOrganization(TokenVerifier tokenVerifier, OrganizationsDataAccess repository) {
     super(tokenVerifier, repository);
   }
 
   @Override
-  protected DeleteOrganizationResponse process(DeleteOrganizationRequest request,
-      OperationServiceContext context) throws Throwable {
+  protected DeleteOrganizationResponse process(
+      DeleteOrganizationRequest request, OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
     checkOwnerAccess(organization, context.profile());
     context.repository().deleteOrganization(context.profile(), organization);
@@ -28,8 +27,7 @@ public class DeleteOrganization extends ServiceOperation<DeleteOrganizationReque
   protected void validate(DeleteOrganizationRequest request, OperationServiceContext context)
       throws Throwable {
     super.validate(request, context);
-    requireNonNullOrEmpty(request.organizationId(),
-        "organizationId is a required argument");
+    requireNonNullOrEmpty(request.organizationId(), "organizationId is a required argument");
   }
 
   @Override

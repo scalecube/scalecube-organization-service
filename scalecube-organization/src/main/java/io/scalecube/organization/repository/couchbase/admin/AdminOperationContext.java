@@ -5,9 +5,7 @@ import io.scalecube.organization.Organization;
 import io.scalecube.organization.repository.couchbase.CouchbaseSettings;
 import java.util.Objects;
 
-/**
- * Represents a data structure used to execute an admin operation.
- */
+/** Represents a data structure used to execute an admin operation. */
 public final class AdminOperationContext {
   private final CouchbaseSettings settings;
   private final Cluster cluster;
@@ -64,6 +62,7 @@ public final class AdminOperationContext {
 
     /**
      * Constructs an instance of {@link AdminOperationContext} using this builder fields.
+     *
      * @return an instance of {@link AdminOperationContext}
      */
     public AdminOperationContext build() {

@@ -14,23 +14,22 @@ import java.util.HashMap;
 import java.util.Objects;
 
 /**
- * Extracts the public get ID of the get used to sigh the JWT token from the token's header
- * <code>kid</code> claim.
- * <p>
- * This class utilize the auth0 API to retrieve the JSON web public key corresponding to the
- * <code>kid</code> token header claim value.
- * The JWK provider URL is the token's issuer claim value.
- * </p>
+ * Extracts the public get ID of the get used to sigh the JWT token from the token's header <code>
+ * kid</code> claim.
+ *
+ * <p>This class utilize the auth0 API to retrieve the JSON web public key corresponding to the
+ * <code>kid</code> token header claim value. The JWK provider URL is the token's issuer claim
+ * value.
  */
 public class Auth0PublicKeyProvider implements PublicKeyProvider {
 
   private static final String TOKEN_BODY_CLAIM_ISSUER = "token body claim: 'issuer'";
   private static final String FAILED_TO_PARSE_TOKEN = "Failed to parse token";
-  private static final String MISSING_KEY_ID_CLAIM_IN_TOKEN_HEADER
-      = "Token header claim: 'kid' not found.";
+  private static final String MISSING_KEY_ID_CLAIM_IN_TOKEN_HEADER =
+      "Token header claim: 'kid' not found.";
   private static final String KID_CLAIM_NAME = "kid";
-  private static final String FAILED_TO_GET_KEY_FROM_JWK_PROVIDER
-      = "Failed to get public key from JWK provider using kid=%s";
+  private static final String FAILED_TO_GET_KEY_FROM_JWK_PROVIDER =
+      "Failed to get public key from JWK provider using kid=%s";
   private static final String FAILED_TO_GET_PUBLIC_KEY = "Failed to get public key.";
   private final HashMap<String, PublicKey> cache = new HashMap<>();
 

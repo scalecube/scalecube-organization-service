@@ -10,18 +10,16 @@ import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.tokens.TokenVerifier;
 
-public class KickoutMember extends ServiceOperation<KickoutOrganizationMemberRequest,
-    KickoutOrganizationMemberResponse> {
+public class KickoutMember
+    extends ServiceOperation<KickoutOrganizationMemberRequest, KickoutOrganizationMemberResponse> {
 
-  private KickoutMember(TokenVerifier tokenVerifier,
-      OrganizationsDataAccess repository) {
+  private KickoutMember(TokenVerifier tokenVerifier, OrganizationsDataAccess repository) {
     super(tokenVerifier, repository);
   }
 
   @Override
   protected KickoutOrganizationMemberResponse process(
-      KickoutOrganizationMemberRequest request,
-      OperationServiceContext context) throws Throwable {
+      KickoutOrganizationMemberRequest request, OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
     checkSuperUserAccess(organization, context.profile());
     ensureCallerIsInHigherRoleThanKickedOutUser(request, context, organization);
@@ -29,14 +27,17 @@ public class KickoutMember extends ServiceOperation<KickoutOrganizationMemberReq
     return new KickoutOrganizationMemberResponse();
   }
 
-  private void ensureCallerIsInHigherRoleThanKickedOutUser(KickoutOrganizationMemberRequest request,
-      OperationServiceContext context, Organization organization)
-        throws AccessPermissionException, EntityNotFoundException {
+  private void ensureCallerIsInHigherRoleThanKickedOutUser(
+      KickoutOrganizationMemberRequest request,
+      OperationServiceContext context,
+      Organization organization)
+      throws AccessPermissionException, EntityNotFoundException {
     boolean isCallerAdmin = isInRole(context.profile().getUserId(), organization, Role.Admin);
 
     if (isCallerAdmin && isInRole(request.userId(), organization, Role.Owner)) {
       throw new AccessPermissionException(
-          String.format("user: '%s', name: '%s', in Admin role cannot kickout "
+          String.format(
+              "user: '%s', name: '%s', in Admin role cannot kickout "
                   + "user: '%s' in role Owner of organization: '%s'",
               context.profile().getName(),
               context.profile().getUserId(),
@@ -46,11 +47,10 @@ public class KickoutMember extends ServiceOperation<KickoutOrganizationMemberReq
   }
 
   @Override
-  protected void validate(KickoutOrganizationMemberRequest request,
-      OperationServiceContext context) throws Throwable {
+  protected void validate(KickoutOrganizationMemberRequest request, OperationServiceContext context)
+      throws Throwable {
     super.validate(request, context);
-    requireNonNullOrEmpty(request.organizationId(),
-        "organizationId is a required argument");
+    requireNonNullOrEmpty(request.organizationId(), "organizationId is a required argument");
     requireNonNullOrEmpty(request.userId(), "user id is required");
   }
 
