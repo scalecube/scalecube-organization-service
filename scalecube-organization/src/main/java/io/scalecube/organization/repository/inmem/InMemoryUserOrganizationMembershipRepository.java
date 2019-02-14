@@ -1,7 +1,7 @@
 package io.scalecube.organization.repository.inmem;
 
-import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationMember;
+import io.scalecube.organization.Organization;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
 import java.util.Collection;
 import java.util.Collections;

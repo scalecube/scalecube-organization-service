@@ -2,6 +2,7 @@ package io.scalecube.tokens;
 
 import io.scalecube.account.api.ApiKey;
 import io.scalecube.jwt.WebToken;
+import java.security.Key;
 import java.util.Map;
 
 /**
@@ -77,14 +78,14 @@ public class JwtApiKey extends ApiKey {
      * Constructs an API key object and signs it using the <code>secret</code> argument.
      *
      * @param keyId The token signing key id.
-     * @param secretKey The token signing key.
+     * @param signingKey The token signing key.
      * @return an API key.
      */
-    public ApiKey build(String keyId, String secretKey) {
+    public ApiKey build(String keyId, Key signingKey) {
       final WebToken jwt = new WebToken(this.issuer, this.subject);
       final String apiKey = jwt.createToken(this.id, this.audience,
           this.tokenTimeToLiveInMillis,
-          keyId, secretKey, claims);
+          keyId, signingKey, claims);
       return new JwtApiKey(this.name, this.claims, apiKey);
     }
 

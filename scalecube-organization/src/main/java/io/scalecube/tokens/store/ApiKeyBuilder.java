@@ -2,11 +2,12 @@ package io.scalecube.tokens.store;
 
 import io.scalecube.account.api.AddOrganizationApiKeyRequest;
 import io.scalecube.account.api.ApiKey;
-import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.Role;
 import io.scalecube.config.AppConfiguration;
 import io.scalecube.config.LongConfigProperty;
+import io.scalecube.organization.Organization;
 import io.scalecube.tokens.JwtApiKey;
+import java.security.PrivateKey;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,6 +36,8 @@ public final class ApiKeyBuilder {
       tokenClaims.put(ROLE_KEY, Role.Member.toString());
     }
 
+    PrivateKey signingKey = KeyStoreFactory.get().getPrivateKey(organization.keyId());
+
     return JwtApiKey.builder()
         .issuer(ISSUER)
         .subject(organization.id())
@@ -43,7 +46,7 @@ public final class ApiKeyBuilder {
         .id(organization.id())
         .audience(organization.id())
         .expiration(tokenExpiration.value().orElse(null))
-        .build(organization.secretKeyId(), organization.secretKey());
+        .build(organization.keyId(), signingKey);
   }
 
   private static boolean isRoleValid(String role) {

@@ -2,9 +2,9 @@ package io.scalecube.organization.repository;
 
 import static java.util.Objects.requireNonNull;
 
-import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.Role;
+import io.scalecube.organization.Organization;
 import io.scalecube.organization.repository.exception.DuplicateKeyException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.security.Profile;

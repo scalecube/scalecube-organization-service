@@ -2,9 +2,9 @@ package io.scalecube.organization.opearation;
 
 import io.scalecube.account.api.InviteOrganizationMemberRequest;
 import io.scalecube.account.api.InviteOrganizationMemberResponse;
-import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
+import io.scalecube.organization.Organization;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.tokens.TokenVerifier;

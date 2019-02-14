@@ -8,7 +8,6 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
 public class WebToken {
@@ -26,25 +25,14 @@ public class WebToken {
    *
    * @param id Token id.
    * @param ttlMillis Token expiration.
-   * @param secretKey Signing key.
+   * @param signingKey Signing key.
    * @param claims Token claims.
    * @return A string representation of a token.
    */
-  public String createToken(
-      String id,
-      String audience,
-      Long ttlMillis,
-      String keyId,
-      String secretKey,
+  public String createToken(String id, String audience,
+      Long ttlMillis, String keyId, Key signingKey,
       Map<String, String> claims) {
-    return createWebToken(
-        id,
-        issuer,
-        subject,
-        audience,
-        ttlMillis,
-        keyId,
-        secretKey,
+    return createWebToken(id, issuer, subject, audience, ttlMillis, keyId, signingKey,
         claims == null ? new HashMap<>() : claims);
   }
 
@@ -57,25 +45,20 @@ public class WebToken {
    * @param ttlMillis contains ttl information.
    * @return returns string if valid.
    */
-  private static String createWebToken(
-      String id,
+  private String createWebToken(String id,
       String issuer,
       String subject,
       String audience,
       Long ttlMillis,
       String keyId,
-      String secretKey,
+      Key signingKey,
       Map<String, String> claims) {
 
     // The JWT signature algorithm we will be using to sign the token
-    SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
+    SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.RS256;
 
     long nowMillis = System.currentTimeMillis();
     Date now = new Date(nowMillis);
-
-    // We will sign our JWT with our ApiKey secret
-    byte[] apiKeySecretBytes = DatatypeConverter.parseBase64Binary(secretKey);
-    Key signingKey = new SecretKeySpec(apiKeySecretBytes, signatureAlgorithm.getJcaName());
 
     // Let's set the JWT Claims
     JwtBuilder builder =

@@ -2,9 +2,9 @@ package io.scalecube.organization.opearation;
 
 import io.scalecube.account.api.GetMembershipRequest;
 import io.scalecube.account.api.GetMembershipResponse;
-import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationInfo;
 import io.scalecube.account.api.Token;
+import io.scalecube.organization.Organization;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.tokens.TokenVerifier;
 import java.util.Collection;

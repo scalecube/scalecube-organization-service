@@ -1,14 +1,14 @@
 package io.scalecube.tokens;
 
+import com.auth0.jwk.InvalidPublicKeyException;
+import com.auth0.jwk.Jwk;
+import com.auth0.jwk.JwkException;
+import com.auth0.jwk.JwkProvider;
+import com.auth0.jwk.UrlJwkProvider;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
-import io.scalecube.tokens.jwk.InvalidPublicKeyException;
-import io.scalecube.tokens.jwk.Jwk;
-import io.scalecube.tokens.jwk.JwkException;
-import io.scalecube.tokens.jwk.JwkProvider;
-import io.scalecube.tokens.jwk.UrlJwkProvider;
 import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.Objects;
@@ -24,7 +24,7 @@ import java.util.Objects;
  */
 public class Auth0PublicKeyProvider implements PublicKeyProvider {
 
-  public static final String TOKEN_BODY_CLAIM_ISSUER = "token body claim: 'issuer'";
+  private static final String TOKEN_BODY_CLAIM_ISSUER = "token body claim: 'issuer'";
   private static final String FAILED_TO_PARSE_TOKEN = "Failed to parse token";
   private static final String MISSING_KEY_ID_CLAIM_IN_TOKEN_HEADER
       = "Token header claim: 'kid' not found.";
