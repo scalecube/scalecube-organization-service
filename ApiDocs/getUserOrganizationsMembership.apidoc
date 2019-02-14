@@ -1,7 +1,7 @@
 /**
   * @api {ServiceMethod: getUserOrganizationsMembership} /organizations/getUserOrganizationsMembership getUserOrganizationsMembership
   * @apiName GetUserOrganizationsMembership
-  * @apiGroup Organization
+  * @apiGroup Member
   * @apiVersion 0.0.0-CURRENT
   * @apiPermission Request / Response / Error-response
   *
