@@ -19,4 +19,32 @@ public class ApiKey {
   public String key() {
     return this.key;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    ApiKey apiKey = (ApiKey) o;
+
+    if (name != null ? !name.equals(apiKey.name) : apiKey.name != null) {
+      return false;
+    }
+    if (claims != null ? !claims.equals(apiKey.claims) : apiKey.claims != null) {
+      return false;
+    }
+    return key != null ? key.equals(apiKey.key) : apiKey.key == null;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = name != null ? name.hashCode() : 0;
+    result = 31 * result + (claims != null ? claims.hashCode() : 0);
+    result = 31 * result + (key != null ? key.hashCode() : 0);
+    return result;
+  }
 }
