@@ -3,9 +3,7 @@ package io.scalecube.organization.repository.couchbase.admin;
 import com.couchbase.client.java.cluster.BucketSettings;
 import com.couchbase.client.java.query.N1qlQueryResult;
 
-/**
- * Factory class for constructing admin operation classes.
- */
+/** Factory class for constructing admin operation classes. */
 public abstract class AdminOperationsFactory {
   public static Operation<BucketSettings> insertBucket() {
     return new InsertBucketOperation();
@@ -22,5 +20,4 @@ public abstract class AdminOperationsFactory {
   public static Operation<Boolean> deleteRepository() {
     return new DeleteRepositoryOperation();
   }
-
 }

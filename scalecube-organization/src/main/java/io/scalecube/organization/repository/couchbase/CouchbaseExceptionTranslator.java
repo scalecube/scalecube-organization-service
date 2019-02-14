@@ -64,8 +64,7 @@ final class CouchbaseExceptionTranslator {
       return new DataIntegrityViolationException(ex.getMessage(), ex);
     }
 
-    if (ex instanceof RequestCancelledException
-        || ex instanceof BackpressureException) {
+    if (ex instanceof RequestCancelledException || ex instanceof BackpressureException) {
       return new OperationCancellationException(ex.getMessage(), ex);
     }
 
@@ -75,8 +74,7 @@ final class CouchbaseExceptionTranslator {
       return new InvalidDataAccessResourceUsageException(ex.getMessage(), ex);
     }
 
-    if (ex instanceof TemporaryLockFailureException
-        || ex instanceof TemporaryFailureException) {
+    if (ex instanceof TemporaryLockFailureException || ex instanceof TemporaryFailureException) {
       return new TransientDataAccessResourceException(ex.getMessage(), ex);
     }
 
@@ -85,8 +83,8 @@ final class CouchbaseExceptionTranslator {
     }
 
     if (ex instanceof TranscodingException) {
-      //note: the more specific CouchbaseQueryExecutionException should be thrown by the template
-      //when dealing with TranscodingException in the query/n1ql methods.
+      // note: the more specific CouchbaseQueryExecutionException should be thrown by the template
+      // when dealing with TranscodingException in the query/n1ql methods.
       return new DataRetrievalFailureException(ex.getMessage(), ex);
     }
 

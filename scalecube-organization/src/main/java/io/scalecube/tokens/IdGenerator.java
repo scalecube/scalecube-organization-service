@@ -6,9 +6,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public final class IdGenerator {
 
-  /**
-   * The default message digest algorithm to use if we cannot use the requested one.
-   */
+  /** The default message digest algorithm to use if we cannot use the requested one. */
   private static final String DEFAULT_ALGORITHM = "MD5";
 
   private static final int DEFAULT_SIZE = 10;

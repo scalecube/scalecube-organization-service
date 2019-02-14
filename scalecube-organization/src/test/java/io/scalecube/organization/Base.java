@@ -8,7 +8,6 @@ import io.scalecube.account.api.CreateOrganizationRequest;
 import io.scalecube.account.api.CreateOrganizationResponse;
 import io.scalecube.account.api.DeleteOrganizationRequest;
 import io.scalecube.account.api.InviteOrganizationMemberRequest;
-import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
@@ -149,19 +148,17 @@ public class Base {
         .verifyComplete();
   }
 
-  protected void addMemberToOrganization(
-      String organisationId, Profile profile) {
+  protected void addMemberToOrganization(String organisationId, Profile profile) {
     addMemberToOrganization(organisationId, profile, Role.Member);
   }
 
-  protected void addMemberToOrganization(
-      String organisationId, Profile profile, Role role) {
+  protected void addMemberToOrganization(String organisationId, Profile profile, Role role) {
     StepVerifier.create(
-        this.service.inviteMember(
-            new InviteOrganizationMemberRequest(
-                token, organisationId, profile.getUserId(), role.toString())))
-    .assertNext(Assertions::assertNotNull)
-    .verifyComplete();
+            this.service.inviteMember(
+                new InviteOrganizationMemberRequest(
+                    token, organisationId, profile.getUserId(), role.toString())))
+        .assertNext(Assertions::assertNotNull)
+        .verifyComplete();
   }
 
   protected OrganizationService createService(Profile profile) {
@@ -173,7 +170,8 @@ public class Base {
         .build();
   }
 
-  protected static <T> void assertMonoCompletesWithError(Mono<T> mono, Class<? extends Throwable> exception) {
+  protected static <T> void assertMonoCompletesWithError(
+      Mono<T> mono, Class<? extends Throwable> exception) {
     StepVerifier.create(mono).expectSubscription().expectError(exception).verify();
   }
 
@@ -183,9 +181,10 @@ public class Base {
 
   protected Organization createOrganization(String name) {
     AtomicReference<CreateOrganizationResponse> createdOrganizationId = new AtomicReference<>();
-    StepVerifier.create(service.createOrganization(new CreateOrganizationRequest(name, token))).
-      consumeNextWith(createdOrganizationId::set).verifyComplete();
-    
+    StepVerifier.create(service.createOrganization(new CreateOrganizationRequest(name, token)))
+        .consumeNextWith(createdOrganizationId::set)
+        .verifyComplete();
+
     return organizationRepository.findById(createdOrganizationId.get().id()).get();
   }
 
@@ -202,5 +201,4 @@ public class Base {
     organisation = createOrganization(randomString());
     organizationId = organisation.id();
   }
-
 }

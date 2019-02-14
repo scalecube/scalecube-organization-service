@@ -10,17 +10,17 @@ import io.scalecube.organization.Organization;
 import io.scalecube.security.Profile;
 import org.junit.jupiter.api.Test;
 
-
 public class JacksonTranslationServiceTest {
 
-  private final Profile testProfile = Profile.builder()
-      .userId("1")
-      .email("user1@gmail.com")
-      .emailVerified(true)
-      .name("foo")
-      .familyName("fname")
-      .givenName("lname")
-      .build();
+  private final Profile testProfile =
+      Profile.builder()
+          .userId("1")
+          .email("user1@gmail.com")
+          .emailVerified(true)
+          .name("foo")
+          .familyName("fname")
+          .givenName("lname")
+          .build();
 
   @Test
   public void shouldEncodeUser() {
@@ -32,12 +32,11 @@ public class JacksonTranslationServiceTest {
   @Test
   public void shouldEncodeUserOrgMembership() {
     JacksonTranslationService service = new JacksonTranslationService();
-    OrganizationMember member = new OrganizationMember(testProfile.getUserId(),
-        Role.Owner.toString());
+    OrganizationMember member =
+        new OrganizationMember(testProfile.getUserId(), Role.Owner.toString());
     String s = service.encode(member);
     assertNotNull(s);
   }
-
 
   @Test
   public void shouldEncodeOrganization() {

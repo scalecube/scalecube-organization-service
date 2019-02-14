@@ -19,10 +19,10 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
-public class OrganizationMembersTest extends Base {
+class OrganizationMembersTest extends Base {
 
   @Test
-  public void getOrganizationMembers() {
+  void getOrganizationMembers() {
     addMemberToOrganization(organizationId, testProfile4);
     addMemberToOrganization(organizationId, testProfile5);
 
@@ -32,7 +32,8 @@ public class OrganizationMembersTest extends Base {
         .expectSubscription()
         .assertNext(
             response -> {
-              Supplier<Stream<OrganizationMember>> members = () -> Arrays.stream(response.members());
+              Supplier<Stream<OrganizationMember>> members =
+                  () -> Arrays.stream(response.members());
               assertThat(response.members().length, is(3));
               long membersCount =
                   members
@@ -49,21 +50,21 @@ public class OrganizationMembersTest extends Base {
   }
 
   @Test
-  public void getOrganizationMembersEmptyOrgIdShouldFailWithIllegalArgumentException() {
+  void getOrganizationMembersEmptyOrgIdShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         service.getOrganizationMembers(new GetOrganizationMembersRequest("", token)),
         IllegalArgumentException.class);
   }
 
   @Test
-  public void getOrganizationMembersNullOrgIdShouldFailWithNullPointerException() {
+  void getOrganizationMembersNullOrgIdShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.getOrganizationMembers(new GetOrganizationMembersRequest(null, token)),
         NullPointerException.class);
   }
 
   @Test
-  public void getOrganizationMembersEmptyTokenShouldFailWithIllegalArgumentException() {
+  void getOrganizationMembersEmptyTokenShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         service.getOrganizationMembers(
             new GetOrganizationMembersRequest(organizationId, new Token(""))),
@@ -71,14 +72,14 @@ public class OrganizationMembersTest extends Base {
   }
 
   @Test
-  public void getOrganizationMembersNullTokenShouldFailWithNullPointerException() {
+  void getOrganizationMembersNullTokenShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.getOrganizationMembers(new GetOrganizationMembersRequest(organizationId, null)),
         NullPointerException.class);
   }
 
   @Test
-  public void getOrganizationMembersNullInnerTokenShouldFailWithNullPointerException() {
+  void getOrganizationMembersNullInnerTokenShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.getOrganizationMembers(
             new GetOrganizationMembersRequest(organizationId, new Token(null))),
@@ -86,7 +87,7 @@ public class OrganizationMembersTest extends Base {
   }
 
   @Test
-  public void getOrganizationMembersShouldFailWithInvalidAuthenticationToken() {
+  void getOrganizationMembersShouldFailWithInvalidAuthenticationToken() {
     assertMonoCompletesWithError(
         createService(invalidProfile)
             .getOrganizationMembers(new GetOrganizationMembersRequest(organizationId, token)),
@@ -94,7 +95,7 @@ public class OrganizationMembersTest extends Base {
   }
 
   @Test
-  public void getOrganizationMembersShouldFailWithEntityNotFoundException() {
+  void getOrganizationMembersShouldFailWithEntityNotFoundException() {
     assertMonoCompletesWithError(
         service.getOrganizationMembers(new GetOrganizationMembersRequest("orgNotExists", token)),
         EntityNotFoundException.class);

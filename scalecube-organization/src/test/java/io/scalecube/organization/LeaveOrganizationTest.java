@@ -15,10 +15,10 @@ import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
-public class LeaveOrganizationTest extends Base {
+class LeaveOrganizationTest extends Base {
 
   @Test
-  public void leaveOrganization() {
+  void leaveOrganization() {
     addMemberToOrganization(organizationId, testProfile5);
 
     StepVerifier.create(
@@ -44,49 +44,49 @@ public class LeaveOrganizationTest extends Base {
   }
 
   @Test
-  public void leaveOrganizationWithEmptyOrgIdShouldFailWithIllegalArgumentException() {
+  void leaveOrganizationWithEmptyOrgIdShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         service.leaveOrganization(new LeaveOrganizationRequest(token, "")),
         IllegalArgumentException.class);
   }
 
   @Test
-  public void leaveOrganizationWithNullOrgIdShouldFailWithNullPointerException() {
+  void leaveOrganizationWithNullOrgIdShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.leaveOrganization(new LeaveOrganizationRequest(token, null)),
         NullPointerException.class);
   }
 
   @Test
-  public void leaveOrganizationWithNullTokenIdShouldFailWithNullPointerException() {
+  void leaveOrganizationWithNullTokenIdShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.leaveOrganization(new LeaveOrganizationRequest(null, organizationId)),
         NullPointerException.class);
   }
 
   @Test
-  public void leaveOrganizationWithEmptyTokenIdShouldFailWithIllegalArgumentException() {
+  void leaveOrganizationWithEmptyTokenIdShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         service.leaveOrganization(new LeaveOrganizationRequest(new Token(""), organizationId)),
         IllegalArgumentException.class);
   }
 
   @Test
-  public void leaveOrganizationWithNullInnerTokenIdShouldFailWithNullPointerException() {
+  void leaveOrganizationWithNullInnerTokenIdShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.leaveOrganization(new LeaveOrganizationRequest(new Token(null), organizationId)),
         NullPointerException.class);
   }
 
   @Test
-  public void leaveOrganizationOrgNotExistsShouldFailWithEntityNotFoundException() {
+  void leaveOrganizationOrgNotExistsShouldFailWithEntityNotFoundException() {
     assertMonoCompletesWithError(
         service.leaveOrganization(new LeaveOrganizationRequest(token, "orgNotExists")),
         EntityNotFoundException.class);
   }
 
   @Test
-  public void leaveOrganizationInvalidUserShouldFailWithInvalidAuthenticationToken() {
+  void leaveOrganizationInvalidUserShouldFailWithInvalidAuthenticationToken() {
     assertMonoCompletesWithError(
         createService(invalidProfile)
             .leaveOrganization(new LeaveOrganizationRequest(token, "orgNotExists")),

@@ -13,10 +13,10 @@ import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
-public class InviteMemberTest extends Base {
+class InviteMemberTest extends Base {
 
   @Test
-  public void inviteMember() {
+  void inviteMember() {
     addMemberToOrganization(organizationId, testProfile2);
     StepVerifier.create(
             service.getOrganizationMembers(
@@ -26,14 +26,12 @@ public class InviteMemberTest extends Base {
             response ->
                 assertTrue(
                     Arrays.stream(response.members())
-                        .filter(member -> testProfile2.getUserId().equals(member.id()))
-                        .findFirst()
-                        .isPresent()))
+                        .anyMatch(member -> testProfile2.getUserId().equals(member.id()))))
         .verifyComplete();
   }
 
   @Test
-  public void inviteMemberNullRoleShouldFailWithIllegalArgumentException() {
+  void inviteMemberNullRoleShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         service.inviteMember(
             new InviteOrganizationMemberRequest(
@@ -42,7 +40,7 @@ public class InviteMemberTest extends Base {
   }
 
   @Test
-  public void inviteMemberEmptyRoleShouldFailWithIllegalArgumentException() {
+  void inviteMemberEmptyRoleShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         service.inviteMember(
             new InviteOrganizationMemberRequest(
@@ -51,7 +49,7 @@ public class InviteMemberTest extends Base {
   }
 
   @Test
-  public void inviteMemberInvalidRoleShouldFailWithIllegalArgumentException() {
+  void inviteMemberInvalidRoleShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         service.inviteMember(
             new InviteOrganizationMemberRequest(
@@ -60,7 +58,7 @@ public class InviteMemberTest extends Base {
   }
 
   @Test
-  public void inviteMemberHigherRoleShouldFailWithAccessPermissionException() {
+  void inviteMemberHigherRoleShouldFailWithAccessPermissionException() {
     addMemberToOrganization(organizationId, testProfile2, Role.Admin);
     assertMonoCompletesWithError(
         createService(testProfile2)
@@ -71,7 +69,7 @@ public class InviteMemberTest extends Base {
   }
 
   @Test
-  public void inviteMemberEmptyOrgIdShouldFailWithIllegalArgumentException() {
+  void inviteMemberEmptyOrgIdShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         service.inviteMember(
             new InviteOrganizationMemberRequest(
@@ -80,7 +78,7 @@ public class InviteMemberTest extends Base {
   }
 
   @Test
-  public void inviteMemberNullOrgIdShouldFailWithNullPointerException() {
+  void inviteMemberNullOrgIdShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.inviteMember(
             new InviteOrganizationMemberRequest(
@@ -89,7 +87,7 @@ public class InviteMemberTest extends Base {
   }
 
   @Test
-  public void inviteMemberEmptyUserIdShouldFailWithIllegalArgumentException() {
+  void inviteMemberEmptyUserIdShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         service.inviteMember(
             new InviteOrganizationMemberRequest(token, organizationId, "", Role.Member.toString())),
@@ -97,7 +95,7 @@ public class InviteMemberTest extends Base {
   }
 
   @Test
-  public void inviteMemberNullUserIdShouldFailWithNullPointerException() {
+  void inviteMemberNullUserIdShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.inviteMember(
             new InviteOrganizationMemberRequest(
@@ -106,7 +104,7 @@ public class InviteMemberTest extends Base {
   }
 
   @Test
-  public void inviteMemberEmptyTokenShouldFailWithIllegalArgumentException() {
+  void inviteMemberEmptyTokenShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         service.inviteMember(
             new InviteOrganizationMemberRequest(
@@ -115,7 +113,7 @@ public class InviteMemberTest extends Base {
   }
 
   @Test
-  public void inviteMemberNullTokenShouldFailWithNullPointerException() {
+  void inviteMemberNullTokenShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.inviteMember(
             new InviteOrganizationMemberRequest(
@@ -124,7 +122,7 @@ public class InviteMemberTest extends Base {
   }
 
   @Test
-  public void inviteMemberNullInnerTokenShouldFailWithNullPointerException() {
+  void inviteMemberNullInnerTokenShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.inviteMember(
             new InviteOrganizationMemberRequest(
@@ -133,7 +131,7 @@ public class InviteMemberTest extends Base {
   }
 
   @Test
-  public void inviteMemberOrgNotExistsShouldFailWithEntityNotFoundException() {
+  void inviteMemberOrgNotExistsShouldFailWithEntityNotFoundException() {
     assertMonoCompletesWithError(
         service.inviteMember(
             new InviteOrganizationMemberRequest(
@@ -142,7 +140,7 @@ public class InviteMemberTest extends Base {
   }
 
   @Test
-  public void inviteMemberShouldFailWithInvalidAuthenticationToken() {
+  void inviteMemberShouldFailWithInvalidAuthenticationToken() {
     assertMonoCompletesWithError(
         createService(invalidProfile)
             .inviteMember(

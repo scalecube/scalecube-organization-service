@@ -7,5 +7,4 @@ public class OrganizationNotFound extends Throwable {
   public OrganizationNotFound(String organizationId) {
     super("organization was found id:[" + organizationId + "]");
   }
-
 }

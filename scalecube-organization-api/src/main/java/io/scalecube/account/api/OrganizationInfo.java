@@ -1,9 +1,6 @@
 package io.scalecube.account.api;
 
-/**
- * Organization information data transfer object.
- *
- */
+/** Organization information data transfer object. */
 public class OrganizationInfo {
 
   private ApiKey[] apiKeys;
@@ -12,7 +9,6 @@ public class OrganizationInfo {
   private String email;
 
   public OrganizationInfo() {}
-
 
   protected OrganizationInfo(Builder builder) {
     this.apiKeys = builder.apiKeys;
@@ -24,8 +20,8 @@ public class OrganizationInfo {
   @Override
   public String toString() {
     return super.toString()
-        + String.format(" [id=%s, name=%s, apiKeys=%s, email=%s]", id(), name(),
-        apiKeys().length, email());
+        + String.format(
+            " [id=%s, name=%s, apiKeys=%s, email=%s]", id(), name(), apiKeys().length, email());
   }
 
   public ApiKey[] apiKeys() {

@@ -12,15 +12,8 @@ import reactor.test.StepVerifier;
 
 class GetOrganizationTest extends Base {
 
-  /**
-   * #MPA-7229 (#2) Scenario: Successful info get about specific Organization Given the user "A"
-   * have got a valid "token" issued by relevant authority And only single organization
-   * "organizationId" with specified "name" and "email" already created and owned by user "A" When
-   * the user "A" requested to get the own organization info Then user "A" should receive the
-   * successful response with relevant organization data
-   */
   @Test
-  public void getOrganization() {
+  void getOrganization() {
     StepVerifier.create(service.getOrganization(new GetOrganizationRequest(token, organizationId)))
         .expectSubscription()
         .assertNext(response -> assertEquals(response.id(), organizationId))
@@ -29,7 +22,7 @@ class GetOrganizationTest extends Base {
   }
 
   @Test
-  public void getOrganizationNotMemberShouldFailWithAccessPermissionException() {
+  void getOrganizationNotMemberShouldFailWithAccessPermissionException() {
     assertMonoCompletesWithError(
         createService(testProfile5)
             .getOrganization(new GetOrganizationRequest(new Token("foo"), organizationId)),
@@ -37,14 +30,14 @@ class GetOrganizationTest extends Base {
   }
 
   @Test
-  public void getOrganizationShouldFailWithEntityNotFoundException() {
+  void getOrganizationShouldFailWithEntityNotFoundException() {
     assertMonoCompletesWithError(
         service.getOrganization(new GetOrganizationRequest(token, "bla")),
         EntityNotFoundException.class);
   }
 
   @Test
-  public void getOrganizationShouldFailWithInvalidAuthenticationToken() {
+  void getOrganizationShouldFailWithInvalidAuthenticationToken() {
     assertMonoCompletesWithError(
         createService(invalidProfile)
             .getOrganization(new GetOrganizationRequest(token, organizationId)),
@@ -52,21 +45,21 @@ class GetOrganizationTest extends Base {
   }
 
   @Test
-  public void getOrganizationWithEmptyIdShouldFailWithIllegalArgumentException() {
+  void getOrganizationWithEmptyIdShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         createService(testProfile).getOrganization(new GetOrganizationRequest(token, "")),
         IllegalArgumentException.class);
   }
 
   @Test
-  public void getOrganizationWithNullIdShouldFailWithNullPointerException() {
+  void getOrganizationWithNullIdShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         createService(testProfile).getOrganization(new GetOrganizationRequest(token, null)),
         NullPointerException.class);
   }
 
   @Test
-  public void getOrganizationWithNullTokenShouldFailWithNullPointerException() {
+  void getOrganizationWithNullTokenShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         createService(testProfile)
             .getOrganization(new GetOrganizationRequest(null, organizationId)),
@@ -74,7 +67,7 @@ class GetOrganizationTest extends Base {
   }
 
   @Test
-  public void getOrganizationWithInvalidTokenShouldFailWithInvalidAuthenticationToken() {
+  void getOrganizationWithInvalidTokenShouldFailWithInvalidAuthenticationToken() {
     assertMonoCompletesWithError(
         createService(invalidProfile)
             .getOrganization(new GetOrganizationRequest(token, organizationId)),
@@ -82,7 +75,7 @@ class GetOrganizationTest extends Base {
   }
 
   @Test
-  public void getOrganizationWithIdNotExistsShouldFailWithEntityNotFoundException() {
+  void getOrganizationWithIdNotExistsShouldFailWithEntityNotFoundException() {
     assertMonoCompletesWithError(
         createService(testProfile)
             .getOrganization(new GetOrganizationRequest(token, "orgIdNotExists")),
@@ -90,7 +83,7 @@ class GetOrganizationTest extends Base {
   }
 
   @Test
-  public void getOrganizationWithEmptyTokenShouldFailWithIllegalArgumentException() {
+  void getOrganizationWithEmptyTokenShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         createService(testProfile).getOrganization(new GetOrganizationRequest(new Token(""), "")),
         IllegalArgumentException.class);

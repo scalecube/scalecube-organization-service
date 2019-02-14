@@ -1,9 +1,6 @@
 package io.scalecube.account.api;
 
-
-/**
- * Represents a request to create a new organization.
- */
+/** Represents a request to create a new organization. */
 public class CreateOrganizationRequest {
 
   private String name;
@@ -15,8 +12,7 @@ public class CreateOrganizationRequest {
    *
    * @deprecated only for serialization/deserialization.
    */
-  CreateOrganizationRequest() {
-  }
+  CreateOrganizationRequest() {}
 
   /**
    * Constructs a request to create a new organization.
@@ -39,8 +35,6 @@ public class CreateOrganizationRequest {
 
   @Override
   public String toString() {
-    return super.toString()
-        + String.format(" [name=%s, token=%s]",
-            name, token);
+    return super.toString() + String.format(" [name=%s, token=%s]", name, token);
   }
 }

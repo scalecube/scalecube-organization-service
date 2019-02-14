@@ -9,14 +9,13 @@ import io.scalecube.tokens.TokenVerifier;
 public abstract class OrganizationInfoOperation<I, O> extends ServiceOperation<I, O> {
   private static final String VALID_ORG_NAME_CHARS_REGEX = "^[.%a-zA-Z0-9_-]*$";
 
-  protected OrganizationInfoOperation(TokenVerifier tokenVerifier,
-      OrganizationsDataAccess repository) {
+  protected OrganizationInfoOperation(
+      TokenVerifier tokenVerifier, OrganizationsDataAccess repository) {
     super(tokenVerifier, repository);
   }
 
   protected void validate(OrganizationInfo info, OperationServiceContext context) {
-    requireNonNullOrEmpty(info.id(),
-        "organizationId is a required argument");
+    requireNonNullOrEmpty(info.id(), "organizationId is a required argument");
     requireNonNullOrEmpty(info.email(), "Organization email cannot be empty");
     requireNonNullOrEmpty(info.name(), "Organization name cannot be empty");
     boolean invalidOrgNameValid = !info.name().matches(VALID_ORG_NAME_CHARS_REGEX);
@@ -29,8 +28,7 @@ public abstract class OrganizationInfoOperation<I, O> extends ServiceOperation<I
 
     if (context.repository().existByName(info.name())) {
       throw new NameAlreadyInUseException(
-          String.format("Organization name: '%s' already in use.",
-              info.name()));
+          String.format("Organization name: '%s' already in use.", info.name()));
     }
   }
 }

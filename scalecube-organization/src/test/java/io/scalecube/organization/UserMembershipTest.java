@@ -20,10 +20,10 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
-public class UserMembershipTest extends Base {
+class UserMembershipTest extends Base {
 
   @Test
-  public void getUserOrganizationsMembership() {
+  void getUserOrganizationsMembership() {
     String orgId1 = createOrganization("testOrg1").id();
     String orgId2 = createOrganization("testOrg2").id();
     addMemberToOrganization(organizationId, testProfile);
@@ -52,7 +52,7 @@ public class UserMembershipTest extends Base {
   }
 
   @Test
-  public void getUserMembershipInvalidUserShouldFailWithInvalidAuthenticationToken() {
+  void getUserMembershipInvalidUserShouldFailWithInvalidAuthenticationToken() {
     assertMonoCompletesWithError(
         createService(invalidProfile)
             .getUserOrganizationsMembership(new GetMembershipRequest(token)),
@@ -60,28 +60,28 @@ public class UserMembershipTest extends Base {
   }
 
   @Test
-  public void getUserMembershipNullTokenShouldFailWithNullPointerException() {
+  void getUserMembershipNullTokenShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.getUserOrganizationsMembership(new GetMembershipRequest(null)),
         NullPointerException.class);
   }
 
   @Test
-  public void getUserMembershipNullInnerTokenShouldFailWithNullPointerException() {
+  void getUserMembershipNullInnerTokenShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.getUserOrganizationsMembership(new GetMembershipRequest(new Token(null))),
         NullPointerException.class);
   }
 
   @Test
-  public void getUserMembershipEmptyInnerTokenShouldFailWithIllegalArgumentException() {
+  void getUserMembershipEmptyInnerTokenShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         service.getUserOrganizationsMembership(new GetMembershipRequest(new Token(""))),
         IllegalArgumentException.class);
   }
 
   @Test
-  public void getOrganizationMembership() {
+  void getOrganizationMembership() {
     addMemberToOrganization(organizationId, testProfile);
     assertGetOrganizationsMembership(organizationId, testProfile);
   }

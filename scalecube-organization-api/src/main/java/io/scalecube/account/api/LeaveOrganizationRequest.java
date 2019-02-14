@@ -11,8 +11,7 @@ public class LeaveOrganizationRequest {
    *
    * @deprecated only for serialization/deserialization.
    */
-  LeaveOrganizationRequest() {
-  }
+  LeaveOrganizationRequest() {}
 
   public LeaveOrganizationRequest(Token token, String organizationId) {
     this.token = token;

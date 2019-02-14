@@ -29,10 +29,21 @@ public class WebToken {
    * @param claims Token claims.
    * @return A string representation of a token.
    */
-  public String createToken(String id, String audience,
-      Long ttlMillis, String keyId, Key signingKey,
+  public String createToken(
+      String id,
+      String audience,
+      Long ttlMillis,
+      String keyId,
+      Key signingKey,
       Map<String, String> claims) {
-    return createWebToken(id, issuer, subject, audience, ttlMillis, keyId, signingKey,
+    return createWebToken(
+        id,
+        issuer,
+        subject,
+        audience,
+        ttlMillis,
+        keyId,
+        signingKey,
         claims == null ? new HashMap<>() : claims);
   }
 
@@ -45,7 +56,8 @@ public class WebToken {
    * @param ttlMillis contains ttl information.
    * @return returns string if valid.
    */
-  private String createWebToken(String id,
+  private String createWebToken(
+      String id,
       String issuer,
       String subject,
       String audience,

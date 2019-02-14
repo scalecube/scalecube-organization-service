@@ -13,8 +13,7 @@ class PublicKeyProviderFactory {
       AppConfiguration.configRegistry().stringProperty("public.key.provider");
   private static Class<?> publicKeyProvider;
 
-  private PublicKeyProviderFactory() {
-  }
+  private PublicKeyProviderFactory() {}
 
   /**
    * Reads the PublicKeyProvider class name from app settings and return an instance.

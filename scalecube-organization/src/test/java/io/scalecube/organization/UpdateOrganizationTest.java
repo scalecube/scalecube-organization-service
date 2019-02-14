@@ -9,7 +9,6 @@ import io.scalecube.account.api.AddOrganizationApiKeyRequest;
 import io.scalecube.account.api.GetOrganizationMembersRequest;
 import io.scalecube.account.api.InvalidAuthenticationToken;
 import io.scalecube.account.api.NotAnOrganizationMemberException;
-import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
@@ -25,18 +24,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
-public class UpdateOrganizationTest extends Base {
+class UpdateOrganizationTest extends Base {
 
-  /**
-   * #MPA-7229 (#1.2) Scenario: Fail to create the Organization with the name which already exists
-   * (duplicate) Given the user "A" have got a valid "token" issued by relevant authority And the
-   * organization "organizationId" with specified "name" and "email" already created and owned by
-   * user "B" When the user "A" requested to create the organization with the existent user's "B"
-   * organization "name" and some or the same "email" Then user "A" should get an error message:
-   * "Organization name: 'org "B" name' already in use"
-   */
   @Test
-  public void updateOrganizationWithExistingOrgNameShouldFailWithNameAlreadyInUseException() {
+  void updateOrganizationWithExistingOrgNameShouldFailWithNameAlreadyInUseException() {
     Organization localOrganization = createOrganization(randomString());
     assertMonoCompletesWithError(
         service.updateOrganization(
@@ -46,7 +37,7 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void updateOrganizationWithIdNotExistsShouldFailWithEntityNotFoundException() {
+  void updateOrganizationWithIdNotExistsShouldFailWithEntityNotFoundException() {
     assertMonoCompletesWithError(
         service.updateOrganization(
             new UpdateOrganizationRequest("orgNotExists", token, "update_name", "update@email")),
@@ -54,7 +45,7 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void updateOrganizationWithEmptyIdShouldFailWithIllegalArgumentException() {
+  void updateOrganizationWithEmptyIdShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         service.updateOrganization(
             new UpdateOrganizationRequest("", token, "update_name", "update@email")),
@@ -62,7 +53,7 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void updateOrganizationWithInvalidTokenShouldFailWithInvalidToken() {
+  void updateOrganizationWithInvalidTokenShouldFailWithInvalidToken() {
     assertMonoCompletesWithError(
         createService(invalidProfile)
             .updateOrganization(
@@ -72,7 +63,7 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void updateOrganizationWithNullTokenShouldFailWithNullPointerException() {
+  void updateOrganizationWithNullTokenShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         createService(invalidProfile)
             .updateOrganization(
@@ -81,7 +72,7 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void updateOrganizationWithNullNameShouldFailWithNullPointerException() {
+  void updateOrganizationWithNullNameShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         createService(testProfile)
             .updateOrganization(
@@ -90,7 +81,7 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void updateOrganizationWithNullEmailShouldFailWithNullPointerException() {
+  void updateOrganizationWithNullEmailShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         createService(testProfile)
             .updateOrganization(new UpdateOrganizationRequest(organizationId, token, "name", null)),
@@ -98,7 +89,7 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void updateOrganizationWithEmptyNameShouldFailWithIllegalArgumentException() {
+  void updateOrganizationWithEmptyNameShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         createService(testProfile)
             .updateOrganization(
@@ -107,7 +98,7 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void updateOrganizationWithEmptyEmailShouldFailWithIllegalArgumentException() {
+  void updateOrganizationWithEmptyEmailShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         createService(testProfile)
             .updateOrganization(new UpdateOrganizationRequest(organizationId, token, "name", "")),
@@ -115,7 +106,7 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void updateOrganizationNotAMemberShouldFail() {
+  void updateOrganizationNotAMemberShouldFail() {
     assertMonoCompletesWithError(
         createService(testProfile5)
             .updateOrganization(
@@ -125,7 +116,7 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void updateOrganizationNotAdminShouldFail() {
+  void updateOrganizationNotAdminShouldFail() {
     orgMembersRepository.addMember(
         getOrganizationFromRepository(organizationId),
         new OrganizationMember(testProfile2.getUserId(), Role.Member.toString()));
@@ -138,16 +129,17 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void updateOrganization() {
+  void updateOrganization() {
     orgMembersRepository.addMember(
         getOrganizationFromRepository(organizationId),
         new OrganizationMember(testAdminProfile.getUserId(), Role.Admin.toString()));
- 
-    StepVerifier.create(service.addOrganizationApiKey(
-        new AddOrganizationApiKeyRequest(
-            token, organizationId, "testApiKey", new HashMap<>())))
-    .assertNext(Assertions::assertNotNull)
-    .verifyComplete();
+
+    StepVerifier.create(
+            service.addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(
+                    token, organizationId, "testApiKey", new HashMap<>())))
+        .assertNext(Assertions::assertNotNull)
+        .verifyComplete();
 
     StepVerifier.create(
             createService(testAdminProfile)
@@ -165,7 +157,7 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void updateOrganizationMemberRole() {
+  void updateOrganizationMemberRole() {
     addMemberToOrganization(organizationId, testProfile5);
     StepVerifier.create(
             service.updateOrganizationMemberRole(
@@ -192,7 +184,7 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void updateOrganizationMemberRoleNotMemberShouldFail() {
+  void updateOrganizationMemberRoleNotMemberShouldFail() {
     StepVerifier.create(
             service.updateOrganizationMemberRole(
                 new UpdateOrganizationMemberRoleRequest(
@@ -202,7 +194,7 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void updateOrganizationMemberRoleNotaSuperUserShouldFail() {
+  void updateOrganizationMemberRoleNotaSuperUserShouldFail() {
     addMemberToOrganization(organizationId, testProfile5);
     addMemberToOrganization(organizationId, testProfile2);
     assertMonoCompletesWithError(
@@ -214,18 +206,18 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void updateOrganizationMemberRoleCallerNotOwnerTryingToPromoteToOwnerShouldFail() {
+  void updateOrganizationMemberRoleCallerNotOwnerTryingToPromoteToOwnerShouldFail() {
     addMemberToOrganization(organizationId, testProfile5);
     addMemberToOrganization(organizationId, testProfile2);
 
     // upgrade to admin
     StepVerifier.create(
-        service.updateOrganizationMemberRole(
-            new UpdateOrganizationMemberRoleRequest(
-                token, organizationId, testProfile2.getUserId(), Role.Admin.toString())))
-    .assertNext(Assertions::assertNotNull)
-    .verifyComplete();
-    
+            service.updateOrganizationMemberRole(
+                new UpdateOrganizationMemberRoleRequest(
+                    token, organizationId, testProfile2.getUserId(), Role.Admin.toString())))
+        .assertNext(Assertions::assertNotNull)
+        .verifyComplete();
+
     assertMonoCompletesWithError(
         createService(testProfile2)
             .updateOrganizationMemberRole(
@@ -235,26 +227,26 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void updateOrganizationMemberRoleCallerNotOwnerTryingToDowngradeUserShouldFail() {
+  void updateOrganizationMemberRoleCallerNotOwnerTryingToDowngradeUserShouldFail() {
     addMemberToOrganization(organizationId, testProfile5);
     addMemberToOrganization(organizationId, testProfile2);
 
     // upgrade to owner
-    
+
     StepVerifier.create(
-        service.updateOrganizationMemberRole(
-            new UpdateOrganizationMemberRoleRequest(
-                token, organizationId, testProfile5.getUserId(), Role.Owner.toString())))
-    .assertNext(Assertions::assertNotNull)
-    .verifyComplete();
-    
+            service.updateOrganizationMemberRole(
+                new UpdateOrganizationMemberRoleRequest(
+                    token, organizationId, testProfile5.getUserId(), Role.Owner.toString())))
+        .assertNext(Assertions::assertNotNull)
+        .verifyComplete();
+
     // upgrade to admin
     StepVerifier.create(
-        service.updateOrganizationMemberRole(
-            new UpdateOrganizationMemberRoleRequest(
-                token, organizationId, testProfile2.getUserId(), Role.Admin.toString())))
-    .assertNext(Assertions::assertNotNull)
-    .verifyComplete();
+            service.updateOrganizationMemberRole(
+                new UpdateOrganizationMemberRoleRequest(
+                    token, organizationId, testProfile2.getUserId(), Role.Admin.toString())))
+        .assertNext(Assertions::assertNotNull)
+        .verifyComplete();
 
     // admin tries to downgrade an owner should fail
     assertMonoCompletesWithError(
@@ -266,7 +258,7 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void updateOrganizationMemberRoleWithNullUserIdShouldFailWithNullPointerException() {
+  void updateOrganizationMemberRoleWithNullUserIdShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.updateOrganizationMemberRole(
             new UpdateOrganizationMemberRoleRequest(
@@ -275,7 +267,7 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void updateOrganizationMemberRoleWithEmptyUserIdShouldFailWithIllegalArgumentException() {
+  void updateOrganizationMemberRoleWithEmptyUserIdShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         service.updateOrganizationMemberRole(
             new UpdateOrganizationMemberRoleRequest(
@@ -284,7 +276,7 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void updateOrganizationMemberRoleWithNullOrgIdShouldFailWithNullPointerException() {
+  void updateOrganizationMemberRoleWithNullOrgIdShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.updateOrganizationMemberRole(
             new UpdateOrganizationMemberRoleRequest(
@@ -293,7 +285,7 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void updateOrganizationMemberRoleWithEmptyOrgIdShouldFailWithIllegalArgumentException() {
+  void updateOrganizationMemberRoleWithEmptyOrgIdShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         service.updateOrganizationMemberRole(
             new UpdateOrganizationMemberRoleRequest(
@@ -302,7 +294,7 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void updateOrganizationMemberRoleWithNonExistOrgShouldFailWithEntityNotFoundException() {
+  void updateOrganizationMemberRoleWithNonExistOrgShouldFailWithEntityNotFoundException() {
     assertMonoCompletesWithError(
         service.updateOrganizationMemberRole(
             new UpdateOrganizationMemberRoleRequest(
@@ -311,7 +303,7 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void updateOrganizationMemberRoleWithNullTokenShouldFailWithNullPointerException() {
+  void updateOrganizationMemberRoleWithNullTokenShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.updateOrganizationMemberRole(
             new UpdateOrganizationMemberRoleRequest(
@@ -320,7 +312,7 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void updateOrganizationMemberRoleWithNullInnerTokenShouldFailWithNullPointerException() {
+  void updateOrganizationMemberRoleWithNullInnerTokenShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.updateOrganizationMemberRole(
             new UpdateOrganizationMemberRoleRequest(
@@ -329,7 +321,7 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void
+  void
       updateOrganizationMemberRoleWithEmptyInnerTokenShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         service.updateOrganizationMemberRole(
@@ -339,7 +331,7 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void updateOrganizationMemberRoleWithEmptyRoleShouldFailWithIllegalArgumentException() {
+  void updateOrganizationMemberRoleWithEmptyRoleShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         service.updateOrganizationMemberRole(
             new UpdateOrganizationMemberRoleRequest(
@@ -348,7 +340,7 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void updateOrganizationMemberRoleWithNullRoleShouldFailWithNullPointerException() {
+  void updateOrganizationMemberRoleWithNullRoleShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.updateOrganizationMemberRole(
             new UpdateOrganizationMemberRoleRequest(
@@ -357,7 +349,7 @@ public class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  public void
+  void
       updateOrganizationMemberRoleInvalidRoleEnumValueShouldFailWithIllegalArgumentException() {
     addMemberToOrganization(organizationId, testProfile5);
 

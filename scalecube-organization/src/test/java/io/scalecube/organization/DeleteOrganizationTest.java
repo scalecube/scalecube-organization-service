@@ -9,10 +9,10 @@ import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
-public class DeleteOrganizationTest extends Base {
+class DeleteOrganizationTest extends Base {
 
   @Test
-  public void deleteOrganizationInvalidTokenShouldFailWithInvalidAuthenticationToken() {
+  void deleteOrganizationInvalidTokenShouldFailWithInvalidAuthenticationToken() {
 
     assertMonoCompletesWithError(
         createService(invalidProfile)
@@ -21,7 +21,7 @@ public class DeleteOrganizationTest extends Base {
   }
 
   @Test
-  public void deleteOrganizationWithIdNotExistsShouldFailWithEntityNotFoundException() {
+  void deleteOrganizationWithIdNotExistsShouldFailWithEntityNotFoundException() {
 
     assertMonoCompletesWithError(
         createService(testProfile)
@@ -30,7 +30,7 @@ public class DeleteOrganizationTest extends Base {
   }
 
   @Test
-  public void deleteOrganizationWithEmptyIdShouldFailWithIllegalArgumentException() {
+  void deleteOrganizationWithEmptyIdShouldFailWithIllegalArgumentException() {
 
     assertMonoCompletesWithError(
         createService(testProfile).deleteOrganization(new DeleteOrganizationRequest(token, "")),
@@ -38,7 +38,7 @@ public class DeleteOrganizationTest extends Base {
   }
 
   @Test
-  public void deleteOrganizationWithNullIdShouldFailWithNullPointerException() {
+  void deleteOrganizationWithNullIdShouldFailWithNullPointerException() {
 
     assertMonoCompletesWithError(
         createService(testProfile).deleteOrganization(new DeleteOrganizationRequest(token, null)),
@@ -46,7 +46,7 @@ public class DeleteOrganizationTest extends Base {
   }
 
   @Test
-  public void deleteOrganizationWithNullTokenShouldFailWithNullPointerException() {
+  void deleteOrganizationWithNullTokenShouldFailWithNullPointerException() {
 
     assertMonoCompletesWithError(
         createService(testProfile)
@@ -55,23 +55,15 @@ public class DeleteOrganizationTest extends Base {
   }
 
   @Test
-  public void deleteOrganizationWithEmptyTokenShouldFailWithIllegalArgumentException() {
+  void deleteOrganizationWithEmptyTokenShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         createService(testProfile)
             .deleteOrganization(new DeleteOrganizationRequest(new Token(""), organizationId)),
         IllegalArgumentException.class);
   }
-  
-/**
- *   #MPA-7229 (#4)
-*  Scenario: Successful delete of specific Organization
-*    Given the user "A" have got a valid "token" issued by relevant authority
-*    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-*    When the user "A" requested to delete own organization "organizationId"
-*   Then user "A" should receive the successful response object: "deleted":true,"organizationId":"org "A" organizationId"
- */
+
   @Test
-  public void deleteOrganization() {
+  void deleteOrganization() {
     String id = createRandomOrganization();
     StepVerifier.create(service.deleteOrganization(new DeleteOrganizationRequest(token, id)))
         .assertNext(response -> assertTrue(response.deleted()))

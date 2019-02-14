@@ -7,17 +7,16 @@ import io.scalecube.organization.Organization;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.tokens.TokenVerifier;
 
-public class GetOrganization extends ServiceOperation<GetOrganizationRequest,
-    GetOrganizationResponse> {
+public class GetOrganization
+    extends ServiceOperation<GetOrganizationRequest, GetOrganizationResponse> {
 
-  private GetOrganization(TokenVerifier tokenVerifier,
-      OrganizationsDataAccess repository) {
+  private GetOrganization(TokenVerifier tokenVerifier, OrganizationsDataAccess repository) {
     super(tokenVerifier, repository);
   }
 
   @Override
-  protected GetOrganizationResponse process(GetOrganizationRequest request,
-      OperationServiceContext context) throws Throwable {
+  protected GetOrganizationResponse process(
+      GetOrganizationRequest request, OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
     checkMemberAccess(organization, context.profile());
     return getOrganizationResponse(organization);
@@ -27,8 +26,7 @@ public class GetOrganization extends ServiceOperation<GetOrganizationRequest,
   protected void validate(GetOrganizationRequest request, OperationServiceContext context)
       throws Throwable {
     super.validate(request, context);
-    requireNonNullOrEmpty(request.organizationId(),
-        "organizationId is a required argument");
+    requireNonNullOrEmpty(request.organizationId(), "organizationId is a required argument");
   }
 
   @Override

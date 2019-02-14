@@ -1,8 +1,6 @@
 package io.scalecube.account.api;
 
-/**
- * Represents an access token.
- */
+/** Represents an access token. */
 public class Token {
 
   private String token;
@@ -11,7 +9,7 @@ public class Token {
 
   /**
    * Token information.
-   * 
+   *
    * @param token the jwt token string.
    */
   public Token(String token) {
@@ -21,7 +19,7 @@ public class Token {
   public String token() {
     return this.token;
   }
-  
+
   @Override
   public String toString() {
     return "Token [" + token + "]";

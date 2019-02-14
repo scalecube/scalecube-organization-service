@@ -1,8 +1,6 @@
 package io.scalecube.account.api;
 
-/**
- * Delete organization API key API call request.
- */
+/** Delete organization API key API call request. */
 public class DeleteOrganizationApiKeyRequest {
 
   private Token token;
@@ -14,8 +12,7 @@ public class DeleteOrganizationApiKeyRequest {
    *
    * @deprecated only for serialization/deserialization.
    */
-  DeleteOrganizationApiKeyRequest() {
-  }
+  DeleteOrganizationApiKeyRequest() {}
 
   /**
    * Construct a request object to delete an organization API key request.
@@ -45,7 +42,7 @@ public class DeleteOrganizationApiKeyRequest {
   @Override
   public String toString() {
     return super.toString()
-        + String.format(" [organizationId=%s, apiKeyName=%s, token=%s]", organizationId,
-        apiKeyName, token);
+        + String.format(
+            " [organizationId=%s, apiKeyName=%s, token=%s]", organizationId, apiKeyName, token);
   }
 }

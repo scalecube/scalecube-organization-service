@@ -13,8 +13,7 @@ import java.util.Optional;
  * @param <T> This repository entity type.
  * @param <I> This repository entity I type.
  */
-public abstract class InMemoryEntityRepository<T, I>
-    implements Repository<T, I> {
+public abstract class InMemoryEntityRepository<T, I> implements Repository<T, I> {
 
   private final HashMap<I, T> entities = new HashMap<>();
 
@@ -24,18 +23,20 @@ public abstract class InMemoryEntityRepository<T, I>
       return false;
     }
     try {
-      Field field = entities.values().iterator().next().getClass()
-          .getDeclaredField(propertyName);
+      Field field = entities.values().iterator().next().getClass().getDeclaredField(propertyName);
       field.setAccessible(true);
-      return entities.values().stream()
-          .anyMatch(i -> {
-            try {
-              return Objects.equals(field.get(i), propertyValue);
-            } catch (IllegalAccessException e) {
-              e.printStackTrace();
-              return false;
-            }
-          });
+      return entities
+          .values()
+          .stream()
+          .anyMatch(
+              i -> {
+                try {
+                  return Objects.equals(field.get(i), propertyValue);
+                } catch (IllegalAccessException e) {
+                  e.printStackTrace();
+                  return false;
+                }
+              });
     } catch (NoSuchFieldException e) {
       e.printStackTrace();
     }
@@ -44,9 +45,7 @@ public abstract class InMemoryEntityRepository<T, I>
 
   @Override
   public Optional<T> findById(I id) {
-    return entities.containsKey(id)
-        ? Optional.of(entities.get(id))
-        : Optional.empty();
+    return entities.containsKey(id) ? Optional.of(entities.get(id)) : Optional.empty();
   }
 
   @Override
@@ -69,5 +68,4 @@ public abstract class InMemoryEntityRepository<T, I>
   public Iterable<T> findAll() {
     return new ArrayList<>(entities.values());
   }
-
 }

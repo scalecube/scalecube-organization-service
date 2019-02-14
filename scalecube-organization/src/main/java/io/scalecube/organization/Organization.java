@@ -13,8 +13,7 @@ public class Organization {
 
   Organization() {}
 
-  private Organization(
-      String id, String name, String email, String keyId, ApiKey[] apiKeys) {
+  private Organization(String id, String name, String email, String keyId, ApiKey[] apiKeys) {
     this.id = id;
     this.name = name;
     this.email = email;

@@ -17,10 +17,10 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
-public class KickoutMemberTest extends Base {
+class KickoutMemberTest extends Base {
 
   @Test
-  public void kickoutMember() {
+  void kickoutMember() {
     addMemberToOrganization(organizationId, testProfile5);
     StepVerifier.create(
             service.kickoutMember(
@@ -46,7 +46,7 @@ public class KickoutMemberTest extends Base {
   }
 
   @Test
-  public void kickoutMemberInvalidUserShouldFailWithInvalidAuthenticationToken() {
+  void kickoutMemberInvalidUserShouldFailWithInvalidAuthenticationToken() {
     assertMonoCompletesWithError(
         createService(invalidProfile)
             .kickoutMember(
@@ -56,7 +56,7 @@ public class KickoutMemberTest extends Base {
   }
 
   @Test
-  public void kickoutMemberEmptyOrgIdShouldFailWithIllegalArgumentException() {
+  void kickoutMemberEmptyOrgIdShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         service.kickoutMember(
             new KickoutOrganizationMemberRequest("", token, testProfile5.getUserId())),
@@ -64,7 +64,7 @@ public class KickoutMemberTest extends Base {
   }
 
   @Test
-  public void kickoutMemberNullOrgIdShouldFailWithNullPointerException() {
+  void kickoutMemberNullOrgIdShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.kickoutMember(
             new KickoutOrganizationMemberRequest(null, token, testProfile5.getUserId())),
@@ -72,7 +72,7 @@ public class KickoutMemberTest extends Base {
   }
 
   @Test
-  public void kickoutMemberEmptyTokenShouldFailWithIllegalArgumentException() {
+  void kickoutMemberEmptyTokenShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         service.kickoutMember(
             new KickoutOrganizationMemberRequest(
@@ -81,7 +81,7 @@ public class KickoutMemberTest extends Base {
   }
 
   @Test
-  public void kickoutMemberNullTokenShouldFailWithNullPointerException() {
+  void kickoutMemberNullTokenShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.kickoutMember(
             new KickoutOrganizationMemberRequest(organizationId, null, testProfile5.getUserId())),
@@ -89,7 +89,7 @@ public class KickoutMemberTest extends Base {
   }
 
   @Test
-  public void kickoutMemberNullInnerTokenShouldFailWithNullPointerException() {
+  void kickoutMemberNullInnerTokenShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.kickoutMember(
             new KickoutOrganizationMemberRequest(
@@ -98,21 +98,21 @@ public class KickoutMemberTest extends Base {
   }
 
   @Test
-  public void kickoutMemberEmptyUserIdShouldFailWithIllegalArgumentException() {
+  void kickoutMemberEmptyUserIdShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         service.kickoutMember(new KickoutOrganizationMemberRequest(organizationId, token, "")),
         IllegalArgumentException.class);
   }
 
   @Test
-  public void kickoutMemberNullUserIdShouldFailWithNullPointerException() {
+  void kickoutMemberNullUserIdShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.kickoutMember(new KickoutOrganizationMemberRequest(organizationId, token, null)),
         NullPointerException.class);
   }
 
   @Test
-  public void kickoutMemberOrgNotExistsShouldFailWithEntityNotFoundException() {
+  void kickoutMemberOrgNotExistsShouldFailWithEntityNotFoundException() {
     assertMonoCompletesWithError(
         service.kickoutMember(
             new KickoutOrganizationMemberRequest("orgNotExists", token, testProfile5.getUserId())),
@@ -120,7 +120,7 @@ public class KickoutMemberTest extends Base {
   }
 
   @Test
-  public void kickoutMemberNotOrgOwnerShouldFailWithAccessPermissionException() {
+  void kickoutMemberNotOrgOwnerShouldFailWithAccessPermissionException() {
     assertMonoCompletesWithError(
         createService(testProfile5)
             .kickoutMember(

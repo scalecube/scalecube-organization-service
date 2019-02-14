@@ -17,20 +17,10 @@ import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
 @Disabled
-public class DeleteOrganizationApiKeyTest extends Base {
+class DeleteOrganizationApiKeyTest extends Base {
 
-  /**
-   *   #MPA-7229 (#11)
-   * Scenario: Successful delete of API key (token) related to specific Organization with relevant assigned roles
-   *   Given the user "A" have got a valid "token" issued by relevant authority
-   *   And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-   *   And user's "A" organization have got the relevant API keys with assigned roles "owner", "admin" and "member"
-   *   When the user "A" requested to delete the API key "name" in user's "A" organization with assigned role "owner"
-   *   Then the API key with assigned roles of "owner" should be deleted
-   *   And user "A" should receive successful response with the API keys of "admin" and "member" roles related to the relevant organization
-   */
   @Test
-  public void deleteOrganizationApiKey() {
+  void deleteOrganizationApiKey() {
     StepVerifier.create(
             service.addOrganizationApiKey(
                 new AddOrganizationApiKeyRequest(
@@ -54,7 +44,7 @@ public class DeleteOrganizationApiKeyTest extends Base {
   }
 
   @Test
-  public void deleteOrganizationApiKeyUserNotOwnerShouldFailWithAccessPermissionException() {
+  void deleteOrganizationApiKeyUserNotOwnerShouldFailWithAccessPermissionException() {
     assertMonoCompletesWithError(
         createService(testProfile2)
             .deleteOrganizationApiKey(
@@ -63,14 +53,14 @@ public class DeleteOrganizationApiKeyTest extends Base {
   }
 
   @Test
-  public void deleteOrganizationApiKeyEmptyOrgIdShouldFailWithIllegalArgumentException() {
+  void deleteOrganizationApiKeyEmptyOrgIdShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         service.deleteOrganizationApiKey(new DeleteOrganizationApiKeyRequest(token, "", "api_key")),
         IllegalArgumentException.class);
   }
 
   @Test
-  public void deleteOrganizationApiKeyOrgNotExistsShouldFailWithEntityNotFoundException() {
+  void deleteOrganizationApiKeyOrgNotExistsShouldFailWithEntityNotFoundException() {
     assertMonoCompletesWithError(
         service.deleteOrganizationApiKey(
             new DeleteOrganizationApiKeyRequest(token, "bla", "api_key")),
@@ -78,7 +68,7 @@ public class DeleteOrganizationApiKeyTest extends Base {
   }
 
   @Test
-  public void deleteOrganizationApiKeyNullOrgShouldFailWithNullPointerException() {
+  void deleteOrganizationApiKeyNullOrgShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.deleteOrganizationApiKey(
             new DeleteOrganizationApiKeyRequest(token, null, "api_key")),
@@ -86,7 +76,7 @@ public class DeleteOrganizationApiKeyTest extends Base {
   }
 
   @Test
-  public void deleteOrganizationApiKeyNullApiKeyNameShouldFailWithNullPointerException() {
+  void deleteOrganizationApiKeyNullApiKeyNameShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.deleteOrganizationApiKey(
             new DeleteOrganizationApiKeyRequest(token, organizationId, null)),
@@ -94,7 +84,7 @@ public class DeleteOrganizationApiKeyTest extends Base {
   }
 
   @Test
-  public void deleteOrganizationApiKeyEmptyNameShouldFailWithIllegalArgumentException() {
+  void deleteOrganizationApiKeyEmptyNameShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         service.deleteOrganizationApiKey(
             new DeleteOrganizationApiKeyRequest(token, organizationId, "")),
@@ -102,7 +92,7 @@ public class DeleteOrganizationApiKeyTest extends Base {
   }
 
   @Test
-  public void deleteOrganizationApiKeyInvalidUserShouldFailWithInvalidAuthenticationToken() {
+  void deleteOrganizationApiKeyInvalidUserShouldFailWithInvalidAuthenticationToken() {
     assertMonoCompletesWithError(
         createService(invalidProfile)
             .deleteOrganizationApiKey(
@@ -111,7 +101,7 @@ public class DeleteOrganizationApiKeyTest extends Base {
   }
 
   @Test
-  public void deleteOrganizationApiKeyNullTokenShouldFailWithNullPointerException() {
+  void deleteOrganizationApiKeyNullTokenShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.deleteOrganizationApiKey(
             new DeleteOrganizationApiKeyRequest(null, organizationId, "api_key")),
@@ -119,7 +109,7 @@ public class DeleteOrganizationApiKeyTest extends Base {
   }
 
   @Test
-  public void deleteOrganizationApiKeyNullInnerTokenShouldFailWithNullPointerException() {
+  void deleteOrganizationApiKeyNullInnerTokenShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.deleteOrganizationApiKey(
             new DeleteOrganizationApiKeyRequest(new Token(null), organizationId, "api_key")),
@@ -127,7 +117,7 @@ public class DeleteOrganizationApiKeyTest extends Base {
   }
 
   @Test
-  public void deleteOrganizationApiKeyEmptyTokenShouldFailWithIllegalArgumentException() {
+  void deleteOrganizationApiKeyEmptyTokenShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         service.deleteOrganizationApiKey(
             new DeleteOrganizationApiKeyRequest(new Token(""), organizationId, "api_key")),

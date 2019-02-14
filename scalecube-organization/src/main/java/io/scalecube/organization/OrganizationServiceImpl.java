@@ -51,9 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
-/**
- * Concrete implementation of {@link OrganizationService}.
- */
+/** Concrete implementation of {@link OrganizationService}. */
 public class OrganizationServiceImpl implements OrganizationService {
 
   private static final Logger logger = LoggerFactory.getLogger(OrganizationServiceImpl.class);
@@ -62,8 +60,10 @@ public class OrganizationServiceImpl implements OrganizationService {
   private final OrganizationsDataAccess repository;
   private final KeyPairGenerator keyPairGenerator;
 
-  private OrganizationServiceImpl(OrganizationsDataAccess repository,
-      TokenVerifier tokenVerifier, KeyPairGenerator keyPairGenerator) {
+  private OrganizationServiceImpl(
+      OrganizationsDataAccess repository,
+      TokenVerifier tokenVerifier,
+      KeyPairGenerator keyPairGenerator) {
     this.repository = repository;
     this.tokenVerifier = tokenVerifier;
     this.keyPairGenerator = keyPairGenerator;
@@ -84,14 +84,14 @@ public class OrganizationServiceImpl implements OrganizationService {
         result -> {
           logger.debug("createOrganization: enter, request: {}", request);
 
-      try {
-        CreateOrganizationResponse response = CreateOrganization
-            .builder()
-            .tokenVerifier(tokenVerifier)
-            .repository(repository)
-            .keyPairGenerator(keyPairGenerator)
-            .build()
-            .execute(request);
+          try {
+            CreateOrganizationResponse response =
+                CreateOrganization.builder()
+                    .tokenVerifier(tokenVerifier)
+                    .repository(repository)
+                    .keyPairGenerator(keyPairGenerator)
+                    .build()
+                    .execute(request);
 
             logger.debug("createOrganization: exit, return: {}", response);
             result.success(response);
@@ -381,12 +381,12 @@ public class OrganizationServiceImpl implements OrganizationService {
      * @return an instance of OrganizationService.
      */
     public OrganizationService build() {
-      OrganizationsDataAccess repository = OrganizationsDataAccessImpl
-          .builder()
-          .organizations(organizationRepository)
-          .members(organizationMembershipRepository)
-          .repositoryAdmin(organizationMembersRepositoryAdmin)
-          .build();
+      OrganizationsDataAccess repository =
+          OrganizationsDataAccessImpl.builder()
+              .organizations(organizationRepository)
+              .members(organizationMembershipRepository)
+              .repositoryAdmin(organizationMembersRepositoryAdmin)
+              .build();
       return new OrganizationServiceImpl(
           repository,
           tokenVerifier == null ? new TokenVerification() : tokenVerifier,

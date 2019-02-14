@@ -38,8 +38,8 @@ public interface OrganizationsDataAccess {
   Organization getOrganization(String id) throws EntityNotFoundException;
 
   /**
-   * Creates an Organization entry in the underlying data provider with the
-   * <code>organization</code> and <code>owner</code> arguments.
+   * Creates an Organization entry in the underlying data provider with the <code>organization
+   * </code> and <code>owner</code> arguments.
    *
    * @param owner Organization owner.
    * @param organization The new organization to be created.
@@ -65,8 +65,8 @@ public interface OrganizationsDataAccess {
       throws EntityNotFoundException, AccessPermissionException;
 
   /**
-   * Returns a list of organizations of which the <code>tokenVerifier</code> argument is a member
-   * of those organizations.
+   * Returns a list of organizations of which the <code>tokenVerifier</code> argument is a member of
+   * those organizations.
    *
    * @param userId The id of the tokenVerifier criteria.
    * @return a list of <code>Organization</code> objects.
@@ -86,19 +86,19 @@ public interface OrganizationsDataAccess {
       throws AccessPermissionException;
 
   /**
-   * Returns a membership list of an organization corresponding to the <code>id</code>  argument in
+   * Returns a membership list of an organization corresponding to the <code>id</code> argument in
    * the underlying data provider.
    *
    * @param organization The organization id criteria.
    * @return A collection of <code>OrganizationMember</code> objects.
    * @throws EntityNotFoundException In case organization is not found.
    */
-  Collection<OrganizationMember> getOrganizationMembers(
-      Organization organization) throws EntityNotFoundException, AccessPermissionException;
+  Collection<OrganizationMember> getOrganizationMembers(Organization organization)
+      throws EntityNotFoundException, AccessPermissionException;
 
   /**
    * Invites the <coded>tokenVerifier</coded> argument to join the <code>organization</code>
-   *   argument.
+   * argument.
    *
    * @param owner The Organization owner
    * @param organization The Organization to join.
@@ -108,12 +108,12 @@ public interface OrganizationsDataAccess {
    * @throws EntityNotFoundException In case the organization does not exists in the underlying data
    *     provider.
    */
-  void invite(Profile owner, Organization organization, String userId, Role targetRole) throws
-      AccessPermissionException, EntityNotFoundException;
+  void invite(Profile owner, Organization organization, String userId, Role targetRole)
+      throws AccessPermissionException, EntityNotFoundException;
 
   /**
    * Kicks out the <coded>tokenVerifier</coded> argument from the <code>organization</code>
-   *   argument.
+   * argument.
    *
    * @param owner The Organization owner
    * @param organization The Organization from which the tokenVerifier is to be kicked out.
@@ -136,7 +136,8 @@ public interface OrganizationsDataAccess {
 
   /**
    * Determines if the user corresponding to the userId argument is a member of the organization
-   *     argument.
+   * argument.
+   *
    * @param userId the user id criteria
    * @param organization the organization criteria
    * @return true if the user is a member of the organization; false otherwise.
@@ -144,8 +145,8 @@ public interface OrganizationsDataAccess {
   boolean isMember(String userId, Organization organization);
 
   /**
-   * Updates the organization membership of the user corrsponding to the userId argument to the
-   *     role argument.
+   * Updates the organization membership of the user corrsponding to the userId argument to the role
+   * argument.
    *
    * @param organization the organization criteria
    * @param userId the user id criteria

@@ -1,8 +1,6 @@
 package io.scalecube.account.api;
 
-/**
- * Represents an invite a member to an Organization request.
- */
+/** Represents an invite a member to an Organization request. */
 public class InviteOrganizationMemberRequest {
 
   private Token token;
@@ -15,9 +13,7 @@ public class InviteOrganizationMemberRequest {
    *
    * @deprecated only for serialization/deserialization.
    */
-  InviteOrganizationMemberRequest() {
-  }
-
+  InviteOrganizationMemberRequest() {}
 
   /**
    * Constructs an invite a member to an Organization request.
@@ -26,8 +22,8 @@ public class InviteOrganizationMemberRequest {
    * @param organizationId Organization Id.
    * @param userId Invited user's Id.
    */
-  public InviteOrganizationMemberRequest(Token token, String organizationId, String userId,
-                                         String role) {
+  public InviteOrganizationMemberRequest(
+      Token token, String organizationId, String userId, String role) {
     this.token = token;
     this.organizationId = organizationId;
     this.userId = userId;
@@ -52,7 +48,9 @@ public class InviteOrganizationMemberRequest {
 
   @Override
   public String toString() {
-    return super.toString() + String.format(" [userId=%s, organizationId=%s, token=%s, role=%s]",
-        userId, organizationId, token, role);
+    return super.toString()
+        + String.format(
+            " [userId=%s, organizationId=%s, token=%s, role=%s]",
+            userId, organizationId, token, role);
   }
 }
