@@ -69,14 +69,4 @@ public final class IdGenerator {
     }
     return digest;
   }
-
-  // TODO
-  // This is to make the point that we need toString to return something
-  // that includes some sort of system identifier as does the default.
-  // Don't change this unless you really know what you are doing.
-  //  @Override
-  //  public String toString() {
-  //    return super.toString();
-  //  }
-
 }

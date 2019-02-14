@@ -113,8 +113,7 @@ public abstract class ServiceOperation<I, O> {
 
   protected boolean isOwner(Organization organization, Profile profile)
       throws EntityNotFoundException, AccessPermissionException {
-    return // Objects.equals(organization.ownerId(), profile.getUserId())        ||
-    isInRole(profile.getUserId(), organization, Role.Owner);
+    return isInRole(profile.getUserId(), organization, Role.Owner);
   }
 
   protected boolean isSuperUser(Organization organization, Profile profile)
