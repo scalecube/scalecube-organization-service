@@ -10,7 +10,6 @@ import io.scalecube.organization.repository.exception.NameAlreadyInUseException;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -36,8 +35,6 @@ class CreateOrganizationTest extends Base {
         IllegalArgumentException.class);
   }
 
-  // todo fix me
-  @Disabled
   @ParameterizedTest
   @MethodSource("invalidOrgNames")
   void createOrganizationWithIlligalNameShouldFailWithIllegalArgumentException(
@@ -106,11 +103,11 @@ class CreateOrganizationTest extends Base {
     return IntStream.concat(
             IntStream.concat(IntStream.range('!', '%'), IntStream.range('&', ')')),
             IntStream.range('[', '_'))
-        .mapToObj(i -> "org" + i)
+        .mapToObj(i -> "org" + (char) i)
         .map(Arguments::of);
   }
 
   private static Stream<Arguments> validOrgNames() {
-    return IntStream.of('_', '%', '.', '-', '%').mapToObj(i -> "org" + i).map(Arguments::of);
+    return IntStream.of('_', '%', '.', '-', '%').mapToObj(i -> "org" + (char) i).map(Arguments::of);
   }
 }
