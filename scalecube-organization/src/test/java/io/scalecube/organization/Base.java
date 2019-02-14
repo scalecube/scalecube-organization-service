@@ -18,17 +18,22 @@ import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository
 import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
 import io.scalecube.security.Profile;
 import java.io.File;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 public class Base {
+
+  protected static KeyPairGenerator keyPairGenerator;
 
   protected final Profile testProfile =
       Profile.builder()
@@ -119,6 +124,12 @@ public class Base {
     //    admin = CouchbaseRepositoryFactory.organizationMembersRepositoryAdmin();
   }
 
+  @BeforeAll
+  static void beforeAll() throws NoSuchAlgorithmException {
+    keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+    keyPairGenerator.initialize(2048);
+  }
+
   protected static String randomString() {
     int targetStringLength = 10;
 
@@ -167,6 +178,7 @@ public class Base {
         .organizationMembershipRepository(orgMembersRepository)
         .organizationMembershipRepositoryAdmin(admin)
         .tokenVerifier((t) -> Objects.equals(profile, invalidProfile) ? null : profile)
+        .keyPairGenerator(keyPairGenerator)
         .build();
   }
 
