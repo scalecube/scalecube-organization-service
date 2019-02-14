@@ -51,7 +51,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
-/** Concrete implementation of {@link OrganizationService}. */
 public class OrganizationServiceImpl implements OrganizationService {
 
   private static final Logger logger = LoggerFactory.getLogger(OrganizationServiceImpl.class);
