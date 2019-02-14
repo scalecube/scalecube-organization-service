@@ -6,5 +6,4 @@ import io.scalecube.security.Profile;
 public interface TokenVerifier {
 
   Profile verify(Token token) throws Exception;
-
 }

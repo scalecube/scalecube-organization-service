@@ -1,5 +1,3 @@
 package io.scalecube.account.api;
 
-public class KickoutOrganizationMemberResponse {
-
-}
+public class KickoutOrganizationMemberResponse {}

@@ -1,8 +1,6 @@
 package io.scalecube.account.api;
 
-/**
- * Delete organization API call response.
- */
+/** Delete organization API call response. */
 public class DeleteOrganizationResponse {
 
   private boolean deleted;
@@ -10,6 +8,7 @@ public class DeleteOrganizationResponse {
 
   /**
    * Default constructor.
+   *
    * @deprecated only for serialization/deserialization.
    */
   DeleteOrganizationResponse() {}

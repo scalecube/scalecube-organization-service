@@ -1,8 +1,6 @@
 package io.scalecube.account.api;
 
-/**
- * Represents a request to expel a member from an Organization.
- */
+/** Represents a request to expel a member from an Organization. */
 public class KickoutOrganizationMemberRequest {
 
   private Token token;
@@ -14,8 +12,7 @@ public class KickoutOrganizationMemberRequest {
    *
    * @deprecated only for serialization/deserialization.
    */
-  KickoutOrganizationMemberRequest() {
-  }
+  KickoutOrganizationMemberRequest() {}
 
   /**
    * Constructs a request to expel a member from an Organization.
@@ -44,7 +41,7 @@ public class KickoutOrganizationMemberRequest {
 
   @Override
   public String toString() {
-    return super.toString() + String.format(" [userId=%s, organizationId=%s, token=%s]",
-        userId, organizationId, token);
+    return super.toString()
+        + String.format(" [userId=%s, organizationId=%s, token=%s]", userId, organizationId, token);
   }
 }
