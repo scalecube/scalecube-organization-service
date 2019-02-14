@@ -31,7 +31,7 @@ class CreateOrganizationTest extends Base {
   @Test
   void createOrganizationWithEmptyNameShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
-        service.createOrganization(new CreateOrganizationRequest("", token)),
+        service.createOrganization(new CreateOrganizationRequest("", "email", token)),
         IllegalArgumentException.class);
   }
 
@@ -40,7 +40,8 @@ class CreateOrganizationTest extends Base {
   void createOrganizationWithIlligalNameShouldFailWithIllegalArgumentException(
       String invalidString) {
     StepVerifier.create(
-            service.createOrganization(new CreateOrganizationRequest(invalidString, token)))
+            service.createOrganization(
+                new CreateOrganizationRequest(invalidString, "email", token)))
         .expectErrorMessage(
             "Organization name can only contain characters in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent.")
         .verify();
@@ -51,7 +52,8 @@ class CreateOrganizationTest extends Base {
   void createOrganizationWithValidNameShouldNotFailWithIllegalArgumentException(
       String invalidString) {
     StepVerifier.create(
-            service.createOrganization(new CreateOrganizationRequest(invalidString, token)))
+            service.createOrganization(
+                new CreateOrganizationRequest(invalidString, "email", token)))
         .assertNext(Assertions::assertNotNull)
         .verifyComplete();
   }
@@ -59,7 +61,7 @@ class CreateOrganizationTest extends Base {
   @Test
   void createOrganizationWithNullNameShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
-        service.createOrganization(new CreateOrganizationRequest(null, token)),
+        service.createOrganization(new CreateOrganizationRequest(null, "email", token)),
         NullPointerException.class);
   }
 
@@ -67,35 +69,38 @@ class CreateOrganizationTest extends Base {
   void createOrganizationShouldFailWithInvalidAuthenticationToken() {
     assertMonoCompletesWithError(
         createService(invalidProfile)
-            .createOrganization(new CreateOrganizationRequest("myTestOrg5", token)),
+            .createOrganization(new CreateOrganizationRequest("myTestOrg5", "email", token)),
         InvalidAuthenticationToken.class);
   }
 
   @Test
   void createOrganizationWithNameAlreadyInUseShouldFail() {
     assertMonoCompletesWithError(
-        service.createOrganization(new CreateOrganizationRequest(organisation.name(), token)),
+        service.createOrganization(
+            new CreateOrganizationRequest(organisation.name(), "email", token)),
         NameAlreadyInUseException.class);
   }
 
   @Test
   void createOrganizationNullTokenShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
-        service.createOrganization(new CreateOrganizationRequest("myTestOrg5", null)),
+        service.createOrganization(new CreateOrganizationRequest("myTestOrg5", "email", null)),
         NullPointerException.class);
   }
 
   @Test
   void createOrganizationNullInnerTokenShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
-        service.createOrganization(new CreateOrganizationRequest("myTestOrg5", new Token(null))),
+        service.createOrganization(
+            new CreateOrganizationRequest("myTestOrg5", "email", new Token(null))),
         NullPointerException.class);
   }
 
   @Test
   void createOrganizationEmptyTokenShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
-        service.createOrganization(new CreateOrganizationRequest("myTestOrg5", new Token(""))),
+        service.createOrganization(
+            new CreateOrganizationRequest("myTestOrg5", "email", new Token(""))),
         IllegalArgumentException.class);
   }
 
