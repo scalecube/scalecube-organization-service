@@ -5,9 +5,7 @@ import io.scalecube.organization.Organization;
 import java.util.Collection;
 import java.util.Optional;
 
-/**
- * An abstraction of user organization membership data access.
- */
+/** An abstraction of user organization membership data access. */
 public interface UserOrganizationMembershipRepository {
 
   /**
@@ -20,8 +18,8 @@ public interface UserOrganizationMembershipRepository {
   void addMember(Organization organization, OrganizationMember member);
 
   /**
-   * Determines if the <code>tokenVerifier</code> argument is a member of the
-   * <code>organization</code> argument.
+   * Determines if the <code>tokenVerifier</code> argument is a member of the <code>organization
+   * </code> argument.
    *
    * @param userId The user id criteria.
    * @param organization The organization criteria.
@@ -38,8 +36,8 @@ public interface UserOrganizationMembershipRepository {
   Collection<OrganizationMember> getMembers(Organization organization);
 
   /**
-   * Removes the <code>tokenVerifier</code> argument from the <code>organization</code> argument,
-   * in the underlying data provider.
+   * Removes the <code>tokenVerifier</code> argument from the <code>organization</code> argument, in
+   * the underlying data provider.
    *
    * @param organization The organization ao add the member to.
    * @param userId The id of the tokenVerifier to remove.

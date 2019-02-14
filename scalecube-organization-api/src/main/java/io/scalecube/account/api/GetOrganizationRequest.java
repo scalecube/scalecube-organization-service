@@ -11,14 +11,12 @@ public class GetOrganizationRequest {
    *
    * @deprecated only for serialization/deserialization.
    */
-  GetOrganizationRequest() {
-  }
+  GetOrganizationRequest() {}
 
   public GetOrganizationRequest(Token token, String organizationId) {
     this.token = token;
     this.organizationId = organizationId;
   }
-
 
   public Token token() {
     return this.token;

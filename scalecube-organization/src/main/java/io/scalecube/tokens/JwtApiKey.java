@@ -5,16 +5,11 @@ import io.scalecube.jwt.WebToken;
 import java.security.Key;
 import java.util.Map;
 
-/**
- * JSON web token API key.
- */
+/** JSON web token API key. */
 public class JwtApiKey extends ApiKey {
 
-  /**
-   * Constructs an empty JSON web token API key.
-   */
-  public JwtApiKey() {
-  }
+  /** Constructs an empty JSON web token API key. */
+  public JwtApiKey() {}
 
   /**
    * Constructs an empty JSON web token API key with the provided arguments.
@@ -73,7 +68,6 @@ public class JwtApiKey extends ApiKey {
       return this;
     }
 
-
     /**
      * Constructs an API key object and signs it using the <code>secret</code> argument.
      *
@@ -83,9 +77,9 @@ public class JwtApiKey extends ApiKey {
      */
     public ApiKey build(String keyId, Key signingKey) {
       final WebToken jwt = new WebToken(this.issuer, this.subject);
-      final String apiKey = jwt.createToken(this.id, this.audience,
-          this.tokenTimeToLiveInMillis,
-          keyId, signingKey, claims);
+      final String apiKey =
+          jwt.createToken(
+              this.id, this.audience, this.tokenTimeToLiveInMillis, keyId, signingKey, claims);
       return new JwtApiKey(this.name, this.claims, apiKey);
     }
 
@@ -94,5 +88,4 @@ public class JwtApiKey extends ApiKey {
       return this;
     }
   }
-
 }

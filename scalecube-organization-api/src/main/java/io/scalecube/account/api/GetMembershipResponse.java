@@ -2,9 +2,7 @@ package io.scalecube.account.api;
 
 import java.util.Arrays;
 
-/**
- * Get membership response.
- */
+/** Get membership response. */
 public class GetMembershipResponse {
 
   private OrganizationInfo[] organizations;
@@ -14,8 +12,7 @@ public class GetMembershipResponse {
    *
    * @deprecated only for serialization/deserialization.
    */
-  GetMembershipResponse() {
-  }
+  GetMembershipResponse() {}
 
   /**
    * Constructs a get membership API call response object.

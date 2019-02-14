@@ -7,8 +7,7 @@ public class OperationServiceContext {
   private final Profile profile;
   private final OrganizationsDataAccess repository;
 
-  public OperationServiceContext(Profile profile,
-      OrganizationsDataAccess repository) {
+  public OperationServiceContext(Profile profile, OrganizationsDataAccess repository) {
     this.profile = profile;
     this.repository = repository;
   }

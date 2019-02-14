@@ -2,9 +2,7 @@ package io.scalecube.tokens;
 
 import java.security.PublicKey;
 
-/**
- * Abstraction of public key source, used to verify token signature.
- */
+/** Abstraction of public key source, used to verify token signature. */
 public interface PublicKeyProvider {
 
   /**

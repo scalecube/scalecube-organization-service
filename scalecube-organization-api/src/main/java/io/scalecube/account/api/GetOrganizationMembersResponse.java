@@ -1,8 +1,6 @@
 package io.scalecube.account.api;
 
-/**
- * Get organization membership response.
- */
+/** Get organization membership response. */
 public class GetOrganizationMembersResponse {
 
   private OrganizationMember[] members;
@@ -12,8 +10,7 @@ public class GetOrganizationMembersResponse {
    *
    * @deprecated only for serialization/deserialization.
    */
-  GetOrganizationMembersResponse() {
-  }
+  GetOrganizationMembersResponse() {}
 
   /**
    * Constructs a get organization membership API call response object.

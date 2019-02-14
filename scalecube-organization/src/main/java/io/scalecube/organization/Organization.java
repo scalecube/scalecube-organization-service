@@ -8,18 +8,15 @@ public class Organization {
   private String id;
   private String name;
   private String email;
-  private String ownerId;
   private String keyId;
   private ApiKey[] apiKeys;
 
   Organization() {}
 
-  private Organization(
-      String id, String name, String email, String ownerId, String keyId, ApiKey[] apiKeys) {
+  private Organization(String id, String name, String email, String keyId, ApiKey[] apiKeys) {
     this.id = id;
     this.name = name;
     this.email = email;
-    this.ownerId = ownerId;
     this.keyId = keyId;
     this.apiKeys = apiKeys;
   }
@@ -28,7 +25,6 @@ public class Organization {
     this.id = builder.id;
     this.name = builder.name;
     this.email = builder.email;
-    this.ownerId = builder.ownerId;
     this.keyId = builder.keyId;
     this.apiKeys = builder.apiKeys;
   }
@@ -43,10 +39,6 @@ public class Organization {
 
   public String email() {
     return email;
-  }
-
-  public String ownerId() {
-    return ownerId;
   }
 
   public String keyId() {
@@ -66,7 +58,6 @@ public class Organization {
     private String id;
     private String name;
     private String email;
-    private String ownerId;
     private String keyId;
     private ApiKey[] apiKeys = {};
 
@@ -82,11 +73,6 @@ public class Organization {
 
     public Builder email(String email) {
       this.email = email;
-      return this;
-    }
-
-    public Builder ownerId(String ownerId) {
-      this.ownerId = ownerId;
       return this;
     }
 
@@ -110,7 +96,7 @@ public class Organization {
       String email = this.email == null ? source.email : this.email;
       String name = this.name == null ? source.name : this.name;
       ApiKey[] apiKeys = this.apiKeys == null ? source.apiKeys : this.apiKeys;
-      return new Organization(source.id(), name, email, source.ownerId(), source.keyId(), apiKeys);
+      return new Organization(source.id(), name, email, source.keyId(), apiKeys);
     }
 
     public Organization build() {
@@ -126,8 +112,6 @@ public class Organization {
         + name
         + ", email="
         + email
-        + ", ownerId="
-        + ownerId
         + ", keyId="
         + keyId
         + "]";

@@ -14,13 +14,15 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.util.UUID;
 
-public final class CreateOrganization extends OrganizationInfoOperation<CreateOrganizationRequest,
-    CreateOrganizationResponse> {
+public final class CreateOrganization
+    extends OrganizationInfoOperation<CreateOrganizationRequest, CreateOrganizationResponse> {
 
   private KeyPairGenerator keyPairGenerator;
 
-  private CreateOrganization(TokenVerifier tokenVerifier,
-      OrganizationsDataAccess repository, KeyPairGenerator keyPairGenerator) {
+  private CreateOrganization(
+      TokenVerifier tokenVerifier,
+      OrganizationsDataAccess repository,
+      KeyPairGenerator keyPairGenerator) {
     super(tokenVerifier, repository);
     this.keyPairGenerator = keyPairGenerator;
   }
@@ -31,15 +33,15 @@ public final class CreateOrganization extends OrganizationInfoOperation<CreateOr
 
   @Override
   protected CreateOrganizationResponse process(
-      CreateOrganizationRequest request,
-      OperationServiceContext context) throws Throwable {
+      CreateOrganizationRequest request, OperationServiceContext context) throws Throwable {
     String id = "ORG-" + IdGenerator.generateId();
-    validate(new OrganizationInfo.Builder()
-        .id(id)
-        .email(request.email())
-        .name(request.name())
-        .ownerId(context.profile().getUserId())
-        .build(), context);
+    validate(
+        new OrganizationInfo.Builder()
+            .id(id)
+            .email(context.profile().getEmail())
+            .name(request.name())
+            .build(),
+        context);
 
     Organization organization = createOrganization(request, context, id);
 
@@ -56,21 +58,22 @@ public final class CreateOrganization extends OrganizationInfoOperation<CreateOr
             .id(organization.id())
             .name(organization.name())
             .apiKeys(organization.apiKeys())
-            .email(organization.email())
-            .ownerId(organization.ownerId()));
+            .email(organization.email()));
   }
 
   private Organization createOrganization(
       CreateOrganizationRequest request, OperationServiceContext context, String id)
       throws AccessPermissionException {
-    return context.repository().createOrganization(context.profile(),
-          Organization.builder()
-              .id(id)
-              .name(request.name())
-              .ownerId(context.profile().getUserId())
-              .email(request.email())
-              .keyId(UUID.randomUUID().toString())
-              .build());
+    return context
+        .repository()
+        .createOrganization(
+            context.profile(),
+            Organization.builder()
+                .id(id)
+                .name(request.name())
+                .email(context.profile().getEmail())
+                .keyId(UUID.randomUUID().toString())
+                .build());
   }
 
   private void generateOrganizationKeyPair(Organization organization) {

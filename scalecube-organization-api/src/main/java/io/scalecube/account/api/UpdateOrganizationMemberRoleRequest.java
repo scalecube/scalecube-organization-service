@@ -1,8 +1,6 @@
 package io.scalecube.account.api;
 
-/**
- * Represents a request to update a membership role.
- */
+/** Represents a request to update a membership role. */
 public class UpdateOrganizationMemberRoleRequest {
   private Token token;
 
@@ -17,22 +15,19 @@ public class UpdateOrganizationMemberRoleRequest {
    *
    * @deprecated only for serialization/deserialization.
    */
-  UpdateOrganizationMemberRoleRequest() {
-  }
+  UpdateOrganizationMemberRoleRequest() {}
 
   /**
    * Constructs an instance of @{@link UpdateOrganizationMemberRoleRequest} with the following
-   *     arguments.
+   * arguments.
+   *
    * @param token caller token
    * @param organizationId organization id criteria
    * @param userId user id criteria
    * @param role the new role
    */
   public UpdateOrganizationMemberRoleRequest(
-      Token token,
-      String organizationId,
-      String userId,
-      String role) {
+      Token token, String organizationId, String userId, String role) {
     this.token = token;
     this.organizationId = organizationId;
     this.userId = userId;
@@ -54,8 +49,9 @@ public class UpdateOrganizationMemberRoleRequest {
   @Override
   public String toString() {
     return super.toString()
-        + String.format(" [organizationId=%s, token=%s, userId=%s, role=%s]",
-        organizationId, token, userId, role);
+        + String.format(
+            " [organizationId=%s, token=%s, userId=%s, role=%s]",
+            organizationId, token, userId, role);
   }
 
   public String role() {

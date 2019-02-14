@@ -11,11 +11,9 @@ public class GetOrganizationMembersRequest {
    *
    * @deprecated only for serialization/deserialization.
    */
-  GetOrganizationMembersRequest() {
-  }
+  GetOrganizationMembersRequest() {}
 
-  public GetOrganizationMembersRequest(String organizationId,
-      Token token) {
+  public GetOrganizationMembersRequest(String organizationId, Token token) {
     this.organizationId = organizationId;
     this.token = token;
   }
