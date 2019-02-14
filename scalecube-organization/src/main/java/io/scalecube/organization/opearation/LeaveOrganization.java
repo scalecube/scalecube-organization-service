@@ -2,33 +2,31 @@ package io.scalecube.organization.opearation;
 
 import io.scalecube.account.api.LeaveOrganizationRequest;
 import io.scalecube.account.api.LeaveOrganizationResponse;
-import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.Token;
+import io.scalecube.organization.Organization;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.tokens.TokenVerifier;
 
-public class LeaveOrganization extends ServiceOperation<LeaveOrganizationRequest,
-    LeaveOrganizationResponse> {
+public class LeaveOrganization
+    extends ServiceOperation<LeaveOrganizationRequest, LeaveOrganizationResponse> {
 
-  private LeaveOrganization(TokenVerifier tokenVerifier,
-      OrganizationsDataAccess repository) {
+  private LeaveOrganization(TokenVerifier tokenVerifier, OrganizationsDataAccess repository) {
     super(tokenVerifier, repository);
   }
 
   @Override
-  protected LeaveOrganizationResponse process(LeaveOrganizationRequest request,
-      OperationServiceContext context) throws Throwable {
+  protected LeaveOrganizationResponse process(
+      LeaveOrganizationRequest request, OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
     context.repository().leave(organization, context.profile().getUserId());
     return new LeaveOrganizationResponse();
   }
 
   @Override
-  protected void validate(LeaveOrganizationRequest request,
-      OperationServiceContext context) throws Throwable {
+  protected void validate(LeaveOrganizationRequest request, OperationServiceContext context)
+      throws Throwable {
     super.validate(request, context);
-    requireNonNullOrEmpty(request.organizationId(),
-        "organizationId is a required argument");
+    requireNonNullOrEmpty(request.organizationId(), "organizationId is a required argument");
   }
 
   @Override

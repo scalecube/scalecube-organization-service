@@ -1,8 +1,6 @@
 package io.scalecube.account.api;
 
-/**
- * Create organization API call response.
- */
+/** Create organization API call response. */
 public class CreateOrganizationResponse extends OrganizationInfo {
 
   /**
@@ -10,11 +8,9 @@ public class CreateOrganizationResponse extends OrganizationInfo {
    *
    * @deprecated only for serialization/deserialization.
    */
-  CreateOrganizationResponse() {
-  }
+  CreateOrganizationResponse() {}
 
-  public CreateOrganizationResponse(
-      Builder builder) {
+  public CreateOrganizationResponse(Builder builder) {
     super(builder);
   }
 }

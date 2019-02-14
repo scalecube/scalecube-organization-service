@@ -1,8 +1,6 @@
 package io.scalecube.organization.repository.couchbase;
 
-/**
- * Represents a translation service from object to string and vice versa.
- */
+/** Represents a translation service from object to string and vice versa. */
 public interface TranslationService {
 
   /**

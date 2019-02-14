@@ -4,24 +4,23 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.Role;
+import io.scalecube.organization.Organization;
 import io.scalecube.security.Profile;
 import org.junit.jupiter.api.Test;
 
-
 public class JacksonTranslationServiceTest {
 
-  private final Profile testProfile = new Profile(
-      "1",
-      null,
-      "user1@gmail.com",
-      true,
-      "foo",
-      "fname",
-      "lname",
-      null);
+  private final Profile testProfile =
+      Profile.builder()
+          .userId("1")
+          .email("user1@gmail.com")
+          .emailVerified(true)
+          .name("foo")
+          .familyName("fname")
+          .givenName("lname")
+          .build();
 
   @Test
   public void shouldEncodeUser() {
@@ -33,12 +32,11 @@ public class JacksonTranslationServiceTest {
   @Test
   public void shouldEncodeUserOrgMembership() {
     JacksonTranslationService service = new JacksonTranslationService();
-    OrganizationMember member = new OrganizationMember(testProfile.getUserId(),
-        Role.Owner.toString());
+    OrganizationMember member =
+        new OrganizationMember(testProfile.getUserId(), Role.Owner.toString());
     String s = service.encode(member);
     assertNotNull(s);
   }
-
 
   @Test
   public void shouldEncodeOrganization() {

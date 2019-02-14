@@ -1,8 +1,6 @@
 package io.scalecube.account.api;
 
-/**
- * Represents a response to a get Organization API call.
- */
+/** Represents a response to a get Organization API call. */
 public class GetOrganizationResponse extends OrganizationInfo {
 
   /**
@@ -10,8 +8,7 @@ public class GetOrganizationResponse extends OrganizationInfo {
    *
    * @deprecated only for serialization/deserialization.
    */
-  GetOrganizationResponse() {
-  }
+  GetOrganizationResponse() {}
 
   public GetOrganizationResponse(Builder builder) {
     super(builder);

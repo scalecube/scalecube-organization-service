@@ -2,31 +2,29 @@ package io.scalecube.organization.opearation;
 
 import io.scalecube.account.api.GetOrganizationMembersRequest;
 import io.scalecube.account.api.GetOrganizationMembersResponse;
-import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.Token;
+import io.scalecube.organization.Organization;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.tokens.TokenVerifier;
-
 import java.util.Collection;
 
-public class GetOrganizationMembers extends ServiceOperation<GetOrganizationMembersRequest,
-    GetOrganizationMembersResponse> {
+public class GetOrganizationMembers
+    extends ServiceOperation<GetOrganizationMembersRequest, GetOrganizationMembersResponse> {
 
-  private GetOrganizationMembers(TokenVerifier tokenVerifier,
-      OrganizationsDataAccess repository) {
+  private GetOrganizationMembers(TokenVerifier tokenVerifier, OrganizationsDataAccess repository) {
     super(tokenVerifier, repository);
   }
 
   @Override
-  protected GetOrganizationMembersResponse process(GetOrganizationMembersRequest request,
-      OperationServiceContext context) throws Throwable {
+  protected GetOrganizationMembersResponse process(
+      GetOrganizationMembersRequest request, OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
 
     checkMemberAccess(organization, context.profile());
-    Collection<OrganizationMember> organizationMembers = context.repository()
-        .getOrganizationMembers(organization);
-    OrganizationMember[] members  = new OrganizationMember[organizationMembers.size()];
+    Collection<OrganizationMember> organizationMembers =
+        context.repository().getOrganizationMembers(organization);
+    OrganizationMember[] members = new OrganizationMember[organizationMembers.size()];
 
     return new GetOrganizationMembersResponse(organizationMembers.toArray(members));
   }
@@ -35,8 +33,7 @@ public class GetOrganizationMembers extends ServiceOperation<GetOrganizationMemb
   protected void validate(GetOrganizationMembersRequest request, OperationServiceContext context)
       throws Throwable {
     super.validate(request, context);
-    requireNonNullOrEmpty(request.organizationId(),
-        "organizationId is a required argument");
+    requireNonNullOrEmpty(request.organizationId(), "organizationId is a required argument");
   }
 
   @Override

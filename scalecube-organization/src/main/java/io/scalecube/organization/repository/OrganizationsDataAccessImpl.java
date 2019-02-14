@@ -2,15 +2,12 @@ package io.scalecube.organization.repository;
 
 import static java.util.Objects.requireNonNull;
 
-import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.Role;
+import io.scalecube.organization.Organization;
 import io.scalecube.organization.repository.exception.DuplicateKeyException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
-import io.scalecube.organization.repository.exception.InvalidInputException;
-import io.scalecube.organization.repository.exception.NameAlreadyInUseException;
 import io.scalecube.security.Profile;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
@@ -72,8 +69,7 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
 
     try {
       membershipRepository.addMember(
-          organization,
-          new OrganizationMember(organization.ownerId(), Role.Owner.toString()));
+          organization, new OrganizationMember(owner.getUserId(), Role.Owner.toString()));
       return organizations.save(organization.id(), organization);
     } catch (Throwable throwable) {
       // rollback
@@ -101,8 +97,6 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
             .collect(Collectors.toList()));
   }
 
-
-
   @Override
   public void updateOrganizationDetails(Profile owner, Organization org, Organization update) {
     requireNonNullProfile(owner);
@@ -115,8 +109,7 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
   }
 
   @Override
-  public Collection<OrganizationMember> getOrganizationMembers(
-      Organization organization) {
+  public Collection<OrganizationMember> getOrganizationMembers(Organization organization) {
     requireNonNull(organization);
     return membershipRepository.getMembers(organization);
   }
@@ -134,8 +127,7 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
 
   private void addMember(String userId, Organization organization, Role role) {
     if (!isMember(userId, organization)) {
-      membershipRepository.addMember(organization,
-          new OrganizationMember(userId, role.toString()));
+      membershipRepository.addMember(organization, new OrganizationMember(userId, role.toString()));
     }
   }
 
@@ -175,8 +167,7 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
     }
   }
 
-  private void verifyOrganizationExists(Organization organization)
-      throws EntityNotFoundException {
+  private void verifyOrganizationExists(Organization organization) throws EntityNotFoundException {
     if (!organizations.existsById(organization.id())) {
       throw new EntityNotFoundException(organization.id());
     }
@@ -197,16 +188,14 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
       requireNonNull(organizationRepository, "organizationRepository");
       requireNonNull(membershipRepository, "membershipRepository");
       requireNonNull(repositoryAdmin, "repositoryAdmin");
-      return new OrganizationsDataAccessImpl(organizationRepository,
-          membershipRepository,
-          repositoryAdmin);
+      return new OrganizationsDataAccessImpl(
+          organizationRepository, membershipRepository, repositoryAdmin);
     }
 
     public Builder organizations(Repository<Organization, String> organizationRepository) {
       this.organizationRepository = organizationRepository;
       return this;
     }
-
 
     public Builder members(UserOrganizationMembershipRepository membershipRepository) {
       this.membershipRepository = membershipRepository;
