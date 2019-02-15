@@ -8,6 +8,7 @@ import io.scalecube.account.api.ApiKey;
 import io.scalecube.account.api.CreateOrganizationRequest;
 import io.scalecube.account.api.GetOrganizationRequest;
 import io.scalecube.account.api.InviteOrganizationMemberRequest;
+import io.scalecube.account.api.LeaveOrganizationRequest;
 import io.scalecube.account.api.OrganizationInfo;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
@@ -224,6 +225,43 @@ class UtGetOrganizationTest {
               assertEquals(apiKeys, new HashSet<>(Arrays.asList(organization.apiKeys())));
             })
         .expectComplete()
+        .verify(TestHelper.TIMEOUT);
+  }
+
+  @Test
+  @DisplayName(
+      "#MPA-7603 (#4) Fail to get of specific Organization info upon the Owner was removed from relevant Organization")
+  void testFailToGetOrganizationInfoBecauseOwnerWasRemoved() {
+    Profile userA = TestTokenVerifier.USER_1;
+    Profile userB = TestTokenVerifier.USER_2;
+    Token userAToken = TestTokenVerifier.token(userA);
+
+    // create a single organization which will be owned by user "A"
+    String organizationId =
+        service
+            .createOrganization(new CreateOrganizationRequest("repo", userA.getEmail(), userAToken))
+            .map(OrganizationInfo::id)
+            .block(TestHelper.TIMEOUT);
+
+    // the user "A" invites user "B" to his organization with an "owner" role
+    service
+        .inviteMember(
+            new InviteOrganizationMemberRequest(
+                userAToken, organizationId, userB.getUserId(), Role.Owner.name()))
+        .block(TestHelper.TIMEOUT);
+
+    // the user "A" leaves own organization
+    service
+        .leaveOrganization(new LeaveOrganizationRequest(userAToken, organizationId))
+        .block(TestHelper.TIMEOUT);
+
+    // the user "A" requests to get own former organization info
+    StepVerifier.create(
+            service.getOrganization(new GetOrganizationRequest(userAToken, organizationId)))
+        .expectErrorMessage(
+            String.format(
+                "user: '%s', name: '%s', is not a member of organization: '%s'",
+                userA.getName(), userA.getUserId(), organizationId))
         .verify(TestHelper.TIMEOUT);
   }
 }
