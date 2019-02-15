@@ -30,6 +30,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
+import reactor.test.StepVerifier;
 
 /** @see features/mpa-7603-Organization-service-UT-Get-Organization */
 class UtGetOrganizationTest {
@@ -99,14 +100,16 @@ class UtGetOrganizationTest {
                 userAToken, organizationId, userB.getUserId(), Role.Owner.name()))
         .block(TestHelper.TIMEOUT);
 
-    OrganizationInfo organization =
-        service
-            .getOrganization(new GetOrganizationRequest(userBToken, organizationId))
-            .block(TestHelper.TIMEOUT);
-
-    assertNotNull(organization);
-    assertEquals(organizationId, organization.id());
-    // user "B" should get all stored API keys
-    assertEquals(apiKeys, new HashSet<>(Arrays.asList(organization.apiKeys())));
+    StepVerifier.create(
+            service.getOrganization(new GetOrganizationRequest(userBToken, organizationId)))
+        .assertNext(
+            organization -> {
+              assertNotNull(organization);
+              assertEquals(organizationId, organization.id());
+              // user "B" should get all stored API keys
+              assertEquals(apiKeys, new HashSet<>(Arrays.asList(organization.apiKeys())));
+            })
+        .expectComplete()
+        .verify(TestHelper.TIMEOUT);
   }
 }
