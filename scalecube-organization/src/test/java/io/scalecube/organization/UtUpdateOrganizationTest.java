@@ -7,6 +7,7 @@ import io.scalecube.account.api.AddOrganizationApiKeyRequest;
 import io.scalecube.account.api.ApiKey;
 import io.scalecube.account.api.CreateOrganizationRequest;
 import io.scalecube.account.api.InviteOrganizationMemberRequest;
+import io.scalecube.account.api.LeaveOrganizationRequest;
 import io.scalecube.account.api.OrganizationInfo;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
@@ -69,15 +70,15 @@ class UtUpdateOrganizationTest {
     Profile userA = TestTokenVerifier.USER_1;
     Token userAToken = TestTokenVerifier.token(userA);
 
-    String repoName = TestHelper.randomString(10);
-    String newRepoName = "new" + repoName;
+    String organizationName = TestHelper.randomString(10);
+    String newOrganizationName = "new" + organizationName;
     String newEmail = "new" + userA.getEmail();
 
     // create a single organization which will be owned by user "A"
     String organizationId =
         service
             .createOrganization(
-                new CreateOrganizationRequest(repoName, userA.getEmail(), userAToken))
+                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
             .block(TestHelper.TIMEOUT);
 
@@ -101,12 +102,13 @@ class UtUpdateOrganizationTest {
     // user "A" updates repo name and email in the organization
     StepVerifier.create(
             service.updateOrganization(
-                new UpdateOrganizationRequest(organizationId, userAToken, newRepoName, newEmail)))
+                new UpdateOrganizationRequest(
+                    organizationId, userAToken, newOrganizationName, newEmail)))
         .assertNext(
             organization -> {
               assertNotNull(organization);
               assertEquals(organizationId, organization.id());
-              assertEquals(newRepoName, organization.name());
+              assertEquals(newOrganizationName, organization.name());
               assertEquals(newEmail, organization.email());
               // user "A" should get all stored API keys
               assertEquals(apiKeys, new HashSet<>(Arrays.asList(organization.apiKeys())));
@@ -124,15 +126,15 @@ class UtUpdateOrganizationTest {
     Token userAToken = TestTokenVerifier.token(userA);
     Token userBToken = TestTokenVerifier.token(userB);
 
-    String repoName = TestHelper.randomString(10);
-    String newRepoName = "new" + repoName;
+    String organizationName = TestHelper.randomString(10);
+    String newOrganizationName = "new" + organizationName;
     String newEmail = "new" + userA.getEmail();
 
     // create a single organization which will be owned by user "A"
     String organizationId =
         service
             .createOrganization(
-                new CreateOrganizationRequest(repoName, userA.getEmail(), userAToken))
+                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
             .block(TestHelper.TIMEOUT);
 
@@ -165,12 +167,13 @@ class UtUpdateOrganizationTest {
     // user "B" updates repo name and email in the organization
     StepVerifier.create(
             service.updateOrganization(
-                new UpdateOrganizationRequest(organizationId, userBToken, newRepoName, newEmail)))
+                new UpdateOrganizationRequest(
+                    organizationId, userBToken, newOrganizationName, newEmail)))
         .assertNext(
             organization -> {
               assertNotNull(organization);
               assertEquals(organizationId, organization.id());
-              assertEquals(newRepoName, organization.name());
+              assertEquals(newOrganizationName, organization.name());
               assertEquals(newEmail, organization.email());
               // user "B" should get only stored "admin" and "member" API keys
               assertEquals(apiKeys, new HashSet<>(Arrays.asList(organization.apiKeys())));
@@ -188,15 +191,15 @@ class UtUpdateOrganizationTest {
     Token userAToken = TestTokenVerifier.token(userA);
     Token userBToken = TestTokenVerifier.token(userB);
 
-    String repoName = TestHelper.randomString(10);
-    String newRepoName = "new" + repoName;
+    String organizationName = TestHelper.randomString(10);
+    String newOrganizationName = "new" + organizationName;
     String newEmail = "new" + userA.getEmail();
 
     // create a single organization which will be owned by user "A"
     String organizationId =
         service
             .createOrganization(
-                new CreateOrganizationRequest(repoName, userA.getEmail(), userAToken))
+                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
             .block(TestHelper.TIMEOUT);
 
@@ -217,17 +220,102 @@ class UtUpdateOrganizationTest {
     // user "B" updates repo name and email in the organization
     StepVerifier.create(
             service.updateOrganization(
-                new UpdateOrganizationRequest(organizationId, userBToken, newRepoName, newEmail)))
+                new UpdateOrganizationRequest(
+                    organizationId, userBToken, newOrganizationName, newEmail)))
         .assertNext(
             organization -> {
               assertNotNull(organization);
               assertEquals(organizationId, organization.id());
-              assertEquals(newRepoName, organization.name());
+              assertEquals(newOrganizationName, organization.name());
               assertEquals(newEmail, organization.email());
               // user "B" should get only stored "admin" and "member" API keys
               assertEquals(0, organization.apiKeys().length);
             })
         .expectComplete()
+        .verify(TestHelper.TIMEOUT);
+  }
+
+  @Test
+  @DisplayName(
+      "#MPA-7603 (#22) Fail to update relevant Organization by the Member with similar role")
+  void testFailToUpdateOrganizationMemberByMember() {
+    Profile userA = TestTokenVerifier.USER_1;
+    Profile userB = TestTokenVerifier.USER_2;
+    Token userAToken = TestTokenVerifier.token(userA);
+    Token userBToken = TestTokenVerifier.token(userB);
+
+    String organizationName = TestHelper.randomString(10);
+    String newOrganizationName = "new" + organizationName;
+    String newEmail = "new" + userA.getEmail();
+
+    // create a single organization which will be owned by user "A"
+    String organizationId =
+        service
+            .createOrganization(
+                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+            .map(OrganizationInfo::id)
+            .block(TestHelper.TIMEOUT);
+
+    // the user "A" invites user "B" to his organization with an "member" role
+    service
+        .inviteMember(
+            new InviteOrganizationMemberRequest(
+                userAToken, organizationId, userB.getUserId(), Role.Member.name()))
+        .block(TestHelper.TIMEOUT);
+
+    // user "B" updates repo name and email in the organization
+    StepVerifier.create(
+            service.updateOrganization(
+                new UpdateOrganizationRequest(
+                    organizationId, userBToken, newOrganizationName, newEmail)))
+        .expectErrorMessage(
+            String.format(
+                "user: '%s', name: '%s', not in role Owner or Admin of organization: '%s'",
+                userB.getUserId(), userB.getName(), organizationName))
+        .verify(TestHelper.TIMEOUT);
+  }
+
+  @Test
+  @DisplayName(
+      "#MPA-7603 (#23) Fail to update relevant Organization upon the Owner was removed from it")
+  void testFailToUpdateOrganizationBecauseOwnerWasRemoved() {
+    Profile userA = TestTokenVerifier.USER_1;
+    Profile userB = TestTokenVerifier.USER_2;
+    Token userAToken = TestTokenVerifier.token(userA);
+
+    String organizationName = TestHelper.randomString(10);
+    String newOrganizationName = "new" + organizationName;
+    String newEmail = "new" + userA.getEmail();
+
+    // create a single organization which will be owned by user "A"
+    String organizationId =
+        service
+            .createOrganization(
+                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+            .map(OrganizationInfo::id)
+            .block(TestHelper.TIMEOUT);
+
+    // the user "A" invites user "B" to his organization with an "owner" role
+    service
+        .inviteMember(
+            new InviteOrganizationMemberRequest(
+                userAToken, organizationId, userB.getUserId(), Role.Owner.name()))
+        .block(TestHelper.TIMEOUT);
+
+    // the user "A" leaves own organization
+    service
+        .leaveOrganization(new LeaveOrganizationRequest(userAToken, organizationId))
+        .block(TestHelper.TIMEOUT);
+
+    // user "A" updates repo name and email in the organization
+    StepVerifier.create(
+            service.updateOrganization(
+                new UpdateOrganizationRequest(
+                    organizationId, userAToken, newOrganizationName, newEmail)))
+        .expectErrorMessage(
+            String.format(
+                "user: '%s', name: '%s', not in role Owner or Admin of organization: '%s'",
+                userA.getUserId(), userA.getName(), organizationName))
         .verify(TestHelper.TIMEOUT);
   }
 }
