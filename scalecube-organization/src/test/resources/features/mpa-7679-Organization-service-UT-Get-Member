@@ -8,7 +8,7 @@ Feature: Organization service members management - Get members
   #__________________________________________________POSITIVE___________________________________________________________
 
 
-  #MPA-7229 (#1)
+  #MPA-7679 (#92)
   Scenario: Successful get all the members list from relevant Organization by the "owner"
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -17,7 +17,7 @@ Feature: Organization service members management - Get members
     Then user "A" should receive successful response with list of members: "A", "B" and "C"
 
 
-  #MPA-7229 (#2)
+  #MPA-7679 (#93)
   Scenario: Successful get all the members list from relevant Organization by the the "admin"
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -28,7 +28,7 @@ Feature: Organization service members management - Get members
 
   #__________________________________________________NEGATIVE___________________________________________________________
 
-  #MPA-7229 (#3)
+  #MPA-7679 (#94)
   Scenario: Fail to get the list of all the members from the relevant Organization by the existing member with similar role
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -37,7 +37,7 @@ Feature: Organization service members management - Get members
     Then user "B" should get an error message: "user: 'userId "B"', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
 
 
-  #MPA-7229 (#4)
+  #MPA-7679 (#95)
   Scenario: Fail to get the list of all the members from the relevant Organization upon some of the existing (requester) managers was removed from the relevant organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -47,7 +47,7 @@ Feature: Organization service members management - Get members
     Then user "B" should get an error message: "user: 'userId "B"', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
 
 
-  #MPA-7229 (#5)
+  #MPA-7679 (#96)
   Scenario: Fail to get members from non-existent Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And no organization were created yet
@@ -55,7 +55,7 @@ Feature: Organization service members management - Get members
     Then user "A" should receive the error message with non-existent: "organizationId"
 
 
-  #MPA-7229 (#6)
+  #MPA-7679 (#97)
   Scenario: Fail to get the user from specific Organization if the token is invalid (expired)
     Given a user "D" have got the invalid either expired "token"
     When user "D" requested to get the list of all the members from some organization

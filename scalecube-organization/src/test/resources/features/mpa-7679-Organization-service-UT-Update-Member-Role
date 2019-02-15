@@ -15,7 +15,7 @@ Feature: Organization service members management - Update member role
 
   #__________________________________________________POSITIVE___________________________________________________________
 
-  #MPA-7229 (#1)
+  #MPA-7679 (#72)
   Scenario: Successful upgrade of specific "member" to "admin" role in the relevant Organization by the "owner"
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -25,7 +25,7 @@ Feature: Organization service members management - Update member role
     And user "A" should get successful response with the empty object
 
 
-  #MPA-7229 (#2)
+  #MPA-7679 (#73)
   Scenario: Successful upgrade of specific "member" to "owner" role in the relevant Organization by another "owner"
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -35,7 +35,7 @@ Feature: Organization service members management - Update member role
     And user "A" should get successful response with the empty object
 
 
-  #MPA-7229 (#3)
+  #MPA-7679 (#74)
   Scenario: Successful upgrade of "admin" to "owner" role in the relevant Organization by another "owner"
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -45,7 +45,7 @@ Feature: Organization service members management - Update member role
     And user "A" should get successful response with the empty object
 
 
-  #MPA-7229 (#4)
+  #MPA-7679 (#75)
   Scenario: Successful upgrade of specific "member" to "admin" role in the relevant Organization by the "admin"
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -56,7 +56,7 @@ Feature: Organization service members management - Update member role
     And user "B" should get successful response with the empty object
 
 
-  #MPA-7229 (#5)
+  #MPA-7679 (#76)
   Scenario: Successful downgrade of the "owner" to "admin" role in the relevant Organization by another "owner"
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -66,7 +66,7 @@ Feature: Organization service members management - Update member role
     And user "A" should get successful response with the empty object
 
 
-  #MPA-7229 (#6)
+  #MPA-7679 (#77)
   Scenario: Successful downgrade of the "owner" to "member" role in the relevant Organization by another "owner"
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -76,7 +76,7 @@ Feature: Organization service members management - Update member role
     And user "B" should get successful response with the empty object
 
 
-  #MPA-7229 (#7)
+  #MPA-7679 (#78)
   Scenario: Successful downgrade of the "admin" to "member" role in the relevant Organization by the "owner"
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -87,7 +87,7 @@ Feature: Organization service members management - Update member role
     And user "C" should get successful response with the empty object
 
 
-  #MPA-7229 (#8)
+  #MPA-7679 (#79)
   Scenario: Successful downgrade "admin" to "member" role in the relevant Organization by another "admin"
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -97,7 +97,7 @@ Feature: Organization service members management - Update member role
     And user "B" should get successful response with the empty object
 
 
-  #MPA-7229 (#9)
+  #MPA-7679 (#80)
   Scenario: Successful downgrade yourself as the "owner" to "member" either "admin" role in the relevant Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -107,7 +107,7 @@ Feature: Organization service members management - Update member role
     And user "A" should get successful response with the empty object
 
 
-  #MPA-7229 (#10)
+  #MPA-7679 (#81)
   Scenario: Successful downgrade yourself as "admin" to "member" role in the relevant Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -120,7 +120,7 @@ Feature: Organization service members management - Update member role
   /**
     * #Note for the future implementation after the refactoring:
     *
-    * ##MPA-7679 (#11)
+    * ##MPA-7679 (#82)
     * #Scenario: Permission level of the "owner" API key (token) successfully downgraded to "admin" API key upon the Organization owner was downgraded to "admin"
     * #  Given the user "A" have got a valid "token" issued by relevant authority
     * #  And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -132,7 +132,7 @@ Feature: Organization service members management - Update member role
     * #  And the API keys with assigned roles: "admin", "admin", "admin" and "member" should be persisted for the relevant organization
 
 
-    * ##MPA-7679 (#12)
+    * ##MPA-7679 (#83)
     * #Scenario: Permission level of the "owner" and "admin" API key (token) successfully downgraded to "member" API keys upon the Organization "owner" was downgraded to "member"
     * #  Given the user "A" have got a valid "token" issued by relevant authority
     * #  And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -144,7 +144,7 @@ Feature: Organization service members management - Update member role
     * #  And the API keys with assigned roles: "member", "member" and "member" should be persisted for the relevant organization
 
 
-    * ##MPA-7679 (#13)
+    * ##MPA-7679 (#84)
     * #Scenario: Permission level of the "admin" API key (token) successfully downgraded to "member" API key upon the Organization "admin" was downgraded to "member"
     * #  Given the user "A" have got a valid "token" issued by relevant authority
     * #  And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -156,7 +156,7 @@ Feature: Organization service members management - Update member role
     * #  And only one API key with assigned role: "member" should be persisted for the relevant organization
 
 
-    * ##MPA-7679 (#14)
+    * ##MPA-7679 (#85)
     * #Scenario: Permission level of the "member" API key (token) successfully upgraded to "admin" API key upon the Organization "member" was promoted to "admin" again
     * #  Given the user "A" have got a valid "token" issued by relevant authority
     * #  And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -169,7 +169,7 @@ Feature: Organization service members management - Update member role
     * #  And the API keys with assigned roles: "admin" and "admin" should be persisted for the relevant organization
 
 
-    * ##MPA-7679 (#15)
+    * ##MPA-7679 (#86)
     * #Scenario: Permission level of the "member" and "admin" API keys (token) successfully upgraded to "owner" API keys upon the Organization "admin" was promoted to "owner" again
     * #  Given the user "A" have got a valid "token" issued by relevant authority
     * #  And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -185,7 +185,7 @@ Feature: Organization service members management - Update member role
 
   #__________________________________________________NEGATIVE___________________________________________________________
 
-  #MPA-7229 (#11)
+  #MPA-7679 (#87)
   Scenario: Fail to downgrade yourself as the single "owner" to "member" either "admin" role in the relevant Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -194,7 +194,7 @@ Feature: Organization service members management - Update member role
 
 
 
-  #MPA-7229 (#12)
+  #MPA-7679 (#88)
   Scenario: Fail to upgrade a "member" either "admin" to "owner" role in the relevant Organization by the "admin"
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -205,7 +205,7 @@ Feature: Organization service members management - Update member role
 
 
 
-  #MPA-7229 (#13)
+  #MPA-7679 (#89)
   Scenario: Fail to update any accessible member role in the relevant Organization by the "member"
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -215,7 +215,7 @@ Feature: Organization service members management - Update member role
     Then user "C" should get an error message: ""user: 'userId "C"', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
 
 
-  #MPA-7229 (#14)
+  #MPA-7679 (#90)
   Scenario: Fail to update any accessible member role in the relevant Organization by the owner who was removed from own Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -226,7 +226,7 @@ Feature: Organization service members management - Update member role
     Then user "A" should get an error message: ""user: 'userId "A"', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
 
 
-  #MPA-7229 (#15)
+  #MPA-7679 (#91)
   Scenario: Fail to update some member role in some Organization if the token is invalid (expired)
     Given a user "D" have got the invalid either expired "token"
     When the user "D" requested to update the some user role in some organization
