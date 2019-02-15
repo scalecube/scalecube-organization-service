@@ -38,7 +38,7 @@ public final class CreateOrganization
     validate(
         new OrganizationInfo.Builder()
             .id(id)
-            .email(context.profile().getEmail())
+            .email(request.email())
             .name(request.name())
             .build(),
         context);
@@ -71,7 +71,7 @@ public final class CreateOrganization
             Organization.builder()
                 .id(id)
                 .name(request.name())
-                .email(context.profile().getEmail())
+                .email(request.email())
                 .keyId(UUID.randomUUID().toString())
                 .build());
   }

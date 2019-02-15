@@ -145,7 +145,7 @@ public class Base {
     AtomicReference<CreateOrganizationResponse> createdOrg = new AtomicReference<>();
     StepVerifier.create(
             service.createOrganization(
-                new CreateOrganizationRequest("myTestOrg5" + rand.nextInt(50) + 1, token)))
+                new CreateOrganizationRequest("myTestOrg5" + rand.nextInt(50) + 1, "email", token)))
         .consumeNextWith(createdOrg::set)
         .verifyComplete();
 
@@ -193,7 +193,8 @@ public class Base {
 
   protected Organization createOrganization(String name) {
     AtomicReference<CreateOrganizationResponse> createdOrganizationId = new AtomicReference<>();
-    StepVerifier.create(service.createOrganization(new CreateOrganizationRequest(name, token)))
+    StepVerifier.create(
+            service.createOrganization(new CreateOrganizationRequest(name, "email", token)))
         .consumeNextWith(createdOrganizationId::set)
         .verifyComplete();
 
