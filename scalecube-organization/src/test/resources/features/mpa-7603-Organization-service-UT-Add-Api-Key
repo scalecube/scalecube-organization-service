@@ -10,7 +10,7 @@ Feature: Organization service API keys management - Add API key
   #__________________________________________________POSITIVE___________________________________________________________
   
 
-  #MPA-7603 (#1)
+  #MPA-7603 (#35)
   Scenario: Successful adding the API keys (token) for relevant Organization with all accessible roles by Owner
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -20,7 +20,7 @@ Feature: Organization service API keys management - Add API key
     And user "A" should get successful response with extended organization info which include all stored API keys
 
 
-  #MPA-7603 (#2)
+  #MPA-7603 (#36)
   Scenario: Successful adding the API keys (token) with "admin" and "member" roles for relevant Organization by Admin
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -35,7 +35,7 @@ Feature: Organization service API keys management - Add API key
   #__________________________________________________NEGATIVE___________________________________________________________
 
 
-  #MPA-7603 (#3)
+  #MPA-7603 (#37)
   Scenario: Fail to add the "owner" API key (token) for a relevant Organization by the Admin
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -44,7 +44,7 @@ Feature: Organization service API keys management - Add API key
     Then user "B" should get an error message: "user: 'userId "B"', name: 'null', not in role Owner of organization: 'org "A" name'"
 
 
-  #MPA-7603 (#4)
+  #MPA-7603 (#38)
   Scenario: Fail to add some of accessible API keys (token) for a relevant Organization upon the relevant "member" doesn't manager's permission level
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -53,7 +53,7 @@ Feature: Organization service API keys management - Add API key
     Then user "B" should get an error message: "user: 'userId "B"', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
 
 
-  #MPA-7603 (#5)
+  #MPA-7603 (#39)
   Scenario: Fail to add some of accessible API keys (token) with the duplicate "name" for a relevant Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -62,7 +62,7 @@ Feature: Organization service API keys management - Add API key
     Then user "A" should receive the error message like:"apiKey name:'specifiedApiKeyName' already exists"
 
 
-  #MPA-7603 (#6)
+  #MPA-7603 (#40)
   Scenario: Fail to add some of accessible API keys (token) for relevant Organization upon the owner was removed from own Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -72,7 +72,7 @@ Feature: Organization service API keys management - Add API key
     Then user "A" should get an error message: "user: 'userId "B"', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
 
 
-  #MPA-7603 (#7)
+  #MPA-7603 (#41)
   Scenario: Fail to add the API key (token) for a relevant Organization upon the assigned role is invalid (differs from allowed)
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -80,7 +80,7 @@ Feature: Organization service API keys management - Add API key
     Then user "A" should receive the error message: "role": 'boss' is invalid"
 
 
-  #MPA-7603 (#8)
+  #MPA-7603 (#42)
   Scenario: Fail to add the API key (token) for a relevant Organization if the token is invalid (expired)
     Given a user have got the invalid either expired "token"
     When this user requested to add some API key for some Organization

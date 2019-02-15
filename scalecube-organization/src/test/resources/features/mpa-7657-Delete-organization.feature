@@ -7,7 +7,7 @@ Feature: Delete of the Organization
 
   #DELETE ORG
 
-  #MPA-7657 (#1)
+  #MPA-7657 (#6)
   Scenario: Successful delete of specific Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -18,7 +18,7 @@ Feature: Delete of the Organization
     And the relevant secret should be deleted from the Vault
 
 
-  #MPA-7657 (#2)
+  #MPA-7657 (#7)
   Scenario: Successful delete of the Organization upon it's "member" was granted with owner role
     Given the user "A" have got a valid "token" issued by relevant authority
     And the organization "organizationId" with specified "name" and "email" already created and owned by this user "A"
@@ -29,7 +29,7 @@ Feature: Delete of the Organization
     And the relevant secret should be deleted from the Vault
 
 
-  #MPA-7657 (#3)
+  #MPA-7657 (#8)
   Scenario: Fail to delete a specific Organization upon the origin owner was removed from own Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -39,7 +39,7 @@ Feature: Delete of the Organization
     Then user "A" should receive the error message: "user: 'user Id "A"', not in role Owner of organization: 'org "A" name'"
 
 
-  #MPA-7657 (#4)
+  #MPA-7657 (#9)
   Scenario: Fail to delete the Organization upon it's "member" was granted with admin role permission level
     Given the user "A" have got a valid "token" issued by relevant authority
     And the organization "organizationId" with specified "name" and "email" already created and owned by this user "A"
@@ -48,7 +48,7 @@ Feature: Delete of the Organization
     Then user "B" should receive the error message: "user: 'user Id "B"', not in role Owner of organization: 'org "A" name'"
 
 
-  #MPA-7657 (#5)
+  #MPA-7657 (#10)
   Scenario: Fail to delete the Organization upon the relevant member got the "member" role permission level
     Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
     And the organization "organizationId" with specified "name" and "email" which doesn't contain any "member" already created and owned by user "A"
@@ -57,14 +57,14 @@ Feature: Delete of the Organization
     Then the user "B" should get an error message: "user: 'userId "B"', name: 'null', not in role Owner organization: 'org "A" name'"
 
 
-  #MPA-7657 (#6)
+  #MPA-7657 (#11)
   Scenario: Fail to delete the Organization if the token is invalid (expired)
     Given a user have got the invalid either expired "token"
     When this user requested to delete the organization with some "organizationId"
     Then this user should receive the error message: "Token verification failed"
 
 
-  #MPA-7657 (#7)
+  #MPA-7657 (#12)
   Scenario: Fail to delete a non-existent Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"

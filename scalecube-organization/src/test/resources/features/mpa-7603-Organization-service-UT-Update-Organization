@@ -8,7 +8,7 @@ Feature: Organization service Org management - Update Organization
   #__________________________________________________POSITIVE___________________________________________________________
   
 
-  #MPA-7603 (#1)
+  #MPA-7603 (#19)
   Scenario: Successful update of the relevant Organization by the Owner
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -17,7 +17,7 @@ Feature: Organization service Org management - Update Organization
     Then the user "A" should get successful response with extended organization info which include all stored API keys
 
 
-  #MPA-7603 (#2)
+  #MPA-7603 (#20)
   Scenario: Successful update of the relevant Organization by the Admin
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -27,7 +27,7 @@ Feature: Organization service Org management - Update Organization
     Then the user "B" should get successful response with extended organization info which include only stored "admin" and "member" API keys
 
 
-  #MPA-7603 (#3)
+  #MPA-7603 (#21)
   Scenario: Successful update of the Organization upon it's "member" was granted with Owner role
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -41,7 +41,7 @@ Feature: Organization service Org management - Update Organization
 
   #__________________________________________________NEGATIVE___________________________________________________________
 
-  #MPA-7603 (#4)
+  #MPA-7603 (#22)
   Scenario: Fail to update relevant Organization by the Member with similar role
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -50,7 +50,7 @@ Feature: Organization service Org management - Update Organization
     Then the user "C" should get an error message: "user: 'userId "C"', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
 
 
-  #MPA-7603 (#5)
+  #MPA-7603 (#23)
   Scenario: Fail to update relevant Organization upon the Owner was removed from it
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -60,7 +60,7 @@ Feature: Organization service Org management - Update Organization
     Then the user "A" should get an error message: "user: 'userId "A"', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
 
 
-  #MPA-7603 (#6)
+  #MPA-7603 (#24)
   Scenario: Fail to update the Organization with the name which already exists (duplicate)
     Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
     And organization "organizationId" with specified "name-1" and "email" already created and owned by user "A"
@@ -69,7 +69,7 @@ Feature: Organization service Org management - Update Organization
     Then user "A" should get an error message: "Organization name: 'org "B" name' already in use"
 
 
-  #MPA-7603 (#7)
+  #MPA-7603 (#25)
   Scenario: Fail to update the non-existent Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And there is no organization "organizationId" was created and stored
@@ -77,7 +77,7 @@ Feature: Organization service Org management - Update Organization
     Then user "A" should receive the error message with non-existent: "organizationId"
 
 
-  #MPA-7603 (#8)
+  #MPA-7603 (#26)
   Scenario: Fail to update the Organization with the name which contain else symbols apart of allowed chars
     Given the user "A" have got a valid "token" issued by relevant authority
     And the organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -85,7 +85,7 @@ Feature: Organization service Org management - Update Organization
     Then user "A" should get an error message: "name can only contain characters in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent"
 
 
-  #MPA-7603 (#9)
+  #MPA-7603 (#27)
   Scenario: Fail to update the Organization if the token is invalid (expired)
     Given a user have got the invalid either expired "token"
     When this user requested to update some organization "organizationId" with some "name" and "email"

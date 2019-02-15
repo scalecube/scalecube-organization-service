@@ -12,7 +12,7 @@ Feature: Organization service API keys management - Delete API key
   #__________________________________________________POSITIVE___________________________________________________________
 
 
-  #MPA-7603 (#1)
+  #MPA-7603 (#43)
   Scenario: Successful delete any of accessible API key (token) roles from relevant Organization by Owner
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -23,7 +23,7 @@ Feature: Organization service API keys management - Delete API key
     And user "A" should get successful response with extended organization info which include the API key with "member" role only
 
 
-  #MPA-7603 (#2) - the API key with "owner" role persisted but isn't shown to Admin
+  #MPA-7603 (#44) - the API key with "owner" role persisted but isn't shown to Admin
   Scenario: Successful delete the API keys (token) only with "admin" and "member" roles from relevant Organization by Admin
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -39,7 +39,7 @@ Feature: Organization service API keys management - Delete API key
 
   /**
     *
-    *##MPA-7603 (#3) - TBD if Admin could delete the API key assigned with "owner" role?
+    *##MPA-7603 (#45) - TBD if Admin could delete the API key assigned with "owner" role?
     *#Scenario: Fail to delete the API key (token) with "owner" role from relevant Organization by Admin
     *#  Given the user "A" have got a valid "token" issued by relevant authority
     *#  And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -50,7 +50,7 @@ Feature: Organization service API keys management - Delete API key
     */
 
 
-  #MPA-7603 (#3)
+  #MPA-7603 (#46)
   Scenario: Fail to delete any of accessible API key (token) roles from relevant Organization by the Member with similar role
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -60,7 +60,7 @@ Feature: Organization service API keys management - Delete API key
     Then user "C" should get an error message: "user: 'userId "C"', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
 
 
-  #MPA-7603 (#4)
+  #MPA-7603 (#47)
   Scenario: Fail to delete non-existent (invalid) API key (token) from specific Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -69,7 +69,7 @@ Feature: Organization service API keys management - Delete API key
     Then user "A" should get successful response with extended organization info which include the API key with "member" role only
 
 
-  #MPA-7603 (#5)
+  #MPA-7603 (#48)
   Scenario: Fail to delete the API key (token) from relevant Organization if the token is invalid (expired)
     Given a user have got the invalid either expired "token"
     When this user requested to delete some API key "name" in some Organization
