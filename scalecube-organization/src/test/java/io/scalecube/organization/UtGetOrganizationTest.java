@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
@@ -62,8 +63,8 @@ class UtGetOrganizationTest {
   }
 
   @Test
-  @DisplayName("#MPA-7603 (#1)")
-  void testMPA_7603_1() {
+  @DisplayName("#MPA-7603 (#1) Successful info get about relevant Organization by the Owner")
+  void testGetOrganizationInfoByOwner() {
     Profile userA = TestTokenVerifier.USER_1;
     Profile userB = TestTokenVerifier.USER_2;
     Token userAToken = TestTokenVerifier.token(userA);
@@ -73,8 +74,8 @@ class UtGetOrganizationTest {
     String organizationId =
         service
             .createOrganization(new CreateOrganizationRequest("repo", userA.getEmail(), userAToken))
-            .block(TestHelper.TIMEOUT)
-            .id();
+            .map(OrganizationInfo::id)
+            .block(TestHelper.TIMEOUT);
 
     // user "A" creates API keys for the organization with roles: "owner", "admin" and "member"
     Set<ApiKey> apiKeys =
@@ -100,6 +101,7 @@ class UtGetOrganizationTest {
                 userAToken, organizationId, userB.getUserId(), Role.Owner.name()))
         .block(TestHelper.TIMEOUT);
 
+    // the user "B" requested to get the user's "A" organization info
     StepVerifier.create(
             service.getOrganization(new GetOrganizationRequest(userBToken, organizationId)))
         .assertNext(
@@ -107,6 +109,62 @@ class UtGetOrganizationTest {
               assertNotNull(organization);
               assertEquals(organizationId, organization.id());
               // user "B" should get all stored API keys
+              assertEquals(apiKeys, new HashSet<>(Arrays.asList(organization.apiKeys())));
+            })
+        .expectComplete()
+        .verify(TestHelper.TIMEOUT);
+  }
+
+  @Test
+  @Disabled // todo need to implement this behavior
+  @DisplayName("#MPA-7603 (#2) Successful info get about relevant Organization by the Admin")
+  void testGetOrganizationInfoByAdmin() {
+    Profile userA = TestTokenVerifier.USER_1;
+    Profile userB = TestTokenVerifier.USER_2;
+    Token userAToken = TestTokenVerifier.token(userA);
+    Token userBToken = TestTokenVerifier.token(userB);
+
+    // create a single organization which will be owned by user "A"
+    String organizationId =
+        service
+            .createOrganization(new CreateOrganizationRequest("repo", userA.getEmail(), userAToken))
+            .map(OrganizationInfo::id)
+            .block(TestHelper.TIMEOUT);
+
+    // user "A" creates API keys for the organization with roles: "owner", "admin" and "member"
+    Set<ApiKey> apiKeys =
+        Flux.just(Role.Owner, Role.Member, Role.Admin)
+            .map(
+                role ->
+                    new AddOrganizationApiKeyRequest(
+                        userAToken,
+                        organizationId,
+                        role.name() + "-api-key",
+                        Collections.singletonMap("role", role.name())))
+            .flatMap(service::addOrganizationApiKey)
+            .map(OrganizationInfo::apiKeys)
+            .flatMap(Flux::fromArray)
+            // we need to leave out only "admin" and "member" as a result
+            .filter(apiKey -> !Role.Owner.name().equals(apiKey.claims().get("role")))
+            .collectList()
+            .map(HashSet::new)
+            .block(TestHelper.TIMEOUT);
+
+    // the user "A" invites user "B" to his organization with an "admin" role
+    service
+        .inviteMember(
+            new InviteOrganizationMemberRequest(
+                userAToken, organizationId, userB.getUserId(), Role.Admin.name()))
+        .block(TestHelper.TIMEOUT);
+
+    // the user "B" requested to get the user's "A" organization info
+    StepVerifier.create(
+            service.getOrganization(new GetOrganizationRequest(userBToken, organizationId)))
+        .assertNext(
+            organization -> {
+              assertNotNull(organization);
+              assertEquals(organizationId, organization.id());
+              // user "B" should get only stored "admin" and "member" API keys
               assertEquals(apiKeys, new HashSet<>(Arrays.asList(organization.apiKeys())));
             })
         .expectComplete()
