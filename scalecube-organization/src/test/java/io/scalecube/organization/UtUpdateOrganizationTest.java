@@ -6,10 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import io.scalecube.account.api.AddOrganizationApiKeyRequest;
 import io.scalecube.account.api.ApiKey;
 import io.scalecube.account.api.CreateOrganizationRequest;
+import io.scalecube.account.api.InviteOrganizationMemberRequest;
 import io.scalecube.account.api.OrganizationInfo;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
+import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
 import io.scalecube.account.api.UpdateOrganizationRequest;
 import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
 import io.scalecube.organization.repository.Repository;
@@ -26,6 +28,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
@@ -64,11 +67,9 @@ class UtUpdateOrganizationTest {
   @DisplayName("#MPA-7603 (#19) Successful update of the relevant Organization by the Owner")
   void testUpdateOrganizationByOwner() {
     Profile userA = TestTokenVerifier.USER_1;
-    Profile userB = TestTokenVerifier.USER_2;
     Token userAToken = TestTokenVerifier.token(userA);
-    Token userBToken = TestTokenVerifier.token(userB);
 
-    String repoName = "repo";
+    String repoName = TestHelper.randomString(10);
     String newRepoName = "new" + repoName;
     String newEmail = "new" + userA.getEmail();
 
@@ -109,6 +110,122 @@ class UtUpdateOrganizationTest {
               assertEquals(newEmail, organization.email());
               // user "A" should get all stored API keys
               assertEquals(apiKeys, new HashSet<>(Arrays.asList(organization.apiKeys())));
+            })
+        .expectComplete()
+        .verify(TestHelper.TIMEOUT);
+  }
+
+  @Test
+  @Disabled // todo need to implement this behavior
+  @DisplayName("#MPA-7603 (#20) Successful update of the relevant Organization by the Admin")
+  void testUpdateOrganizationByAdmin() {
+    Profile userA = TestTokenVerifier.USER_1;
+    Profile userB = TestTokenVerifier.USER_2;
+    Token userAToken = TestTokenVerifier.token(userA);
+    Token userBToken = TestTokenVerifier.token(userB);
+
+    String repoName = TestHelper.randomString(10);
+    String newRepoName = "new" + repoName;
+    String newEmail = "new" + userA.getEmail();
+
+    // create a single organization which will be owned by user "A"
+    String organizationId =
+        service
+            .createOrganization(
+                new CreateOrganizationRequest(repoName, userA.getEmail(), userAToken))
+            .map(OrganizationInfo::id)
+            .block(TestHelper.TIMEOUT);
+
+    // user "A" creates API keys for the organization with roles: "owner", "admin" and "member"
+    Set<ApiKey> apiKeys =
+        Flux.just(Role.Owner, Role.Member, Role.Admin)
+            .map(
+                role ->
+                    new AddOrganizationApiKeyRequest(
+                        userAToken,
+                        organizationId,
+                        role.name() + "-api-key",
+                        Collections.singletonMap("role", role.name())))
+            .flatMap(service::addOrganizationApiKey)
+            .map(OrganizationInfo::apiKeys)
+            .flatMap(Flux::fromArray)
+            // but we need to leave out only "admin" and "member" as the expected result
+            .filter(apiKey -> !Role.Owner.name().equals(apiKey.claims().get("role")))
+            .collectList()
+            .map(HashSet::new)
+            .block(TestHelper.TIMEOUT);
+
+    // the user "A" invites user "B" to his organization with an "admin" role
+    service
+        .inviteMember(
+            new InviteOrganizationMemberRequest(
+                userAToken, organizationId, userB.getUserId(), Role.Admin.name()))
+        .block(TestHelper.TIMEOUT);
+
+    // user "B" updates repo name and email in the organization
+    StepVerifier.create(
+            service.updateOrganization(
+                new UpdateOrganizationRequest(organizationId, userBToken, newRepoName, newEmail)))
+        .assertNext(
+            organization -> {
+              assertNotNull(organization);
+              assertEquals(organizationId, organization.id());
+              assertEquals(newRepoName, organization.name());
+              assertEquals(newEmail, organization.email());
+              // user "B" should get only stored "admin" and "member" API keys
+              assertEquals(apiKeys, new HashSet<>(Arrays.asList(organization.apiKeys())));
+            })
+        .expectComplete()
+        .verify(TestHelper.TIMEOUT);
+  }
+
+  @Test
+  @DisplayName(
+      "#MPA-7603 (#21) Successful update of the Organization upon it's member was granted with Owner role")
+  void testUpdateOrganizationByMember() {
+    Profile userA = TestTokenVerifier.USER_1;
+    Profile userB = TestTokenVerifier.USER_2;
+    Token userAToken = TestTokenVerifier.token(userA);
+    Token userBToken = TestTokenVerifier.token(userB);
+
+    String repoName = TestHelper.randomString(10);
+    String newRepoName = "new" + repoName;
+    String newEmail = "new" + userA.getEmail();
+
+    // create a single organization which will be owned by user "A"
+    String organizationId =
+        service
+            .createOrganization(
+                new CreateOrganizationRequest(repoName, userA.getEmail(), userAToken))
+            .map(OrganizationInfo::id)
+            .block(TestHelper.TIMEOUT);
+
+    // the user "A" invites user "B" to his organization with an "member" role
+    service
+        .inviteMember(
+            new InviteOrganizationMemberRequest(
+                userAToken, organizationId, userB.getUserId(), Role.Member.name()))
+        .block(TestHelper.TIMEOUT);
+
+    // the user "A" updates the user "B" role to "owner" in the own organization
+    service
+        .updateOrganizationMemberRole(
+            new UpdateOrganizationMemberRoleRequest(
+                userAToken, organizationId, userB.getUserId(), Role.Owner.name()))
+        .block(TestHelper.TIMEOUT);
+
+    // user "B" updates repo name and email in the organization
+    StepVerifier.create(
+            service.updateOrganization(
+                new UpdateOrganizationRequest(organizationId, userBToken, newRepoName, newEmail)))
+        .assertNext(
+            organization -> {
+              assertNotNull(organization);
+              assertEquals(organizationId, organization.id());
+              assertEquals(newRepoName, organization.name());
+              assertEquals(newEmail, organization.email());
+              // user "B" should get only stored "admin" and "member" API keys
+              assertEquals(0, organization.apiKeys().length);
             })
         .expectComplete()
         .verify(TestHelper.TIMEOUT);
