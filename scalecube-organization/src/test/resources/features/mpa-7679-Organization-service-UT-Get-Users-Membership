@@ -9,7 +9,7 @@ Feature: Organization service Members management - Get members membership
   #__________________________________________________POSITIVE___________________________________________________________
   
 
-  #MPA-7603 (#1)
+  #MPA-7679 (#98)
   Scenario: Successful get the list of all Organizations (Membership) in each the user became a Member
     Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
     And organization "organizationId-1" with specified "name-1" and "email" already created and owned by user "A"
@@ -23,7 +23,7 @@ Feature: Organization service Members management - Get members membership
     And the extended info for user's "B" organization "organizationId-2" should include only stored "member" API key
 
 
-  #MPA-7603 (#2)
+  #MPA-7679 (#99)
   Scenario: Successful get the list of all Organizations (Membership) in each the user became an Admin
     Given the user "A" have got a valid "token" issued by relevant authority
     And organization "organizationId-3" with specified "name-3" and "email" already created and owned by user "A"
@@ -37,7 +37,7 @@ Feature: Organization service Members management - Get members membership
     And the extended info for user's "A" organization "organizationId-4" should include only stored "admin" and "member" API keys
 
 
-  #MPA-7603 (#3)
+  #MPA-7679 (#100)
   Scenario: Successful get the list of all Organizations (Membership) in each the user became an Owner
     Given the user "A" have got a valid "token" issued by relevant authority
     And organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -48,7 +48,7 @@ Feature: Organization service Members management - Get members membership
     And the extended info for user's "A" organization "organizationId" should include all stored API keys
 
 
-  #MPA-7603 (#4)
+  #MPA-7679 (#101)
   Scenario: Do not get any Organization data upon the user hasn't became a member (wasn't invited) to any of the relevant Organizations
     Given the user "A" have got a valid "token" issued by relevant authority
     And organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -60,7 +60,7 @@ Feature: Organization service Members management - Get members membership
   #__________________________________________________NEGATIVE___________________________________________________________
 
 
-  #MPA-7603 (#5)
+  #MPA-7679 (#102)
   Scenario: Fail to get the Membership in Organizations upon the token is invalid (expired)
     Given a user have got the invalid either expired "token"
     When this user requested to get own membership from some organization
