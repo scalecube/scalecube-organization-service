@@ -64,7 +64,7 @@ class UtGetOrganizationTest {
   }
 
   @Test
-  @DisplayName("#MPA-7603 (#1) Successful info get about relevant Organization by the Owner")
+  @DisplayName("#MPA-7603 (#13) Successful info get about relevant Organization by the Owner")
   void testGetOrganizationInfoByOwner() {
     Profile userA = TestTokenVerifier.USER_1;
     Profile userB = TestTokenVerifier.USER_2;
@@ -118,7 +118,7 @@ class UtGetOrganizationTest {
 
   @Test
   @Disabled // todo need to implement this behavior
-  @DisplayName("#MPA-7603 (#2) Successful info get about relevant Organization by the Admin")
+  @DisplayName("#MPA-7603 (#14) Successful info get about relevant Organization by the Admin")
   void testGetOrganizationInfoByAdmin() {
     Profile userA = TestTokenVerifier.USER_1;
     Profile userB = TestTokenVerifier.USER_2;
@@ -174,7 +174,7 @@ class UtGetOrganizationTest {
 
   @Test
   @Disabled // todo need to implement this behavior
-  @DisplayName("#MPA-7603 (#3) Successful info get about relevant Organization by the Member")
+  @DisplayName("#MPA-7603 (#15) Successful info get about relevant Organization by the Member")
   void testGetOrganizationInfoByMember() {
     Profile userA = TestTokenVerifier.USER_1;
     Profile userB = TestTokenVerifier.USER_2;
@@ -230,7 +230,7 @@ class UtGetOrganizationTest {
 
   @Test
   @DisplayName(
-      "#MPA-7603 (#4) Fail to get of specific Organization info upon the Owner was removed from relevant Organization")
+      "#MPA-7603 (#16) Fail to get of specific Organization info upon the Owner was removed from relevant Organization")
   void testFailToGetOrganizationInfoBecauseOwnerWasRemoved() {
     Profile userA = TestTokenVerifier.USER_1;
     Profile userB = TestTokenVerifier.USER_2;
@@ -262,6 +262,33 @@ class UtGetOrganizationTest {
             String.format(
                 "user: '%s', name: '%s', is not a member of organization: '%s'",
                 userA.getName(), userA.getUserId(), organizationId))
+        .verify(TestHelper.TIMEOUT);
+  }
+
+  @Test
+  @DisplayName("#MPA-7603 (#17) Fail to get a non-existent Organization info")
+  void testFailToGetNonExistingOrganizationInfo() {
+    Profile userA = TestTokenVerifier.USER_1;
+    Token userAToken = TestTokenVerifier.token(userA);
+    String organizationId = "non-existing organization id";
+
+    // the user "A" requests to get info of non-existing organization
+    StepVerifier.create(
+            service.getOrganization(new GetOrganizationRequest(userAToken, organizationId)))
+        .expectErrorMessage(organizationId)
+        .verify(TestHelper.TIMEOUT);
+  }
+
+  @Test
+  @DisplayName("#MPA-7603 (#18) Fail to get the Organization info if the token is invalid")
+  void testFailToGetOrganizationInfoWithInvalidToken() {
+    Token invalidToken = new Token(TestHelper.randomString(15));
+    String organizationId = TestHelper.randomString(10);
+
+    // the user "A" requests to get info of non-existing organization
+    StepVerifier.create(
+            service.getOrganization(new GetOrganizationRequest(invalidToken, organizationId)))
+        .expectErrorMessage("Token verification failed")
         .verify(TestHelper.TIMEOUT);
   }
 }
