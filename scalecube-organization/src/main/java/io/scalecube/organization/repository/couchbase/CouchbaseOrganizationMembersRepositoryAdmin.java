@@ -1,7 +1,7 @@
 package io.scalecube.organization.repository.couchbase;
 
 import com.couchbase.client.java.Cluster;
-import io.scalecube.account.api.Organization;
+import io.scalecube.organization.Organization;
 import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
 import io.scalecube.organization.repository.couchbase.admin.AdminOperationContext;
 import io.scalecube.organization.repository.couchbase.admin.AdminOperationsFactory;
@@ -11,8 +11,8 @@ import org.slf4j.LoggerFactory;
 final class CouchbaseOrganizationMembersRepositoryAdmin
     implements OrganizationMembersRepositoryAdmin {
 
-  private static final Logger logger = LoggerFactory.getLogger(
-      CouchbaseOrganizationMembersRepositoryAdmin.class);
+  private static final Logger logger =
+      LoggerFactory.getLogger(CouchbaseOrganizationMembersRepositoryAdmin.class);
   private final CouchbaseSettings settings;
   private final Cluster cluster;
 
@@ -42,6 +42,7 @@ final class CouchbaseOrganizationMembersRepositoryAdmin
   /**
    * To enable select queries on the members bucket, this method creates a primary index on the
    * bucket.
+   *
    * @param bucketName the bucket name to create the index
    */
   private void createPrimaryIndex(String bucketName) {
@@ -50,11 +51,11 @@ final class CouchbaseOrganizationMembersRepositoryAdmin
     logger.debug("createPrimaryIndex: exit: name: {}", bucketName);
   }
 
-
   /**
-   * Couchbase Server 5.0 introduced role-based access control (RBAC).
-   * By creating a user with same name as the org-members-bucket, we limit the access to this
-   * bucket only with the need for a password when opening the  bucket.
+   * Couchbase Server 5.0 introduced role-based access control (RBAC). By creating a user with same
+   * name as the org-members-bucket, we limit the access to this bucket only with the need for a
+   * password when opening the bucket.
+   *
    * @param operationContext the bucket name and organization object
    */
   private void insertUser(AdminOperationContext operationContext) {
@@ -62,8 +63,6 @@ final class CouchbaseOrganizationMembersRepositoryAdmin
     AdminOperationsFactory.insertUser().execute(operationContext);
     logger.debug("insetUser: exit: name: {}", operationContext);
   }
-
-
 
   @Override
   public void deleteRepository(Organization organization) {
@@ -73,13 +72,12 @@ final class CouchbaseOrganizationMembersRepositoryAdmin
     logger.debug("deleteRepository: exit: organization: {}", organization);
   }
 
-  private AdminOperationContext operationContext(String bucketName)  {
+  private AdminOperationContext operationContext(String bucketName) {
     return operationContext(bucketName, null);
   }
 
-  private AdminOperationContext operationContext(String bucketName, Organization organization)  {
-    return AdminOperationContext
-        .builder()
+  private AdminOperationContext operationContext(String bucketName, Organization organization) {
+    return AdminOperationContext.builder()
         .settings(settings)
         .cluster(cluster)
         .name(bucketName)

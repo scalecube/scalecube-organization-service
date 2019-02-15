@@ -29,8 +29,7 @@ public interface Repository<T, I> {
   Optional<T> findById(I id);
 
   /**
-   * Determines if an entity corresponding to the <code>I</code> argument exists in this
-   * repository.
+   * Determines if an entity corresponding to the <code>I</code> argument exists in this repository.
    *
    * @param id Search entity I criteria.
    * @return True if an entity exists in this repository; False otherwise.

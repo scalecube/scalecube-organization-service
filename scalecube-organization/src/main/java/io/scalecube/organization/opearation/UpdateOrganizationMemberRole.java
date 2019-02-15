@@ -1,30 +1,29 @@
 package io.scalecube.organization.opearation;
 
 import io.scalecube.account.api.NotAnOrganizationMemberException;
-import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
 import io.scalecube.account.api.UpdateOrganizationMemberRoleResponse;
+import io.scalecube.organization.Organization;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.security.Profile;
 import io.scalecube.tokens.TokenVerifier;
-import java.util.Objects;
 
 /**
- * Encapsulates the processing of a request to update the role of an organization member.
- * This operation is only permitted to super users of the organization (users in role Owner|Admin).
- * In case an admin user is trying to promote user to become an owner, an exception will be thrown.
- * In case an admin user is trying to downgrade a owner, an exception will be thrown.
+ * Encapsulates the processing of a request to update the role of an organization member. This
+ * operation is only permitted to super users of the organization (users in role Owner|Admin). In
+ * case an admin user is trying to promote user to become an owner, an exception will be thrown. In
+ * case an admin user is trying to downgrade a owner, an exception will be thrown.
  */
-public class UpdateOrganizationMemberRole extends ServiceOperation<
-    UpdateOrganizationMemberRoleRequest,
-    UpdateOrganizationMemberRoleResponse> {
+public class UpdateOrganizationMemberRole
+    extends ServiceOperation<
+        UpdateOrganizationMemberRoleRequest, UpdateOrganizationMemberRoleResponse> {
 
-  private UpdateOrganizationMemberRole(TokenVerifier tokenVerifier,
-      OrganizationsDataAccess repository) {
+  private UpdateOrganizationMemberRole(
+      TokenVerifier tokenVerifier, OrganizationsDataAccess repository) {
     super(tokenVerifier, repository);
   }
 
@@ -38,24 +37,21 @@ public class UpdateOrganizationMemberRole extends ServiceOperation<
       UpdateOrganizationMemberRoleRequest request, OperationServiceContext context)
       throws Throwable {
     Organization organization = getOrganization(request.organizationId());
-    context.repository().updateOrganizationMemberRole(
-        organization,
-        request.userId(),
-        request.role());
+    context
+        .repository()
+        .updateOrganizationMemberRole(organization, request.userId(), request.role());
 
     return new UpdateOrganizationMemberRoleResponse();
   }
 
   @Override
-  protected void validate(UpdateOrganizationMemberRoleRequest request,
-      OperationServiceContext context) throws Throwable {
+  protected void validate(
+      UpdateOrganizationMemberRoleRequest request, OperationServiceContext context)
+      throws Throwable {
     super.validate(request, context);
-    requireNonNullOrEmpty(request.userId(),
-        "user id is a required argument");
-    requireNonNullOrEmpty(request.role(),
-        "role is a required argument");
-    requireNonNullOrEmpty(request.organizationId(),
-        "organizationId is a required argument");
+    requireNonNullOrEmpty(request.userId(), "user id is a required argument");
+    requireNonNullOrEmpty(request.role(), "role is a required argument");
+    requireNonNullOrEmpty(request.organizationId(), "organizationId is a required argument");
 
     Organization organization = getOrganization(request.organizationId());
     Profile caller = context.profile();
@@ -64,28 +60,20 @@ public class UpdateOrganizationMemberRole extends ServiceOperation<
     checkIsMember(request.userId(), context, organization);
     checkSuperUserAccess(organization, caller);
     checkIfRequestToUpdateUserRoleIsValidForCaller(
-        toRole(request.role()),
-        context.profile(),
-        callerRole);
-    checkIfAdminCallerIsTryingToDowngradeAnOwner(
-        caller,
-        callerRole,
-        organization,
-        request
-    );
+        toRole(request.role()), context.profile(), callerRole);
+    checkIfAdminCallerIsTryingToDowngradeAnOwner(caller, callerRole, organization, request);
   }
 
   private void checkIfRequestToUpdateUserRoleIsValidForCaller(
-      Role targetRole, Profile profile, Role callerRole)
-        throws AccessPermissionException {
+      Role targetRole, Profile profile, Role callerRole) throws AccessPermissionException {
     if (RoleRank.from(callerRole).isHigherRank(targetRole)) {
       throw new AccessPermissionException(
-        String.format("user: '%s', name: '%s', role: '%s',"
-            + " cannot promote to a higher role: '%s'",
-          profile.getUserId(),
-          profile.getName(),
-          callerRole.toString(),
-          targetRole.toString()));
+          String.format(
+              "user: '%s', name: '%s', role: '%s'," + " cannot promote to a higher role: '%s'",
+              profile.getUserId(),
+              profile.getName(),
+              callerRole.toString(),
+              targetRole.toString()));
     }
   }
 
@@ -99,24 +87,24 @@ public class UpdateOrganizationMemberRole extends ServiceOperation<
 
     if (RoleRank.from(callerRole).isHigherRank(updateUserCurrentRole)) {
       throw new AccessPermissionException(
-        String.format("user: '%s', name: '%s', role: %s,"
-            + " cannot downgrade user id: %s, in higher role: '%s'.",
-          caller.getUserId(),
-          caller.getName(),
-          callerRole.toString(),
-          request.userId(),
-          updateUserCurrentRole.toString()));
+          String.format(
+              "user: '%s', name: '%s', role: %s,"
+                  + " cannot downgrade user id: %s, in higher role: '%s'.",
+              caller.getUserId(),
+              caller.getName(),
+              callerRole.toString(),
+              request.userId(),
+              updateUserCurrentRole.toString()));
     }
-
   }
 
-  private void checkIsMember(String userId,
-      OperationServiceContext context, Organization organization)
+  private void checkIsMember(
+      String userId, OperationServiceContext context, Organization organization)
       throws NotAnOrganizationMemberException {
     if (!context.repository().isMember(userId, organization)) {
       throw new NotAnOrganizationMemberException(
-          String.format("user: %s, is not a member of organization: %s",
-          userId, organization.id()));
+          String.format(
+              "user: %s, is not a member of organization: %s", userId, organization.id()));
     }
   }
 

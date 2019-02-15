@@ -18,7 +18,7 @@
   *
   * @apiSuccess Acknowledgment Empty object
   *
-  * @apiError {String} field user isn't the member (outsider) of the specified organization
+  * @apiError {String} field Invalid or expired token
   *
   * @apiErrorExample {json} WebSocket
   * Request:
@@ -55,7 +55,7 @@
   *         "sid":1,
   *         "d":{
   *                "errorCode":500,
-  *                "errorMessage":"user: 'null', name: 'id@clients', is not a member of organization: 'ORG-ID'"
+  *                "errorMessage":"Token verification failed"
   *         }
   *     }
   *
@@ -87,7 +87,7 @@
   *     {
   *         "data":{
   *                   "errorCode":500,
-  *                   "errorMessage":"user: 'null', name: 'id@clients', is not a member of organization: 'ORG-ID'"
+  *                   "errorMessage":"Token verification failed"
   *         },
   *         "metadata":{
   *                      "q":"/io.scalecube.services.error/500"
@@ -116,7 +116,6 @@
   * Error Response:
   *     {
   *         "errorCode":500,
-  *         "errorMessage":"user: 'null', name: 'id@clients', is not a member of organization: 'ORG-ID'"
+  *         "errorMessage":"Token verification failed"
   *     }
   */
- 

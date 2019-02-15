@@ -2,10 +2,7 @@ package io.scalecube.account.api;
 
 import java.util.Map;
 
-
-/**
- * Represents a request to add organization API key.
- */
+/** Represents a request to add organization API key. */
 public class AddOrganizationApiKeyRequest {
 
   private Token token;
@@ -18,20 +15,18 @@ public class AddOrganizationApiKeyRequest {
    *
    * @deprecated only for serialization/deserialization.
    */
-  AddOrganizationApiKeyRequest() {
-  }
+  AddOrganizationApiKeyRequest() {}
 
   /**
    * Constructs a request to add organization API key.
+   *
    * @param token Verification token
    * @param organizationId Organization Id
    * @param apiKeyName API Key Name
    * @param claims API Key claims
    */
-  public AddOrganizationApiKeyRequest(Token token,
-                                      String organizationId,
-                                      String apiKeyName,
-                                      Map<String, String> claims) {
+  public AddOrganizationApiKeyRequest(
+      Token token, String organizationId, String apiKeyName, Map<String, String> claims) {
     this.token = token;
     this.organizationId = organizationId;
     this.apiKeyName = apiKeyName;
@@ -57,7 +52,8 @@ public class AddOrganizationApiKeyRequest {
   @Override
   public String toString() {
     return super.toString()
-        + String.format(" [organizationId=%s, apiKeyName=%s, claims=%s, token=%s]", organizationId,
-        apiKeyName, claims, token);
+        + String.format(
+            " [organizationId=%s, apiKeyName=%s, claims=%s, token=%s]",
+            organizationId, apiKeyName, claims, token);
   }
 }

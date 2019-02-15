@@ -1,31 +1,31 @@
 package io.scalecube.organization.opearation;
 
-import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationInfo;
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.UpdateOrganizationRequest;
 import io.scalecube.account.api.UpdateOrganizationResponse;
+import io.scalecube.organization.Organization;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.tokens.TokenVerifier;
 
-public class UpdateOrganization extends OrganizationInfoOperation<UpdateOrganizationRequest,
-    UpdateOrganizationResponse> {
+public class UpdateOrganization
+    extends OrganizationInfoOperation<UpdateOrganizationRequest, UpdateOrganizationResponse> {
 
-  private UpdateOrganization(TokenVerifier tokenVerifier,
-      OrganizationsDataAccess repository) {
+  private UpdateOrganization(TokenVerifier tokenVerifier, OrganizationsDataAccess repository) {
     super(tokenVerifier, repository);
   }
 
   @Override
-  protected UpdateOrganizationResponse process(UpdateOrganizationRequest request,
-      OperationServiceContext context) throws Throwable {
+  protected UpdateOrganizationResponse process(
+      UpdateOrganizationRequest request, OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
     checkSuperUserAccess(organization, context.profile());
-    Organization orgUpdate = Organization.builder()
-        .name(request.name())
-        .email(request.email())
-        .apiKey(organization.apiKeys())
-        .copy(organization);
+    Organization orgUpdate =
+        Organization.builder()
+            .name(request.name())
+            .email(request.email())
+            .apiKey(organization.apiKeys())
+            .copy(organization);
 
     context.repository().updateOrganizationDetails(context.profile(), organization, orgUpdate);
     return new UpdateOrganizationResponse(
@@ -33,9 +33,7 @@ public class UpdateOrganization extends OrganizationInfoOperation<UpdateOrganiza
             .id(orgUpdate.id())
             .name(orgUpdate.name())
             .apiKeys(orgUpdate.apiKeys())
-            .email(orgUpdate.email())
-            .ownerId(orgUpdate.ownerId())
-    );
+            .email(orgUpdate.email()));
   }
 
   @Override
@@ -43,13 +41,13 @@ public class UpdateOrganization extends OrganizationInfoOperation<UpdateOrganiza
       throws Throwable {
     super.validate(request, context);
 
-    validate(new OrganizationInfo.Builder()
-        .id(request.organizationId())
-        .email(request.email())
-        .name(request.name())
-        .ownerId(getOrganization(request.organizationId()).ownerId())
-        .build(), context);
-
+    validate(
+        new OrganizationInfo.Builder()
+            .id(request.organizationId())
+            .email(request.email())
+            .name(request.name())
+            .build(),
+        context);
   }
 
   @Override

@@ -1,7 +1,6 @@
 package io.scalecube.organization.opearation;
 
 import io.scalecube.account.api.Role;
-
 import java.util.HashMap;
 import java.util.Map;
 

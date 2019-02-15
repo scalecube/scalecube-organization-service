@@ -3,14 +3,11 @@ package io.scalecube.organization.repository.couchbase;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
-/**
- * Default JSON implementation of <code>TranslationService</code>.
- */
+/** Default JSON implementation of <code>TranslationService</code>. */
 class JacksonTranslationService implements TranslationService {
 
   private final ObjectMapper objectMapper = new ObjectMapper();

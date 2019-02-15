@@ -1,9 +1,8 @@
 package io.scalecube.organization.repository.inmem;
 
-import io.scalecube.account.api.Organization;
 import io.scalecube.account.api.OrganizationMember;
+import io.scalecube.organization.Organization;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,7 +11,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-
 public class InMemoryUserOrganizationMembershipRepository
     implements UserOrganizationMembershipRepository {
 
@@ -20,20 +18,20 @@ public class InMemoryUserOrganizationMembershipRepository
 
   @Override
   public void addMember(Organization org, OrganizationMember member) {
-    map.putIfAbsent(org.id(), new HashSet<>());
-    map.get(org.id()).add(member);
+    map.computeIfAbsent(org.id(), id -> new HashSet<>()).add(member);
   }
 
   @Override
   public boolean isMember(String userId, Organization organization) {
-    return map.containsKey(organization.id()) && map.get(organization.id()).stream()
-        .anyMatch(m -> Objects.equals(m.id(), userId));
+    return map.getOrDefault(organization.id(), Collections.emptySet())
+        .stream()
+        .map(OrganizationMember::id)
+        .anyMatch(userId::equals);
   }
 
   @Override
   public Collection<OrganizationMember> getMembers(Organization organization) {
-    return map.containsKey(organization.id()) ? map.get(organization.id())
-        : Collections.emptyList();
+    return map.getOrDefault(organization.id(), Collections.emptySet());
   }
 
   @Override
@@ -46,11 +44,9 @@ public class InMemoryUserOrganizationMembershipRepository
 
   @Override
   public Optional<OrganizationMember> getMember(String userId, Organization organization) {
-    return isMember(userId, organization)
-        ? map
-        .get(organization.id())
+    return map.get(organization.id())
         .stream()
-        .filter(m -> Objects.equals(m.id(), userId)).findAny()
-        : Optional.empty();
+        .filter(m -> Objects.equals(m.id(), userId))
+        .findAny();
   }
 }

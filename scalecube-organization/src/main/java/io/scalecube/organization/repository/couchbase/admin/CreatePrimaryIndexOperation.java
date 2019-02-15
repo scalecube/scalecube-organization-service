@@ -11,8 +11,8 @@ final class CreatePrimaryIndexOperation extends Operation<N1qlQueryResult> {
 
   @Override
   public N1qlQueryResult execute(AdminOperationContext context) {
-    N1qlQuery index = N1qlQuery.simple(String.format(CREATE_PRIMARY_INDEX,
-        context.name(), context.name()));
+    N1qlQuery index =
+        N1qlQuery.simple(String.format(CREATE_PRIMARY_INDEX, context.name(), context.name()));
     N1qlQueryResult queryResult = context.cluster().openBucket(context.name()).query(index);
 
     if (!queryResult.finalSuccess()) {

@@ -6,11 +6,12 @@
   * @apiPermission Request / Response / Error-response
   *
   * @apiDescription This operation enables only organization managers <b>(Owner/Admin)</b> to invite a valid user
-  * (which client id issued by relevant authority - <a href="https://manage.auth0.com/">Auth0</a>) to step into relevant organization
+  * (which client id issued by relevant authority - <a href="https://manage.auth0.com/">Auth0</a>) to step into relevant organization with relevant member's role (permission level)
   *
   * @apiParam {Object} token The requested token issued by relevant authority (Auth0)
   * @apiParam {String} organizationId Already stored id for the specific organization
   * @apiParam {String} userId Already stored id for the specific organization issued by relevant authority (Auth0)
+  * @apiParam {String} role Specified permission level (roles: Owner/Admin/Member) granted for the organization members
   *
   * @apiSuccess Acknowledgment Empty object
   *
@@ -26,7 +27,8 @@
   *                            "token":"Auth0-TOKEN"
   *                },
   *                "organizationId":"ORG-ID",
-  *                "userId": "id@clients"
+  *                "userId": "id@clients",
+  *                "role": "Owner"
   *         }
   *     }
   *
@@ -65,7 +67,8 @@
   *                               "token":"Auth0-TOKEN"
   *                   },
   *                   "organizationId":"ORG-ID",
-  *                   "userId": "id@clients"
+  *                   "userId": "id@clients",
+  *                   "role": "Admin"
   *         }
   *     }
   *
@@ -98,7 +101,8 @@
   *                     "token":"Auth0-TOKEN"
   *         },
   *         "organizationId":"ORG-ID",
-  *         "userId": "id@clients"
+  *         "userId": "id@clients",
+  *         "role": "Member"
   *     }
   *
   * Response:
