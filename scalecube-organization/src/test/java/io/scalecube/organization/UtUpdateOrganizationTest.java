@@ -391,13 +391,27 @@ class UtUpdateOrganizationTest {
             .map(OrganizationInfo::id)
             .block(TestHelper.TIMEOUT);
 
-    // user "A" updates organization with the incorrect name and email
+    // user "A" updates organization with the incorrect name
     StepVerifier.create(
             service.updateOrganization(
                 new UpdateOrganizationRequest(
                     organizationId, userAToken, incorrectName, userA.getEmail())))
         .expectErrorMessage(
             "Organization name can only contain characters in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent")
+        .verify(TestHelper.TIMEOUT);
+  }
+
+  @Test
+  @DisplayName("#MPA-7603 (#27) Fail to update the Organization if the token is invalid (expired)")
+  void testFailToUpdateOrganizationWithInvalidToken() {
+    Profile userA = TestTokenVerifier.USER_1;
+
+    // user "A" updates organization with invalid token
+    StepVerifier.create(
+            service.updateOrganization(
+                new UpdateOrganizationRequest(
+                    "organizationId", new Token("invalid"), "name", userA.getEmail())))
+        .expectErrorMessage("Token verification failed")
         .verify(TestHelper.TIMEOUT);
   }
 }
