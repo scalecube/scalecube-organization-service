@@ -62,7 +62,8 @@ class OrganizationServiceApiKeyTest extends Base {
             service.addOrganizationApiKey(
                 new AddOrganizationApiKeyRequest(token, organizationId, apiKeyName, claims)))
         .expectSubscription()
-        .expectErrorMessage("apiKeyName already exists");
+        .expectErrorMessage(String.format("apiKey name:'%s' already exists", apiKeyName))
+        .verify();
   }
 
   @Test
