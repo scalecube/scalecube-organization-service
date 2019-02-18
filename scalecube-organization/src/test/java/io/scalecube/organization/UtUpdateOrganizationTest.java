@@ -101,9 +101,9 @@ class UtUpdateOrganizationTest {
 
     // user "A" updates repo name and email in the organization
     StepVerifier.create(
-        service.updateOrganization(
-            new UpdateOrganizationRequest(
-                organizationId, userAToken, newOrganizationName, newEmail)))
+            service.updateOrganization(
+                new UpdateOrganizationRequest(
+                    organizationId, userAToken, newOrganizationName, newEmail)))
         .assertNext(
             organization -> {
               assertNotNull(organization);
@@ -166,9 +166,9 @@ class UtUpdateOrganizationTest {
 
     // user "B" updates repo name and email in the organization
     StepVerifier.create(
-        service.updateOrganization(
-            new UpdateOrganizationRequest(
-                organizationId, userBToken, newOrganizationName, newEmail)))
+            service.updateOrganization(
+                new UpdateOrganizationRequest(
+                    organizationId, userBToken, newOrganizationName, newEmail)))
         .assertNext(
             organization -> {
               assertNotNull(organization);
@@ -219,9 +219,9 @@ class UtUpdateOrganizationTest {
 
     // user "B" updates repo name and email in the organization
     StepVerifier.create(
-        service.updateOrganization(
-            new UpdateOrganizationRequest(
-                organizationId, userBToken, newOrganizationName, newEmail)))
+            service.updateOrganization(
+                new UpdateOrganizationRequest(
+                    organizationId, userBToken, newOrganizationName, newEmail)))
         .assertNext(
             organization -> {
               assertNotNull(organization);
@@ -265,9 +265,9 @@ class UtUpdateOrganizationTest {
 
     // user "B" updates repo name and email in the organization
     StepVerifier.create(
-        service.updateOrganization(
-            new UpdateOrganizationRequest(
-                organizationId, userBToken, newOrganizationName, newEmail)))
+            service.updateOrganization(
+                new UpdateOrganizationRequest(
+                    organizationId, userBToken, newOrganizationName, newEmail)))
         .expectErrorMessage(
             String.format(
                 "user: '%s', name: '%s', not in role Owner or Admin of organization: '%s'",
@@ -309,9 +309,9 @@ class UtUpdateOrganizationTest {
 
     // user "A" updates repo name and email in the organization
     StepVerifier.create(
-        service.updateOrganization(
-            new UpdateOrganizationRequest(
-                organizationId, userAToken, newOrganizationName, newEmail)))
+            service.updateOrganization(
+                new UpdateOrganizationRequest(
+                    organizationId, userAToken, newOrganizationName, newEmail)))
         .expectErrorMessage(
             String.format(
                 "user: '%s', name: '%s', not in role Owner or Admin of organization: '%s'",
@@ -349,9 +349,9 @@ class UtUpdateOrganizationTest {
 
     // user "A" updates the name of own organization using the organization name of user "B"
     StepVerifier.create(
-        service.updateOrganization(
-            new UpdateOrganizationRequest(
-                userAOrganizationId, userAToken, userBOrganizationName, userA.getEmail())))
+            service.updateOrganization(
+                new UpdateOrganizationRequest(
+                    userAOrganizationId, userAToken, userBOrganizationName, userA.getEmail())))
         .expectErrorMessage(
             String.format("Organization name: '%s' already in use", userBOrganizationName))
         .verify(TestHelper.TIMEOUT);
@@ -366,10 +366,38 @@ class UtUpdateOrganizationTest {
 
     // user "A" updates the name and email of non-existent organization
     StepVerifier.create(
-        service.updateOrganization(
-            new UpdateOrganizationRequest(
-                nonExistingOrganizationId, userAToken, "fictionalName", userA.getEmail())))
+            service.updateOrganization(
+                new UpdateOrganizationRequest(
+                    nonExistingOrganizationId, userAToken, "fictionalName", userA.getEmail())))
         .expectErrorMessage(nonExistingOrganizationId)
+        .verify(TestHelper.TIMEOUT);
+  }
+
+  @Test
+  @DisplayName(
+      "#MPA-7603 (#26) Fail to update the Organization with the name which contain else symbols apart of allowed chars")
+  void testFailToUpdateOrganizationNameWithNotAllowedSymbols() {
+    Profile userA = TestTokenVerifier.USER_1;
+    Token userAToken = TestTokenVerifier.token(userA);
+
+    String organizationName = TestHelper.randomString(10);
+    String incorrectName = TestHelper.randomString(10) + "+";
+
+    // create a single organization which will be owned by user "A"
+    String organizationId =
+        service
+            .createOrganization(
+                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+            .map(OrganizationInfo::id)
+            .block(TestHelper.TIMEOUT);
+
+    // user "A" updates organization with the incorrect name and email
+    StepVerifier.create(
+            service.updateOrganization(
+                new UpdateOrganizationRequest(
+                    organizationId, userAToken, incorrectName, userA.getEmail())))
+        .expectErrorMessage(
+            "Organization name can only contain characters in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent")
         .verify(TestHelper.TIMEOUT);
   }
 }

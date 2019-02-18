@@ -23,7 +23,7 @@ public abstract class OrganizationInfoOperation<I, O> extends ServiceOperation<I
     if (invalidOrgNameValid) {
       throw new InvalidInputException(
           "Organization name can only contain characters in range A-Z, a-z, 0-9 as well as "
-              + "underscore, period, dash & percent.");
+              + "underscore, period, dash & percent");
     }
 
     if (context.repository().existByName(info.name())) {
