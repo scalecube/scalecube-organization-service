@@ -16,7 +16,7 @@ Feature: Organization service API keys management - Add API key
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
     When the user "A" requested to add each accessible API key "name" for own organization with assigned roles: "owner", "admin" and "member"
     Then each of the API keys with assigned roles: "owner", "admin" and "member" should be emitted for the relevant organization
-    And the relevant secrets should be stored in the Vault and DB for a now
+    And the relevant API keys should be stored in the DB for a now
     And user "A" should get successful response with extended organization info which include all stored API keys
 
 

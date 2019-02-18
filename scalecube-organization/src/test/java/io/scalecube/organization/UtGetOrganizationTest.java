@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
-/** @see features/mpa-7603-Organization-service-UT-Get-Organization */
+/** @see features/mpa-7603-Organization-service-Get-Organization.feature */
 class UtGetOrganizationTest {
 
   private OrganizationService service;
