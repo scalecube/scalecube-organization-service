@@ -28,7 +28,7 @@ Feature: Organization service API keys management - Add API key
     And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with an "admin" role
     When the user "B" requested to add the API keys "name" for user's "A" organization with assigned roles: "admin" and "member"
     Then each of the API keys with assigned roles: "admin" and "member" should be emitted for the relevant organization
-    And the relevant secrets should be stored in the Vault and DB for a now
+    And the relevant API keys should be stored in the DB for a now
     And user "B" should get successful response with extended organization info which include only stored "admin" and "member" API keys
 
 

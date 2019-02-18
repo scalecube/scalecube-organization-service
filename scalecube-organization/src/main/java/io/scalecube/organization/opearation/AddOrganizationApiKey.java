@@ -47,7 +47,8 @@ public class AddOrganizationApiKey
         Stream.of(organization.apiKeys())
             .anyMatch(existingKey -> existingKey.name().equals(request.apiKeyName()));
     if (alreadyExists) {
-      throw new IllegalArgumentException("apiKeyName already exists");
+      throw new IllegalArgumentException(
+          "apiKey name:'" + request.apiKeyName() + "' already exists");
     }
   }
 
