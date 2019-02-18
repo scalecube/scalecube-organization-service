@@ -28,7 +28,7 @@ public abstract class OrganizationInfoOperation<I, O> extends ServiceOperation<I
 
     if (context.repository().existByName(info.name())) {
       throw new NameAlreadyInUseException(
-          String.format("Organization name: '%s' already in use.", info.name()));
+          String.format("Organization name: '%s' already in use", info.name()));
     }
   }
 }
