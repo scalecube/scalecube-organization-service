@@ -82,7 +82,7 @@ Feature: Organization service Org management - Update Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And the organization "organizationId" with specified "name" and "email" already created and owned by user "A"
     When the user "A" requested to update own organization with specified "name" which contains "+" and some "email"
-    Then user "A" should get an error message: "name can only contain characters in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent"
+    Then user "A" should get an error message: "Organization name can only contain characters in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent"
 
 
   #MPA-7603 (#27)
