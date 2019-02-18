@@ -43,7 +43,6 @@ import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.organization.repository.OrganizationsDataAccessImpl;
 import io.scalecube.organization.repository.Repository;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
-import io.scalecube.tokens.TokenVerification;
 import io.scalecube.tokens.TokenVerifier;
 import io.scalecube.tokens.store.KeyStoreFactory;
 import java.security.KeyPairGenerator;
@@ -386,10 +385,7 @@ public class OrganizationServiceImpl implements OrganizationService {
               .members(organizationMembershipRepository)
               .repositoryAdmin(organizationMembersRepositoryAdmin)
               .build();
-      return new OrganizationServiceImpl(
-          repository,
-          tokenVerifier == null ? new TokenVerification() : tokenVerifier,
-          keyPairGenerator);
+      return new OrganizationServiceImpl(repository, tokenVerifier, keyPairGenerator);
     }
 
     public Builder organizationRepository(Repository<Organization, String> organizationRepository) {
@@ -409,7 +405,7 @@ public class OrganizationServiceImpl implements OrganizationService {
       return this;
     }
 
-    Builder tokenVerifier(TokenVerifier tokenVerifier) {
+    public Builder tokenVerifier(TokenVerifier tokenVerifier) {
       this.tokenVerifier = tokenVerifier;
       return this;
     }

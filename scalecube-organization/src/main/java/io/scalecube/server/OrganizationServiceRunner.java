@@ -6,6 +6,7 @@ import io.scalecube.organization.OrganizationServiceImpl;
 import io.scalecube.organization.repository.couchbase.CouchbaseRepositoryFactory;
 import io.scalecube.organization.repository.couchbase.CouchbaseSettings;
 import io.scalecube.services.Microservices;
+import io.scalecube.tokens.TokenVerifierImpl;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -64,6 +65,7 @@ public class OrganizationServiceRunner {
         .organizationMembershipRepository(factory.organizationMembers())
         .organizationMembershipRepositoryAdmin(factory.organizationMembersRepositoryAdmin())
         .keyPairGenerator(keyPairGenerator())
+        .tokenVerifier(new TokenVerifierImpl())
         .build();
   }
 

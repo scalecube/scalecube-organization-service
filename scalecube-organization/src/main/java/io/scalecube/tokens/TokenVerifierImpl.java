@@ -8,21 +8,25 @@ import java.security.PublicKey;
 import java.util.Objects;
 import java.util.Optional;
 
-class TokenVerifierImpl implements TokenVerifier {
+public class TokenVerifierImpl implements TokenVerifier {
 
   @Override
-  public Profile verify(Token token) throws Exception {
-    Objects.requireNonNull(token, "token");
-    Objects.requireNonNull(token.token(), "token");
-    final PublicKey publicKey = getPublicKey(token.token());
-    Objects.requireNonNull(publicKey, "Token signing key");
-    JwtAuthenticator authenticator =
-        new JwtAuthenticatorImpl.Builder().keyResolver(map -> Optional.of(publicKey)).build();
+  public Profile verify(Token token) throws InvalidTokenException {
+    try {
+      Objects.requireNonNull(token, "token");
+      Objects.requireNonNull(token.token(), "token");
+      final PublicKey publicKey = getPublicKey(token.token());
+      Objects.requireNonNull(publicKey, "Token signing key");
+      JwtAuthenticator authenticator =
+          new JwtAuthenticatorImpl.Builder().keyResolver(map -> Optional.of(publicKey)).build();
 
-    return authenticator.authenticate(token.token());
+      return authenticator.authenticate(token.token());
+    } catch (Exception e) {
+      throw new InvalidTokenException("Token verification failed", e);
+    }
   }
 
-  private PublicKey getPublicKey(String token) throws Exception {
+  private PublicKey getPublicKey(String token) {
     return Objects.requireNonNull(PublicKeyProviderFactory.getPublicKeyProvider())
         .getPublicKey(token);
   }
