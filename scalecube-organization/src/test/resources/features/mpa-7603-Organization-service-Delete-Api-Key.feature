@@ -19,7 +19,7 @@ Feature: Organization service API keys management - Delete API key
     And the user "A" requested to add each accessible API key "name" for own organization with assigned roles: "owner", "admin" and "member"
     When the user "A" requested to delete each of the API keys "name" from own organization with assigned roles: "owner" and "admin"
     Then each of the API keys "name" with assigned roles: "owner" and "admin" should be deleted
-    And the relevant secrets should be deleted from the Vault and DB
+    And the relevant secrets should be deleted from the DB
     And user "A" should get successful response with extended organization info which include the API key with "member" role only
 
 
