@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
-/** @see features/mpa-7603-Organization-service-Add-Api-Key.feature */
+/** @see features/mpa-7603-Organization-service-Delete-Api-Key.feature */
 class DeleteOrganizationApiKeyTest {
 
   private static final Duration TIMEOUT = Duration.ofSeconds(5);
