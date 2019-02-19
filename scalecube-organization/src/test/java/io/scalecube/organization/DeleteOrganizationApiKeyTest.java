@@ -7,6 +7,7 @@ import io.scalecube.account.api.AddOrganizationApiKeyRequest;
 import io.scalecube.account.api.CreateOrganizationRequest;
 import io.scalecube.account.api.DeleteOrganizationApiKeyRequest;
 import io.scalecube.account.api.GetOrganizationRequest;
+import io.scalecube.account.api.InviteOrganizationMemberRequest;
 import io.scalecube.account.api.OrganizationInfo;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
@@ -87,6 +88,7 @@ class DeleteOrganizationApiKeyTest {
         .then()
         .block(TIMEOUT);
 
+    // the user "A" deletes the API keys which were assigned roles: "owner" and "admin"
     StepVerifier.create(
             Flux.just(Role.Owner, Role.Admin)
                 .map(role -> role.name() + "-api-key")
@@ -116,7 +118,7 @@ class DeleteOrganizationApiKeyTest {
         .expectComplete()
         .verify(TIMEOUT);
 
-    // the relevant API keys should be stored in the DB
+    // the relevant API keys should be left in the DB
     StepVerifier.create(
             service.getOrganization(new GetOrganizationRequest(userAToken, organizationId)))
         .assertNext(
@@ -125,6 +127,88 @@ class DeleteOrganizationApiKeyTest {
               assertTrue(
                   Arrays.stream(response.apiKeys())
                       .anyMatch(apiKey -> Role.Member.name().equals(apiKey.claims().get("role"))));
+            })
+        .expectComplete()
+        .verify(TIMEOUT);
+  }
+
+  @Test
+  @DisplayName(
+      "#MPA-7603 (#44) Successful delete the API keys (token) only with admin and member roles from relevant Organization by Admin")
+  void testDeleteApiKeysByAdmin() {
+    Profile userA = TestProfiles.USER_1;
+    Token userAToken = MockPublicKeyProvider.token(userA);
+    Profile userB = TestProfiles.USER_2;
+    Token userBToken = MockPublicKeyProvider.token(userB);
+
+    // create a single organization which will be owned by user "A"
+    String organizationId =
+        service
+            .createOrganization(
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), userA.getEmail(), userAToken))
+            .map(OrganizationInfo::id)
+            .block(TIMEOUT);
+
+    // user "A" creates API keys for the organization with roles: "owner", "admin" and "member"
+    Flux.just(Role.Owner, Role.Member, Role.Admin)
+        .map(
+            role ->
+                new AddOrganizationApiKeyRequest(
+                    userAToken,
+                    organizationId,
+                    role.name() + "-api-key",
+                    Collections.singletonMap("role", role.name())))
+        .flatMap(service::addOrganizationApiKey)
+        .then()
+        .block(TIMEOUT);
+
+    // the user "A" invites user "B" to his organization with an "admin" role
+    service
+        .inviteMember(
+            new InviteOrganizationMemberRequest(
+                userAToken, organizationId, userB.getUserId(), Role.Owner.name()))
+        .block(TIMEOUT);
+
+    // the user "B" deletes the API keys which were assigned roles: "admin" and "member"
+    StepVerifier.create(
+            Flux.just(Role.Admin, Role.Member)
+                .map(role -> role.name() + "-api-key")
+                .map(
+                    apiKey ->
+                        new DeleteOrganizationApiKeyRequest(userBToken, organizationId, apiKey))
+                .flatMap(request -> service.deleteOrganizationApiKey(request)))
+        .assertNext(
+            response -> {
+              assertEquals(organizationId, response.id());
+              assertEquals(2, response.apiKeys().length);
+              assertTrue(
+                  Arrays.stream(response.apiKeys())
+                      .anyMatch(apiKey -> Role.Member.name().equals(apiKey.claims().get("role"))));
+              assertTrue(
+                  Arrays.stream(response.apiKeys())
+                      .anyMatch(apiKey -> Role.Owner.name().equals(apiKey.claims().get("role"))));
+            })
+        .assertNext(
+            response -> {
+              assertEquals(organizationId, response.id());
+              assertEquals(1, response.apiKeys().length);
+              assertTrue(
+                  Arrays.stream(response.apiKeys())
+                      .anyMatch(apiKey -> Role.Owner.name().equals(apiKey.claims().get("role"))));
+            })
+        .expectComplete()
+        .verify(TIMEOUT);
+
+    // the relevant API keys should be left in the DB
+    StepVerifier.create(
+            service.getOrganization(new GetOrganizationRequest(userAToken, organizationId)))
+        .assertNext(
+            response -> {
+              assertEquals(1, response.apiKeys().length);
+              assertTrue(
+                  Arrays.stream(response.apiKeys())
+                      .anyMatch(apiKey -> Role.Owner.name().equals(apiKey.claims().get("role"))));
             })
         .expectComplete()
         .verify(TIMEOUT);
