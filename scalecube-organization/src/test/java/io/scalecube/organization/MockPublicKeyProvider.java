@@ -15,11 +15,7 @@ import reactor.core.Exceptions;
 
 public class MockPublicKeyProvider implements PublicKeyProvider {
 
-  static {
-    System.setProperty("public.key.provider", MockPublicKeyProvider.class.getName());
-  }
-
-  public static final KeyPairGenerator KPG;
+  private static final KeyPairGenerator KPG;
   private static final KeyPair KEY_PAIR;
 
   static {

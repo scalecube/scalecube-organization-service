@@ -3,10 +3,13 @@ package io.scalecube.server;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.config.AppConfiguration;
 import io.scalecube.organization.OrganizationServiceImpl;
+import io.scalecube.organization.repository.OrganizationsDataAccess;
+import io.scalecube.organization.repository.OrganizationsDataAccessImpl;
 import io.scalecube.organization.repository.couchbase.CouchbaseRepositoryFactory;
 import io.scalecube.organization.repository.couchbase.CouchbaseSettings;
 import io.scalecube.services.Microservices;
-import java.security.KeyPairGenerator;
+import io.scalecube.tokens.Auth0PublicKeyProvider;
+import io.scalecube.tokens.TokenVerifierImpl;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
@@ -59,12 +62,14 @@ public class OrganizationServiceRunner {
 
     CouchbaseRepositoryFactory factory = new CouchbaseRepositoryFactory(settings);
 
-    return new OrganizationServiceImpl.Builder()
-        .organizationRepository(factory.organizations())
-        .organizationMembershipRepository(factory.organizationMembers())
-        .organizationMembershipRepositoryAdmin(factory.organizationMembersRepositoryAdmin())
-        .keyPairGenerator(keyPairGenerator())
-        .build();
+    OrganizationsDataAccess repository =
+        OrganizationsDataAccessImpl.builder()
+            .organizations(factory.organizations())
+            .members(factory.organizationMembers())
+            .repositoryAdmin(factory.organizationMembersRepositoryAdmin())
+            .build();
+    return new OrganizationServiceImpl(
+        repository, new TokenVerifierImpl(new Auth0PublicKeyProvider()));
   }
 
   private static Map<String, String> couchbaseSettingsBindingMap() {
@@ -83,15 +88,5 @@ public class OrganizationServiceRunner {
     bindingMap.put("organizationsBucketName", "organizations.bucket");
 
     return bindingMap;
-  }
-
-  private static KeyPairGenerator keyPairGenerator() throws NoSuchAlgorithmException {
-    String algorithm = AppConfiguration.configRegistry().stringValue("crypto.algorithm", "RSA");
-    int keySize = AppConfiguration.configRegistry().intValue("crypto.key.size", 2048);
-
-    KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(algorithm);
-    keyPairGenerator.initialize(keySize);
-
-    return keyPairGenerator;
   }
 }

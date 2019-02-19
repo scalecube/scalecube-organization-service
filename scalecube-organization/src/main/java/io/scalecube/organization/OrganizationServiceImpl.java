@@ -26,6 +26,7 @@ import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
 import io.scalecube.account.api.UpdateOrganizationMemberRoleResponse;
 import io.scalecube.account.api.UpdateOrganizationRequest;
 import io.scalecube.account.api.UpdateOrganizationResponse;
+import io.scalecube.config.AppConfiguration;
 import io.scalecube.organization.opearation.AddOrganizationApiKey;
 import io.scalecube.organization.opearation.CreateOrganization;
 import io.scalecube.organization.opearation.DeleteOrganization;
@@ -38,17 +39,13 @@ import io.scalecube.organization.opearation.KickoutMember;
 import io.scalecube.organization.opearation.LeaveOrganization;
 import io.scalecube.organization.opearation.UpdateOrganization;
 import io.scalecube.organization.opearation.UpdateOrganizationMemberRole;
-import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
-import io.scalecube.organization.repository.OrganizationsDataAccessImpl;
-import io.scalecube.organization.repository.Repository;
-import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
-import io.scalecube.tokens.TokenVerification;
 import io.scalecube.tokens.TokenVerifier;
 import io.scalecube.tokens.store.KeyStoreFactory;
 import java.security.KeyPairGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
 public class OrganizationServiceImpl implements OrganizationService {
@@ -59,22 +56,10 @@ public class OrganizationServiceImpl implements OrganizationService {
   private final OrganizationsDataAccess repository;
   private final KeyPairGenerator keyPairGenerator;
 
-  private OrganizationServiceImpl(
-      OrganizationsDataAccess repository,
-      TokenVerifier tokenVerifier,
-      KeyPairGenerator keyPairGenerator) {
+  public OrganizationServiceImpl(OrganizationsDataAccess repository, TokenVerifier tokenVerifier) {
     this.repository = repository;
     this.tokenVerifier = tokenVerifier;
-    this.keyPairGenerator = keyPairGenerator;
-  }
-
-  /**
-   * Returns a builder instance of OrganizationServiceImpl.
-   *
-   * @return instance of OrganizationServiceImpl.Builder
-   */
-  public static Builder builder() {
-    return new Builder();
+    this.keyPairGenerator = keyPairGenerator();
   }
 
   @Override
@@ -366,57 +351,16 @@ public class OrganizationServiceImpl implements OrganizationService {
         .doOnError(th -> logger.error("getPublicKey: ERROR: {}", th));
   }
 
-  public static class Builder {
+  private KeyPairGenerator keyPairGenerator() {
+    try {
+      String algorithm = AppConfiguration.configRegistry().stringValue("crypto.algorithm", "RSA");
+      int keySize = AppConfiguration.configRegistry().intValue("crypto.key.size", 2048);
 
-    private Repository<Organization, String> organizationRepository;
-    private TokenVerifier tokenVerifier;
-    private UserOrganizationMembershipRepository organizationMembershipRepository;
-    private OrganizationMembersRepositoryAdmin organizationMembersRepositoryAdmin;
-    private KeyPairGenerator keyPairGenerator;
-
-    /**
-     * Construct an OrganizationService object with the provided parameters.
-     *
-     * @return an instance of OrganizationService.
-     */
-    public OrganizationService build() {
-      OrganizationsDataAccess repository =
-          OrganizationsDataAccessImpl.builder()
-              .organizations(organizationRepository)
-              .members(organizationMembershipRepository)
-              .repositoryAdmin(organizationMembersRepositoryAdmin)
-              .build();
-      return new OrganizationServiceImpl(
-          repository,
-          tokenVerifier == null ? new TokenVerification() : tokenVerifier,
-          keyPairGenerator);
-    }
-
-    public Builder organizationRepository(Repository<Organization, String> organizationRepository) {
-      this.organizationRepository = organizationRepository;
-      return this;
-    }
-
-    public Builder organizationMembershipRepository(
-        UserOrganizationMembershipRepository organizationMembershipRepository) {
-      this.organizationMembershipRepository = organizationMembershipRepository;
-      return this;
-    }
-
-    public Builder organizationMembershipRepositoryAdmin(
-        OrganizationMembersRepositoryAdmin organizationMembersRepositoryAdmin) {
-      this.organizationMembersRepositoryAdmin = organizationMembersRepositoryAdmin;
-      return this;
-    }
-
-    Builder tokenVerifier(TokenVerifier tokenVerifier) {
-      this.tokenVerifier = tokenVerifier;
-      return this;
-    }
-
-    public Builder keyPairGenerator(KeyPairGenerator keyPairGenerator) {
-      this.keyPairGenerator = keyPairGenerator;
-      return this;
+      KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(algorithm);
+      keyPairGenerator.initialize(keySize);
+      return keyPairGenerator;
+    } catch (Exception e) {
+      throw Exceptions.propagate(e);
     }
   }
 }
