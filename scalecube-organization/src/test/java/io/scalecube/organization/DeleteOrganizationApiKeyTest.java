@@ -167,7 +167,7 @@ class DeleteOrganizationApiKeyTest {
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Owner.name()))
+                userAToken, organizationId, userB.getUserId(), Role.Admin.name()))
         .block(TIMEOUT);
 
     // the user "B" deletes the API keys which were assigned roles: "admin" and "member"
@@ -211,6 +211,56 @@ class DeleteOrganizationApiKeyTest {
                       .anyMatch(apiKey -> Role.Owner.name().equals(apiKey.claims().get("role"))));
             })
         .expectComplete()
+        .verify(TIMEOUT);
+  }
+
+  @Test
+  @DisplayName(
+      "#MPA-7603 (#46) Fail to delete any of accessible API key (token) roles from relevant Organization by the Member with similar role")
+  void testFailToDeleteMemberApiKeysByMemberRole() {
+    Profile userA = TestProfiles.USER_1;
+    Token userAToken = MockPublicKeyProvider.token(userA);
+    Profile userB = TestProfiles.USER_2;
+    Token userBToken = MockPublicKeyProvider.token(userB);
+    String organizationName = RandomStringUtils.randomAlphabetic(10);
+
+    // create a single organization which will be owned by user "A"
+    String organizationId =
+        service
+            .createOrganization(
+                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+            .map(OrganizationInfo::id)
+            .block(TIMEOUT);
+
+    // user "A" creates API keys for the organization with roles "member"
+    Flux.just(Role.Owner, Role.Member, Role.Admin)
+        .map(
+            role ->
+                new AddOrganizationApiKeyRequest(
+                    userAToken,
+                    organizationId,
+                    role.name() + "-api-key",
+                    Collections.singletonMap("role", role.name())))
+        .flatMap(service::addOrganizationApiKey)
+        .then()
+        .block(TIMEOUT);
+
+    // the user "A" invites user "B" to his organization with a "member" role
+    service
+        .inviteMember(
+            new InviteOrganizationMemberRequest(
+                userAToken, organizationId, userB.getUserId(), Role.Member.name()))
+        .block(TIMEOUT);
+
+    // the user "B" deletes the API keys which were assigned roles "member"
+    StepVerifier.create(
+            service.deleteOrganizationApiKey(
+                new DeleteOrganizationApiKeyRequest(
+                    userBToken, organizationId, Role.Member.name() + "-api-key")))
+        .expectErrorMessage(
+            String.format(
+                "user: '%s', name: '%s', not in role Owner or Admin of organization: '%s'",
+                userB.getUserId(), userB.getName(), organizationName))
         .verify(TIMEOUT);
   }
 }
