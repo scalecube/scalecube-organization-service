@@ -37,7 +37,7 @@ import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 /** @see features/mpa-7603-Organization-service-Update-Organization.feature */
-class UtUpdateOrganizationTest {
+class UpdateOrganizationIntegrationTest {
 
   private static final Duration TIMEOUT = Duration.ofSeconds(5);
 

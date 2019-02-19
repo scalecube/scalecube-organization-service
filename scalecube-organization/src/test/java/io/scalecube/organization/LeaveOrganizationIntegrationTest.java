@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
 /** @see features/mpa-7603-Organization-service-Leave-Organization.feature */
-class UtLeaveOrganizationTest {
+class LeaveOrganizationIntegrationTest {
 
   private static final Duration TIMEOUT = Duration.ofSeconds(5);
 

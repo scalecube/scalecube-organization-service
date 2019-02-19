@@ -34,7 +34,7 @@ import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 /** @see features/mpa-7603-Organization-service-Add-Api-Key.feature */
-class AddOrganizationApiKeyTest {
+class AddOrganizationApiKeyIntegrationTest {
 
   private static final Duration TIMEOUT = Duration.ofSeconds(5);
   private static final Random RANDOM = new Random(42);
