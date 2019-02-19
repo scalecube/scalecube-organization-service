@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.scalecube.account.api.AddOrganizationApiKeyRequest;
+import io.scalecube.account.api.ApiKey;
 import io.scalecube.account.api.CreateOrganizationRequest;
 import io.scalecube.account.api.DeleteOrganizationApiKeyRequest;
 import io.scalecube.account.api.GetOrganizationRequest;
@@ -21,8 +22,10 @@ import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMember
 import io.scalecube.security.Profile;
 import java.io.File;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -232,7 +235,7 @@ class DeleteOrganizationApiKeyTest {
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
-    // user "A" creates API keys for the organization with roles "member"
+    // user "A" creates API keys for the organization with "member" role
     Flux.just(Role.Owner, Role.Member, Role.Admin)
         .map(
             role ->
@@ -252,7 +255,7 @@ class DeleteOrganizationApiKeyTest {
                 userAToken, organizationId, userB.getUserId(), Role.Member.name()))
         .block(TIMEOUT);
 
-    // the user "B" deletes the API keys which were assigned roles "member"
+    // the user "B" deletes the API key which was assigned roles "member"
     StepVerifier.create(
             service.deleteOrganizationApiKey(
                 new DeleteOrganizationApiKeyRequest(
@@ -261,6 +264,66 @@ class DeleteOrganizationApiKeyTest {
             String.format(
                 "user: '%s', name: '%s', not in role Owner or Admin of organization: '%s'",
                 userB.getUserId(), userB.getName(), organizationName))
+        .verify(TIMEOUT);
+  }
+
+  @Test
+  @DisplayName(
+      "#MPA-7603 (#47) Fail to delete non-existent (invalid) API key (token) from specific Organization")
+  void testFailToDeleteNonExistingApiKey() {
+    Profile userA = TestProfiles.USER_1;
+    Token userAToken = MockPublicKeyProvider.token(userA);
+    String organizationName = RandomStringUtils.randomAlphabetic(10);
+
+    // create a single organization which will be owned by user "A"
+    String organizationId =
+        service
+            .createOrganization(
+                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+            .map(OrganizationInfo::id)
+            .block(TIMEOUT);
+
+    // user "A" creates API keys for the organization with roles "member"
+    String apiKeyName = Role.Member.name() + "-api-key";
+    service
+        .addOrganizationApiKey(
+            new AddOrganizationApiKeyRequest(
+                userAToken,
+                organizationId,
+                apiKeyName,
+                Collections.singletonMap("role", Role.Member.name())))
+        .block(TIMEOUT);
+
+    // the user "B" deletes the non-existing API key
+    StepVerifier.create(
+            service.deleteOrganizationApiKey(
+                new DeleteOrganizationApiKeyRequest(
+                    userAToken, organizationId, "non-existing-api-key")))
+        .assertNext(
+            response -> {
+              assertEquals(organizationId, response.id());
+              assertEquals(1, response.apiKeys().length);
+              ApiKey apiKey = response.apiKeys()[0];
+              assertEquals(apiKeyName, apiKey.name());
+              assertEquals(Role.Member.name(), apiKey.claims().get("role"));
+            })
+        .expectComplete()
+        .verify(TIMEOUT);
+  }
+
+  @Test
+  @DisplayName(
+      "#MPA-7603 (#48) Fail to delete the API key (token) from relevant Organization if the token is invalid (expired)")
+  void testFailToDeleteApiKeyWithExpiredToken() {
+    Token expiredToken =
+        MockPublicKeyProvider.token(
+            TestProfiles.USER_1, op -> op.setExpiration(Date.from(Instant.ofEpochMilli(0))));
+
+    // the user "A" requests to get info with expired token
+    StepVerifier.create(
+            service.deleteOrganizationApiKey(
+                new DeleteOrganizationApiKeyRequest(expiredToken, "non-existing-id", "some-name")))
+        .expectErrorMessage("Token verification failed")
         .verify(TIMEOUT);
   }
 }
