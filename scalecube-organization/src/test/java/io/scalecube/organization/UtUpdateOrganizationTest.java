@@ -21,12 +21,13 @@ import io.scalecube.organization.repository.inmem.InMemoryOrganizationMembersRep
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
 import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
 import io.scalecube.security.Profile;
-import io.scalecube.tokens.TokenVerifier;
 import java.io.File;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -38,6 +39,8 @@ import reactor.test.StepVerifier;
 /** @see features/mpa-7603-Organization-service-Update-Organization.feature */
 class UtUpdateOrganizationTest {
 
+  private static final Duration TIMEOUT = Duration.ofSeconds(5);
+
   private OrganizationService service;
 
   @BeforeEach
@@ -47,15 +50,12 @@ class UtUpdateOrganizationTest {
     Repository<Organization, String> organizationRepository = new InMemoryOrganizationRepository();
     OrganizationMembersRepositoryAdmin admin = new InMemoryOrganizationMembersRepositoryAdmin();
 
-    TokenVerifier tokenVerifier = new TestTokenVerifier();
-
     service =
         OrganizationServiceImpl.builder()
             .organizationRepository(organizationRepository)
             .organizationMembershipRepository(orgMembersRepository)
             .organizationMembershipRepositoryAdmin(admin)
-            .tokenVerifier(tokenVerifier)
-            .keyPairGenerator(TestHelper.KEY_PAIR_GENERATOR)
+            .keyPairGenerator(MockPublicKeyProvider.KPG)
             .build();
   }
 
@@ -67,10 +67,10 @@ class UtUpdateOrganizationTest {
   @Test
   @DisplayName("#MPA-7603 (#19) Successful update of the relevant Organization by the Owner")
   void testUpdateOrganizationByOwner() {
-    Profile userA = TestTokenVerifier.USER_1;
-    Token userAToken = TestTokenVerifier.token(userA);
+    Profile userA = TestProfiles.USER_1;
+    Token userAToken = MockPublicKeyProvider.token(userA);
 
-    String organizationName = TestHelper.randomString(10);
+    String organizationName = RandomStringUtils.randomAlphabetic(10);
     String newOrganizationName = "new" + organizationName;
     String newEmail = "new" + userA.getEmail();
 
@@ -80,7 +80,7 @@ class UtUpdateOrganizationTest {
             .createOrganization(
                 new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
-            .block(TestHelper.TIMEOUT);
+            .block(TIMEOUT);
 
     // user "A" creates API keys for the organization with roles: "owner", "admin" and "member"
     Set<ApiKey> apiKeys =
@@ -97,7 +97,7 @@ class UtUpdateOrganizationTest {
             .flatMap(Flux::fromArray)
             .collectList()
             .map(HashSet::new)
-            .block(TestHelper.TIMEOUT);
+            .block(TIMEOUT);
 
     // user "A" updates repo name and email in the organization
     StepVerifier.create(
@@ -114,19 +114,19 @@ class UtUpdateOrganizationTest {
               assertEquals(apiKeys, new HashSet<>(Arrays.asList(organization.apiKeys())));
             })
         .expectComplete()
-        .verify(TestHelper.TIMEOUT);
+        .verify(TIMEOUT);
   }
 
   @Test
   @Disabled // todo need to implement this behavior
   @DisplayName("#MPA-7603 (#20) Successful update of the relevant Organization by the Admin")
   void testUpdateOrganizationByAdmin() {
-    Profile userA = TestTokenVerifier.USER_1;
-    Profile userB = TestTokenVerifier.USER_2;
-    Token userAToken = TestTokenVerifier.token(userA);
-    Token userBToken = TestTokenVerifier.token(userB);
+    Profile userA = TestProfiles.USER_1;
+    Profile userB = TestProfiles.USER_2;
+    Token userAToken = MockPublicKeyProvider.token(userA);
+    Token userBToken = MockPublicKeyProvider.token(userB);
 
-    String organizationName = TestHelper.randomString(10);
+    String organizationName = RandomStringUtils.randomAlphabetic(10);
     String newOrganizationName = "new" + organizationName;
     String newEmail = "new" + userA.getEmail();
 
@@ -136,7 +136,7 @@ class UtUpdateOrganizationTest {
             .createOrganization(
                 new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
-            .block(TestHelper.TIMEOUT);
+            .block(TIMEOUT);
 
     // user "A" creates API keys for the organization with roles: "owner", "admin" and "member"
     Set<ApiKey> apiKeys =
@@ -155,14 +155,14 @@ class UtUpdateOrganizationTest {
             .filter(apiKey -> !Role.Owner.name().equals(apiKey.claims().get("role")))
             .collectList()
             .map(HashSet::new)
-            .block(TestHelper.TIMEOUT);
+            .block(TIMEOUT);
 
     // the user "A" invites user "B" to his organization with an "admin" role
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
                 userAToken, organizationId, userB.getUserId(), Role.Admin.name()))
-        .block(TestHelper.TIMEOUT);
+        .block(TIMEOUT);
 
     // user "B" updates repo name and email in the organization
     StepVerifier.create(
@@ -179,19 +179,19 @@ class UtUpdateOrganizationTest {
               assertEquals(apiKeys, new HashSet<>(Arrays.asList(organization.apiKeys())));
             })
         .expectComplete()
-        .verify(TestHelper.TIMEOUT);
+        .verify(TIMEOUT);
   }
 
   @Test
   @DisplayName(
       "#MPA-7603 (#21) Successful update of the Organization upon it's member was granted with Owner role")
   void testUpdateOrganizationByMember() {
-    Profile userA = TestTokenVerifier.USER_1;
-    Profile userB = TestTokenVerifier.USER_2;
-    Token userAToken = TestTokenVerifier.token(userA);
-    Token userBToken = TestTokenVerifier.token(userB);
+    Profile userA = TestProfiles.USER_1;
+    Profile userB = TestProfiles.USER_2;
+    Token userAToken = MockPublicKeyProvider.token(userA);
+    Token userBToken = MockPublicKeyProvider.token(userB);
 
-    String organizationName = TestHelper.randomString(10);
+    String organizationName = RandomStringUtils.randomAlphabetic(10);
     String newOrganizationName = "new" + organizationName;
     String newEmail = "new" + userA.getEmail();
 
@@ -201,21 +201,21 @@ class UtUpdateOrganizationTest {
             .createOrganization(
                 new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
-            .block(TestHelper.TIMEOUT);
+            .block(TIMEOUT);
 
     // the user "A" invites user "B" to his organization with an "member" role
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
                 userAToken, organizationId, userB.getUserId(), Role.Member.name()))
-        .block(TestHelper.TIMEOUT);
+        .block(TIMEOUT);
 
     // the user "A" updates the user "B" role to "owner" in the own organization
     service
         .updateOrganizationMemberRole(
             new UpdateOrganizationMemberRoleRequest(
                 userAToken, organizationId, userB.getUserId(), Role.Owner.name()))
-        .block(TestHelper.TIMEOUT);
+        .block(TIMEOUT);
 
     // user "B" updates repo name and email in the organization
     StepVerifier.create(
@@ -232,19 +232,19 @@ class UtUpdateOrganizationTest {
               assertEquals(0, organization.apiKeys().length);
             })
         .expectComplete()
-        .verify(TestHelper.TIMEOUT);
+        .verify(TIMEOUT);
   }
 
   @Test
   @DisplayName(
       "#MPA-7603 (#22) Fail to update relevant Organization by the Member with similar role")
   void testFailToUpdateOrganizationMemberByMember() {
-    Profile userA = TestTokenVerifier.USER_1;
-    Profile userB = TestTokenVerifier.USER_2;
-    Token userAToken = TestTokenVerifier.token(userA);
-    Token userBToken = TestTokenVerifier.token(userB);
+    Profile userA = TestProfiles.USER_1;
+    Profile userB = TestProfiles.USER_2;
+    Token userAToken = MockPublicKeyProvider.token(userA);
+    Token userBToken = MockPublicKeyProvider.token(userB);
 
-    String organizationName = TestHelper.randomString(10);
+    String organizationName = RandomStringUtils.randomAlphabetic(10);
     String newOrganizationName = "new" + organizationName;
     String newEmail = "new" + userA.getEmail();
 
@@ -254,14 +254,14 @@ class UtUpdateOrganizationTest {
             .createOrganization(
                 new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
-            .block(TestHelper.TIMEOUT);
+            .block(TIMEOUT);
 
     // the user "A" invites user "B" to his organization with an "member" role
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
                 userAToken, organizationId, userB.getUserId(), Role.Member.name()))
-        .block(TestHelper.TIMEOUT);
+        .block(TIMEOUT);
 
     // user "B" updates repo name and email in the organization
     StepVerifier.create(
@@ -272,18 +272,18 @@ class UtUpdateOrganizationTest {
             String.format(
                 "user: '%s', name: '%s', not in role Owner or Admin of organization: '%s'",
                 userB.getUserId(), userB.getName(), organizationName))
-        .verify(TestHelper.TIMEOUT);
+        .verify(TIMEOUT);
   }
 
   @Test
   @DisplayName(
       "#MPA-7603 (#23) Fail to update relevant Organization upon the Owner was removed from it")
   void testFailToUpdateOrganizationBecauseOwnerWasRemoved() {
-    Profile userA = TestTokenVerifier.USER_1;
-    Profile userB = TestTokenVerifier.USER_2;
-    Token userAToken = TestTokenVerifier.token(userA);
+    Profile userA = TestProfiles.USER_1;
+    Profile userB = TestProfiles.USER_2;
+    Token userAToken = MockPublicKeyProvider.token(userA);
 
-    String organizationName = TestHelper.randomString(10);
+    String organizationName = RandomStringUtils.randomAlphabetic(10);
     String newOrganizationName = "new" + organizationName;
     String newEmail = "new" + userA.getEmail();
 
@@ -293,19 +293,19 @@ class UtUpdateOrganizationTest {
             .createOrganization(
                 new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
-            .block(TestHelper.TIMEOUT);
+            .block(TIMEOUT);
 
     // the user "A" invites user "B" to his organization with an "owner" role
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
                 userAToken, organizationId, userB.getUserId(), Role.Owner.name()))
-        .block(TestHelper.TIMEOUT);
+        .block(TIMEOUT);
 
     // the user "A" leaves own organization
     service
         .leaveOrganization(new LeaveOrganizationRequest(userAToken, organizationId))
-        .block(TestHelper.TIMEOUT);
+        .block(TIMEOUT);
 
     // user "A" updates repo name and email in the organization
     StepVerifier.create(
@@ -316,20 +316,20 @@ class UtUpdateOrganizationTest {
             String.format(
                 "user: '%s', name: '%s', not in role Owner or Admin of organization: '%s'",
                 userA.getUserId(), userA.getName(), organizationName))
-        .verify(TestHelper.TIMEOUT);
+        .verify(TIMEOUT);
   }
 
   @Test
   @DisplayName(
       "#MPA-7603 (#24) Fail to update the Organization with the name which already exists (duplicate)")
   void testFailToUpdateOrganizationBecauseNameIsDuplicated() {
-    Profile userA = TestTokenVerifier.USER_1;
-    Profile userB = TestTokenVerifier.USER_2;
-    Token userAToken = TestTokenVerifier.token(userA);
-    Token userBToken = TestTokenVerifier.token(userB);
+    Profile userA = TestProfiles.USER_1;
+    Profile userB = TestProfiles.USER_2;
+    Token userAToken = MockPublicKeyProvider.token(userA);
+    Token userBToken = MockPublicKeyProvider.token(userB);
 
-    String userAOrganizationName = TestHelper.randomString(10);
-    String userBOrganizationName = TestHelper.randomString(10);
+    String userAOrganizationName = RandomStringUtils.randomAlphabetic(10);
+    String userBOrganizationName = RandomStringUtils.randomAlphabetic(10);
 
     // create a single organization which will be owned by user "A"
     String userAOrganizationId =
@@ -337,7 +337,7 @@ class UtUpdateOrganizationTest {
             .createOrganization(
                 new CreateOrganizationRequest(userAOrganizationName, userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
-            .block(TestHelper.TIMEOUT);
+            .block(TIMEOUT);
 
     // create a single organization which will be owned by user "B"
     String userBOrganizationId =
@@ -345,7 +345,7 @@ class UtUpdateOrganizationTest {
             .createOrganization(
                 new CreateOrganizationRequest(userBOrganizationName, userB.getEmail(), userBToken))
             .map(OrganizationInfo::id)
-            .block(TestHelper.TIMEOUT);
+            .block(TIMEOUT);
 
     // user "A" updates the name of own organization using the organization name of user "B"
     StepVerifier.create(
@@ -354,15 +354,15 @@ class UtUpdateOrganizationTest {
                     userAOrganizationId, userAToken, userBOrganizationName, userA.getEmail())))
         .expectErrorMessage(
             String.format("Organization name: '%s' already in use", userBOrganizationName))
-        .verify(TestHelper.TIMEOUT);
+        .verify(TIMEOUT);
   }
 
   @Test
   @DisplayName("#MPA-7603 (#25) Fail to update the non-existent Organization")
   void testFailToUpdateNonExistingOrganization() {
-    Profile userA = TestTokenVerifier.USER_1;
-    Token userAToken = TestTokenVerifier.token(userA);
-    String nonExistingOrganizationId = TestHelper.randomString(10);
+    Profile userA = TestProfiles.USER_1;
+    Token userAToken = MockPublicKeyProvider.token(userA);
+    String nonExistingOrganizationId = RandomStringUtils.randomAlphabetic(10);
 
     // user "A" updates the name and email of non-existent organization
     StepVerifier.create(
@@ -370,18 +370,18 @@ class UtUpdateOrganizationTest {
                 new UpdateOrganizationRequest(
                     nonExistingOrganizationId, userAToken, "fictionalName", userA.getEmail())))
         .expectErrorMessage(nonExistingOrganizationId)
-        .verify(TestHelper.TIMEOUT);
+        .verify(TIMEOUT);
   }
 
   @Test
   @DisplayName(
       "#MPA-7603 (#26) Fail to update the Organization with the name which contain else symbols apart of allowed chars")
   void testFailToUpdateOrganizationNameWithNotAllowedSymbols() {
-    Profile userA = TestTokenVerifier.USER_1;
-    Token userAToken = TestTokenVerifier.token(userA);
+    Profile userA = TestProfiles.USER_1;
+    Token userAToken = MockPublicKeyProvider.token(userA);
 
-    String organizationName = TestHelper.randomString(10);
-    String incorrectName = TestHelper.randomString(10) + "+";
+    String organizationName = RandomStringUtils.randomAlphabetic(10);
+    String incorrectName = organizationName + "+";
 
     // create a single organization which will be owned by user "A"
     String organizationId =
@@ -389,7 +389,7 @@ class UtUpdateOrganizationTest {
             .createOrganization(
                 new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
-            .block(TestHelper.TIMEOUT);
+            .block(TIMEOUT);
 
     // user "A" updates organization with the incorrect name
     StepVerifier.create(
@@ -398,13 +398,13 @@ class UtUpdateOrganizationTest {
                     organizationId, userAToken, incorrectName, userA.getEmail())))
         .expectErrorMessage(
             "Organization name can only contain characters in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent")
-        .verify(TestHelper.TIMEOUT);
+        .verify(TIMEOUT);
   }
 
   @Test
   @DisplayName("#MPA-7603 (#27) Fail to update the Organization if the token is invalid (expired)")
   void testFailToUpdateOrganizationWithInvalidToken() {
-    Profile userA = TestTokenVerifier.USER_1;
+    Profile userA = TestProfiles.USER_1;
 
     // user "A" updates organization with invalid token
     StepVerifier.create(
@@ -412,6 +412,6 @@ class UtUpdateOrganizationTest {
                 new UpdateOrganizationRequest(
                     "organizationId", new Token("invalid"), "name", userA.getEmail())))
         .expectErrorMessage("Token verification failed")
-        .verify(TestHelper.TIMEOUT);
+        .verify(TIMEOUT);
   }
 }

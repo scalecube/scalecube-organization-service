@@ -20,10 +20,12 @@ import io.scalecube.organization.repository.inmem.InMemoryOrganizationMembersRep
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
 import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
 import io.scalecube.security.Profile;
-import io.scalecube.tokens.TokenVerifier;
 import java.io.File;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.jupiter.api.AfterAll;
@@ -37,6 +39,8 @@ import reactor.test.StepVerifier;
 /** @see features/mpa-7603-Organization-service-Get-Organization.feature */
 class UtGetOrganizationTest {
 
+  private static final Duration TIMEOUT = Duration.ofSeconds(5);
+
   private OrganizationService service;
 
   @BeforeEach
@@ -46,15 +50,12 @@ class UtGetOrganizationTest {
     Repository<Organization, String> organizationRepository = new InMemoryOrganizationRepository();
     OrganizationMembersRepositoryAdmin admin = new InMemoryOrganizationMembersRepositoryAdmin();
 
-    TokenVerifier tokenVerifier = new TestTokenVerifier();
-
     service =
         OrganizationServiceImpl.builder()
             .organizationRepository(organizationRepository)
             .organizationMembershipRepository(orgMembersRepository)
             .organizationMembershipRepositoryAdmin(admin)
-            .tokenVerifier(tokenVerifier)
-            .keyPairGenerator(TestHelper.KEY_PAIR_GENERATOR)
+            .keyPairGenerator(MockPublicKeyProvider.KPG)
             .build();
   }
 
@@ -66,17 +67,17 @@ class UtGetOrganizationTest {
   @Test
   @DisplayName("#MPA-7603 (#13) Successful info get about relevant Organization by the Owner")
   void testGetOrganizationInfoByOwner() {
-    Profile userA = TestTokenVerifier.USER_1;
-    Profile userB = TestTokenVerifier.USER_2;
-    Token userAToken = TestTokenVerifier.token(userA);
-    Token userBToken = TestTokenVerifier.token(userB);
+    Profile userA = TestProfiles.USER_1;
+    Profile userB = TestProfiles.USER_2;
+    Token userAToken = MockPublicKeyProvider.token(userA);
+    Token userBToken = MockPublicKeyProvider.token(userB);
 
     // create a single organization which will be owned by user "A"
     String organizationId =
         service
             .createOrganization(new CreateOrganizationRequest("repo", userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
-            .block(TestHelper.TIMEOUT);
+            .block(TIMEOUT);
 
     // user "A" creates API keys for the organization with roles: "owner", "admin" and "member"
     Set<ApiKey> apiKeys =
@@ -93,14 +94,14 @@ class UtGetOrganizationTest {
             .flatMap(Flux::fromArray)
             .collectList()
             .map(HashSet::new)
-            .block(TestHelper.TIMEOUT);
+            .block(TIMEOUT);
 
     // the user "A" invites user "B" to his organization with an "owner" role
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
                 userAToken, organizationId, userB.getUserId(), Role.Owner.name()))
-        .block(TestHelper.TIMEOUT);
+        .block(TIMEOUT);
 
     // the user "B" requested to get the user's "A" organization info
     StepVerifier.create(
@@ -113,24 +114,24 @@ class UtGetOrganizationTest {
               assertEquals(apiKeys, new HashSet<>(Arrays.asList(organization.apiKeys())));
             })
         .expectComplete()
-        .verify(TestHelper.TIMEOUT);
+        .verify(TIMEOUT);
   }
 
   @Test
   @Disabled // todo need to implement this behavior
   @DisplayName("#MPA-7603 (#14) Successful info get about relevant Organization by the Admin")
   void testGetOrganizationInfoByAdmin() {
-    Profile userA = TestTokenVerifier.USER_1;
-    Profile userB = TestTokenVerifier.USER_2;
-    Token userAToken = TestTokenVerifier.token(userA);
-    Token userBToken = TestTokenVerifier.token(userB);
+    Profile userA = TestProfiles.USER_1;
+    Profile userB = TestProfiles.USER_2;
+    Token userAToken = MockPublicKeyProvider.token(userA);
+    Token userBToken = MockPublicKeyProvider.token(userB);
 
     // create a single organization which will be owned by user "A"
     String organizationId =
         service
             .createOrganization(new CreateOrganizationRequest("repo", userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
-            .block(TestHelper.TIMEOUT);
+            .block(TIMEOUT);
 
     // user "A" creates API keys for the organization with roles: "owner", "admin" and "member"
     Set<ApiKey> apiKeys =
@@ -149,14 +150,14 @@ class UtGetOrganizationTest {
             .filter(apiKey -> !Role.Owner.name().equals(apiKey.claims().get("role")))
             .collectList()
             .map(HashSet::new)
-            .block(TestHelper.TIMEOUT);
+            .block(TIMEOUT);
 
     // the user "A" invites user "B" to his organization with an "admin" role
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
                 userAToken, organizationId, userB.getUserId(), Role.Admin.name()))
-        .block(TestHelper.TIMEOUT);
+        .block(TIMEOUT);
 
     // the user "B" requested to get the user's "A" organization info
     StepVerifier.create(
@@ -169,24 +170,24 @@ class UtGetOrganizationTest {
               assertEquals(apiKeys, new HashSet<>(Arrays.asList(organization.apiKeys())));
             })
         .expectComplete()
-        .verify(TestHelper.TIMEOUT);
+        .verify(TIMEOUT);
   }
 
   @Test
   @Disabled // todo need to implement this behavior
   @DisplayName("#MPA-7603 (#15) Successful info get about relevant Organization by the Member")
   void testGetOrganizationInfoByMember() {
-    Profile userA = TestTokenVerifier.USER_1;
-    Profile userB = TestTokenVerifier.USER_2;
-    Token userAToken = TestTokenVerifier.token(userA);
-    Token userBToken = TestTokenVerifier.token(userB);
+    Profile userA = TestProfiles.USER_1;
+    Profile userB = TestProfiles.USER_2;
+    Token userAToken = MockPublicKeyProvider.token(userA);
+    Token userBToken = MockPublicKeyProvider.token(userB);
 
     // create a single organization which will be owned by user "A"
     String organizationId =
         service
             .createOrganization(new CreateOrganizationRequest("repo", userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
-            .block(TestHelper.TIMEOUT);
+            .block(TIMEOUT);
 
     // user "A" creates API keys for the organization with roles: "owner", "admin" and "member"
     Set<ApiKey> apiKeys =
@@ -205,14 +206,14 @@ class UtGetOrganizationTest {
             .filter(apiKey -> Role.Member.name().equals(apiKey.claims().get("role")))
             .collectList()
             .map(HashSet::new)
-            .block(TestHelper.TIMEOUT);
+            .block(TIMEOUT);
 
     // the user "A" invites user "B" to his organization with a "member" role
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
                 userAToken, organizationId, userB.getUserId(), Role.Member.name()))
-        .block(TestHelper.TIMEOUT);
+        .block(TIMEOUT);
 
     // the user "B" requested to get the user's "A" organization info
     StepVerifier.create(
@@ -225,35 +226,35 @@ class UtGetOrganizationTest {
               assertEquals(apiKeys, new HashSet<>(Arrays.asList(organization.apiKeys())));
             })
         .expectComplete()
-        .verify(TestHelper.TIMEOUT);
+        .verify(TIMEOUT);
   }
 
   @Test
   @DisplayName(
       "#MPA-7603 (#16) Fail to get of specific Organization info upon the Owner was removed from relevant Organization")
   void testFailToGetOrganizationInfoBecauseOwnerWasRemoved() {
-    Profile userA = TestTokenVerifier.USER_1;
-    Profile userB = TestTokenVerifier.USER_2;
-    Token userAToken = TestTokenVerifier.token(userA);
+    Profile userA = TestProfiles.USER_1;
+    Profile userB = TestProfiles.USER_2;
+    Token userAToken = MockPublicKeyProvider.token(userA);
 
     // create a single organization which will be owned by user "A"
     String organizationId =
         service
             .createOrganization(new CreateOrganizationRequest("repo", userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
-            .block(TestHelper.TIMEOUT);
+            .block(TIMEOUT);
 
     // the user "A" invites user "B" to his organization with an "owner" role
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
                 userAToken, organizationId, userB.getUserId(), Role.Owner.name()))
-        .block(TestHelper.TIMEOUT);
+        .block(TIMEOUT);
 
     // the user "A" leaves own organization
     service
         .leaveOrganization(new LeaveOrganizationRequest(userAToken, organizationId))
-        .block(TestHelper.TIMEOUT);
+        .block(TIMEOUT);
 
     // the user "A" requests to get own former organization info
     StepVerifier.create(
@@ -262,33 +263,34 @@ class UtGetOrganizationTest {
             String.format(
                 "user: '%s', name: '%s', is not a member of organization: '%s'",
                 userA.getName(), userA.getUserId(), organizationId))
-        .verify(TestHelper.TIMEOUT);
+        .verify(TIMEOUT);
   }
 
   @Test
   @DisplayName("#MPA-7603 (#17) Fail to get a non-existent Organization info")
   void testFailToGetNonExistingOrganizationInfo() {
-    Profile userA = TestTokenVerifier.USER_1;
-    Token userAToken = TestTokenVerifier.token(userA);
+    Profile userA = TestProfiles.USER_1;
+    Token userAToken = MockPublicKeyProvider.token(userA);
     String organizationId = "non-existing organization id";
 
     // the user "A" requests to get info of non-existing organization
     StepVerifier.create(
             service.getOrganization(new GetOrganizationRequest(userAToken, organizationId)))
         .expectErrorMessage(organizationId)
-        .verify(TestHelper.TIMEOUT);
+        .verify(TIMEOUT);
   }
 
   @Test
   @DisplayName("#MPA-7603 (#18) Fail to get the Organization info if the token is invalid")
   void testFailToGetOrganizationInfoWithInvalidToken() {
-    Token invalidToken = new Token(TestHelper.randomString(15));
-    String organizationId = TestHelper.randomString(10);
+    Token expiredToken =
+        MockPublicKeyProvider.token(
+            TestProfiles.USER_1, op -> op.setExpiration(Date.from(Instant.ofEpochMilli(0))));
 
-    // the user "A" requests to get info of non-existing organization
+    // the user "A" requests to get info with invalid token
     StepVerifier.create(
-            service.getOrganization(new GetOrganizationRequest(invalidToken, organizationId)))
+            service.getOrganization(new GetOrganizationRequest(expiredToken, "non-existing-id")))
         .expectErrorMessage("Token verification failed")
-        .verify(TestHelper.TIMEOUT);
+        .verify(TIMEOUT);
   }
 }
