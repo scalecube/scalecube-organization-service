@@ -15,12 +15,15 @@ import io.scalecube.account.api.Token;
 import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
 import io.scalecube.account.api.UpdateOrganizationRequest;
 import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
+import io.scalecube.organization.repository.OrganizationsDataAccess;
+import io.scalecube.organization.repository.OrganizationsDataAccessImpl;
 import io.scalecube.organization.repository.Repository;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationMembersRepositoryAdmin;
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
 import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
 import io.scalecube.security.Profile;
+import io.scalecube.tokens.TokenVerifierImpl;
 import java.io.File;
 import java.time.Duration;
 import java.util.Arrays;
@@ -45,18 +48,20 @@ class UpdateOrganizationIntegrationTest {
 
   @BeforeEach
   void beforeEach() {
+    StepVerifier.setDefaultTimeout(TIMEOUT);
     UserOrganizationMembershipRepository orgMembersRepository =
         new InMemoryUserOrganizationMembershipRepository();
     Repository<Organization, String> organizationRepository = new InMemoryOrganizationRepository();
     OrganizationMembersRepositoryAdmin admin = new InMemoryOrganizationMembersRepositoryAdmin();
 
-    service =
-        OrganizationServiceImpl.builder()
-            .organizationRepository(organizationRepository)
-            .organizationMembershipRepository(orgMembersRepository)
-            .organizationMembershipRepositoryAdmin(admin)
-            .keyPairGenerator(MockPublicKeyProvider.KPG)
+    OrganizationsDataAccess repository =
+        OrganizationsDataAccessImpl.builder()
+            .organizations(organizationRepository)
+            .members(orgMembersRepository)
+            .repositoryAdmin(admin)
             .build();
+    TokenVerifierImpl tokenVerifier = new TokenVerifierImpl(new MockPublicKeyProvider());
+    service = new OrganizationServiceImpl(repository, tokenVerifier);
   }
 
   @AfterAll
@@ -106,7 +111,6 @@ class UpdateOrganizationIntegrationTest {
                     organizationId, userAToken, newOrganizationName, newEmail)))
         .assertNext(
             organization -> {
-              assertNotNull(organization);
               assertEquals(organizationId, organization.id());
               assertEquals(newOrganizationName, organization.name());
               assertEquals(newEmail, organization.email());
@@ -114,7 +118,7 @@ class UpdateOrganizationIntegrationTest {
               assertEquals(apiKeys, new HashSet<>(Arrays.asList(organization.apiKeys())));
             })
         .expectComplete()
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -179,7 +183,7 @@ class UpdateOrganizationIntegrationTest {
               assertEquals(apiKeys, new HashSet<>(Arrays.asList(organization.apiKeys())));
             })
         .expectComplete()
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -232,7 +236,7 @@ class UpdateOrganizationIntegrationTest {
               assertEquals(0, organization.apiKeys().length);
             })
         .expectComplete()
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -272,7 +276,7 @@ class UpdateOrganizationIntegrationTest {
             String.format(
                 "user: '%s', name: '%s', not in role Owner or Admin of organization: '%s'",
                 userB.getUserId(), userB.getName(), organizationName))
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -316,7 +320,7 @@ class UpdateOrganizationIntegrationTest {
             String.format(
                 "user: '%s', name: '%s', not in role Owner or Admin of organization: '%s'",
                 userA.getUserId(), userA.getName(), organizationName))
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -354,7 +358,7 @@ class UpdateOrganizationIntegrationTest {
                     userAOrganizationId, userAToken, userBOrganizationName, userA.getEmail())))
         .expectErrorMessage(
             String.format("Organization name: '%s' already in use", userBOrganizationName))
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -370,7 +374,7 @@ class UpdateOrganizationIntegrationTest {
                 new UpdateOrganizationRequest(
                     nonExistingOrganizationId, userAToken, "fictionalName", userA.getEmail())))
         .expectErrorMessage(nonExistingOrganizationId)
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -398,7 +402,7 @@ class UpdateOrganizationIntegrationTest {
                     organizationId, userAToken, incorrectName, userA.getEmail())))
         .expectErrorMessage(
             "Organization name can only contain characters in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent")
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -412,6 +416,6 @@ class UpdateOrganizationIntegrationTest {
                 new UpdateOrganizationRequest(
                     "organizationId", new Token("invalid"), "name", userA.getEmail())))
         .expectErrorMessage("Token verification failed")
-        .verify(TIMEOUT);
+        .verify();
   }
 }

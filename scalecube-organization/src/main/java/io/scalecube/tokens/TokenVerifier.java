@@ -5,5 +5,12 @@ import io.scalecube.security.Profile;
 
 public interface TokenVerifier {
 
-  Profile verify(Token token) throws Exception;
+  /**
+   * Verifies the token argument.
+   *
+   * @param token to be verified.
+   * @return Profile if token is verified or null in case its invalid token.
+   * @throws InvalidTokenException in case an error.
+   */
+  Profile verify(Token token) throws InvalidTokenException;
 }

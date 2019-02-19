@@ -14,12 +14,15 @@ import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
+import io.scalecube.organization.repository.OrganizationsDataAccess;
+import io.scalecube.organization.repository.OrganizationsDataAccessImpl;
 import io.scalecube.organization.repository.Repository;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationMembersRepositoryAdmin;
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
 import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
 import io.scalecube.security.Profile;
+import io.scalecube.tokens.TokenVerifierImpl;
 import java.io.File;
 import java.time.Duration;
 import java.time.Instant;
@@ -43,18 +46,20 @@ class DeleteOrganizationApiKeyIntegrationTest {
 
   @BeforeEach
   void beforeEach() {
+    StepVerifier.setDefaultTimeout(TIMEOUT);
     UserOrganizationMembershipRepository orgMembersRepository =
         new InMemoryUserOrganizationMembershipRepository();
     Repository<Organization, String> organizationRepository = new InMemoryOrganizationRepository();
     OrganizationMembersRepositoryAdmin admin = new InMemoryOrganizationMembersRepositoryAdmin();
 
-    service =
-        OrganizationServiceImpl.builder()
-            .organizationRepository(organizationRepository)
-            .organizationMembershipRepository(orgMembersRepository)
-            .organizationMembershipRepositoryAdmin(admin)
-            .keyPairGenerator(MockPublicKeyProvider.KPG)
+    OrganizationsDataAccess repository =
+        OrganizationsDataAccessImpl.builder()
+            .organizations(organizationRepository)
+            .members(orgMembersRepository)
+            .repositoryAdmin(admin)
             .build();
+    TokenVerifierImpl tokenVerifier = new TokenVerifierImpl(new MockPublicKeyProvider());
+    service = new OrganizationServiceImpl(repository, tokenVerifier);
   }
 
   @AfterAll
