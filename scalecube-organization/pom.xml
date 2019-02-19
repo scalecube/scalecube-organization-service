@@ -18,6 +18,7 @@
   </properties>
 
   <dependencies>
+    <!-- Scalecube -->
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>scalecube-organization-api</artifactId>
@@ -30,14 +31,6 @@
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>config-vault</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.bettercloud</groupId>
-      <artifactId>vault-java-driver</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
     </dependency>
     <dependency>
       <groupId>io.scalecube</groupId>
@@ -59,9 +52,17 @@
       <groupId>io.scalecube</groupId>
       <artifactId>scalecube-services</artifactId>
     </dependency>
+
+    <!-- Couchbase -->
     <dependency>
       <groupId>com.couchbase.client</groupId>
       <artifactId>java-client</artifactId>
+    </dependency>
+
+    <!-- Vault -->
+    <dependency>
+      <groupId>com.bettercloud</groupId>
+      <artifactId>vault-java-driver</artifactId>
     </dependency>
 
     <!-- Loggers -->
@@ -78,6 +79,13 @@
       <artifactId>log4j-core</artifactId>
     </dependency>
 
+    <!-- Auth0 -->
+    <dependency>
+      <groupId>com.auth0</groupId>
+      <artifactId>jwks-rsa</artifactId>
+    </dependency>
+
+    <!-- Test -->
     <dependency>
       <groupId>io.projectreactor</groupId>
       <artifactId>reactor-test</artifactId>
@@ -86,7 +94,6 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <version>${junit-jupiter.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -94,19 +101,10 @@
       <artifactId>junit-jupiter-params</artifactId>
       <scope>test</scope>
     </dependency>
-
-    <!-- This will get hamcrest-core automatically -->
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-library</artifactId>
-      <version>${hamcrest-library.version}</version>
       <scope>test</scope>
-    </dependency>
-
-    <!-- Auth0 -->
-    <dependency>
-      <groupId>com.auth0</groupId>
-      <artifactId>jwks-rsa</artifactId>
     </dependency>
   </dependencies>
 
