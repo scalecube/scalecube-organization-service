@@ -19,10 +19,12 @@ import io.scalecube.organization.repository.inmem.InMemoryOrganizationMembersRep
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
 import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
 import io.scalecube.security.Profile;
-import io.scalecube.tokens.TokenVerifier;
 import java.io.File;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Random;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -34,6 +36,9 @@ import reactor.test.StepVerifier;
 /** @see features/mpa-7603-Organization-service-Add-Api-Key.feature */
 class AddOrganizationApiKeyTest {
 
+  private static final Duration TIMEOUT = Duration.ofSeconds(5);
+  private static final Random RANDOM = new Random(42);
+
   private OrganizationService service;
 
   @BeforeEach
@@ -43,15 +48,12 @@ class AddOrganizationApiKeyTest {
     Repository<Organization, String> organizationRepository = new InMemoryOrganizationRepository();
     OrganizationMembersRepositoryAdmin admin = new InMemoryOrganizationMembersRepositoryAdmin();
 
-    TokenVerifier tokenVerifier = new TestTokenVerifier();
-
     service =
         OrganizationServiceImpl.builder()
             .organizationRepository(organizationRepository)
             .organizationMembershipRepository(orgMembersRepository)
             .organizationMembershipRepositoryAdmin(admin)
-            .tokenVerifier(tokenVerifier)
-            .keyPairGenerator(TestHelper.KEY_PAIR_GENERATOR)
+            .keyPairGenerator(MockPublicKeyProvider.KPG)
             .build();
   }
 
@@ -64,17 +66,17 @@ class AddOrganizationApiKeyTest {
   @DisplayName(
       "#MPA-7603 (#35) Successful adding the API keys (token) for relevant Organization with all accessible roles by Owner")
   void testAddAllApiKeysForEachAccessibleRoleOfTheOwner() {
-    Profile userA = TestTokenVerifier.USER_1;
-    Token userAToken = TestTokenVerifier.token(userA);
+    Profile userA = TestProfiles.USER_1;
+    Token userAToken = MockPublicKeyProvider.token(userA);
 
     // create a single organization which will be owned by user "A"
     String organizationId =
         service
             .createOrganization(
                 new CreateOrganizationRequest(
-                    TestHelper.randomString(10), userA.getEmail(), userAToken))
+                    RandomStringUtils.randomAlphabetic(10), userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
-            .block(TestHelper.TIMEOUT);
+            .block(TIMEOUT);
 
     // user "A" creates API keys for the organization with roles: "owner", "admin" and "member"
     StepVerifier.create(
@@ -121,7 +123,7 @@ class AddOrganizationApiKeyTest {
                       .anyMatch(apiKey -> Role.Admin.name().equals(apiKey.claims().get("role"))));
             })
         .expectComplete()
-        .verify(TestHelper.TIMEOUT);
+        .verify(TIMEOUT);
 
     // the relevant API keys should be stored in the DB
     StepVerifier.create(
@@ -140,7 +142,7 @@ class AddOrganizationApiKeyTest {
                       .anyMatch(apiKey -> Role.Admin.name().equals(apiKey.claims().get("role"))));
             })
         .expectComplete()
-        .verify(TestHelper.TIMEOUT);
+        .verify(TIMEOUT);
   }
 
   @Test
@@ -148,19 +150,19 @@ class AddOrganizationApiKeyTest {
   @DisplayName(
       "#MPA-7603 (#36) Successful adding the API keys (token) with admin and member roles for relevant Organization by Admin")
   void testAddAllApiKeysForEachAccessibleRoleOfTheAdmin() {
-    Profile userA = TestTokenVerifier.USER_1;
-    Profile userB = TestTokenVerifier.USER_2;
-    Token userAToken = TestTokenVerifier.token(userA);
-    Token userBToken = TestTokenVerifier.token(userB);
+    Profile userA = TestProfiles.USER_1;
+    Profile userB = TestProfiles.USER_2;
+    Token userAToken = MockPublicKeyProvider.token(userA);
+    Token userBToken = MockPublicKeyProvider.token(userB);
 
     // create a single organization which will be owned by user "A"
     String organizationId =
         service
             .createOrganization(
                 new CreateOrganizationRequest(
-                    TestHelper.randomString(10), userA.getEmail(), userAToken))
+                    RandomStringUtils.randomAlphabetic(10), userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
-            .block(TestHelper.TIMEOUT);
+            .block(TIMEOUT);
 
     // user "A" creates API keys for the organization with roles: "owner"
     service
@@ -170,14 +172,14 @@ class AddOrganizationApiKeyTest {
                 organizationId,
                 Role.Owner.name() + "-api-key",
                 Collections.singletonMap("role", Role.Owner.name())))
-        .block(TestHelper.TIMEOUT);
+        .block(TIMEOUT);
 
     // the user "A" invites user "B" to his organization with an "admin" role
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
                 userAToken, organizationId, userB.getUserId(), Role.Owner.name()))
-        .block(TestHelper.TIMEOUT);
+        .block(TIMEOUT);
 
     // user "B" creates API keys for the organization with roles: "admin" and "member"
     StepVerifier.create(
@@ -210,7 +212,7 @@ class AddOrganizationApiKeyTest {
                       .anyMatch(apiKey -> Role.Admin.name().equals(apiKey.claims().get("role"))));
             })
         .expectComplete()
-        .verify(TestHelper.TIMEOUT);
+        .verify(TIMEOUT);
 
     // the relevant API keys should be stored in the DB
     StepVerifier.create(
@@ -229,7 +231,7 @@ class AddOrganizationApiKeyTest {
                       .anyMatch(apiKey -> Role.Admin.name().equals(apiKey.claims().get("role"))));
             })
         .expectComplete()
-        .verify(TestHelper.TIMEOUT);
+        .verify(TIMEOUT);
   }
 
   /**
@@ -242,11 +244,11 @@ class AddOrganizationApiKeyTest {
   @DisplayName(
       "#MPA-7603 (#37) Fail to add the owner API key (token) for a relevant Organization by the Admin")
   void testFailToAddOwnerApiKeyByAdmin() {
-    Profile userA = TestTokenVerifier.USER_1;
-    Profile userB = TestTokenVerifier.USER_2;
-    Token userAToken = TestTokenVerifier.token(userA);
-    Token userBToken = TestTokenVerifier.token(userB);
-    String organizationName = TestHelper.randomString(10);
+    Profile userA = TestProfiles.USER_1;
+    Profile userB = TestProfiles.USER_2;
+    Token userAToken = MockPublicKeyProvider.token(userA);
+    Token userBToken = MockPublicKeyProvider.token(userB);
+    String organizationName = RandomStringUtils.randomAlphabetic(10);
 
     // create a single organization which will be owned by user "A"
     String organizationId =
@@ -254,14 +256,14 @@ class AddOrganizationApiKeyTest {
             .createOrganization(
                 new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
-            .block(TestHelper.TIMEOUT);
+            .block(TIMEOUT);
 
     // the user "A" invites user "B" to his organization with an "admin" role
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
                 userAToken, organizationId, userB.getUserId(), Role.Owner.name()))
-        .block(TestHelper.TIMEOUT);
+        .block(TIMEOUT);
 
     // user "B" creates API keys for the organization with roles: "owner"
     StepVerifier.create(
@@ -275,18 +277,18 @@ class AddOrganizationApiKeyTest {
             String.format(
                 "user: '%s', name: '%s', not in role Owner of organization: '%s'",
                 userB.getUserId(), userB.getName(), organizationName))
-        .verify(TestHelper.TIMEOUT);
+        .verify(TIMEOUT);
   }
 
   @Test
   @DisplayName(
       "#MPA-7603 (#38) Fail to add some of accessible API keys (token) for a relevant Organization upon the relevant member doesn't manager's permission level")
   void testFailToAddMemberApiKeyByMember() {
-    Profile userA = TestTokenVerifier.USER_1;
-    Profile userB = TestTokenVerifier.USER_2;
-    Token userAToken = TestTokenVerifier.token(userA);
-    Token userBToken = TestTokenVerifier.token(userB);
-    String organizationName = TestHelper.randomString(10);
+    Profile userA = TestProfiles.USER_1;
+    Profile userB = TestProfiles.USER_2;
+    Token userAToken = MockPublicKeyProvider.token(userA);
+    Token userBToken = MockPublicKeyProvider.token(userB);
+    String organizationName = RandomStringUtils.randomAlphabetic(10);
 
     // create a single organization which will be owned by user "A"
     String organizationId =
@@ -294,14 +296,14 @@ class AddOrganizationApiKeyTest {
             .createOrganization(
                 new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
-            .block(TestHelper.TIMEOUT);
+            .block(TIMEOUT);
 
     // the user "A" invites user "B" to his organization with an "member" role
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
                 userAToken, organizationId, userB.getUserId(), Role.Member.name()))
-        .block(TestHelper.TIMEOUT);
+        .block(TIMEOUT);
 
     // user "B" creates API keys for the organization with roles: "member"
     StepVerifier.create(
@@ -315,25 +317,25 @@ class AddOrganizationApiKeyTest {
             String.format(
                 "user: '%s', name: '%s', not in role Owner or Admin of organization: '%s'",
                 userB.getUserId(), userB.getName(), organizationName))
-        .verify(TestHelper.TIMEOUT);
+        .verify(TIMEOUT);
   }
 
   @Test
   @DisplayName(
       "#MPA-7603 (#39) Fail to add some of accessible API keys (token) with the duplicate name for a relevant Organization")
   void testFailToAddApiKeyWithDuplicatedName() {
-    Profile userA = TestTokenVerifier.USER_1;
-    Token userAToken = TestTokenVerifier.token(userA);
-    String specifiedApiKeyName = TestHelper.randomString(10);
+    Profile userA = TestProfiles.USER_1;
+    Token userAToken = MockPublicKeyProvider.token(userA);
+    String specifiedApiKeyName = RandomStringUtils.randomAlphabetic(10);
 
     // create a single organization which will be owned by user "A"
     String organizationId =
         service
             .createOrganization(
                 new CreateOrganizationRequest(
-                    TestHelper.randomString(10), userA.getEmail(), userAToken))
+                    RandomStringUtils.randomAlphabetic(10), userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
-            .block(TestHelper.TIMEOUT);
+            .block(TIMEOUT);
 
     // user "A" creates API keys for the organization with roles: "owner"
     service
@@ -343,10 +345,10 @@ class AddOrganizationApiKeyTest {
                 organizationId,
                 specifiedApiKeyName,
                 Collections.singletonMap("role", Role.Owner.name())))
-        .block(TestHelper.TIMEOUT);
+        .block(TIMEOUT);
 
     // user "A" creates API keys for the organization with any accessible role
-    Role role = Role.values()[TestHelper.RANDOM.nextInt(Role.values().length)];
+    Role role = Role.values()[RANDOM.nextInt(Role.values().length)];
     StepVerifier.create(
             service.addOrganizationApiKey(
                 new AddOrganizationApiKeyRequest(
@@ -355,17 +357,17 @@ class AddOrganizationApiKeyTest {
                     specifiedApiKeyName,
                     Collections.singletonMap("role", role.name()))))
         .expectErrorMessage(String.format("apiKey name:'%s' already exists", specifiedApiKeyName))
-        .verify(TestHelper.TIMEOUT);
+        .verify(TIMEOUT);
   }
 
   @Test
   @DisplayName(
       "#MPA-7603 (#40) Fail to add some of accessible API keys (token) for relevant Organization upon the owner was removed from own Organization")
   void testFailToAddApiKeyAfterOwnerWasRemoved() {
-    Profile userA = TestTokenVerifier.USER_1;
-    Profile userB = TestTokenVerifier.USER_2;
-    Token userAToken = TestTokenVerifier.token(userA);
-    String organizationName = TestHelper.randomString(10);
+    Profile userA = TestProfiles.USER_1;
+    Profile userB = TestProfiles.USER_2;
+    Token userAToken = MockPublicKeyProvider.token(userA);
+    String organizationName = RandomStringUtils.randomAlphabetic(10);
 
     // create a single organization which will be owned by user "A"
     String organizationId =
@@ -373,19 +375,19 @@ class AddOrganizationApiKeyTest {
             .createOrganization(
                 new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
-            .block(TestHelper.TIMEOUT);
+            .block(TIMEOUT);
 
     // the user "A" invites user "B" to his organization with an "member" role
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
                 userAToken, organizationId, userB.getUserId(), Role.Owner.name()))
-        .block(TestHelper.TIMEOUT);
+        .block(TIMEOUT);
 
     // the user "A" leaves own organization
     service
         .leaveOrganization(new LeaveOrganizationRequest(userAToken, organizationId))
-        .block(TestHelper.TIMEOUT);
+        .block(TIMEOUT);
 
     // user "A" creates API keys for the organization with roles: "admin"
     StepVerifier.create(
@@ -399,7 +401,7 @@ class AddOrganizationApiKeyTest {
             String.format(
                 "user: '%s', name: '%s', not in role Owner or Admin of organization: '%s'",
                 userA.getUserId(), userA.getName(), organizationName))
-        .verify(TestHelper.TIMEOUT);
+        .verify(TIMEOUT);
   }
 
   /**
@@ -419,9 +421,9 @@ class AddOrganizationApiKeyTest {
   @DisplayName(
       "#MPA-7603 (#41) Fail to add the API key (token) for a relevant Organization upon the assigned role is invalid (differs from allowed)")
   void testFailToAddApiKeWithInvalidRole() {
-    Profile userA = TestTokenVerifier.USER_1;
-    Token userAToken = TestTokenVerifier.token(userA);
-    String organizationName = TestHelper.randomString(10);
+    Profile userA = TestProfiles.USER_1;
+    Token userAToken = MockPublicKeyProvider.token(userA);
+    String organizationName = RandomStringUtils.randomAlphabetic(10);
     String invalidRole = "boss";
 
     // create a single organization which will be owned by user "A"
@@ -430,7 +432,7 @@ class AddOrganizationApiKeyTest {
             .createOrganization(
                 new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
-            .block(TestHelper.TIMEOUT);
+            .block(TIMEOUT);
 
     // user "A" creates API keys for the organization with invalid role
     StepVerifier.create(
@@ -441,7 +443,7 @@ class AddOrganizationApiKeyTest {
                     invalidRole + "-api-key",
                     Collections.singletonMap("role", invalidRole))))
         .expectErrorMessage(String.format("role: '%s' is invalid", invalidRole))
-        .verify(TestHelper.TIMEOUT);
+        .verify(TIMEOUT);
   }
 
   @Test
@@ -453,10 +455,10 @@ class AddOrganizationApiKeyTest {
             service.addOrganizationApiKey(
                 new AddOrganizationApiKeyRequest(
                     new Token("invalid"),
-                    TestHelper.randomString(10),
+                    RandomStringUtils.randomAlphabetic(10),
                     Role.Member.name() + "-api-key",
                     Collections.singletonMap("role", Role.Member.name()))))
         .expectErrorMessage("Token verification failed")
-        .verify(TestHelper.TIMEOUT);
+        .verify(TIMEOUT);
   }
 }
