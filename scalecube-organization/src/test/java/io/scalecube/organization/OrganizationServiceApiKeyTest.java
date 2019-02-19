@@ -21,7 +21,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import reactor.test.StepVerifier;
 
-@Disabled
 class OrganizationServiceApiKeyTest extends Base {
 
   private String apiKeyName = "apiKey" + System.currentTimeMillis();
@@ -65,6 +64,7 @@ class OrganizationServiceApiKeyTest extends Base {
   }
 
   @Test
+  @Disabled // todo
   void failToAddOrganizationApiKeyByNonOwner() {
     Organization organisation2 = createOrganization(randomString());
     String organizationId2 = organisation2.id();
