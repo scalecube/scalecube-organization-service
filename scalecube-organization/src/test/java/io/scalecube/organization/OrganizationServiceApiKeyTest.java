@@ -1,4 +1,4 @@
-package io.scalecube.organization.apikey;
+package io.scalecube.organization;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -10,8 +10,6 @@ import io.scalecube.account.api.InvalidAuthenticationToken;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
-import io.scalecube.organization.Base;
-import io.scalecube.organization.Organization;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.security.Profile;
