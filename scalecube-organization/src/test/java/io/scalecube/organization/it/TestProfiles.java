@@ -33,4 +33,14 @@ public interface TestProfiles {
           .familyName("fname")
           .givenName("lname")
           .build();
+
+  Profile USER_D =
+      Profile.builder()
+          .userId("USER_D")
+          .email("user4@scalecube.io")
+          .emailVerified(true)
+          .name("user4")
+          .familyName("fname")
+          .givenName("lname")
+          .build();
 }

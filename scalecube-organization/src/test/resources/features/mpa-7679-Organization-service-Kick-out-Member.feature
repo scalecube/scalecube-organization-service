@@ -47,14 +47,14 @@ Feature: Organization service members management - Kick-out member
 
 
   #MPA-7679 (#62)
-  Scenario: Successful kick-out (remove) one of the "owner" from relevant Organization by "admin"
+  Scenario: Successful kick-out (remove) one of the "admin" from relevant Organization by "owner"
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
     And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with an "owner" role
     And the user "C" who have got the "userId" issued by relevant authority was invited to user's "A" organization with an "admin" role
-    When the user "C" requested to remove the user "B" from user's "A" organization
-    Then user "B" should be removed from user's "A" organization
-    And user "C" should get successful response with the empty object
+    When the user "B" requested to remove the user "C" from user's "A" organization
+    Then user "C" should be removed from user's "A" organization
+    And user "B" should get successful response with the empty object
 
 
   #MPA-7679 (#63)
@@ -119,7 +119,7 @@ Feature: Organization service members management - Kick-out member
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
     And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with an "admin" role
     When the user "B" requested to remove the user "A" from user's "A" organization
-    Then user "B" should get an error message: "At least one Owner should be persisted in the organization: 'organizationId'"
+    Then user "B" should get an error message: "user: 'userId "B"', name: 'null', role: 'Admin' cannot kickout user: 'userId "A"' in role 'Owner' of organization: 'org "A" name'"
 
 
   #MPA-7679 (#69)
@@ -132,7 +132,7 @@ Feature: Organization service members management - Kick-out member
 
 
   #MPA-7679 (#70)
-  Scenario: Fail to remove a specific "member" from from relevant Organization upon some of the existing (requester) managers was removed from the relevant organization
+  Scenario: Fail to remove a specific "member" from relevant Organization upon some of the existing (requester) managers was removed from the relevant organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
     And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with an "owner" role
