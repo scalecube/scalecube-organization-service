@@ -13,64 +13,39 @@ import io.scalecube.account.api.OrganizationInfo;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
-import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
-import io.scalecube.organization.repository.OrganizationsDataAccess;
-import io.scalecube.organization.repository.OrganizationsDataAccessImpl;
-import io.scalecube.organization.repository.Repository;
-import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
-import io.scalecube.organization.repository.inmem.InMemoryOrganizationMembersRepositoryAdmin;
-import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
-import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
+import io.scalecube.organization.fixtures.InMemoryOrganizationServiceFixture;
 import io.scalecube.security.Profile;
-import io.scalecube.tokens.TokenVerifierImpl;
-import java.io.File;
+import io.scalecube.test.fixtures.Fixtures;
+import io.scalecube.test.fixtures.WithFixture;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 /** @see features/mpa-7603-Organization-service-Delete-Api-Key.feature */
+@ExtendWith(Fixtures.class)
+@WithFixture(value = InMemoryOrganizationServiceFixture.class)
 class DeleteOrganizationApiKeyIntegrationTest {
 
   private static final Duration TIMEOUT = Duration.ofSeconds(5);
 
-  private OrganizationService service;
-
-  @BeforeEach
-  void beforeEach() {
+  @BeforeAll
+  static void beforeAll() {
     StepVerifier.setDefaultTimeout(TIMEOUT);
-    UserOrganizationMembershipRepository orgMembersRepository =
-        new InMemoryUserOrganizationMembershipRepository();
-    Repository<Organization, String> organizationRepository = new InMemoryOrganizationRepository();
-    OrganizationMembersRepositoryAdmin admin = new InMemoryOrganizationMembersRepositoryAdmin();
-
-    OrganizationsDataAccess repository =
-        OrganizationsDataAccessImpl.builder()
-            .organizations(organizationRepository)
-            .members(orgMembersRepository)
-            .repositoryAdmin(admin)
-            .build();
-    TokenVerifierImpl tokenVerifier = new TokenVerifierImpl(new MockPublicKeyProvider());
-    service = new OrganizationServiceImpl(repository, tokenVerifier);
   }
 
-  @AfterAll
-  static void afterAll() {
-    new File("keystore.properties").deleteOnExit();
-  }
-
-  @Test
+  @TestTemplate
   @DisplayName(
       "#MPA-7603 (#43) Successful delete any of accessible API key (token) roles from relevant Organization by Owner")
-  void testDeleteApiKeysByOwner() {
+  void testDeleteApiKeysByOwner(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Token userAToken = MockPublicKeyProvider.token(userA);
 
@@ -140,10 +115,10 @@ class DeleteOrganizationApiKeyIntegrationTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#MPA-7603 (#44) Successful delete the API keys (token) only with admin and member roles from relevant Organization by Admin")
-  void testDeleteApiKeysByAdmin() {
+  void testDeleteApiKeysByAdmin(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Token userAToken = MockPublicKeyProvider.token(userA);
     Profile userB = TestProfiles.USER_2;
@@ -185,7 +160,7 @@ class DeleteOrganizationApiKeyIntegrationTest {
                 .map(
                     apiKey ->
                         new DeleteOrganizationApiKeyRequest(userBToken, organizationId, apiKey))
-                .flatMap(request -> service.deleteOrganizationApiKey(request)))
+                .flatMap(service::deleteOrganizationApiKey))
         .assertNext(
             response -> {
               assertEquals(organizationId, response.id());
@@ -222,10 +197,10 @@ class DeleteOrganizationApiKeyIntegrationTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#MPA-7603 (#46) Fail to delete any of accessible API key (token) roles from relevant Organization by the Member with similar role")
-  void testFailToDeleteMemberApiKeysByMemberRole() {
+  void testFailToDeleteMemberApiKeysByMemberRole(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Token userAToken = MockPublicKeyProvider.token(userA);
     Profile userB = TestProfiles.USER_2;
@@ -272,10 +247,10 @@ class DeleteOrganizationApiKeyIntegrationTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#MPA-7603 (#47) Fail to delete non-existent (invalid) API key (token) from specific Organization")
-  void testFailToDeleteNonExistingApiKey() {
+  void testFailToDeleteNonExistingApiKey(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Token userAToken = MockPublicKeyProvider.token(userA);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
@@ -316,10 +291,10 @@ class DeleteOrganizationApiKeyIntegrationTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#MPA-7603 (#48) Fail to delete the API key (token) from relevant Organization if the token is invalid (expired)")
-  void testFailToDeleteApiKeyWithExpiredToken() {
+  void testFailToDeleteApiKeyWithExpiredToken(OrganizationService service) {
     Token expiredToken =
         MockPublicKeyProvider.token(
             TestProfiles.USER_1, op -> op.setExpiration(Date.from(Instant.ofEpochMilli(0))));

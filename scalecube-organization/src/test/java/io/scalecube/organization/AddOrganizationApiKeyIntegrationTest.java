@@ -12,65 +12,40 @@ import io.scalecube.account.api.OrganizationInfo;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
-import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
-import io.scalecube.organization.repository.OrganizationsDataAccess;
-import io.scalecube.organization.repository.OrganizationsDataAccessImpl;
-import io.scalecube.organization.repository.Repository;
-import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
-import io.scalecube.organization.repository.inmem.InMemoryOrganizationMembersRepositoryAdmin;
-import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
-import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
+import io.scalecube.organization.fixtures.InMemoryOrganizationServiceFixture;
 import io.scalecube.security.Profile;
-import io.scalecube.tokens.TokenVerifierImpl;
-import java.io.File;
+import io.scalecube.test.fixtures.Fixtures;
+import io.scalecube.test.fixtures.WithFixture;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 /** @see features/mpa-7603-Organization-service-Add-Api-Key.feature */
+@ExtendWith(Fixtures.class)
+@WithFixture(value = InMemoryOrganizationServiceFixture.class)
 class AddOrganizationApiKeyIntegrationTest {
 
   private static final Duration TIMEOUT = Duration.ofSeconds(5);
   private static final Random RANDOM = new Random(42);
 
-  private OrganizationService service;
-
-  @BeforeEach
-  void beforeEach() {
+  @BeforeAll
+  static void beforeAll() {
     StepVerifier.setDefaultTimeout(TIMEOUT);
-    UserOrganizationMembershipRepository orgMembersRepository =
-        new InMemoryUserOrganizationMembershipRepository();
-    Repository<Organization, String> organizationRepository = new InMemoryOrganizationRepository();
-    OrganizationMembersRepositoryAdmin admin = new InMemoryOrganizationMembersRepositoryAdmin();
-
-    OrganizationsDataAccess repository =
-        OrganizationsDataAccessImpl.builder()
-            .organizations(organizationRepository)
-            .members(orgMembersRepository)
-            .repositoryAdmin(admin)
-            .build();
-    TokenVerifierImpl tokenVerifier = new TokenVerifierImpl(new MockPublicKeyProvider());
-    service = new OrganizationServiceImpl(repository, tokenVerifier);
   }
 
-  @AfterAll
-  static void afterAll() {
-    new File("keystore.properties").deleteOnExit();
-  }
-
-  @Test
+  @TestTemplate
   @DisplayName(
       "#MPA-7603 (#35) Successful adding the API keys (token) for relevant Organization with all accessible roles by Owner")
-  void testAddAllApiKeysForEachAccessibleRoleOfTheOwner() {
+  void testAddAllApiKeysForEachAccessibleRoleOfTheOwner(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Token userAToken = MockPublicKeyProvider.token(userA);
 
@@ -150,11 +125,11 @@ class AddOrganizationApiKeyIntegrationTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @Disabled // todo need to implement this behavior
   @DisplayName(
       "#MPA-7603 (#36) Successful adding the API keys (token) with admin and member roles for relevant Organization by Admin")
-  void testAddAllApiKeysForEachAccessibleRoleOfTheAdmin() {
+  void testAddAllApiKeysForEachAccessibleRoleOfTheAdmin(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Profile userB = TestProfiles.USER_2;
     Token userAToken = MockPublicKeyProvider.token(userA);
@@ -241,14 +216,14 @@ class AddOrganizationApiKeyIntegrationTest {
 
   /**
    * todo ask about {@link
-   * io.scalecube.organization.opearation.ServiceOperation#checkSuperUserAccess(io.scalecube.organization.Organization,
-   * io.scalecube.security.Profile)}
+   * io.scalecube.organization.opearation.ServiceOperation#checkSuperUserAccess(Organization,
+   * Profile)}
    */
-  @Test
+  @TestTemplate
   @Disabled // todo need to implement this behavior
   @DisplayName(
       "#MPA-7603 (#37) Fail to add the owner API key (token) for a relevant Organization by the Admin")
-  void testFailToAddOwnerApiKeyByAdmin() {
+  void testFailToAddOwnerApiKeyByAdmin(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Profile userB = TestProfiles.USER_2;
     Token userAToken = MockPublicKeyProvider.token(userA);
@@ -285,10 +260,10 @@ class AddOrganizationApiKeyIntegrationTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#MPA-7603 (#38) Fail to add some of accessible API keys (token) for a relevant Organization upon the relevant member doesn't manager's permission level")
-  void testFailToAddMemberApiKeyByMember() {
+  void testFailToAddMemberApiKeyByMember(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Profile userB = TestProfiles.USER_2;
     Token userAToken = MockPublicKeyProvider.token(userA);
@@ -325,10 +300,10 @@ class AddOrganizationApiKeyIntegrationTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#MPA-7603 (#39) Fail to add some of accessible API keys (token) with the duplicate name for a relevant Organization")
-  void testFailToAddApiKeyWithDuplicatedName() {
+  void testFailToAddApiKeyWithDuplicatedName(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Token userAToken = MockPublicKeyProvider.token(userA);
     String specifiedApiKeyName = RandomStringUtils.randomAlphabetic(10);
@@ -365,10 +340,10 @@ class AddOrganizationApiKeyIntegrationTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#MPA-7603 (#40) Fail to add some of accessible API keys (token) for relevant Organization upon the owner was removed from own Organization")
-  void testFailToAddApiKeyAfterOwnerWasRemoved() {
+  void testFailToAddApiKeyAfterOwnerWasRemoved(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Profile userB = TestProfiles.USER_2;
     Token userAToken = MockPublicKeyProvider.token(userA);
@@ -421,11 +396,11 @@ class AddOrganizationApiKeyIntegrationTest {
    * 	at io.scalecube.organization.opearation.ServiceOperation.execute(ServiceOperation.java:49) ~[classes/:?]
    * </pre>
    */
-  @Test
+  @TestTemplate
   @Disabled // todo need to implement this behavior
   @DisplayName(
       "#MPA-7603 (#41) Fail to add the API key (token) for a relevant Organization upon the assigned role is invalid (differs from allowed)")
-  void testFailToAddApiKeWithInvalidRole() {
+  void testFailToAddApiKeWithInvalidRole(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Token userAToken = MockPublicKeyProvider.token(userA);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
@@ -451,10 +426,10 @@ class AddOrganizationApiKeyIntegrationTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#MPA-7603 (#42) Fail to add the API key (token) for a relevant Organization if the token is invalid (expired)")
-  void testFailToAddApiKeWithInvalidToken() {
+  void testFailToAddApiKeWithInvalidToken(OrganizationService service) {
     // user "A" creates API keys for the organization with invalid token
     StepVerifier.create(
             service.addOrganizationApiKey(
