@@ -62,16 +62,6 @@ Feature: Organization service members management - Invite member
 
   #__________________________________________________NEGATIVE___________________________________________________________
 
-  #MPA-7679 (#54) - SHOULD WE IMPLEMENT SOME RESPONSE LIKE :"Invalid userId" (instead of plain acknowledgement)
-  Scenario: Fail to invite the user to relevant Organization upon this user is unauthorized (invalid or non-existent)
-    Given the user "A" have got a valid "token" issued by relevant authority
-    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And the user "D" have got the invalid "userId"
-    When the user "A" requested to invite the user "D" to step into user's "A" organization with a "member" role
-    Then user "D" shouldn't become the "member" of the user's "A" organization thus ignored by the system
-    And user "A" should get successful response with the empty object
-
-
   #MPA-7679 (#55)
   Scenario: Fail to invite the user into relevant Organization upon the existing member (requester) got "member" role permission level
     Given the user "A" have got a valid "token" issued by relevant authority
@@ -100,7 +90,7 @@ Feature: Organization service members management - Invite member
     And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with an "admin" role
     And the user "C" have got the "userId" issued by relevant authority
     When the user "B" requested to invite user "C" to step into own former organization with an "owner" role
-    Then user "B" should get an error message: "user: 'userId "B"', name: 'null', not in role Owner of organization: 'org "A" name'"
+    Then user "B" should get an error message: "user: 'userId "B"', name: 'null', role: 'Admin' cannot invite to a higher role: 'Owner"
 
 
   #MPA-7679 (#58)
