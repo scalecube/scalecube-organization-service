@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * and token defaults are "VAULT_ADDR" and "VAULT_TOKEN" environment variables respectively.
  * Optional values can be provided in the application settings file.
  */
-class VaultKeyStore implements KeyStore {
+public class VaultKeyStore implements KeyStore {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(VaultKeyStore.class);
 
@@ -53,7 +53,10 @@ class VaultKeyStore implements KeyStore {
 
   private final Vault vault;
 
-  VaultKeyStore() {
+  /**
+   * Constructor.
+   */
+  public VaultKeyStore() {
     try {
       vault = new Vault(new VaultConfig().build());
     } catch (VaultException ex) {

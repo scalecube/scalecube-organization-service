@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -51,11 +52,13 @@ class GetOrganizationIntegrationTest {
     Profile userB = TestProfiles.USER_2;
     Token userAToken = MockPublicKeyProvider.token(userA);
     Token userBToken = MockPublicKeyProvider.token(userB);
+    String organizationName = RandomStringUtils.randomAlphabetic(10);
 
     // create a single organization which will be owned by user "A"
     String organizationId =
         service
-            .createOrganization(new CreateOrganizationRequest("repo", userA.getEmail(), userAToken))
+            .createOrganization(
+                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -105,11 +108,13 @@ class GetOrganizationIntegrationTest {
     Profile userB = TestProfiles.USER_2;
     Token userAToken = MockPublicKeyProvider.token(userA);
     Token userBToken = MockPublicKeyProvider.token(userB);
+    String organizationName = RandomStringUtils.randomAlphabetic(10);
 
     // create a single organization which will be owned by user "A"
     String organizationId =
         service
-            .createOrganization(new CreateOrganizationRequest("repo", userA.getEmail(), userAToken))
+            .createOrganization(
+                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -161,11 +166,13 @@ class GetOrganizationIntegrationTest {
     Profile userB = TestProfiles.USER_2;
     Token userAToken = MockPublicKeyProvider.token(userA);
     Token userBToken = MockPublicKeyProvider.token(userB);
+    String organizationName = RandomStringUtils.randomAlphabetic(10);
 
     // create a single organization which will be owned by user "A"
     String organizationId =
         service
-            .createOrganization(new CreateOrganizationRequest("repo", userA.getEmail(), userAToken))
+            .createOrganization(
+                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -216,11 +223,13 @@ class GetOrganizationIntegrationTest {
     Profile userA = TestProfiles.USER_1;
     Profile userB = TestProfiles.USER_2;
     Token userAToken = MockPublicKeyProvider.token(userA);
+    String organizationName = RandomStringUtils.randomAlphabetic(10);
 
     // create a single organization which will be owned by user "A"
     String organizationId =
         service
-            .createOrganization(new CreateOrganizationRequest("repo", userA.getEmail(), userAToken))
+            .createOrganization(
+                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
