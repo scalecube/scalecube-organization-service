@@ -18,8 +18,10 @@ import io.scalecube.organization.repository.Repository;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
 import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
+import io.scalecube.organization.token.store.PropertiesFileKeyStore;
 import io.scalecube.security.Profile;
 import io.scalecube.tokens.TokenVerifier;
+import io.scalecube.tokens.store.KeyStore;
 import java.io.File;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -183,7 +185,8 @@ public class Base {
             .repositoryAdmin(admin)
             .build();
     TokenVerifier tokenVerifier = (t) -> Objects.equals(profile, invalidProfile) ? null : profile;
-    return new OrganizationServiceImpl(repository, tokenVerifier);
+    KeyStore keyStore = new PropertiesFileKeyStore();
+    return new OrganizationServiceImpl(repository, keyStore, tokenVerifier);
   }
 
   protected static <T> void assertMonoCompletesWithError(

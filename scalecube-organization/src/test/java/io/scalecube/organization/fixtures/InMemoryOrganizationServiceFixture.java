@@ -12,8 +12,10 @@ import io.scalecube.organization.repository.UserOrganizationMembershipRepository
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationMembersRepositoryAdmin;
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
 import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
+import io.scalecube.organization.token.store.PropertiesFileKeyStore;
 import io.scalecube.test.fixtures.Fixture;
 import io.scalecube.tokens.TokenVerifierImpl;
+import io.scalecube.tokens.store.KeyStore;
 import java.io.File;
 import org.opentest4j.TestAbortedException;
 
@@ -35,7 +37,8 @@ public class InMemoryOrganizationServiceFixture implements Fixture {
             .repositoryAdmin(admin)
             .build();
     TokenVerifierImpl tokenVerifier = new TokenVerifierImpl(new MockPublicKeyProvider());
-    service = new OrganizationServiceImpl(repository, tokenVerifier);
+    KeyStore keyStore = new PropertiesFileKeyStore();
+    service = new OrganizationServiceImpl(repository, keyStore, tokenVerifier);
   }
 
   @Override
