@@ -16,8 +16,8 @@ Feature: Organization service API keys management - Add API key
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
     When the user "A" requested to add each accessible API key "name" for own organization with assigned roles: "owner", "admin" and "member"
     Then each of the API keys with assigned roles: "owner", "admin" and "member" should be emitted for the relevant organization
-    And the relevant API keys should be stored in the DB for a now
-    And user "A" should get successful response with extended organization info which include all stored API keys
+    And the user "A" should get successful response with extended organization info which include all stored API keys
+    And the user "A" requested the relevant organization to get stored API keys with extended organization info
 
 
   #MPA-7603 (#36)
@@ -28,8 +28,8 @@ Feature: Organization service API keys management - Add API key
     And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with an "admin" role
     When the user "B" requested to add the API keys "name" for user's "A" organization with assigned roles: "admin" and "member"
     Then each of the API keys with assigned roles: "admin" and "member" should be emitted for the relevant organization
-    And the relevant API keys should be stored in the DB for a now
-    And user "B" should get successful response with extended organization info which include only stored "admin" and "member" API keys
+    And the user "B" should get successful response with extended organization info which include only stored "admin" and "member" API keys
+    And the user "A" requested the relevant organization to get stored API keys with extended organization info
 
 
   #__________________________________________________NEGATIVE___________________________________________________________
