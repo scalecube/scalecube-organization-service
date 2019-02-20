@@ -14,64 +14,39 @@ import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
 import io.scalecube.account.api.UpdateOrganizationRequest;
-import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
-import io.scalecube.organization.repository.OrganizationsDataAccess;
-import io.scalecube.organization.repository.OrganizationsDataAccessImpl;
-import io.scalecube.organization.repository.Repository;
-import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
-import io.scalecube.organization.repository.inmem.InMemoryOrganizationMembersRepositoryAdmin;
-import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
-import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
+import io.scalecube.organization.fixtures.InMemoryOrganizationServiceFixture;
 import io.scalecube.security.Profile;
-import io.scalecube.tokens.TokenVerifierImpl;
-import java.io.File;
+import io.scalecube.test.fixtures.Fixtures;
+import io.scalecube.test.fixtures.WithFixture;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 /** @see features/mpa-7603-Organization-service-Update-Organization.feature */
+@ExtendWith(Fixtures.class)
+@WithFixture(value = InMemoryOrganizationServiceFixture.class)
 class UpdateOrganizationIntegrationTest {
 
   private static final Duration TIMEOUT = Duration.ofSeconds(5);
 
-  private OrganizationService service;
-
-  @BeforeEach
-  void beforeEach() {
+  @BeforeAll
+  static void beforeAll() {
     StepVerifier.setDefaultTimeout(TIMEOUT);
-    UserOrganizationMembershipRepository orgMembersRepository =
-        new InMemoryUserOrganizationMembershipRepository();
-    Repository<Organization, String> organizationRepository = new InMemoryOrganizationRepository();
-    OrganizationMembersRepositoryAdmin admin = new InMemoryOrganizationMembersRepositoryAdmin();
-
-    OrganizationsDataAccess repository =
-        OrganizationsDataAccessImpl.builder()
-            .organizations(organizationRepository)
-            .members(orgMembersRepository)
-            .repositoryAdmin(admin)
-            .build();
-    TokenVerifierImpl tokenVerifier = new TokenVerifierImpl(new MockPublicKeyProvider());
-    service = new OrganizationServiceImpl(repository, tokenVerifier);
   }
 
-  @AfterAll
-  static void afterAll() {
-    new File("keystore.properties").deleteOnExit();
-  }
-
-  @Test
+  @TestTemplate
   @DisplayName("#MPA-7603 (#19) Successful update of the relevant Organization by the Owner")
-  void testUpdateOrganizationByOwner() {
+  void testUpdateOrganizationByOwner(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Token userAToken = MockPublicKeyProvider.token(userA);
 
@@ -121,10 +96,10 @@ class UpdateOrganizationIntegrationTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @Disabled // todo need to implement this behavior
   @DisplayName("#MPA-7603 (#20) Successful update of the relevant Organization by the Admin")
-  void testUpdateOrganizationByAdmin() {
+  void testUpdateOrganizationByAdmin(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Profile userB = TestProfiles.USER_2;
     Token userAToken = MockPublicKeyProvider.token(userA);
@@ -186,10 +161,10 @@ class UpdateOrganizationIntegrationTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#MPA-7603 (#21) Successful update of the Organization upon it's member was granted with Owner role")
-  void testUpdateOrganizationByMember() {
+  void testUpdateOrganizationByMember(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Profile userB = TestProfiles.USER_2;
     Token userAToken = MockPublicKeyProvider.token(userA);
@@ -239,10 +214,10 @@ class UpdateOrganizationIntegrationTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#MPA-7603 (#22) Fail to update relevant Organization by the Member with similar role")
-  void testFailToUpdateOrganizationMemberByMember() {
+  void testFailToUpdateOrganizationMemberByMember(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Profile userB = TestProfiles.USER_2;
     Token userAToken = MockPublicKeyProvider.token(userA);
@@ -279,10 +254,10 @@ class UpdateOrganizationIntegrationTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#MPA-7603 (#23) Fail to update relevant Organization upon the Owner was removed from it")
-  void testFailToUpdateOrganizationBecauseOwnerWasRemoved() {
+  void testFailToUpdateOrganizationBecauseOwnerWasRemoved(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Profile userB = TestProfiles.USER_2;
     Token userAToken = MockPublicKeyProvider.token(userA);
@@ -323,10 +298,10 @@ class UpdateOrganizationIntegrationTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#MPA-7603 (#24) Fail to update the Organization with the name which already exists (duplicate)")
-  void testFailToUpdateOrganizationBecauseNameIsDuplicated() {
+  void testFailToUpdateOrganizationBecauseNameIsDuplicated(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Profile userB = TestProfiles.USER_2;
     Token userAToken = MockPublicKeyProvider.token(userA);
@@ -361,9 +336,9 @@ class UpdateOrganizationIntegrationTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName("#MPA-7603 (#25) Fail to update the non-existent Organization")
-  void testFailToUpdateNonExistingOrganization() {
+  void testFailToUpdateNonExistingOrganization(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Token userAToken = MockPublicKeyProvider.token(userA);
     String nonExistingOrganizationId = RandomStringUtils.randomAlphabetic(10);
@@ -377,10 +352,10 @@ class UpdateOrganizationIntegrationTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#MPA-7603 (#26) Fail to update the Organization with the name which contain else symbols apart of allowed chars")
-  void testFailToUpdateOrganizationNameWithNotAllowedSymbols() {
+  void testFailToUpdateOrganizationNameWithNotAllowedSymbols(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Token userAToken = MockPublicKeyProvider.token(userA);
 
@@ -405,9 +380,9 @@ class UpdateOrganizationIntegrationTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName("#MPA-7603 (#27) Fail to update the Organization if the token is invalid (expired)")
-  void testFailToUpdateOrganizationWithInvalidToken() {
+  void testFailToUpdateOrganizationWithInvalidToken(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
 
     // user "A" updates organization with invalid token

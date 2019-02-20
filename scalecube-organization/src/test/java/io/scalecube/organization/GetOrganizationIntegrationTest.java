@@ -13,17 +13,10 @@ import io.scalecube.account.api.OrganizationInfo;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
-import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
-import io.scalecube.organization.repository.OrganizationsDataAccess;
-import io.scalecube.organization.repository.OrganizationsDataAccessImpl;
-import io.scalecube.organization.repository.Repository;
-import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
-import io.scalecube.organization.repository.inmem.InMemoryOrganizationMembersRepositoryAdmin;
-import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
-import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
+import io.scalecube.organization.fixtures.InMemoryOrganizationServiceFixture;
 import io.scalecube.security.Profile;
-import io.scalecube.tokens.TokenVerifierImpl;
-import java.io.File;
+import io.scalecube.test.fixtures.Fixtures;
+import io.scalecube.test.fixtures.WithFixture;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
@@ -31,47 +24,29 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 /** @see features/mpa-7603-Organization-service-Get-Organization.feature */
+@ExtendWith(Fixtures.class)
+@WithFixture(value = InMemoryOrganizationServiceFixture.class)
 class GetOrganizationIntegrationTest {
 
   private static final Duration TIMEOUT = Duration.ofSeconds(5);
 
-  private OrganizationService service;
-
-  @BeforeEach
-  void beforeEach() {
+  @BeforeAll
+  static void beforeAll() {
     StepVerifier.setDefaultTimeout(TIMEOUT);
-    UserOrganizationMembershipRepository orgMembersRepository =
-        new InMemoryUserOrganizationMembershipRepository();
-    Repository<Organization, String> organizationRepository = new InMemoryOrganizationRepository();
-    OrganizationMembersRepositoryAdmin admin = new InMemoryOrganizationMembersRepositoryAdmin();
-
-    OrganizationsDataAccess repository =
-        OrganizationsDataAccessImpl.builder()
-            .organizations(organizationRepository)
-            .members(orgMembersRepository)
-            .repositoryAdmin(admin)
-            .build();
-    TokenVerifierImpl tokenVerifier = new TokenVerifierImpl(new MockPublicKeyProvider());
-    service = new OrganizationServiceImpl(repository, tokenVerifier);
   }
 
-  @AfterAll
-  static void afterAll() {
-    new File("keystore.properties").deleteOnExit();
-  }
-
-  @Test
+  @TestTemplate
   @DisplayName("#MPA-7603 (#13) Successful info get about relevant Organization by the Owner")
-  void testGetOrganizationInfoByOwner() {
+  void testGetOrganizationInfoByOwner(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Profile userB = TestProfiles.USER_2;
     Token userAToken = MockPublicKeyProvider.token(userA);
@@ -122,10 +97,10 @@ class GetOrganizationIntegrationTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @Disabled // todo need to implement this behavior
   @DisplayName("#MPA-7603 (#14) Successful info get about relevant Organization by the Admin")
-  void testGetOrganizationInfoByAdmin() {
+  void testGetOrganizationInfoByAdmin(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Profile userB = TestProfiles.USER_2;
     Token userAToken = MockPublicKeyProvider.token(userA);
@@ -178,10 +153,10 @@ class GetOrganizationIntegrationTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @Disabled // todo need to implement this behavior
   @DisplayName("#MPA-7603 (#15) Successful info get about relevant Organization by the Member")
-  void testGetOrganizationInfoByMember() {
+  void testGetOrganizationInfoByMember(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Profile userB = TestProfiles.USER_2;
     Token userAToken = MockPublicKeyProvider.token(userA);
@@ -234,10 +209,10 @@ class GetOrganizationIntegrationTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#MPA-7603 (#16) Fail to get of specific Organization info upon the Owner was removed from relevant Organization")
-  void testFailToGetOrganizationInfoBecauseOwnerWasRemoved() {
+  void testFailToGetOrganizationInfoBecauseOwnerWasRemoved(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Profile userB = TestProfiles.USER_2;
     Token userAToken = MockPublicKeyProvider.token(userA);
@@ -271,9 +246,9 @@ class GetOrganizationIntegrationTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName("#MPA-7603 (#17) Fail to get a non-existent Organization info")
-  void testFailToGetNonExistingOrganizationInfo() {
+  void testFailToGetNonExistingOrganizationInfo(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Token userAToken = MockPublicKeyProvider.token(userA);
     String organizationId = "non-existing organization id";
@@ -285,9 +260,9 @@ class GetOrganizationIntegrationTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName("#MPA-7603 (#18) Fail to get the Organization info if the token is invalid")
-  void testFailToGetOrganizationInfoWithInvalidToken() {
+  void testFailToGetOrganizationInfoWithInvalidToken(OrganizationService service) {
     Token expiredToken =
         MockPublicKeyProvider.token(
             TestProfiles.USER_1, op -> op.setExpiration(Date.from(Instant.ofEpochMilli(0))));
