@@ -105,7 +105,7 @@ class AddOrganizationApiKeyIntegrationTest {
         .expectComplete()
         .verify();
 
-    // the relevant API keys should be stored in the DB
+    // the user "A" verifies stored API keys with extended organization info
     StepVerifier.create(
             service.getOrganization(new GetOrganizationRequest(userAToken, organizationId)))
         .assertNext(
@@ -194,7 +194,7 @@ class AddOrganizationApiKeyIntegrationTest {
         .expectComplete()
         .verify();
 
-    // the relevant API keys should be stored in the DB
+    // the user "A" verifies stored API keys with extended organization info
     StepVerifier.create(
             service.getOrganization(new GetOrganizationRequest(userAToken, organizationId)))
         .assertNext(

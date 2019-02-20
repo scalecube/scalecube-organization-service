@@ -101,7 +101,7 @@ class DeleteOrganizationApiKeyIntegrationTest {
         .expectComplete()
         .verify();
 
-    // the relevant API keys should be left in the DB
+    // the user "A" verifies remaining API keys with extended organization info
     StepVerifier.create(
             service.getOrganization(new GetOrganizationRequest(userAToken, organizationId)))
         .assertNext(
@@ -183,7 +183,7 @@ class DeleteOrganizationApiKeyIntegrationTest {
         .expectComplete()
         .verify();
 
-    // the relevant API keys should be left in the DB
+    // the user "A" verifies remaining API keys with extended organization info
     StepVerifier.create(
             service.getOrganization(new GetOrganizationRequest(userAToken, organizationId)))
         .assertNext(
