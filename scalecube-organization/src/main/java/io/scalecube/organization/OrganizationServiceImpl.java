@@ -56,6 +56,12 @@ public class OrganizationServiceImpl implements OrganizationService {
   private final OrganizationsDataAccess repository;
   private final KeyPairGenerator keyPairGenerator;
 
+  /**
+   * Create instance of organization service.
+   *
+   * @param repository data access repository
+   * @param tokenVerifier token verifier
+   */
   public OrganizationServiceImpl(OrganizationsDataAccess repository, TokenVerifier tokenVerifier) {
     this.repository = repository;
     this.tokenVerifier = tokenVerifier;
