@@ -116,6 +116,13 @@ public abstract class ServiceOperation<I, O> {
     return isInRole(profile.getUserId(), organization, Role.Owner);
   }
 
+  protected boolean isLastOwner(Organization organization, String userId)
+      throws AccessPermissionException, EntityNotFoundException {
+    return repository.getOrganizationMembers(organization).stream()
+        .filter(member -> !member.id().equals(userId))
+        .noneMatch(member -> Role.Owner.name().equals(member.role()));
+  }
+
   protected boolean isSuperUser(Organization organization, Profile profile)
       throws EntityNotFoundException, AccessPermissionException {
     return isOwner(organization, profile)
