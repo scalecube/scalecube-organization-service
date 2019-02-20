@@ -128,7 +128,7 @@ class AddOrganizationApiKeyIntegrationTest {
                       .anyMatch(apiKey -> Role.Admin.name().equals(apiKey.claims().get("role"))));
             })
         .expectComplete()
-        .verify(TIMEOUT);
+        .verify();
 
     // the relevant API keys should be stored in the DB
     StepVerifier.create(
@@ -147,7 +147,7 @@ class AddOrganizationApiKeyIntegrationTest {
                       .anyMatch(apiKey -> Role.Admin.name().equals(apiKey.claims().get("role"))));
             })
         .expectComplete()
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -217,7 +217,7 @@ class AddOrganizationApiKeyIntegrationTest {
                       .anyMatch(apiKey -> Role.Admin.name().equals(apiKey.claims().get("role"))));
             })
         .expectComplete()
-        .verify(TIMEOUT);
+        .verify();
 
     // the relevant API keys should be stored in the DB
     StepVerifier.create(
@@ -236,7 +236,7 @@ class AddOrganizationApiKeyIntegrationTest {
                       .anyMatch(apiKey -> Role.Admin.name().equals(apiKey.claims().get("role"))));
             })
         .expectComplete()
-        .verify(TIMEOUT);
+        .verify();
   }
 
   /**
@@ -282,7 +282,7 @@ class AddOrganizationApiKeyIntegrationTest {
             String.format(
                 "user: '%s', name: '%s', not in role Owner of organization: '%s'",
                 userB.getUserId(), userB.getName(), organizationName))
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -322,7 +322,7 @@ class AddOrganizationApiKeyIntegrationTest {
             String.format(
                 "user: '%s', name: '%s', not in role Owner or Admin of organization: '%s'",
                 userB.getUserId(), userB.getName(), organizationName))
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -362,7 +362,7 @@ class AddOrganizationApiKeyIntegrationTest {
                     specifiedApiKeyName,
                     Collections.singletonMap("role", role.name()))))
         .expectErrorMessage(String.format("apiKey name:'%s' already exists", specifiedApiKeyName))
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -406,7 +406,7 @@ class AddOrganizationApiKeyIntegrationTest {
             String.format(
                 "user: '%s', name: '%s', not in role Owner or Admin of organization: '%s'",
                 userA.getUserId(), userA.getName(), organizationName))
-        .verify(TIMEOUT);
+        .verify();
   }
 
   /**
@@ -448,7 +448,7 @@ class AddOrganizationApiKeyIntegrationTest {
                     invalidRole + "-api-key",
                     Collections.singletonMap("role", invalidRole))))
         .expectErrorMessage(String.format("role: '%s' is invalid", invalidRole))
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -464,6 +464,6 @@ class AddOrganizationApiKeyIntegrationTest {
                     Role.Member.name() + "-api-key",
                     Collections.singletonMap("role", Role.Member.name()))))
         .expectErrorMessage("Token verification failed")
-        .verify(TIMEOUT);
+        .verify();
   }
 }

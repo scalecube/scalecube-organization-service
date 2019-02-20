@@ -87,7 +87,7 @@ class LeaveOrganizationIntegrationTest {
             service.leaveOrganization(new LeaveOrganizationRequest(userAToken, organizationId)))
         .expectNextCount(1)
         .expectComplete()
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -119,7 +119,7 @@ class LeaveOrganizationIntegrationTest {
             service.leaveOrganization(new LeaveOrganizationRequest(userBToken, organizationId)))
         .expectNextCount(1)
         .expectComplete()
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -151,7 +151,7 @@ class LeaveOrganizationIntegrationTest {
             service.leaveOrganization(new LeaveOrganizationRequest(userBToken, organizationId)))
         .expectNextCount(1)
         .expectComplete()
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -176,7 +176,7 @@ class LeaveOrganizationIntegrationTest {
         .expectErrorMessage(
             String.format(
                 "At least one Owner should be persisted in the organization: '%s'", organizationId))
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -201,7 +201,7 @@ class LeaveOrganizationIntegrationTest {
             service.leaveOrganization(new LeaveOrganizationRequest(userAToken, organizationId)))
         .expectNextCount(1)
         .expectComplete()
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -216,7 +216,7 @@ class LeaveOrganizationIntegrationTest {
     StepVerifier.create(
             service.leaveOrganization(new LeaveOrganizationRequest(userAToken, organizationId)))
         .expectErrorMessage(organizationId)
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -231,6 +231,6 @@ class LeaveOrganizationIntegrationTest {
             service.leaveOrganization(
                 new LeaveOrganizationRequest(expiredToken, "non-existing-id")))
         .expectErrorMessage("Token verification failed")
-        .verify(TIMEOUT);
+        .verify();
   }
 }
