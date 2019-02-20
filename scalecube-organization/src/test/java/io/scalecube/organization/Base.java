@@ -12,11 +12,14 @@ import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
+import io.scalecube.organization.repository.OrganizationsDataAccess;
+import io.scalecube.organization.repository.OrganizationsDataAccessImpl;
 import io.scalecube.organization.repository.Repository;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
 import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
 import io.scalecube.security.Profile;
+import io.scalecube.tokens.TokenVerifier;
 import java.io.File;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -173,13 +176,15 @@ public class Base {
   }
 
   protected OrganizationService createService(Profile profile) {
-    return OrganizationServiceImpl.builder()
-        .organizationRepository(organizationRepository)
-        .organizationMembershipRepository(orgMembersRepository)
-        .organizationMembershipRepositoryAdmin(admin)
-        .tokenVerifier((t) -> Objects.equals(profile, invalidProfile) ? null : profile)
-        .keyPairGenerator(keyPairGenerator)
-        .build();
+    OrganizationsDataAccess dataAccess =
+        new OrganizationsDataAccessImpl(organizationRepository, orgMembersRepository, admin);
+    TokenVerifier tokenVerifier = token -> Objects.equals(profile, invalidProfile) ? null : profile;
+
+    try {
+      return new OrganizationServiceImpl(dataAccess, tokenVerifier);
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   protected static <T> void assertMonoCompletesWithError(

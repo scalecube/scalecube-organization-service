@@ -20,7 +20,14 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
   private final UserOrganizationMembershipRepository membershipRepository;
   private final OrganizationMembersRepositoryAdmin membersAdmin;
 
-  private OrganizationsDataAccessImpl(
+  /**
+   * Creates instance of Organizations Data Access.
+   *
+   * @param organizationRepository organization repository.
+   * @param membershipRepository membership repository.
+   * @param repositoryAdmin admin repository.
+   */
+  public OrganizationsDataAccessImpl(
       Repository<Organization, String> organizationRepository,
       UserOrganizationMembershipRepository membershipRepository,
       OrganizationMembersRepositoryAdmin repositoryAdmin) {
@@ -40,10 +47,6 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
   private static void requireNonNullOrganization(Organization org) {
     requireNonNull(org, "Organization cannot be null");
     requireNonNull(org.id(), "Organization Id cannot be null");
-  }
-
-  public static Builder builder() {
-    return new Builder();
   }
 
   @Override
@@ -170,41 +173,6 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
   private void verifyOrganizationExists(Organization organization) throws EntityNotFoundException {
     if (!organizations.existsById(organization.id())) {
       throw new EntityNotFoundException(organization.id());
-    }
-  }
-
-  public static final class Builder {
-
-    private Repository<Organization, String> organizationRepository;
-    private UserOrganizationMembershipRepository membershipRepository;
-    private OrganizationMembersRepositoryAdmin repositoryAdmin;
-
-    /**
-     * Constructs an instance of OrganizationsDataAccess with this builder setup arguments.
-     *
-     * @return An OrganizationsDataAccess instance object.
-     */
-    public OrganizationsDataAccess build() {
-      requireNonNull(organizationRepository, "organizationRepository");
-      requireNonNull(membershipRepository, "membershipRepository");
-      requireNonNull(repositoryAdmin, "repositoryAdmin");
-      return new OrganizationsDataAccessImpl(
-          organizationRepository, membershipRepository, repositoryAdmin);
-    }
-
-    public Builder organizations(Repository<Organization, String> organizationRepository) {
-      this.organizationRepository = organizationRepository;
-      return this;
-    }
-
-    public Builder members(UserOrganizationMembershipRepository membershipRepository) {
-      this.membershipRepository = membershipRepository;
-      return this;
-    }
-
-    public Builder repositoryAdmin(OrganizationMembersRepositoryAdmin repositoryAdmin) {
-      this.repositoryAdmin = repositoryAdmin;
-      return this;
     }
   }
 }
