@@ -119,7 +119,7 @@ class GetOrganizationIntegrationTest {
               assertEquals(apiKeys, new HashSet<>(Arrays.asList(organization.apiKeys())));
             })
         .expectComplete()
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -175,7 +175,7 @@ class GetOrganizationIntegrationTest {
               assertEquals(apiKeys, new HashSet<>(Arrays.asList(organization.apiKeys())));
             })
         .expectComplete()
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -231,7 +231,7 @@ class GetOrganizationIntegrationTest {
               assertEquals(apiKeys, new HashSet<>(Arrays.asList(organization.apiKeys())));
             })
         .expectComplete()
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -268,7 +268,7 @@ class GetOrganizationIntegrationTest {
             String.format(
                 "user: '%s', name: '%s', is not a member of organization: '%s'",
                 userA.getName(), userA.getUserId(), organizationId))
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -282,7 +282,7 @@ class GetOrganizationIntegrationTest {
     StepVerifier.create(
             service.getOrganization(new GetOrganizationRequest(userAToken, organizationId)))
         .expectErrorMessage(organizationId)
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -296,6 +296,6 @@ class GetOrganizationIntegrationTest {
     StepVerifier.create(
             service.getOrganization(new GetOrganizationRequest(expiredToken, "non-existing-id")))
         .expectErrorMessage("Token verification failed")
-        .verify(TIMEOUT);
+        .verify();
   }
 }

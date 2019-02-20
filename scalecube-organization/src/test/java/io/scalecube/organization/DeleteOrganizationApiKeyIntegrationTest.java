@@ -124,7 +124,7 @@ class DeleteOrganizationApiKeyIntegrationTest {
                       .anyMatch(apiKey -> Role.Member.name().equals(apiKey.claims().get("role"))));
             })
         .expectComplete()
-        .verify(TIMEOUT);
+        .verify();
 
     // the relevant API keys should be left in the DB
     StepVerifier.create(
@@ -137,7 +137,7 @@ class DeleteOrganizationApiKeyIntegrationTest {
                       .anyMatch(apiKey -> Role.Member.name().equals(apiKey.claims().get("role"))));
             })
         .expectComplete()
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -206,7 +206,7 @@ class DeleteOrganizationApiKeyIntegrationTest {
                       .anyMatch(apiKey -> Role.Owner.name().equals(apiKey.claims().get("role"))));
             })
         .expectComplete()
-        .verify(TIMEOUT);
+        .verify();
 
     // the relevant API keys should be left in the DB
     StepVerifier.create(
@@ -219,7 +219,7 @@ class DeleteOrganizationApiKeyIntegrationTest {
                       .anyMatch(apiKey -> Role.Owner.name().equals(apiKey.claims().get("role"))));
             })
         .expectComplete()
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -269,7 +269,7 @@ class DeleteOrganizationApiKeyIntegrationTest {
             String.format(
                 "user: '%s', name: '%s', not in role Owner or Admin of organization: '%s'",
                 userB.getUserId(), userB.getName(), organizationName))
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -313,7 +313,7 @@ class DeleteOrganizationApiKeyIntegrationTest {
               assertEquals(Role.Member.name(), apiKey.claims().get("role"));
             })
         .expectComplete()
-        .verify(TIMEOUT);
+        .verify();
   }
 
   @Test
@@ -329,6 +329,6 @@ class DeleteOrganizationApiKeyIntegrationTest {
             service.deleteOrganizationApiKey(
                 new DeleteOrganizationApiKeyRequest(expiredToken, "non-existing-id", "some-name")))
         .expectErrorMessage("Token verification failed")
-        .verify(TIMEOUT);
+        .verify();
   }
 }
