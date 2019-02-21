@@ -1,0 +1,322 @@
+package io.scalecube.organization.it;
+
+import static io.scalecube.organization.it.TestProfiles.USER_A;
+import static io.scalecube.organization.it.TestProfiles.USER_B;
+import static io.scalecube.organization.it.TestProfiles.USER_C;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import io.scalecube.account.api.AddOrganizationApiKeyRequest;
+import io.scalecube.account.api.ApiKey;
+import io.scalecube.account.api.CreateOrganizationRequest;
+import io.scalecube.account.api.CreateOrganizationResponse;
+import io.scalecube.account.api.GetMembershipRequest;
+import io.scalecube.account.api.InviteOrganizationMemberRequest;
+import io.scalecube.account.api.OrganizationInfo;
+import io.scalecube.account.api.Role;
+import io.scalecube.account.api.Token;
+import io.scalecube.organization.repository.inmem.InMemoryPublicKeyProvider;
+import io.scalecube.tokens.InvalidTokenException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import reactor.test.StepVerifier;
+
+class GetUserMembershipTest extends BaseTest {
+
+  @Disabled("Feature (filter ApiKeys by Role) is not yet implemented")
+  @Test
+  @DisplayName(
+      "#98 Successful get the list of all Organizations (Membership) in each the user became a Member")
+  void getUserMembershipOfMember() {
+    Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
+    Token tokenB = InMemoryPublicKeyProvider.token(USER_B);
+    Token tokenC = InMemoryPublicKeyProvider.token(USER_C);
+
+    CreateOrganizationResponse organizationA =
+        organizationService
+            .createOrganization(
+                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+            .block(TIMEOUT);
+
+    CreateOrganizationResponse organizationB =
+        organizationService
+            .createOrganization(
+                new CreateOrganizationRequest("organization-2", USER_B.getEmail(), tokenB))
+            .block(TIMEOUT);
+
+    organizationService
+        .addOrganizationApiKey(
+            new AddOrganizationApiKeyRequest(
+                tokenA,
+                organizationA.id(),
+                "ownerApiKeyA",
+                Collections.singletonMap("role", Role.Owner.name())))
+        .block(TIMEOUT);
+
+    organizationService
+        .addOrganizationApiKey(
+            new AddOrganizationApiKeyRequest(
+                tokenA,
+                organizationA.id(),
+                "adminApiKeyA",
+                Collections.singletonMap("role", Role.Admin.name())))
+        .block(TIMEOUT);
+
+    organizationService
+        .addOrganizationApiKey(
+            new AddOrganizationApiKeyRequest(
+                tokenB,
+                organizationB.id(),
+                "adminApiKeyB",
+                Collections.singletonMap("role", Role.Admin.name())))
+        .block(TIMEOUT);
+
+    organizationService
+        .addOrganizationApiKey(
+            new AddOrganizationApiKeyRequest(
+                tokenB,
+                organizationB.id(),
+                "memberApiKeyB",
+                Collections.singletonMap("role", Role.Member.name())))
+        .block(TIMEOUT);
+
+    organizationService
+        .inviteMember(
+            new InviteOrganizationMemberRequest(
+                tokenA, organizationA.id(), USER_C.getUserId(), Role.Member.name()))
+        .block(TIMEOUT);
+
+    organizationService
+        .inviteMember(
+            new InviteOrganizationMemberRequest(
+                tokenB, organizationB.id(), USER_C.getUserId(), Role.Member.name()))
+        .block(TIMEOUT);
+
+    StepVerifier.create(
+            organizationService.getUserOrganizationsMembership(new GetMembershipRequest(tokenC)))
+        .assertNext(
+            response -> {
+              Map<String, List<ApiKey>> apiKeys =
+                  Stream.of(response.organizations())
+                      .collect(
+                          Collectors.toMap(
+                              OrganizationInfo::id, info -> Arrays.asList(info.apiKeys())));
+
+              assertEquals(
+                  0, apiKeys.get(organizationA.id()).size(), "api keys count in the response");
+
+              assertTrue(
+                  apiKeys.get(organizationB.id()).stream()
+                      .allMatch(apiKey -> Role.Member.name().equals(apiKey.claims().get("role"))),
+                  "only 'Member' api keys are in the response");
+            })
+        .verifyComplete();
+  }
+
+  @Disabled("Feature (filter ApiKeys by Role) is not yet implemented")
+  @Test
+  @DisplayName(
+      "#99 Successful get the list of all Organizations (Membership) in each the user became an Admin")
+  void getUserMembershipOfAdmin() {
+    Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
+    Token tokenB = InMemoryPublicKeyProvider.token(USER_B);
+    Token tokenC = InMemoryPublicKeyProvider.token(USER_C);
+
+    CreateOrganizationResponse organizationA =
+        organizationService
+            .createOrganization(
+                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+            .block(TIMEOUT);
+
+    CreateOrganizationResponse organizationB =
+        organizationService
+            .createOrganization(
+                new CreateOrganizationRequest("organization-2", USER_B.getEmail(), tokenB))
+            .block(TIMEOUT);
+
+    organizationService
+        .addOrganizationApiKey(
+            new AddOrganizationApiKeyRequest(
+                tokenA,
+                organizationA.id(),
+                "ownerApiKeyA",
+                Collections.singletonMap("role", Role.Owner.name())))
+        .block(TIMEOUT);
+
+    organizationService
+        .addOrganizationApiKey(
+            new AddOrganizationApiKeyRequest(
+                tokenA,
+                organizationA.id(),
+                "adminApiKeyA",
+                Collections.singletonMap("role", Role.Admin.name())))
+        .block(TIMEOUT);
+
+    organizationService
+        .addOrganizationApiKey(
+            new AddOrganizationApiKeyRequest(
+                tokenB,
+                organizationB.id(),
+                "adminApiKeyB",
+                Collections.singletonMap("role", Role.Admin.name())))
+        .block(TIMEOUT);
+
+    organizationService
+        .addOrganizationApiKey(
+            new AddOrganizationApiKeyRequest(
+                tokenB,
+                organizationB.id(),
+                "memberApiKeyB",
+                Collections.singletonMap("role", Role.Member.name())))
+        .block(TIMEOUT);
+
+    organizationService
+        .inviteMember(
+            new InviteOrganizationMemberRequest(
+                tokenA, organizationA.id(), USER_C.getUserId(), Role.Admin.name()))
+        .block(TIMEOUT);
+
+    organizationService
+        .inviteMember(
+            new InviteOrganizationMemberRequest(
+                tokenB, organizationB.id(), USER_C.getUserId(), Role.Admin.name()))
+        .block(TIMEOUT);
+
+    StepVerifier.create(
+            organizationService.getUserOrganizationsMembership(new GetMembershipRequest(tokenC)))
+        .assertNext(
+            response -> {
+              Map<String, List<ApiKey>> apiKeys =
+                  Stream.of(response.organizations())
+                      .collect(
+                          Collectors.toMap(
+                              OrganizationInfo::id, info -> Arrays.asList(info.apiKeys())));
+
+              assertTrue(
+                  apiKeys.get(organizationA.id()).stream()
+                      .allMatch(
+                          apiKey -> {
+                            String role = apiKey.claims().get("role");
+                            return Role.Admin.name().equals(role);
+                          }),
+                  "only 'Admin' api keys are in the response");
+
+              assertTrue(
+                  apiKeys.get(organizationB.id()).stream()
+                      .allMatch(
+                          apiKey -> {
+                            String role = apiKey.claims().get("role");
+                            return Role.Admin.name().equals(role)
+                                || Role.Member.name().equals(role);
+                          }),
+                  "only 'Admin' and 'Member' api keys are in the response");
+            })
+        .verifyComplete();
+  }
+
+  @Test
+  @DisplayName(
+      "#100 Successful get the list of all Organizations (Membership) in each the user became an Owner")
+  void getUserMembershipOfOwner() {
+    Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
+    Token tokenB = InMemoryPublicKeyProvider.token(USER_B);
+
+    CreateOrganizationResponse organizationA =
+        organizationService
+            .createOrganization(
+                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+            .block(TIMEOUT);
+
+    organizationService
+        .addOrganizationApiKey(
+            new AddOrganizationApiKeyRequest(
+                tokenA,
+                organizationA.id(),
+                "ownerApiKeyA",
+                Collections.singletonMap("role", Role.Owner.name())))
+        .block(TIMEOUT);
+
+    organizationService
+        .addOrganizationApiKey(
+            new AddOrganizationApiKeyRequest(
+                tokenA,
+                organizationA.id(),
+                "adminApiKeyA",
+                Collections.singletonMap("role", Role.Admin.name())))
+        .block(TIMEOUT);
+
+    organizationService
+        .addOrganizationApiKey(
+            new AddOrganizationApiKeyRequest(
+                tokenA,
+                organizationA.id(),
+                "memberApiKeyA",
+                Collections.singletonMap("role", Role.Member.name())))
+        .block(TIMEOUT);
+
+    organizationService
+        .inviteMember(
+            new InviteOrganizationMemberRequest(
+                tokenA, organizationA.id(), USER_B.getUserId(), Role.Owner.name()))
+        .block(TIMEOUT);
+
+    StepVerifier.create(
+            organizationService.getUserOrganizationsMembership(new GetMembershipRequest(tokenB)))
+        .assertNext(
+            response -> {
+              Map<String, List<ApiKey>> apiKeys =
+                  Stream.of(response.organizations())
+                      .collect(
+                          Collectors.toMap(
+                              OrganizationInfo::id, info -> Arrays.asList(info.apiKeys())));
+
+              assertEquals(
+                  3, apiKeys.get(organizationA.id()).size(), "api keys count in the response");
+            })
+        .verifyComplete();
+  }
+
+  @Test
+  @DisplayName(
+      "#101 Do not get any Organization data upon the user hasn't became a member (wasn't invited) to any of the relevant Organizations")
+  void getUserMembershipOfNotInvitedMember() {
+    Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
+    Token tokenC = InMemoryPublicKeyProvider.token(USER_C);
+
+    organizationService
+        .createOrganization(
+            new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+        .block(TIMEOUT);
+
+    StepVerifier.create(
+            organizationService.getUserOrganizationsMembership(new GetMembershipRequest(tokenC)))
+        .assertNext(
+            response ->
+                assertEquals(
+                    0, response.organizations().length, "organizations count in the response"))
+        .verifyComplete();
+  }
+
+  @Test
+  @DisplayName(
+      "#102 Fail to get the Membership in Organizations upon the token is invalid (expired)")
+  void getUserMembershipUsingExpiredToken() {
+    Token tokenA = InMemoryPublicKeyProvider.expiredToken(USER_A);
+
+    StepVerifier.create(
+            organizationService.getUserOrganizationsMembership(new GetMembershipRequest(tokenA)))
+        .expectErrorSatisfies(
+            e -> {
+              assertEquals(InvalidTokenException.class, e.getClass());
+              assertEquals("Token verification failed", e.getMessage());
+            })
+        .verify();
+  }
+}
