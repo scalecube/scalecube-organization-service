@@ -16,6 +16,7 @@ import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.organization.repository.OrganizationsDataAccessImpl;
 import io.scalecube.organization.repository.Repository;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
+import io.scalecube.organization.repository.inmem.InMemoryOrganizationMembersRepositoryAdmin;
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
 import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
 import io.scalecube.security.Profile;
@@ -105,20 +106,7 @@ public class Base {
   protected Base() {
     orgMembersRepository = new InMemoryUserOrganizationMembershipRepository();
     organizationRepository = new InMemoryOrganizationRepository();
-    admin =
-        new OrganizationMembersRepositoryAdmin() {
-          @Override
-          public void createRepository(Organization organization) {
-            // dummy body
-            System.out.print(".");
-          }
-
-          @Override
-          public void deleteRepository(Organization organization) {
-            // dummy body
-            System.out.print("'");
-          }
-        };
+    admin = new InMemoryOrganizationMembersRepositoryAdmin();
     service = createService(testProfile);
     new File("keystore.properties").deleteOnExit();
     // init with couchbase
