@@ -117,7 +117,7 @@ public abstract class ServiceOperation<I, O> {
   }
 
   protected boolean isLastOwner(Organization organization, String userId)
-      throws AccessPermissionException, EntityNotFoundException {
+      throws EntityNotFoundException {
     return repository.getOrganizationMembers(organization).stream()
         .filter(member -> !member.id().equals(userId))
         .noneMatch(member -> Role.Owner.name().equals(member.role()));
@@ -178,6 +178,16 @@ public abstract class ServiceOperation<I, O> {
           String.format(
               "user: '%s', name: '%s', not in role Owner or Admin of organization: '%s'",
               profile.getUserId(), profile.getName(), organization.name()));
+    }
+  }
+
+  protected void checkLastOwner(String userId, Organization organization)
+      throws EntityNotFoundException {
+    if (isLastOwner(organization, userId)) {
+      throw new IllegalStateException(
+          String.format(
+              "At least one Owner should be persisted in the organization: '%s'",
+              organization.id()));
     }
   }
 }

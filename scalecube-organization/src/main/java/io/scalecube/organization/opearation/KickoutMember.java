@@ -23,14 +23,7 @@ public class KickoutMember
     Organization organization = getOrganization(request.organizationId());
     checkSuperUserAccess(organization, context.profile());
     ensureCallerIsInHigherRoleThanKickedOutUser(request, context, organization);
-
-    if (isLastOwner(organization, request.userId())) {
-      throw new IllegalStateException(
-          String.format(
-              "At least one Owner should be persisted in the organization: '%s'",
-              organization.id()));
-    }
-
+    checkLastOwner(request.userId(), organization);
     context.repository().kickout(context.profile(), organization, request.userId());
     return new KickoutOrganizationMemberResponse();
   }

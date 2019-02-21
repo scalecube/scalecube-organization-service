@@ -94,7 +94,7 @@ public interface OrganizationsDataAccess {
    * @throws EntityNotFoundException In case organization is not found.
    */
   Collection<OrganizationMember> getOrganizationMembers(Organization organization)
-      throws EntityNotFoundException, AccessPermissionException;
+      throws EntityNotFoundException;
 
   /**
    * Invites the <coded>tokenVerifier</coded> argument to join the <code>organization</code>

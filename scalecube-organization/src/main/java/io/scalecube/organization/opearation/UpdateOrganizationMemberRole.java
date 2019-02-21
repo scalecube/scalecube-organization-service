@@ -62,6 +62,7 @@ public class UpdateOrganizationMemberRole
     checkIfRequestToUpdateUserRoleIsValidForCaller(
         toRole(request.role()), context.profile(), callerRole);
     checkIfAdminCallerIsTryingToDowngradeAnOwner(caller, callerRole, organization, request);
+    checkLastOwner(request.userId(), organization);
   }
 
   private void checkIfRequestToUpdateUserRoleIsValidForCaller(
