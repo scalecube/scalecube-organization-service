@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.scalecube.account.api.DeleteOrganizationRequest;
 import io.scalecube.account.api.InvalidAuthenticationToken;
+import io.scalecube.account.api.OrganizationNotFoundException;
 import io.scalecube.account.api.Token;
-import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
@@ -21,12 +21,11 @@ class DeleteOrganizationTest extends Base {
   }
 
   @Test
-  void deleteOrganizationWithIdNotExistsShouldFailWithEntityNotFoundException() {
-
+  void deleteOrganizationWithIdNotExistsShouldFailWithOrganizationNotFoundException() {
     assertMonoCompletesWithError(
         createService(testProfile)
             .deleteOrganization(new DeleteOrganizationRequest(token, "orgIdNotExists")),
-        EntityNotFoundException.class);
+        OrganizationNotFoundException.class);
   }
 
   @Test

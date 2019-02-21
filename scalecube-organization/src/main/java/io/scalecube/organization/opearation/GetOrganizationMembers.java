@@ -21,7 +21,7 @@ public class GetOrganizationMembers
       GetOrganizationMembersRequest request, OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
 
-    checkMemberAccess(organization, context.profile());
+    checkSuperUserAccess(organization, context.profile());
     Collection<OrganizationMember> organizationMembers =
         context.repository().getOrganizationMembers(organization);
     OrganizationMember[] members = new OrganizationMember[organizationMembers.size()];

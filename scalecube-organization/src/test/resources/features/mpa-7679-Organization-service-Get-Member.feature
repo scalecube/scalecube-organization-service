@@ -52,7 +52,7 @@ Feature: Organization service members management - Get members
     Given the user "A" have got a valid "token" issued by relevant authority
     And no organization were created yet
     When the user "A" requested to get all the members from non-existent organization "organizationId"
-    Then user "A" should receive the error message with non-existent: "organizationId"
+    Then user "A" should receive the error message: "Organization [id="organizationId"] not found"
 
 
   #MPA-7679 (#97)
