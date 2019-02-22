@@ -18,6 +18,7 @@ public class LeaveOrganization
   protected LeaveOrganizationResponse process(
       LeaveOrganizationRequest request, OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
+    checkLastOwner(context.profile().getUserId(), organization);
     context.repository().leave(organization, context.profile().getUserId());
     return new LeaveOrganizationResponse();
   }

@@ -134,7 +134,6 @@ class LeaveOrganizationIntegrationTest {
   }
 
   @TestTemplate
-  @Disabled // todo need to implement such a behavior
   @DisplayName("#MPA-7603 (#31) Fail to leave a relevant Organization by the single owner")
   void testFailToLeaveOrganizationBySingleOwner(OrganizationService service) {
     Profile userA = TestProfiles.USER_A;
@@ -162,21 +161,21 @@ class LeaveOrganizationIntegrationTest {
   @DisplayName(
       "#MPA-7603 (#32) Fail to leave the Organization upon the user wasn't invited to any of the relevant Organizations")
   void testFailToLeaveOrganizationWithNonMember(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
-    Token userAToken = InMemoryPublicKeyProvider.token(userA);
+    Token userAToken = InMemoryPublicKeyProvider.token(TestProfiles.USER_A);
+    Token userBToken = InMemoryPublicKeyProvider.token(TestProfiles.USER_B);
 
     // create a single organization which will be owned by user "A"
     String organizationId =
         service
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), userA.getEmail(), userAToken))
+                    RandomStringUtils.randomAlphabetic(10), TestProfiles.USER_A.getEmail(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
     // the user "B" requested to leave a difference organization
     StepVerifier.create(
-            service.leaveOrganization(new LeaveOrganizationRequest(userAToken, organizationId)))
+            service.leaveOrganization(new LeaveOrganizationRequest(userBToken, organizationId)))
         .expectNextCount(1)
         .expectComplete()
         .verify();
