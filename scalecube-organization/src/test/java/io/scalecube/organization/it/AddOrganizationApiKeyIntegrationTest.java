@@ -12,7 +12,6 @@ import io.scalecube.account.api.OrganizationInfo;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
-import io.scalecube.organization.Organization;
 import io.scalecube.organization.fixtures.InMemoryOrganizationServiceFixture;
 import io.scalecube.organization.repository.inmem.InMemoryPublicKeyProvider;
 import io.scalecube.security.Profile;
@@ -216,13 +215,7 @@ class AddOrganizationApiKeyIntegrationTest {
         .verify();
   }
 
-  /**
-   * todo ask about {@link
-   * io.scalecube.organization.opearation.ServiceOperation#checkSuperUserAccess(Organization,
-   * Profile)}
-   */
   @TestTemplate
-  @Disabled // todo need to implement this behavior
   @DisplayName(
       "#MPA-7603 (#37) Fail to add the owner API key (token) for a relevant Organization by the Admin")
   void testFailToAddOwnerApiKeyByAdmin(OrganizationService service) {
@@ -244,7 +237,7 @@ class AddOrganizationApiKeyIntegrationTest {
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Owner.name()))
+                userAToken, organizationId, userB.getUserId(), Role.Admin.name()))
         .block(TIMEOUT);
 
     // user "B" creates API keys for the organization with roles: "owner"
@@ -257,8 +250,8 @@ class AddOrganizationApiKeyIntegrationTest {
                     Collections.singletonMap("role", Role.Owner.name()))))
         .expectErrorMessage(
             String.format(
-                "user: '%s', name: '%s', not in role Owner of organization: '%s'",
-                userB.getUserId(), userB.getName(), organizationName))
+                "user: '%s', name: '%s', role: 'Admin' cannot add api key with higher role 'Owner'",
+                userB.getUserId(), userB.getName()))
         .verify();
   }
 

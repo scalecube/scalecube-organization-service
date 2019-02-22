@@ -3,9 +3,11 @@ package io.scalecube.organization.opearation;
 import io.scalecube.account.api.AddOrganizationApiKeyRequest;
 import io.scalecube.account.api.ApiKey;
 import io.scalecube.account.api.GetOrganizationResponse;
+import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.Organization;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
+import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.tokens.TokenVerifier;
 import io.scalecube.tokens.store.ApiKeyBuilder;
 import io.scalecube.tokens.store.KeyStore;
@@ -26,7 +28,24 @@ public class AddOrganizationApiKey
   protected GetOrganizationResponse process(
       AddOrganizationApiKeyRequest request, OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
+
     checkSuperUserAccess(organization, context.profile());
+
+    Role callerRole = getRole(context.profile().getUserId(), organization);
+
+    if (request.claims() != null) {
+      String targetRole = request.claims().get("role");
+
+      if (targetRole != null && RoleRank.from(callerRole).isHigherRank(Role.valueOf(targetRole))) {
+        throw new AccessPermissionException(
+            String.format(
+                "user: '%s', name: '%s', role: '%s' cannot add api key with higher role '%s'",
+                context.profile().getUserId(),
+                context.profile().getName(),
+                callerRole,
+                targetRole));
+      }
+    }
 
     ApiKey apiKey = ApiKeyBuilder.build(keyStore, organization, request);
     int newLength = organization.apiKeys().length + 1;
