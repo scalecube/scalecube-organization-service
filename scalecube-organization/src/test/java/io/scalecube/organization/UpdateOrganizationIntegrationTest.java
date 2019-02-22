@@ -319,12 +319,11 @@ class UpdateOrganizationIntegrationTest {
             .block(TIMEOUT);
 
     // create a single organization which will be owned by user "B"
-    String userBOrganizationId =
-        service
-            .createOrganization(
-                new CreateOrganizationRequest(userBOrganizationName, userB.getEmail(), userBToken))
-            .map(OrganizationInfo::id)
-            .block(TIMEOUT);
+    service
+        .createOrganization(
+            new CreateOrganizationRequest(userBOrganizationName, userB.getEmail(), userBToken))
+        .map(OrganizationInfo::id)
+        .block(TIMEOUT);
 
     // user "A" updates the name of own organization using the organization name of user "B"
     StepVerifier.create(

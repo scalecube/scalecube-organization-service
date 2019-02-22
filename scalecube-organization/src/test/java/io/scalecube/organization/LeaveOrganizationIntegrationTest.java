@@ -160,7 +160,6 @@ class LeaveOrganizationIntegrationTest {
   void testFailToLeaveOrganizationWithNonMember(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Token userAToken = MockPublicKeyProvider.token(userA);
-    Profile userB = TestProfiles.USER_2;
 
     // create a single organization which will be owned by user "A"
     String organizationId =
