@@ -13,30 +13,39 @@ import io.scalecube.account.api.InviteOrganizationMemberRequest;
 import io.scalecube.account.api.KickoutOrganizationMemberRequest;
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.OrganizationNotFoundException;
+import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
+import io.scalecube.organization.fixtures.InMemoryOrganizationServiceFixture;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.inmem.InMemoryPublicKeyProvider;
+import io.scalecube.test.fixtures.Fixtures;
+import io.scalecube.test.fixtures.WithFixture;
 import io.scalecube.tokens.InvalidTokenException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.test.StepVerifier;
 
+@ExtendWith(Fixtures.class)
+@WithFixture(value = InMemoryOrganizationServiceFixture.class)
 class GetOrganizationMembersTest extends BaseTest {
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#92 Successful get all the members list from relevant Organization by the \"owner\"")
-  void getMembersByOwner() {
+  void getMembersByOwner(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
 
     CreateOrganizationResponse organizationA =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
             .block(TIMEOUT);
 
     organizationService
@@ -71,17 +80,18 @@ class GetOrganizationMembersTest extends BaseTest {
         .verifyComplete();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#93 Successful get all the members list from relevant Organization by the the \"admin\"")
-  void getMembersByAdmin() {
+  void getMembersByAdmin(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
     Token tokenB = InMemoryPublicKeyProvider.token(USER_B);
 
     CreateOrganizationResponse organizationA =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
             .block(TIMEOUT);
 
     organizationService
@@ -108,17 +118,18 @@ class GetOrganizationMembersTest extends BaseTest {
         .verifyComplete();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#94 Fail to get the list of all the members from the relevant Organization by the existing member with similar role")
-  void getMembersByMember() {
+  void getMembersByMember(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
     Token tokenB = InMemoryPublicKeyProvider.token(USER_B);
 
     CreateOrganizationResponse organizationA =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
             .block(TIMEOUT);
 
     organizationService
@@ -142,17 +153,18 @@ class GetOrganizationMembersTest extends BaseTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#95 Fail to get the list of all the members from the relevant Organization upon some of the existing (requester) managers was removed from the relevant organization")
-  void getMembersByRemovedAdmin() {
+  void getMembersByRemovedAdmin(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
     Token tokenB = InMemoryPublicKeyProvider.token(USER_B);
 
     CreateOrganizationResponse organizationA =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
             .block(TIMEOUT);
 
     organizationService
@@ -181,9 +193,9 @@ class GetOrganizationMembersTest extends BaseTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName("#96 Fail to get members from non-existent Organization")
-  void getMembersFromNonExistentOrganization() {
+  void getMembersFromNonExistentOrganization(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
 
     String organizationId = "ORG-organization-1";
@@ -200,10 +212,10 @@ class GetOrganizationMembersTest extends BaseTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#97 Fail to invite the user to specific Organization if the token is invalid (expired)")
-  void getMembersUsingExpiredToken() {
+  void getMembersUsingExpiredToken(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.expiredToken(USER_A);
 
     StepVerifier.create(

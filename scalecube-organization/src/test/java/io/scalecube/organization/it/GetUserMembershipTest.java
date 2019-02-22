@@ -13,9 +13,13 @@ import io.scalecube.account.api.CreateOrganizationResponse;
 import io.scalecube.account.api.GetMembershipRequest;
 import io.scalecube.account.api.InviteOrganizationMemberRequest;
 import io.scalecube.account.api.OrganizationInfo;
+import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
+import io.scalecube.organization.fixtures.InMemoryOrganizationServiceFixture;
 import io.scalecube.organization.repository.inmem.InMemoryPublicKeyProvider;
+import io.scalecube.test.fixtures.Fixtures;
+import io.scalecube.test.fixtures.WithFixture;
 import io.scalecube.tokens.InvalidTokenException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,18 +27,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.test.StepVerifier;
 
+@ExtendWith(Fixtures.class)
+@WithFixture(value = InMemoryOrganizationServiceFixture.class)
 class GetUserMembershipTest extends BaseTest {
 
   @Disabled("Feature (filter ApiKeys by Role) is not yet implemented")
-  @Test
+  @TestTemplate
   @DisplayName(
       "#98 Successful get the list of all Organizations (Membership) in each the user became a Member")
-  void getUserMembershipOfMember() {
+  void getUserMembershipOfMember(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
     Token tokenB = InMemoryPublicKeyProvider.token(USER_B);
     Token tokenC = InMemoryPublicKeyProvider.token(USER_C);
@@ -42,13 +50,15 @@ class GetUserMembershipTest extends BaseTest {
     CreateOrganizationResponse organizationA =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
             .block(TIMEOUT);
 
     CreateOrganizationResponse organizationB =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-2", USER_B.getEmail(), tokenB))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_B.getEmail(), tokenB))
             .block(TIMEOUT);
 
     organizationService
@@ -121,10 +131,10 @@ class GetUserMembershipTest extends BaseTest {
   }
 
   @Disabled("Feature (filter ApiKeys by Role) is not yet implemented")
-  @Test
+  @TestTemplate
   @DisplayName(
       "#99 Successful get the list of all Organizations (Membership) in each the user became an Admin")
-  void getUserMembershipOfAdmin() {
+  void getUserMembershipOfAdmin(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
     Token tokenB = InMemoryPublicKeyProvider.token(USER_B);
     Token tokenC = InMemoryPublicKeyProvider.token(USER_C);
@@ -132,13 +142,15 @@ class GetUserMembershipTest extends BaseTest {
     CreateOrganizationResponse organizationA =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
             .block(TIMEOUT);
 
     CreateOrganizationResponse organizationB =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-2", USER_B.getEmail(), tokenB))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_B.getEmail(), tokenB))
             .block(TIMEOUT);
 
     organizationService
@@ -221,17 +233,18 @@ class GetUserMembershipTest extends BaseTest {
         .verifyComplete();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#100 Successful get the list of all Organizations (Membership) in each the user became an Owner")
-  void getUserMembershipOfOwner() {
+  void getUserMembershipOfOwner(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
     Token tokenB = InMemoryPublicKeyProvider.token(USER_B);
 
     CreateOrganizationResponse organizationA =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
             .block(TIMEOUT);
 
     organizationService
@@ -283,16 +296,17 @@ class GetUserMembershipTest extends BaseTest {
         .verifyComplete();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#101 Do not get any Organization data upon the user hasn't became a member (wasn't invited) to any of the relevant Organizations")
-  void getUserMembershipOfNotInvitedMember() {
+  void getUserMembershipOfNotInvitedMember(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
     Token tokenC = InMemoryPublicKeyProvider.token(USER_C);
 
     organizationService
         .createOrganization(
-            new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+            new CreateOrganizationRequest(
+                RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
         .block(TIMEOUT);
 
     StepVerifier.create(
@@ -304,10 +318,10 @@ class GetUserMembershipTest extends BaseTest {
         .verifyComplete();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#102 Fail to get the Membership in Organizations upon the token is invalid (expired)")
-  void getUserMembershipUsingExpiredToken() {
+  void getUserMembershipUsingExpiredToken(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.expiredToken(USER_A);
 
     StepVerifier.create(

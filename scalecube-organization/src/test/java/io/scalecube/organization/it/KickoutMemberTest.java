@@ -13,30 +13,39 @@ import io.scalecube.account.api.GetOrganizationMembersRequest;
 import io.scalecube.account.api.InviteOrganizationMemberRequest;
 import io.scalecube.account.api.KickoutOrganizationMemberRequest;
 import io.scalecube.account.api.OrganizationMember;
+import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
+import io.scalecube.organization.fixtures.InMemoryOrganizationServiceFixture;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.inmem.InMemoryPublicKeyProvider;
+import io.scalecube.test.fixtures.Fixtures;
+import io.scalecube.test.fixtures.WithFixture;
 import io.scalecube.tokens.InvalidTokenException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.test.StepVerifier;
 
+@ExtendWith(Fixtures.class)
+@WithFixture(value = InMemoryOrganizationServiceFixture.class)
 class KickoutMemberTest extends BaseTest {
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#59 Successful kick-out (remove) of specific \"member\" from a relevant Organization")
-  void kickoutMemberByOwner() {
+  void kickoutMemberByOwner(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
 
     CreateOrganizationResponse organizationA =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
             .block(TIMEOUT);
 
     organizationService
@@ -65,17 +74,18 @@ class KickoutMemberTest extends BaseTest {
         .verifyComplete();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#60 Successful kick-out (remove) the \"owner\" and \"member\" from relevant Organization by another owner")
-  void kickoutMemberAndOwnerByOwner() {
+  void kickoutMemberAndOwnerByOwner(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
     Token tokenB = InMemoryPublicKeyProvider.token(USER_B);
 
     CreateOrganizationResponse organizationA =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
             .block(TIMEOUT);
 
     organizationService
@@ -115,17 +125,18 @@ class KickoutMemberTest extends BaseTest {
         .verifyComplete();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#61 Successful kick-out (remove) of the \"admin\" and \"member\" from relevant Organization by another \"admin\"")
-  void kickoutByAdmin() {
+  void kickoutByAdmin(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
     Token tokenB = InMemoryPublicKeyProvider.token(USER_B);
 
     CreateOrganizationResponse organizationA =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
             .block(TIMEOUT);
 
     organizationService
@@ -171,17 +182,18 @@ class KickoutMemberTest extends BaseTest {
         .verifyComplete();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#62 Successful kick-out (remove) one of the \"admin\" from relevant Organization by \"owner\"")
-  void kickoutAdminByOwner() {
+  void kickoutAdminByOwner(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
     Token tokenB = InMemoryPublicKeyProvider.token(USER_B);
 
     CreateOrganizationResponse organizationA =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
             .block(TIMEOUT);
 
     organizationService
@@ -216,17 +228,18 @@ class KickoutMemberTest extends BaseTest {
         .verifyComplete();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#63 Successful kick-out (remove) yourself as the \"owner\" from relevant Organization upon at least one another owner is persisted")
-  void kickoutYourselfByOwner() {
+  void kickoutYourselfByOwner(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
     Token tokenB = InMemoryPublicKeyProvider.token(USER_B);
 
     CreateOrganizationResponse organizationA =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
             .block(TIMEOUT);
 
     organizationService
@@ -255,17 +268,18 @@ class KickoutMemberTest extends BaseTest {
         .verifyComplete();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#64 Successful kick-out (remove) yourself as the \"admin\" from relevant Organization")
-  void kickoutYourselfByAdmin() {
+  void kickoutYourselfByAdmin(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
     Token tokenB = InMemoryPublicKeyProvider.token(USER_B);
 
     CreateOrganizationResponse organizationA =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
             .block(TIMEOUT);
 
     organizationService
@@ -294,16 +308,17 @@ class KickoutMemberTest extends BaseTest {
         .verifyComplete();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#67 Fail to kick-out (remove) yourself as the single \"owner\" from relevant Organization")
-  void kickoutSingleOwnerByOwner() {
+  void kickoutSingleOwnerByOwner(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
 
     CreateOrganizationResponse organizationA =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
             .block(TIMEOUT);
 
     StepVerifier.create(
@@ -322,17 +337,18 @@ class KickoutMemberTest extends BaseTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#68 Fail to kick-out (remove) the single owner from relevant Organization by the \"admin\"")
-  void kickoutSingleOwnerByAdmin() {
+  void kickoutSingleOwnerByAdmin(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
     Token tokenB = InMemoryPublicKeyProvider.token(USER_B);
 
     CreateOrganizationResponse organizationA =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
             .block(TIMEOUT);
 
     organizationService
@@ -360,17 +376,18 @@ class KickoutMemberTest extends BaseTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#69 Fail to kick-out (remove) specific member from relevant Organization upon the existing member (requester) got \"member\" role permission level")
-  void kickoutMemberByMember() {
+  void kickoutMemberByMember(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
     Token tokenB = InMemoryPublicKeyProvider.token(USER_B);
 
     CreateOrganizationResponse organizationA =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
             .block(TIMEOUT);
 
     organizationService
@@ -401,17 +418,18 @@ class KickoutMemberTest extends BaseTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#70 Fail to remove a specific \"member\" from relevant Organization upon some of the existing (requester) managers was removed from the relevant organization")
-  void kickoutByMember() {
+  void kickoutByMember(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
     Token tokenB = InMemoryPublicKeyProvider.token(USER_B);
 
     CreateOrganizationResponse organizationA =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
             .block(TIMEOUT);
 
     organizationService
@@ -441,10 +459,10 @@ class KickoutMemberTest extends BaseTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#71 Fail to remove the user from specific Organization if the token is invalid (expired)")
-  void kickoutUsingExpiredToken() {
+  void kickoutUsingExpiredToken(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.expiredToken(USER_A);
 
     StepVerifier.create(

@@ -12,37 +12,47 @@ import io.scalecube.account.api.GetOrganizationMembersRequest;
 import io.scalecube.account.api.InviteOrganizationMemberRequest;
 import io.scalecube.account.api.KickoutOrganizationMemberRequest;
 import io.scalecube.account.api.OrganizationMember;
+import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
+import io.scalecube.organization.fixtures.InMemoryOrganizationServiceFixture;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.inmem.InMemoryPublicKeyProvider;
+import io.scalecube.test.fixtures.Fixtures;
+import io.scalecube.test.fixtures.WithFixture;
 import io.scalecube.tokens.InvalidTokenException;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestTemplate;
+import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.test.StepVerifier;
 
+@ExtendWith(Fixtures.class)
+@WithFixture(value = InMemoryOrganizationServiceFixture.class)
 class InviteMemberTest extends BaseTest {
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#49 Successful \"member\" invitation to multiple Organizations which belongs to different owners")
-  void inviteUserToMultipleOrganizationsByMultipleOwners() {
+  void inviteUserToMultipleOrganizationsByMultipleOwners(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
     Token tokenB = InMemoryPublicKeyProvider.token(USER_B);
 
     CreateOrganizationResponse organizationA =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
             .block(TIMEOUT);
 
     CreateOrganizationResponse organizationB =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-2", USER_B.getEmail(), tokenB))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_B.getEmail(), tokenB))
             .block(TIMEOUT);
 
     StepVerifier.create(
@@ -84,22 +94,24 @@ class InviteMemberTest extends BaseTest {
         .verifyComplete();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#50 Successful invitation of specified member with \"owner\" role to multiple Organizations which belongs to single owner")
-  void inviteUserToMultipleOrganizationsBySingleOwner() {
+  void inviteUserToMultipleOrganizationsBySingleOwner(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
 
     CreateOrganizationResponse organizationA1 =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
             .block(TIMEOUT);
 
     CreateOrganizationResponse organizationA2 =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-2", USER_A.getEmail(), tokenA))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
             .block(TIMEOUT);
 
     StepVerifier.create(
@@ -141,17 +153,18 @@ class InviteMemberTest extends BaseTest {
         .verifyComplete();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#51 Successful invitation of the \"member\" into specific Organization upon it's existent \"member\" was granted with \"admin\" role")
-  void inviteUserToOrganizationByAdmin() {
+  void inviteUserToOrganizationByAdmin(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
     Token tokenB = InMemoryPublicKeyProvider.token(USER_B);
 
     CreateOrganizationResponse organizationA =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
             .block(TIMEOUT);
 
     organizationService
@@ -180,17 +193,18 @@ class InviteMemberTest extends BaseTest {
         .verifyComplete();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#52 Successful invitation of specific member with \"admin\" role into relevant Organization upon it's existent \"member\" was granted with \"owner\" role")
-  void inviteUserToOrganizationByOwner() {
+  void inviteUserToOrganizationByOwner(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
     Token tokenB = InMemoryPublicKeyProvider.token(USER_B);
 
     CreateOrganizationResponse organizationA =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
             .block(TIMEOUT);
 
     organizationService
@@ -219,15 +233,16 @@ class InviteMemberTest extends BaseTest {
         .verifyComplete();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName("#53 Ignore to invite the existent \"member\" (duplicate) to the same Organization")
-  void inviteExistentUser() {
+  void inviteExistentUser(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
 
     CreateOrganizationResponse organizationA =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
             .block(TIMEOUT);
 
     organizationService
@@ -256,17 +271,18 @@ class InviteMemberTest extends BaseTest {
         .verifyComplete();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#55 Fail to invite the user into relevant Organization upon the existing member (requester) got \"member\" role permission level")
-  void inviteUnauthorizedUser() {
+  void inviteUnauthorizedUser(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
     Token tokenB = InMemoryPublicKeyProvider.token(USER_B);
 
     CreateOrganizationResponse organizationA =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
             .block(TIMEOUT);
 
     organizationService
@@ -291,17 +307,18 @@ class InviteMemberTest extends BaseTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#56 Fail to invite the user into relevant Organization upon the existing owner (requester) was removed from own Organization")
-  void inviteUserByRemovedOwner() {
+  void inviteUserByRemovedOwner(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
     Token tokenB = InMemoryPublicKeyProvider.token(USER_B);
 
     CreateOrganizationResponse organizationA =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
             .block(TIMEOUT);
 
     organizationService
@@ -331,17 +348,18 @@ class InviteMemberTest extends BaseTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#57 Fail to invite the user as \"Owner\" into relevant Organization by the existing Admin (requester)")
-  void inviteUserAsOwnerByAdmin() {
+  void inviteUserAsOwnerByAdmin(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
     Token tokenB = InMemoryPublicKeyProvider.token(USER_B);
 
     CreateOrganizationResponse organizationA =
         organizationService
             .createOrganization(
-                new CreateOrganizationRequest("organization-1", USER_A.getEmail(), tokenA))
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
             .block(TIMEOUT);
 
     organizationService
@@ -366,10 +384,10 @@ class InviteMemberTest extends BaseTest {
         .verify();
   }
 
-  @Test
+  @TestTemplate
   @DisplayName(
       "#58 Fail to invite the user to specific Organization if the token is invalid (expired)")
-  void inviteUsingExpiredToken() {
+  void inviteUsingExpiredToken(OrganizationService organizationService) {
     Token tokenA = InMemoryPublicKeyProvider.expiredToken(USER_A);
 
     StepVerifier.create(
