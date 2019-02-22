@@ -37,7 +37,7 @@ public class KickoutMember
     Role callerRole = getRole(context.profile().getUserId(), organization);
     Role targetRole = getRole(request.userId(), organization);
 
-    if (RoleRank.from(callerRole).isHigherRank(targetRole)) {
+    if (targetRole.isHigherThan(callerRole)) {
       throw new AccessPermissionException(
           String.format(
               "user: '%s', name: '%s', role: '%s' cannot kickout "

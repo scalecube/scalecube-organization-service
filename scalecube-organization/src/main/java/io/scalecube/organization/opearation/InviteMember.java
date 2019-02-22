@@ -25,7 +25,7 @@ public class InviteMember
 
     Role callerRole = getRole(context.profile().getUserId(), organization);
 
-    if (RoleRank.from(callerRole).isHigherRank(invitedMemberRole)) {
+    if (invitedMemberRole.isHigherThan(callerRole)) {
       throw new AccessPermissionException(
           String.format(
               "user: '%s', name: '%s', role: '%s' cannot invite to a higher role: '%s'",

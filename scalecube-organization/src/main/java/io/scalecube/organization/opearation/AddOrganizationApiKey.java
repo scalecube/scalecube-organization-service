@@ -45,7 +45,7 @@ public class AddOrganizationApiKey
 
         Role targetRole = Role.valueOf(roleClaim);
 
-        if (RoleRank.from(callerRole).isHigherRank(targetRole)) {
+        if (targetRole.isHigherThan(callerRole)) {
           throw new AccessPermissionException(
               String.format(
                   "user: '%s', name: '%s', role: '%s' cannot add api key with higher role '%s'",
