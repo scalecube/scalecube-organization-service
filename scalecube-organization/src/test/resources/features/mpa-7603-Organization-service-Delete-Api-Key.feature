@@ -19,8 +19,8 @@ Feature: Organization service API keys management - Delete API key
     And the user "A" requested to add each accessible API key "name" for own organization with assigned roles: "owner", "admin" and "member"
     When the user "A" requested to delete each of the API keys "name" from own organization with assigned roles: "owner" and "admin"
     Then each of the API keys "name" with assigned roles: "owner" and "admin" should be deleted
-    And the relevant secrets should be deleted from the Vault and DB
     And user "A" should get successful response with extended organization info which include the API key with "member" role only
+    And the user "A" requested the relevant organization to get remaining API keys with extended organization info
 
 
   #MPA-7603 (#44) - the API key with "owner" role persisted but isn't shown to Admin
@@ -31,8 +31,8 @@ Feature: Organization service API keys management - Delete API key
     And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with an "admin" role
     When the user "B" requested to delete the API keys "name" from user's "A" organization with assigned roles: "admin" and "member"
     Then each of the API keys "name" with assigned roles: "admin" and "member" should be deleted
-    And the relevant secrets should be deleted from the Vault and DB
     And user "B" should get successful response with extended organization info which doesn't include any stored API key
+    And the user "A" requested the relevant organization to get remaining API keys with extended organization info
 
 
   #__________________________________________________NEGATIVE___________________________________________________________

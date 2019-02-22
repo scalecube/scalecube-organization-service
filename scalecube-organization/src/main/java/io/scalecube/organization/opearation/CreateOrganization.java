@@ -9,7 +9,7 @@ import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.tokens.IdGenerator;
 import io.scalecube.tokens.TokenVerifier;
-import io.scalecube.tokens.store.KeyStoreFactory;
+import io.scalecube.tokens.store.KeyStore;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.util.UUID;
@@ -17,14 +17,13 @@ import java.util.UUID;
 public final class CreateOrganization
     extends OrganizationInfoOperation<CreateOrganizationRequest, CreateOrganizationResponse> {
 
-  private KeyPairGenerator keyPairGenerator;
+  private final KeyPairGenerator keyPairGenerator;
+  private final KeyStore keyStore;
 
-  private CreateOrganization(
-      TokenVerifier tokenVerifier,
-      OrganizationsDataAccess repository,
-      KeyPairGenerator keyPairGenerator) {
-    super(tokenVerifier, repository);
-    this.keyPairGenerator = keyPairGenerator;
+  private CreateOrganization(Builder builder) {
+    super(builder.tokenVerifier, builder.repository);
+    this.keyPairGenerator = builder.keyPairGenerator;
+    this.keyStore = builder.keyStore;
   }
 
   public static Builder builder() {
@@ -78,7 +77,7 @@ public final class CreateOrganization
 
   private void generateOrganizationKeyPair(Organization organization) {
     KeyPair keyPair = keyPairGenerator.generateKeyPair();
-    KeyStoreFactory.get().store(organization.keyId(), keyPair);
+    keyStore.store(organization.keyId(), keyPair);
   }
 
   @Override
@@ -90,6 +89,7 @@ public final class CreateOrganization
     private TokenVerifier tokenVerifier;
     private OrganizationsDataAccess repository;
     private KeyPairGenerator keyPairGenerator;
+    private KeyStore keyStore;
 
     public Builder tokenVerifier(TokenVerifier tokenVerifier) {
       this.tokenVerifier = tokenVerifier;
@@ -106,8 +106,13 @@ public final class CreateOrganization
       return this;
     }
 
+    public Builder keyStore(KeyStore keyStore) {
+      this.keyStore = keyStore;
+      return this;
+    }
+
     public CreateOrganization build() {
-      return new CreateOrganization(tokenVerifier, repository, keyPairGenerator);
+      return new CreateOrganization(this);
     }
   }
 }

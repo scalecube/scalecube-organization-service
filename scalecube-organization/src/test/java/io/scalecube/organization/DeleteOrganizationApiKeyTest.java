@@ -1,22 +1,20 @@
-package io.scalecube.organization.apikey;
+package io.scalecube.organization;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.emptyArray;
 
 import io.scalecube.account.api.AddOrganizationApiKeyRequest;
 import io.scalecube.account.api.DeleteOrganizationApiKeyRequest;
 import io.scalecube.account.api.InvalidAuthenticationToken;
 import io.scalecube.account.api.Token;
-import io.scalecube.organization.Base;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
-import java.util.Arrays;
 import java.util.stream.Collectors;
-import org.junit.jupiter.api.Disabled;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
-@Disabled
 class DeleteOrganizationApiKeyTest extends Base {
 
   @Test
@@ -27,19 +25,21 @@ class DeleteOrganizationApiKeyTest extends Base {
                     token,
                     organizationId,
                     "apiKey",
-                    Arrays.asList("assertion").stream().collect(Collectors.toMap(x -> x, x -> x)))))
+                    Stream.of("assertion").collect(Collectors.toMap(x -> x, x -> x)))))
         .expectSubscription()
         .assertNext(
-            getOrganizationResponse ->
-                StepVerifier.create(
-                        service.deleteOrganizationApiKey(
-                            new DeleteOrganizationApiKeyRequest(
-                                token, organizationId, getOrganizationResponse.apiKeys()[0].key())))
-                    .expectSubscription()
-                    .assertNext(
-                        getOrganizationResponse2 ->
-                            assertThat(getOrganizationResponse2.apiKeys(), emptyArray()))
-                    .verifyComplete())
+            getOrganizationResponse -> {
+              assertThat(getOrganizationResponse.apiKeys(), arrayWithSize(1));
+              String apiKeyName = getOrganizationResponse.apiKeys()[0].name();
+              StepVerifier.create(
+                      service.deleteOrganizationApiKey(
+                          new DeleteOrganizationApiKeyRequest(token, organizationId, apiKeyName)))
+                  .expectSubscription()
+                  .assertNext(
+                      getOrganizationResponse2 ->
+                          assertThat(getOrganizationResponse2.apiKeys(), emptyArray()))
+                  .verifyComplete();
+            })
         .verifyComplete();
   }
 
