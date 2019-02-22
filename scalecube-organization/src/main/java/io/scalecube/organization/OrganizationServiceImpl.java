@@ -42,7 +42,7 @@ import io.scalecube.organization.opearation.UpdateOrganization;
 import io.scalecube.organization.opearation.UpdateOrganizationMemberRole;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.tokens.TokenVerifier;
-import io.scalecube.tokens.store.KeyStoreFactory;
+import io.scalecube.tokens.store.KeyStore;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import org.slf4j.Logger;
@@ -55,16 +55,20 @@ public class OrganizationServiceImpl implements OrganizationService {
 
   private final TokenVerifier tokenVerifier;
   private final OrganizationsDataAccess repository;
+  private final KeyStore keyStore;
   private final KeyPairGenerator keyPairGenerator;
 
   /**
-   * Create instance of Organization Service.
+   * Create instance of organization service.
    *
-   * @param repository repository.
-   * @param tokenVerifier token verifier.
+   * @param repository data access repository
+   * @param keyStore key store
+   * @param tokenVerifier token verifier
    */
-  public OrganizationServiceImpl(OrganizationsDataAccess repository, TokenVerifier tokenVerifier) {
+  public OrganizationServiceImpl(
+      OrganizationsDataAccess repository, KeyStore keyStore, TokenVerifier tokenVerifier) {
     this.repository = repository;
+    this.keyStore = keyStore;
     this.tokenVerifier = tokenVerifier;
     this.keyPairGenerator = keyPairGenerator();
   }
@@ -81,6 +85,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                     .tokenVerifier(tokenVerifier)
                     .repository(repository)
                     .keyPairGenerator(keyPairGenerator)
+                    .keyStore(keyStore)
                     .build()
                     .execute(request);
 
@@ -261,6 +266,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                 AddOrganizationApiKey.builder()
                     .tokenVerifier(tokenVerifier)
                     .repository(repository)
+                    .keyStore(keyStore)
                     .build()
                     .execute(request);
 
@@ -344,7 +350,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   @Override
   public Mono<GetPublicKeyResponse> getPublicKey(GetPublicKeyRequest request) {
     return Mono.fromRunnable(() -> logger.debug("getPublicKey: enter, request: {}", request))
-        .then(Mono.fromCallable(() -> KeyStoreFactory.get().getPublicKey(request.keyId())))
+        .then(Mono.fromCallable(() -> keyStore.getPublicKey(request.keyId())))
         .map(
             publicKey ->
                 new GetPublicKeyResponse(
@@ -358,7 +364,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         .doOnError(th -> logger.error("getPublicKey: ERROR: {}", th));
   }
 
-  private static KeyPairGenerator keyPairGenerator() {
+  private KeyPairGenerator keyPairGenerator() {
     try {
       String algorithm = AppConfiguration.configRegistry().stringValue("crypto.algorithm", "RSA");
       int keySize = AppConfiguration.configRegistry().intValue("crypto.key.size", 2048);

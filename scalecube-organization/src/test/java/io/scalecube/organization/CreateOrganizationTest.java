@@ -43,7 +43,7 @@ class CreateOrganizationTest extends Base {
             service.createOrganization(
                 new CreateOrganizationRequest(invalidString, "email", token)))
         .expectErrorMessage(
-            "Organization name can only contain characters in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent.")
+            "Organization name can only contain characters in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent")
         .verify();
   }
 

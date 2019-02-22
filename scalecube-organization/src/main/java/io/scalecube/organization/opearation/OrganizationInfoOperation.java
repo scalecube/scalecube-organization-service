@@ -23,12 +23,12 @@ public abstract class OrganizationInfoOperation<I, O> extends ServiceOperation<I
     if (invalidOrgNameValid) {
       throw new InvalidInputException(
           "Organization name can only contain characters in range A-Z, a-z, 0-9 as well as "
-              + "underscore, period, dash & percent.");
+              + "underscore, period, dash & percent");
     }
 
     if (context.repository().existByName(info.name())) {
       throw new NameAlreadyInUseException(
-          String.format("Organization name: '%s' already in use.", info.name()));
+          String.format("Organization name: '%s' already in use", info.name()));
     }
   }
 }

@@ -1,4 +1,4 @@
-package io.scalecube.organization.apikey;
+package io.scalecube.organization;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -11,8 +11,6 @@ import io.scalecube.account.api.OrganizationNotFoundException;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
-import io.scalecube.organization.Base;
-import io.scalecube.organization.Organization;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.security.Profile;
 import java.util.HashMap;
@@ -23,7 +21,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import reactor.test.StepVerifier;
 
-@Disabled
 class OrganizationServiceApiKeyTest extends Base {
 
   private String apiKeyName = "apiKey" + System.currentTimeMillis();
@@ -62,10 +59,12 @@ class OrganizationServiceApiKeyTest extends Base {
             service.addOrganizationApiKey(
                 new AddOrganizationApiKeyRequest(token, organizationId, apiKeyName, claims)))
         .expectSubscription()
-        .expectErrorMessage("apiKeyName already exists");
+        .expectErrorMessage(String.format("apiKey name:'%s' already exists", apiKeyName))
+        .verify();
   }
 
   @Test
+  @Disabled // todo
   void failToAddOrganizationApiKeyByNonOwner() {
     Organization organisation2 = createOrganization(randomString());
     String organizationId2 = organisation2.id();

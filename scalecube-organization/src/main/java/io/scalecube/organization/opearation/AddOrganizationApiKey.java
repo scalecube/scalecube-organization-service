@@ -8,14 +8,18 @@ import io.scalecube.organization.Organization;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.tokens.TokenVerifier;
 import io.scalecube.tokens.store.ApiKeyBuilder;
+import io.scalecube.tokens.store.KeyStore;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
 public class AddOrganizationApiKey
     extends ServiceOperation<AddOrganizationApiKeyRequest, GetOrganizationResponse> {
 
-  private AddOrganizationApiKey(TokenVerifier tokenVerifier, OrganizationsDataAccess repository) {
-    super(tokenVerifier, repository);
+  private final KeyStore keyStore;
+
+  private AddOrganizationApiKey(Builder builder) {
+    super(builder.tokenVerifier, builder.repository);
+    this.keyStore = builder.keyStore;
   }
 
   @Override
@@ -24,7 +28,7 @@ public class AddOrganizationApiKey
     Organization organization = getOrganization(request.organizationId());
     checkSuperUserAccess(organization, context.profile());
 
-    ApiKey apiKey = ApiKeyBuilder.build(organization, request);
+    ApiKey apiKey = ApiKeyBuilder.build(keyStore, organization, request);
     int newLength = organization.apiKeys().length + 1;
     ApiKey[] apiKeys = Arrays.copyOf(organization.apiKeys(), newLength);
 
@@ -47,7 +51,8 @@ public class AddOrganizationApiKey
         Stream.of(organization.apiKeys())
             .anyMatch(existingKey -> existingKey.name().equals(request.apiKeyName()));
     if (alreadyExists) {
-      throw new IllegalArgumentException("apiKeyName already exists");
+      throw new IllegalArgumentException(
+          "apiKey name:'" + request.apiKeyName() + "' already exists");
     }
   }
 
@@ -63,6 +68,7 @@ public class AddOrganizationApiKey
   public static class Builder {
     private TokenVerifier tokenVerifier;
     private OrganizationsDataAccess repository;
+    private KeyStore keyStore;
 
     public Builder tokenVerifier(TokenVerifier tokenVerifier) {
       this.tokenVerifier = tokenVerifier;
@@ -74,8 +80,13 @@ public class AddOrganizationApiKey
       return this;
     }
 
+    public Builder keyStore(KeyStore keyStore) {
+      this.keyStore = keyStore;
+      return this;
+    }
+
     public AddOrganizationApiKey build() {
-      return new AddOrganizationApiKey(tokenVerifier, repository);
+      return new AddOrganizationApiKey(this);
     }
   }
 }

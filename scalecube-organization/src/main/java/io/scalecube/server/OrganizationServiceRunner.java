@@ -11,6 +11,8 @@ import io.scalecube.services.Microservices;
 import io.scalecube.tokens.Auth0PublicKeyProvider;
 import io.scalecube.tokens.TokenVerifier;
 import io.scalecube.tokens.TokenVerifierImpl;
+import io.scalecube.tokens.store.KeyStore;
+import io.scalecube.tokens.store.VaultKeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
@@ -54,7 +56,7 @@ public class OrganizationServiceRunner {
         .startAwait();
   }
 
-  private static OrganizationService createOrganizationService() throws NoSuchAlgorithmException {
+  private static OrganizationService createOrganizationService() {
     CouchbaseSettings settings =
         AppConfiguration.configRegistry()
             .objectProperty(couchbaseSettingsBindingMap(), CouchbaseSettings.class)
@@ -68,10 +70,10 @@ public class OrganizationServiceRunner {
             factory.organizations(),
             factory.organizationMembers(),
             factory.organizationMembersRepositoryAdmin());
-
+    KeyStore keyStore = new VaultKeyStore();
     TokenVerifier tokenVerifier = new TokenVerifierImpl(new Auth0PublicKeyProvider());
 
-    return new OrganizationServiceImpl(dataAccess, tokenVerifier);
+    return new OrganizationServiceImpl(dataAccess, keyStore, tokenVerifier);
   }
 
   private static Map<String, String> couchbaseSettingsBindingMap() {
