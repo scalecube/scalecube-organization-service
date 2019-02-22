@@ -3,6 +3,7 @@ package io.scalecube.organization.repository.inmem;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.scalecube.account.api.OrganizationServiceException;
 import io.scalecube.account.api.Token;
 import io.scalecube.security.Profile;
 import io.scalecube.tokens.InvalidTokenException;
@@ -22,7 +23,7 @@ public class InMemoryPublicKeyProvider implements PublicKeyProvider {
     try {
       KEY_PAIR = KeyPairGenerator.getInstance("RSA").generateKeyPair();
     } catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException(e);
+      throw new OrganizationServiceException("Error during initialing KeyPairGenerator", e);
     }
   }
 

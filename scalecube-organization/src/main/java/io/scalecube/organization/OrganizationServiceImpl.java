@@ -21,6 +21,7 @@ import io.scalecube.account.api.KickoutOrganizationMemberResponse;
 import io.scalecube.account.api.LeaveOrganizationRequest;
 import io.scalecube.account.api.LeaveOrganizationResponse;
 import io.scalecube.account.api.OrganizationService;
+import io.scalecube.account.api.OrganizationServiceException;
 import io.scalecube.account.api.ServiceOperationException;
 import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
 import io.scalecube.account.api.UpdateOrganizationMemberRoleResponse;
@@ -61,11 +62,8 @@ public class OrganizationServiceImpl implements OrganizationService {
    *
    * @param repository repository.
    * @param tokenVerifier token verifier.
-   * @throws NoSuchAlgorithmException if no Provider supports a KeyPairGeneratorSpi implementation
-   *     for the specified algorithm.
    */
-  public OrganizationServiceImpl(OrganizationsDataAccess repository, TokenVerifier tokenVerifier)
-      throws NoSuchAlgorithmException {
+  public OrganizationServiceImpl(OrganizationsDataAccess repository, TokenVerifier tokenVerifier) {
     this.repository = repository;
     this.tokenVerifier = tokenVerifier;
     this.keyPairGenerator = keyPairGenerator();
@@ -360,13 +358,17 @@ public class OrganizationServiceImpl implements OrganizationService {
         .doOnError(th -> logger.error("getPublicKey: ERROR: {}", th));
   }
 
-  private static KeyPairGenerator keyPairGenerator() throws NoSuchAlgorithmException {
-    String algorithm = AppConfiguration.configRegistry().stringValue("crypto.algorithm", "RSA");
-    int keySize = AppConfiguration.configRegistry().intValue("crypto.key.size", 2048);
+  private static KeyPairGenerator keyPairGenerator() {
+    try {
+      String algorithm = AppConfiguration.configRegistry().stringValue("crypto.algorithm", "RSA");
+      int keySize = AppConfiguration.configRegistry().intValue("crypto.key.size", 2048);
 
-    KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(algorithm);
-    keyPairGenerator.initialize(keySize);
+      KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(algorithm);
+      keyPairGenerator.initialize(keySize);
 
-    return keyPairGenerator;
+      return keyPairGenerator;
+    } catch (NoSuchAlgorithmException e) {
+      throw new OrganizationServiceException("Error during initialing KeyPairGenerator", e);
+    }
   }
 }

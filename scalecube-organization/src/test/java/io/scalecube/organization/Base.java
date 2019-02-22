@@ -109,10 +109,6 @@ public class Base {
     admin = new InMemoryOrganizationMembersRepositoryAdmin();
     service = createService(testProfile);
     new File("keystore.properties").deleteOnExit();
-    // init with couchbase
-    //    orgMembersRepository = CouchbaseRepositoryFactory.organizationMembers();
-    //    organizationRepository = CouchbaseRepositoryFactory.organizations();
-    //    admin = CouchbaseRepositoryFactory.organizationMembersRepositoryAdmin();
   }
 
   @BeforeAll
@@ -168,11 +164,8 @@ public class Base {
         new OrganizationsDataAccessImpl(organizationRepository, orgMembersRepository, admin);
     TokenVerifier tokenVerifier = token -> Objects.equals(profile, invalidProfile) ? null : profile;
 
-    try {
-      return new OrganizationServiceImpl(dataAccess, tokenVerifier);
-    } catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException(e);
-    }
+
+    return new OrganizationServiceImpl(dataAccess, tokenVerifier);
   }
 
   protected static <T> void assertMonoCompletesWithError(
