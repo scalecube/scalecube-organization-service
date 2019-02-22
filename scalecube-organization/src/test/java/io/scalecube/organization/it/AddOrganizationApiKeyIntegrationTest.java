@@ -379,20 +379,7 @@ class AddOrganizationApiKeyIntegrationTest {
         .verify();
   }
 
-  /**
-   *
-   *
-   * <pre>
-   *   Caused by: java.lang.UnsupportedOperationException
-   * 	at java.util.AbstractMap.put(AbstractMap.java:209) ~[?:1.8.0_152]
-   * 	at io.scalecube.tokens.store.ApiKeyBuilder.build(ApiKeyBuilder.java:36) ~[classes/:?]
-   * 	at io.scalecube.organization.opearation.AddOrganizationApiKey.process(AddOrganizationApiKey.java:27) ~[classes/:?]
-   * 	at io.scalecube.organization.opearation.AddOrganizationApiKey.process(AddOrganizationApiKey.java:14) ~[classes/:?]
-   * 	at io.scalecube.organization.opearation.ServiceOperation.execute(ServiceOperation.java:49) ~[classes/:?]
-   * </pre>
-   */
   @TestTemplate
-  @Disabled // todo need to implement this behavior
   @DisplayName(
       "#MPA-7603 (#41) Fail to add the API key (token) for a relevant Organization upon the assigned role is invalid (differs from allowed)")
   void testFailToAddApiKeWithInvalidRole(OrganizationService service) {
@@ -417,7 +404,7 @@ class AddOrganizationApiKeyIntegrationTest {
                     organizationId,
                     invalidRole + "-api-key",
                     Collections.singletonMap("role", invalidRole))))
-        .expectErrorMessage(String.format("role: '%s' is invalid", invalidRole))
+        .expectErrorMessage(String.format("Role '%s' is invalid", invalidRole))
         .verify();
   }
 
