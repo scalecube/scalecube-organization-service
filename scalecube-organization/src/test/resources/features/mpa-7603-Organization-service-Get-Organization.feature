@@ -56,7 +56,7 @@ Feature: Organization service Org management - Get Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And there is no organization "organizationId" was created and stored
     When the user "A" requested to get the non-existent organization "organizationId" info
-    Then user "A" should receive the error message with non-existent: "organizationId"
+    Then user "A" should receive the error message: "Organization [id="organizationId"] not found"
 
 
   #MPA-7603 (#18)

@@ -1,4 +1,4 @@
-package io.scalecube.organization;
+package io.scalecube.organization.it;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -14,6 +14,7 @@ import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.fixtures.InMemoryOrganizationServiceFixture;
+import io.scalecube.organization.repository.inmem.InMemoryPublicKeyProvider;
 import io.scalecube.security.Profile;
 import io.scalecube.test.fixtures.Fixtures;
 import io.scalecube.test.fixtures.WithFixture;
@@ -46,8 +47,8 @@ class DeleteOrganizationApiKeyIntegrationTest {
   @DisplayName(
       "#MPA-7603 (#43) Successful delete any of accessible API key (token) roles from relevant Organization by Owner")
   void testDeleteApiKeysByOwner(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Token userAToken = MockPublicKeyProvider.token(userA);
+    Profile userA = TestProfiles.USER_A;
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
 
     // create a single organization which will be owned by user "A"
     String organizationId =
@@ -119,10 +120,10 @@ class DeleteOrganizationApiKeyIntegrationTest {
   @DisplayName(
       "#MPA-7603 (#44) Successful delete the API keys (token) only with admin and member roles from relevant Organization by Admin")
   void testDeleteApiKeysByAdmin(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Token userAToken = MockPublicKeyProvider.token(userA);
-    Profile userB = TestProfiles.USER_2;
-    Token userBToken = MockPublicKeyProvider.token(userB);
+    Profile userA = TestProfiles.USER_A;
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
+    Profile userB = TestProfiles.USER_B;
+    Token userBToken = InMemoryPublicKeyProvider.token(userB);
 
     // create a single organization which will be owned by user "A"
     String organizationId =
@@ -201,10 +202,10 @@ class DeleteOrganizationApiKeyIntegrationTest {
   @DisplayName(
       "#MPA-7603 (#46) Fail to delete any of accessible API key (token) roles from relevant Organization by the Member with similar role")
   void testFailToDeleteMemberApiKeysByMemberRole(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Token userAToken = MockPublicKeyProvider.token(userA);
-    Profile userB = TestProfiles.USER_2;
-    Token userBToken = MockPublicKeyProvider.token(userB);
+    Profile userA = TestProfiles.USER_A;
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
+    Profile userB = TestProfiles.USER_B;
+    Token userBToken = InMemoryPublicKeyProvider.token(userB);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
 
     // create a single organization which will be owned by user "A"
@@ -251,8 +252,8 @@ class DeleteOrganizationApiKeyIntegrationTest {
   @DisplayName(
       "#MPA-7603 (#47) Fail to delete non-existent (invalid) API key (token) from specific Organization")
   void testFailToDeleteNonExistingApiKey(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Token userAToken = MockPublicKeyProvider.token(userA);
+    Profile userA = TestProfiles.USER_A;
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
 
     // create a single organization which will be owned by user "A"
@@ -296,8 +297,8 @@ class DeleteOrganizationApiKeyIntegrationTest {
       "#MPA-7603 (#48) Fail to delete the API key (token) from relevant Organization if the token is invalid (expired)")
   void testFailToDeleteApiKeyWithExpiredToken(OrganizationService service) {
     Token expiredToken =
-        MockPublicKeyProvider.token(
-            TestProfiles.USER_1, op -> op.setExpiration(Date.from(Instant.ofEpochMilli(0))));
+        InMemoryPublicKeyProvider.token(
+            TestProfiles.USER_A, op -> op.setExpiration(Date.from(Instant.ofEpochMilli(0))));
 
     // the user "A" requests to get info with expired token
     StepVerifier.create(

@@ -7,9 +7,10 @@ import io.scalecube.organization.repository.inmem.InMemoryOrganizationMembersRep
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
 import io.scalecube.organization.repository.inmem.InMemoryPublicKeyProvider;
 import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
+import io.scalecube.organization.token.store.PropertiesFileKeyStore;
 import io.scalecube.tokens.TokenVerifier;
 import io.scalecube.tokens.TokenVerifierImpl;
-import java.security.NoSuchAlgorithmException;
+import io.scalecube.tokens.store.KeyStore;
 import java.time.Duration;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,15 +28,15 @@ abstract class BaseTest {
   }
 
   @BeforeEach
-  void beforeEach() throws NoSuchAlgorithmException {
+  void beforeEach() {
     OrganizationsDataAccessImpl dataAccess =
         new OrganizationsDataAccessImpl(
             new InMemoryOrganizationRepository(),
             new InMemoryUserOrganizationMembershipRepository(),
             new InMemoryOrganizationMembersRepositoryAdmin());
-
     TokenVerifier tokenVerifier = new TokenVerifierImpl(new InMemoryPublicKeyProvider());
+    KeyStore keyStore = new PropertiesFileKeyStore();
 
-    organizationService = new OrganizationServiceImpl(dataAccess, tokenVerifier);
+    organizationService = new OrganizationServiceImpl(dataAccess, keyStore, tokenVerifier);
   }
 }

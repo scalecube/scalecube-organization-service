@@ -1,4 +1,4 @@
-package io.scalecube.organization;
+package io.scalecube.organization.it;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -12,7 +12,9 @@ import io.scalecube.account.api.OrganizationInfo;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
+import io.scalecube.organization.Organization;
 import io.scalecube.organization.fixtures.InMemoryOrganizationServiceFixture;
+import io.scalecube.organization.repository.inmem.InMemoryPublicKeyProvider;
 import io.scalecube.security.Profile;
 import io.scalecube.test.fixtures.Fixtures;
 import io.scalecube.test.fixtures.WithFixture;
@@ -46,8 +48,8 @@ class AddOrganizationApiKeyIntegrationTest {
   @DisplayName(
       "#MPA-7603 (#35) Successful adding the API keys (token) for relevant Organization with all accessible roles by Owner")
   void testAddAllApiKeysForEachAccessibleRoleOfTheOwner(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Token userAToken = MockPublicKeyProvider.token(userA);
+    Profile userA = TestProfiles.USER_A;
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
 
     // create a single organization which will be owned by user "A"
     String organizationId =
@@ -130,10 +132,10 @@ class AddOrganizationApiKeyIntegrationTest {
   @DisplayName(
       "#MPA-7603 (#36) Successful adding the API keys (token) with admin and member roles for relevant Organization by Admin")
   void testAddAllApiKeysForEachAccessibleRoleOfTheAdmin(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Profile userB = TestProfiles.USER_2;
-    Token userAToken = MockPublicKeyProvider.token(userA);
-    Token userBToken = MockPublicKeyProvider.token(userB);
+    Profile userA = TestProfiles.USER_A;
+    Profile userB = TestProfiles.USER_B;
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
+    Token userBToken = InMemoryPublicKeyProvider.token(userB);
 
     // create a single organization which will be owned by user "A"
     String organizationId =
@@ -224,10 +226,10 @@ class AddOrganizationApiKeyIntegrationTest {
   @DisplayName(
       "#MPA-7603 (#37) Fail to add the owner API key (token) for a relevant Organization by the Admin")
   void testFailToAddOwnerApiKeyByAdmin(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Profile userB = TestProfiles.USER_2;
-    Token userAToken = MockPublicKeyProvider.token(userA);
-    Token userBToken = MockPublicKeyProvider.token(userB);
+    Profile userA = TestProfiles.USER_A;
+    Profile userB = TestProfiles.USER_B;
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
+    Token userBToken = InMemoryPublicKeyProvider.token(userB);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
 
     // create a single organization which will be owned by user "A"
@@ -264,10 +266,10 @@ class AddOrganizationApiKeyIntegrationTest {
   @DisplayName(
       "#MPA-7603 (#38) Fail to add some of accessible API keys (token) for a relevant Organization upon the relevant member doesn't manager's permission level")
   void testFailToAddMemberApiKeyByMember(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Profile userB = TestProfiles.USER_2;
-    Token userAToken = MockPublicKeyProvider.token(userA);
-    Token userBToken = MockPublicKeyProvider.token(userB);
+    Profile userA = TestProfiles.USER_A;
+    Profile userB = TestProfiles.USER_B;
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
+    Token userBToken = InMemoryPublicKeyProvider.token(userB);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
 
     // create a single organization which will be owned by user "A"
@@ -304,8 +306,8 @@ class AddOrganizationApiKeyIntegrationTest {
   @DisplayName(
       "#MPA-7603 (#39) Fail to add some of accessible API keys (token) with the duplicate name for a relevant Organization")
   void testFailToAddApiKeyWithDuplicatedName(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Token userAToken = MockPublicKeyProvider.token(userA);
+    Profile userA = TestProfiles.USER_A;
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
     String specifiedApiKeyName = RandomStringUtils.randomAlphabetic(10);
 
     // create a single organization which will be owned by user "A"
@@ -344,9 +346,9 @@ class AddOrganizationApiKeyIntegrationTest {
   @DisplayName(
       "#MPA-7603 (#40) Fail to add some of accessible API keys (token) for relevant Organization upon the owner was removed from own Organization")
   void testFailToAddApiKeyAfterOwnerWasRemoved(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Profile userB = TestProfiles.USER_2;
-    Token userAToken = MockPublicKeyProvider.token(userA);
+    Profile userA = TestProfiles.USER_A;
+    Profile userB = TestProfiles.USER_B;
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
 
     // create a single organization which will be owned by user "A"
@@ -401,8 +403,8 @@ class AddOrganizationApiKeyIntegrationTest {
   @DisplayName(
       "#MPA-7603 (#41) Fail to add the API key (token) for a relevant Organization upon the assigned role is invalid (differs from allowed)")
   void testFailToAddApiKeWithInvalidRole(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Token userAToken = MockPublicKeyProvider.token(userA);
+    Profile userA = TestProfiles.USER_A;
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
     String invalidRole = "boss";
 
