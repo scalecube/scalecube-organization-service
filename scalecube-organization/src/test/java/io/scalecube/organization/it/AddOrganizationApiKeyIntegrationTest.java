@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.Random;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -127,7 +126,6 @@ class AddOrganizationApiKeyIntegrationTest {
   }
 
   @TestTemplate
-  @Disabled // todo need to implement this behavior
   @DisplayName(
       "#MPA-7603 (#36) Successful adding the API keys (token) with admin and member roles for relevant Organization by Admin")
   void testAddAllApiKeysForEachAccessibleRoleOfTheAdmin(OrganizationService service) {
@@ -159,7 +157,7 @@ class AddOrganizationApiKeyIntegrationTest {
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Owner.name()))
+                userAToken, organizationId, userB.getUserId(), Role.Admin.name()))
         .block(TIMEOUT);
 
     // user "B" creates API keys for the organization with roles: "admin" and "member"

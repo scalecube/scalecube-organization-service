@@ -26,7 +26,6 @@ import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -101,7 +100,6 @@ class GetOrganizationIntegrationTest {
   }
 
   @TestTemplate
-  @Disabled // todo need to implement this behavior
   @DisplayName("#MPA-7603 (#14) Successful info get about relevant Organization by the Admin")
   void testGetOrganizationInfoByAdmin(OrganizationService service) {
     Profile userA = TestProfiles.USER_A;
@@ -159,7 +157,6 @@ class GetOrganizationIntegrationTest {
   }
 
   @TestTemplate
-  @Disabled // todo need to implement this behavior
   @DisplayName("#MPA-7603 (#15) Successful info get about relevant Organization by the Member")
   void testGetOrganizationInfoByMember(OrganizationService service) {
     Profile userA = TestProfiles.USER_A;

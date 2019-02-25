@@ -163,21 +163,15 @@ class DeleteOrganizationApiKeyIntegrationTest {
         .assertNext(
             response -> {
               assertEquals(organizationId, response.id());
-              assertEquals(2, response.apiKeys().length);
+              assertEquals(1, response.apiKeys().length);
               assertTrue(
                   Arrays.stream(response.apiKeys())
                       .anyMatch(apiKey -> Role.Member.name().equals(apiKey.claims().get("role"))));
-              assertTrue(
-                  Arrays.stream(response.apiKeys())
-                      .anyMatch(apiKey -> Role.Owner.name().equals(apiKey.claims().get("role"))));
             })
         .assertNext(
             response -> {
               assertEquals(organizationId, response.id());
-              assertEquals(1, response.apiKeys().length);
-              assertTrue(
-                  Arrays.stream(response.apiKeys())
-                      .anyMatch(apiKey -> Role.Owner.name().equals(apiKey.claims().get("role"))));
+              assertEquals(0, response.apiKeys().length);
             })
         .expectComplete()
         .verify();

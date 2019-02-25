@@ -27,7 +27,6 @@ import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -99,7 +98,6 @@ class UpdateOrganizationIntegrationTest {
   }
 
   @TestTemplate
-  @Disabled // todo need to implement this behavior
   @DisplayName("#MPA-7603 (#20) Successful update of the relevant Organization by the Admin")
   void testUpdateOrganizationByAdmin(OrganizationService service) {
     Profile userA = TestProfiles.USER_A;
@@ -157,6 +155,7 @@ class UpdateOrganizationIntegrationTest {
               assertEquals(newOrganizationName, organization.name());
               assertEquals(newEmail, organization.email());
               // user "B" should get only stored "admin" and "member" API keys
+              assertEquals(2, organization.apiKeys().length);
               assertEquals(apiKeys, new HashSet<>(Arrays.asList(organization.apiKeys())));
             })
         .expectComplete()

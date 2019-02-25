@@ -14,4 +14,8 @@ public enum Role {
   public boolean isHigherThan(Role target) {
     return rank > target.rank;
   }
+
+  public boolean isEqualsOrHigherThan(Role target) {
+    return rank >= target.rank;
+  }
 }
