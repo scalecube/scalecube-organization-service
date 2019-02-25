@@ -20,10 +20,8 @@ import io.scalecube.security.Profile;
 import io.scalecube.test.fixtures.Fixtures;
 import io.scalecube.test.fixtures.WithFixture;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -279,9 +277,7 @@ class GetOrganizationIntegrationTest {
   @TestTemplate
   @DisplayName("#MPA-7603 (#18) Fail to get the Organization info if the token is invalid")
   void testFailToGetOrganizationInfoWithInvalidToken(OrganizationService service) {
-    Token expiredToken =
-        InMemoryPublicKeyProvider.token(
-            TestProfiles.USER_A, op -> op.setExpiration(Date.from(Instant.ofEpochMilli(0))));
+    Token expiredToken = InMemoryPublicKeyProvider.expiredToken(TestProfiles.USER_A);
 
     // the user "A" requests to get info with invalid token
     StepVerifier.create(

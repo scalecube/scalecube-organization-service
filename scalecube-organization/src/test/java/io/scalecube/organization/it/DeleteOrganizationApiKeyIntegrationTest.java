@@ -19,10 +19,8 @@ import io.scalecube.security.Profile;
 import io.scalecube.test.fixtures.Fixtures;
 import io.scalecube.test.fixtures.WithFixture;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -296,9 +294,7 @@ class DeleteOrganizationApiKeyIntegrationTest {
   @DisplayName(
       "#MPA-7603 (#48) Fail to delete the API key (token) from relevant Organization if the token is invalid (expired)")
   void testFailToDeleteApiKeyWithExpiredToken(OrganizationService service) {
-    Token expiredToken =
-        InMemoryPublicKeyProvider.token(
-            TestProfiles.USER_A, op -> op.setExpiration(Date.from(Instant.ofEpochMilli(0))));
+    Token expiredToken = InMemoryPublicKeyProvider.expiredToken(TestProfiles.USER_A);
 
     // the user "A" requests to get info with expired token
     StepVerifier.create(

@@ -16,11 +16,8 @@ import io.scalecube.security.Profile;
 import io.scalecube.test.fixtures.Fixtures;
 import io.scalecube.test.fixtures.WithFixture;
 import java.time.Duration;
-import java.time.Instant;
-import java.util.Date;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -169,7 +166,9 @@ class LeaveOrganizationIntegrationTest {
         service
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), TestProfiles.USER_A.getEmail(), userAToken))
+                    RandomStringUtils.randomAlphabetic(10),
+                    TestProfiles.USER_A.getEmail(),
+                    userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -204,9 +203,7 @@ class LeaveOrganizationIntegrationTest {
   @TestTemplate
   @DisplayName("#MPA-7603 (#34) Fail to leave the Organization if the token is invalid (expired)")
   void testFailToLeaveOrganizationWithExpiredToken(OrganizationService service) {
-    Token expiredToken =
-        InMemoryPublicKeyProvider.token(
-            TestProfiles.USER_A, op -> op.setExpiration(Date.from(Instant.ofEpochMilli(0))));
+    Token expiredToken = InMemoryPublicKeyProvider.expiredToken(TestProfiles.USER_A);
 
     // the user "A" requests to get info with expired token
     StepVerifier.create(
