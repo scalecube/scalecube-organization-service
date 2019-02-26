@@ -27,9 +27,7 @@ import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.test.StepVerifier;
 
-/**
- * @see features/mpa-7657-Delete-organization.feature
- */
+/** @see features/mpa-7657-Delete-organization.feature */
 @ExtendWith(Fixtures.class)
 @WithFixture(value = InMemoryOrganizationServiceFixture.class)
 public class DeleteOrganizationIntegrationTest {
@@ -57,9 +55,7 @@ public class DeleteOrganizationIntegrationTest {
             .block(TIMEOUT);
 
     StepVerifier.create(
-        service.deleteOrganization(
-            new DeleteOrganizationRequest(userAToken, organizationId))
-    )
+            service.deleteOrganization(new DeleteOrganizationRequest(userAToken, organizationId)))
         .assertNext(
             organization -> {
               assertTrue(organization.deleted());
@@ -71,7 +67,8 @@ public class DeleteOrganizationIntegrationTest {
   }
 
   @TestTemplate
-  @DisplayName("#MPA-7657 (#7) Scenario: Successful delete of the Organization upon it's \"member\" was granted with owner role")
+  @DisplayName(
+      "#MPA-7657 (#7) Scenario: Successful delete of the Organization upon it's \"member\" was granted with owner role")
   void testOrganizationDeletionWithGrantedMember(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Profile userB = TestProfiles.USER_2;
@@ -83,27 +80,29 @@ public class DeleteOrganizationIntegrationTest {
 
     // create organization "A" user owned
     String organizationId =
-        service.createOrganization(
-            new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+        service
+            .createOrganization(
+                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
     // "A" user invites "B" user to his organization with an "member" role
-    service.inviteMember(
-        new InviteOrganizationMemberRequest(
-            userAToken, organizationId, userB.getUserId(), Role.Member.name()))
+    service
+        .inviteMember(
+            new InviteOrganizationMemberRequest(
+                userAToken, organizationId, userB.getUserId(), Role.Member.name()))
         .block(TIMEOUT);
 
     // "A" user updates the "B" user to "owner" in his organization
-    service.updateOrganizationMemberRole(
-        new UpdateOrganizationMemberRoleRequest(
-            userAToken, organizationId, userB.getUserId(), Role.Owner.name()))
+    service
+        .updateOrganizationMemberRole(
+            new UpdateOrganizationMemberRoleRequest(
+                userAToken, organizationId, userB.getUserId(), Role.Owner.name()))
         .block(TIMEOUT);
 
     // "B" user deletes "A" user created organization
     StepVerifier.create(
-        service.deleteOrganization(
-            new DeleteOrganizationRequest(userBToken, organizationId)))
+            service.deleteOrganization(new DeleteOrganizationRequest(userBToken, organizationId)))
         .assertNext(
             organization -> {
               assertTrue(organization.deleted());
@@ -115,7 +114,8 @@ public class DeleteOrganizationIntegrationTest {
   }
 
   @TestTemplate
-  @DisplayName("#MPA-7657 (#8) Scenario: Fail to delete a specific Organization upon the origin owner was removed from own Organization")
+  @DisplayName(
+      "#MPA-7657 (#8) Scenario: Fail to delete a specific Organization upon the origin owner was removed from own Organization")
   void testFailOrganizationDeletionWithRemovedFromOwnOrganizationUser(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Profile userB = TestProfiles.USER_2;
@@ -125,8 +125,9 @@ public class DeleteOrganizationIntegrationTest {
 
     // create organization "A" user owned
     String organizationId =
-        service.createOrganization(
-            new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+        service
+            .createOrganization(
+                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -144,8 +145,7 @@ public class DeleteOrganizationIntegrationTest {
 
     // "A" user deletes organization
     StepVerifier.create(
-        service.deleteOrganization(
-            new DeleteOrganizationRequest(userAToken, organizationId)))
+            service.deleteOrganization(new DeleteOrganizationRequest(userAToken, organizationId)))
         .expectErrorMessage(
             String.format(
                 "user: '%s', name: '%s', is not in role Owner of organization: '%s'",
@@ -154,7 +154,8 @@ public class DeleteOrganizationIntegrationTest {
   }
 
   @TestTemplate
-  @DisplayName("#MPA-7657 (#9) Scenario: Fail to delete the Organization upon it's \"member\" was granted with admin role permission level")
+  @DisplayName(
+      "#MPA-7657 (#9) Scenario: Fail to delete the Organization upon it's \"member\" was granted with admin role permission level")
   void testFailOrganizationDeletionWithGrantedAdminRoleMember(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Profile userB = TestProfiles.USER_2;
@@ -166,27 +167,29 @@ public class DeleteOrganizationIntegrationTest {
 
     // create organization "A" user owned
     String organizationId =
-        service.createOrganization(
-            new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+        service
+            .createOrganization(
+                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
     // "A" user invites "B" user to his organization with an "member" role
-    service.inviteMember(
-        new InviteOrganizationMemberRequest(
-            userAToken, organizationId, userB.getUserId(), Role.Member.name()))
+    service
+        .inviteMember(
+            new InviteOrganizationMemberRequest(
+                userAToken, organizationId, userB.getUserId(), Role.Member.name()))
         .block(TIMEOUT);
 
     // "A" user updates the "B" user to "owner" in his organization
-    service.updateOrganizationMemberRole(
-        new UpdateOrganizationMemberRoleRequest(
-            userAToken, organizationId, userB.getUserId(), Role.Admin.name()))
+    service
+        .updateOrganizationMemberRole(
+            new UpdateOrganizationMemberRoleRequest(
+                userAToken, organizationId, userB.getUserId(), Role.Admin.name()))
         .block(TIMEOUT);
 
     // "B" user deletes organization
     StepVerifier.create(
-        service.deleteOrganization(
-            new DeleteOrganizationRequest(userBToken, organizationId)))
+            service.deleteOrganization(new DeleteOrganizationRequest(userBToken, organizationId)))
         .expectErrorMessage(
             String.format(
                 "user: '%s', name: '%s', is not in role Owner of organization: '%s'",
@@ -195,7 +198,8 @@ public class DeleteOrganizationIntegrationTest {
   }
 
   @TestTemplate
-  @DisplayName("#MPA-7657 (#10) Scenario: Fail to delete the Organization upon the relevant member got the \"member\" role permission level")
+  @DisplayName(
+      "#MPA-7657 (#10) Scenario: Fail to delete the Organization upon the relevant member got the \"member\" role permission level")
   void testFailOrganizationDeletionWithGrantedMemberRoleMember(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
     Profile userB = TestProfiles.USER_2;
@@ -207,27 +211,29 @@ public class DeleteOrganizationIntegrationTest {
 
     // create organization "A" user owned
     String organizationId =
-        service.createOrganization(
-            new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+        service
+            .createOrganization(
+                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
     // "A" user invites "B" user to his organization with an "member" role
-    service.inviteMember(
-        new InviteOrganizationMemberRequest(
-            userAToken, organizationId, userB.getUserId(), Role.Member.name()))
+    service
+        .inviteMember(
+            new InviteOrganizationMemberRequest(
+                userAToken, organizationId, userB.getUserId(), Role.Member.name()))
         .block(TIMEOUT);
 
     // "A" user updates the "B" user to "owner" in his organization
-    service.updateOrganizationMemberRole(
-        new UpdateOrganizationMemberRoleRequest(
-            userAToken, organizationId, userB.getUserId(), Role.Member.name()))
+    service
+        .updateOrganizationMemberRole(
+            new UpdateOrganizationMemberRoleRequest(
+                userAToken, organizationId, userB.getUserId(), Role.Member.name()))
         .block(TIMEOUT);
 
     // "B" user deletes organization
     StepVerifier.create(
-        service.deleteOrganization(
-            new DeleteOrganizationRequest(userBToken, organizationId)))
+            service.deleteOrganization(new DeleteOrganizationRequest(userBToken, organizationId)))
         .expectErrorMessage(
             String.format(
                 "user: '%s', name: '%s', is not in role Owner of organization: '%s'",
@@ -236,7 +242,8 @@ public class DeleteOrganizationIntegrationTest {
   }
 
   @TestTemplate
-  @DisplayName("#MPA-7657 (#11) Scenario: Fail to delete the Organization if the token is invalid (expired)")
+  @DisplayName(
+      "#MPA-7657 (#11) Scenario: Fail to delete the Organization if the token is invalid (expired)")
   void testFailOrganizationDeletionWithExpiredToken(OrganizationService service) {
     Profile userA = TestProfiles.USER_1;
 
@@ -252,11 +259,13 @@ public class DeleteOrganizationIntegrationTest {
 
     // create organization with invalid token
     StepVerifier.create(
-        service.deleteOrganization(
-            new DeleteOrganizationRequest(new Token("invalid"), organizationId))
-    ).expectErrorMatches(ex -> ex instanceof InvalidTokenException &&
-        ex.getMessage().equals("Token verification failed")
-    ).verify();
+            service.deleteOrganization(
+                new DeleteOrganizationRequest(new Token("invalid"), organizationId)))
+        .expectErrorMatches(
+            ex ->
+                ex instanceof InvalidTokenException
+                    && ex.getMessage().equals("Token verification failed"))
+        .verify();
   }
 
   @TestTemplate
@@ -276,10 +285,12 @@ public class DeleteOrganizationIntegrationTest {
 
     // create organization with invalid token
     StepVerifier.create(
-        service.deleteOrganization(
-            new DeleteOrganizationRequest(userAToken, organizationNameNotExisting))
-    ).expectErrorMatches(ex -> ex instanceof EntityNotFoundException &&
-        ex.getMessage().equals(organizationNameNotExisting)
-    ).verify();
+            service.deleteOrganization(
+                new DeleteOrganizationRequest(userAToken, organizationNameNotExisting)))
+        .expectErrorMatches(
+            ex ->
+                ex instanceof EntityNotFoundException
+                    && ex.getMessage().equals(organizationNameNotExisting))
+        .verify();
   }
 }
