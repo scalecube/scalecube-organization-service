@@ -1,6 +1,6 @@
 package io.scalecube.organization.repository;
 
-import io.scalecube.organization.Organization;
+import io.scalecube.organization.operation.Organization;
 
 /**
  * An abstraction to administrative operations on the Organization members repository. Whenever an

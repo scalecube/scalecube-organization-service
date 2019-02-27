@@ -2,7 +2,7 @@ package io.scalecube.organization.repository;
 
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.Role;
-import io.scalecube.organization.Organization;
+import io.scalecube.organization.operation.Organization;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.DuplicateKeyException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
