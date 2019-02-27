@@ -1,30 +1,29 @@
-package io.scalecube.organization;
+package io.scalecube.organization.repository.inmem;
 
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.scalecube.account.api.OrganizationServiceException;
 import io.scalecube.account.api.Token;
 import io.scalecube.security.Profile;
 import io.scalecube.tokens.InvalidTokenException;
 import io.scalecube.tokens.PublicKeyProvider;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.util.Date;
 import java.util.function.Consumer;
-import reactor.core.Exceptions;
 
-public class MockPublicKeyProvider implements PublicKeyProvider {
+public class InMemoryPublicKeyProvider implements PublicKeyProvider {
 
-  private static final KeyPairGenerator KPG;
   private static final KeyPair KEY_PAIR;
 
   static {
     try {
-      KPG = KeyPairGenerator.getInstance("RSA");
-      KPG.initialize(2048);
-      KEY_PAIR = KPG.generateKeyPair();
-    } catch (Exception e) {
-      throw Exceptions.propagate(e);
+      KEY_PAIR = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+    } catch (NoSuchAlgorithmException e) {
+      throw new OrganizationServiceException("Error during initialing KeyPairGenerator", e);
     }
   }
 
@@ -58,5 +57,9 @@ public class MockPublicKeyProvider implements PublicKeyProvider {
     consumer.accept(builder);
     String token = builder.signWith(SignatureAlgorithm.RS256, KEY_PAIR.getPrivate()).compact();
     return new Token(token);
+  }
+
+  public static Token expiredToken(Profile profile) {
+    return token(profile, options -> options.setExpiration(new Date()));
   }
 }

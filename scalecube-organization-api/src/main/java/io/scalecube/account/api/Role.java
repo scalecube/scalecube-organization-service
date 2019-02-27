@@ -1,17 +1,17 @@
 package io.scalecube.account.api;
 
 public enum Role {
-  Owner("owner"),
-  Admin("admin"),
-  Member("member");
+  Owner(300),
+  Admin(200),
+  Member(100);
 
-  private final String role;
+  private final int rank;
 
-  Role(String role) {
-    this.role = role;
+  Role(int rank) {
+    this.rank = rank;
   }
 
-  String value() {
-    return role;
+  public boolean isHigherThan(Role target) {
+    return rank > target.rank;
   }
 }

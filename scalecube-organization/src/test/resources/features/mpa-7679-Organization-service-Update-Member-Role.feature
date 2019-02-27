@@ -201,7 +201,7 @@ Feature: Organization service members management - Update member role
     And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with a "member" role
     And the user "C" who have got the "userId" issued by relevant authority was invited to user's "A" organization with a "admin" role
     When the user "C" requested to update himself and the user "B" to role "owner" in the user's "A" organization
-    Then user "C" for both requests should get an error message: ""user: 'userId "C"', name: 'null', not in role Owner of organization: 'org "A" name'"
+    Then user "C" for both requests should get an error message: ""user: 'userId "C"', name: 'null', role: 'Admin' cannot promote to a higher role: 'Owner'"
 
 
 

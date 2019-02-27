@@ -1,4 +1,4 @@
-package io.scalecube.organization;
+package io.scalecube.organization.it;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -14,7 +14,7 @@ import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
 import io.scalecube.organization.fixtures.InMemoryOrganizationServiceFixture;
-import io.scalecube.organization.repository.exception.EntityNotFoundException;
+import io.scalecube.organization.repository.inmem.InMemoryPublicKeyProvider;
 import io.scalecube.security.Profile;
 import io.scalecube.test.fixtures.Fixtures;
 import io.scalecube.test.fixtures.WithFixture;
@@ -30,7 +30,7 @@ import reactor.test.StepVerifier;
 /** @see features/mpa-7657-Delete-organization.feature */
 @ExtendWith(Fixtures.class)
 @WithFixture(value = InMemoryOrganizationServiceFixture.class)
-public class DeleteOrganizationIntegrationTest {
+class DeleteOrganizationIntegrationTest {
 
   private static final Duration TIMEOUT = Duration.ofSeconds(5);
 
@@ -42,9 +42,9 @@ public class DeleteOrganizationIntegrationTest {
   @TestTemplate
   @DisplayName("#MPA-7657 (#6) Scenario: Successful delete of specific Organization")
   void testOrganizationDeletion(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
+    Profile userA = TestProfiles.USER_A;
 
-    Token userAToken = MockPublicKeyProvider.token(userA);
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
 
     String organizationId =
@@ -70,11 +70,11 @@ public class DeleteOrganizationIntegrationTest {
   @DisplayName(
       "#MPA-7657 (#7) Scenario: Successful delete of the Organization upon it's \"member\" was granted with owner role")
   void testOrganizationDeletionWithGrantedMember(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Profile userB = TestProfiles.USER_2;
+    Profile userA = TestProfiles.USER_A;
+    Profile userB = TestProfiles.USER_B;
 
-    Token userAToken = MockPublicKeyProvider.token(userA);
-    Token userBToken = MockPublicKeyProvider.token(userB);
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
+    Token userBToken = InMemoryPublicKeyProvider.token(userB);
 
     String organizationName = RandomStringUtils.randomAlphabetic(10);
 
@@ -117,9 +117,9 @@ public class DeleteOrganizationIntegrationTest {
   @DisplayName(
       "#MPA-7657 (#8) Scenario: Fail to delete a specific Organization upon the origin owner was removed from own Organization")
   void testFailOrganizationDeletionWithRemovedFromOwnOrganizationUser(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Profile userB = TestProfiles.USER_2;
-    Token userAToken = MockPublicKeyProvider.token(userA);
+    Profile userA = TestProfiles.USER_A;
+    Profile userB = TestProfiles.USER_B;
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
 
     String organizationName = RandomStringUtils.randomAlphabetic(10);
 
@@ -157,11 +157,11 @@ public class DeleteOrganizationIntegrationTest {
   @DisplayName(
       "#MPA-7657 (#9) Scenario: Fail to delete the Organization upon it's \"member\" was granted with admin role permission level")
   void testFailOrganizationDeletionWithGrantedAdminRoleMember(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Profile userB = TestProfiles.USER_2;
+    Profile userA = TestProfiles.USER_A;
+    Profile userB = TestProfiles.USER_B;
 
-    Token userAToken = MockPublicKeyProvider.token(userA);
-    Token userBToken = MockPublicKeyProvider.token(userB);
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
+    Token userBToken = InMemoryPublicKeyProvider.token(userB);
 
     String organizationName = RandomStringUtils.randomAlphabetic(10);
 
@@ -201,11 +201,11 @@ public class DeleteOrganizationIntegrationTest {
   @DisplayName(
       "#MPA-7657 (#10) Scenario: Fail to delete the Organization upon the relevant member got the \"member\" role permission level")
   void testFailOrganizationDeletionWithGrantedMemberRoleMember(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Profile userB = TestProfiles.USER_2;
+    Profile userA = TestProfiles.USER_A;
+    Profile userB = TestProfiles.USER_B;
 
-    Token userAToken = MockPublicKeyProvider.token(userA);
-    Token userBToken = MockPublicKeyProvider.token(userB);
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
+    Token userBToken = InMemoryPublicKeyProvider.token(userB);
 
     String organizationName = RandomStringUtils.randomAlphabetic(10);
 
@@ -245,9 +245,9 @@ public class DeleteOrganizationIntegrationTest {
   @DisplayName(
       "#MPA-7657 (#11) Scenario: Fail to delete the Organization if the token is invalid (expired)")
   void testFailOrganizationDeletionWithExpiredToken(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
+    Profile userA = TestProfiles.USER_A;
 
-    Token userAToken = MockPublicKeyProvider.token(userA);
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
 
     String organizationId =
@@ -271,9 +271,9 @@ public class DeleteOrganizationIntegrationTest {
   @TestTemplate
   @DisplayName("#MPA-7657 (#12) Scenario: Fail to delete a non-existent Organization")
   void testFailOrganizationDeletionNonExistingOrganization(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
+    Profile userA = TestProfiles.USER_A;
 
-    Token userAToken = MockPublicKeyProvider.token(userA);
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
     String organizationNameNotExisting = RandomStringUtils.randomAlphabetic(10);
 
@@ -287,10 +287,8 @@ public class DeleteOrganizationIntegrationTest {
     StepVerifier.create(
             service.deleteOrganization(
                 new DeleteOrganizationRequest(userAToken, organizationNameNotExisting)))
-        .expectErrorMatches(
-            ex ->
-                ex instanceof EntityNotFoundException
-                    && ex.getMessage().equals(organizationNameNotExisting))
+        .expectErrorMessage(
+            String.format("Organization [id=%s] not found", organizationNameNotExisting))
         .verify();
   }
 }

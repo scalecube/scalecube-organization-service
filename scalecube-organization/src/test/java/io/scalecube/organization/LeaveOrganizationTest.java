@@ -8,9 +8,9 @@ import io.scalecube.account.api.GetOrganizationMembersRequest;
 import io.scalecube.account.api.InvalidAuthenticationToken;
 import io.scalecube.account.api.LeaveOrganizationRequest;
 import io.scalecube.account.api.OrganizationMember;
+import io.scalecube.account.api.OrganizationNotFoundException;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
-import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
@@ -79,10 +79,10 @@ class LeaveOrganizationTest extends Base {
   }
 
   @Test
-  void leaveOrganizationOrgNotExistsShouldFailWithEntityNotFoundException() {
+  void leaveOrganizationOrgNotExistsShouldFailWithOrganizationNotFoundException() {
     assertMonoCompletesWithError(
         service.leaveOrganization(new LeaveOrganizationRequest(token, "orgNotExists")),
-        EntityNotFoundException.class);
+        OrganizationNotFoundException.class);
   }
 
   @Test

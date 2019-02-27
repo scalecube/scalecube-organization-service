@@ -23,6 +23,7 @@ public class KickoutMember
     Organization organization = getOrganization(request.organizationId());
     checkSuperUserAccess(organization, context.profile());
     ensureCallerIsInHigherRoleThanKickedOutUser(request, context, organization);
+    checkLastOwner(request.userId(), organization);
     context.repository().kickout(context.profile(), organization, request.userId());
     return new KickoutOrganizationMemberResponse();
   }
@@ -31,17 +32,21 @@ public class KickoutMember
       KickoutOrganizationMemberRequest request,
       OperationServiceContext context,
       Organization organization)
-      throws AccessPermissionException, EntityNotFoundException {
-    boolean isCallerAdmin = isInRole(context.profile().getUserId(), organization, Role.Admin);
+      throws EntityNotFoundException, AccessPermissionException {
 
-    if (isCallerAdmin && isInRole(request.userId(), organization, Role.Owner)) {
+    Role callerRole = getRole(context.profile().getUserId(), organization);
+    Role targetRole = getRole(request.userId(), organization);
+
+    if (targetRole.isHigherThan(callerRole)) {
       throw new AccessPermissionException(
           String.format(
-              "user: '%s', name: '%s', in Admin role cannot kickout "
-                  + "user: '%s' in role Owner of organization: '%s'",
-              context.profile().getName(),
+              "user: '%s', name: '%s', role: '%s' cannot kickout "
+                  + "user: '%s' in role '%s' of organization: '%s'",
               context.profile().getUserId(),
+              context.profile().getName(),
+              callerRole,
               request.userId(),
+              targetRole,
               organization.name()));
     }
   }

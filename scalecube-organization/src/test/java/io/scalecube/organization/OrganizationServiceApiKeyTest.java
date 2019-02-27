@@ -7,11 +7,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.scalecube.account.api.AddOrganizationApiKeyRequest;
 import io.scalecube.account.api.DeleteOrganizationRequest;
 import io.scalecube.account.api.InvalidAuthenticationToken;
+import io.scalecube.account.api.OrganizationNotFoundException;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
-import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.security.Profile;
 import java.util.HashMap;
 import org.junit.jupiter.api.Assertions;
@@ -171,11 +171,11 @@ class OrganizationServiceApiKeyTest extends Base {
   }
 
   @Test
-  void addOrganizationApiKeyOrgNotExistsShouldFailWithEntityNotFoundException() {
+  void addOrganizationApiKeyOrgNotExistsShouldFailWithOrganizationNotFoundException() {
     assertMonoCompletesWithError(
         service.addOrganizationApiKey(
             new AddOrganizationApiKeyRequest(token, "bla", "api_key", new HashMap<>())),
-        EntityNotFoundException.class);
+        OrganizationNotFoundException.class);
   }
 
   @Test

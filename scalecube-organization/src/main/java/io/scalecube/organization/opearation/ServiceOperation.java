@@ -3,7 +3,7 @@ package io.scalecube.organization.opearation;
 import io.scalecube.account.api.GetOrganizationResponse;
 import io.scalecube.account.api.InvalidAuthenticationToken;
 import io.scalecube.account.api.OrganizationInfo;
-import io.scalecube.account.api.OrganizationNotFound;
+import io.scalecube.account.api.OrganizationNotFoundException;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.ServiceOperationException;
 import io.scalecube.account.api.Token;
@@ -71,16 +71,20 @@ public abstract class ServiceOperation<I, O> {
 
   protected abstract O process(I request, OperationServiceContext context) throws Throwable;
 
-  protected Organization getOrganization(String id)
-      throws EntityNotFoundException, OrganizationNotFound {
+  protected Organization getOrganization(String id) throws OrganizationNotFoundException {
     Objects.requireNonNull(repository, "repository");
-    Organization organization = repository.getOrganization(id);
 
-    if (organization == null) {
-      throw new OrganizationNotFound(id);
+    try {
+      Organization organization = repository.getOrganization(id);
+
+      if (organization == null) {
+        throw new OrganizationNotFoundException(id);
+      }
+
+      return organization;
+    } catch (EntityNotFoundException e) {
+      throw new OrganizationNotFoundException(id);
     }
-
-    return organization;
   }
 
   protected GetOrganizationResponse getOrganizationResponse(Organization organization) {
@@ -114,6 +118,13 @@ public abstract class ServiceOperation<I, O> {
   protected boolean isOwner(Organization organization, Profile profile)
       throws EntityNotFoundException, AccessPermissionException {
     return isInRole(profile.getUserId(), organization, Role.Owner);
+  }
+
+  protected boolean isLastOwner(Organization organization, String userId)
+      throws EntityNotFoundException {
+    return repository.getOrganizationMembers(organization).stream()
+        .filter(member -> !member.id().equals(userId))
+        .noneMatch(member -> Role.Owner.name().equals(member.role()));
   }
 
   protected boolean isSuperUser(Organization organization, Profile profile)
@@ -171,6 +182,16 @@ public abstract class ServiceOperation<I, O> {
           String.format(
               "user: '%s', name: '%s', not in role Owner or Admin of organization: '%s'",
               profile.getUserId(), profile.getName(), organization.name()));
+    }
+  }
+
+  protected void checkLastOwner(String userId, Organization organization)
+      throws EntityNotFoundException {
+    if (isLastOwner(organization, userId)) {
+      throw new IllegalStateException(
+          String.format(
+              "At least one Owner should be persisted in the organization: '%s'",
+              organization.id()));
     }
   }
 }

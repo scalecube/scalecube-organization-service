@@ -34,8 +34,7 @@ public class UpdateOrganizationMemberRole
 
   @Override
   protected UpdateOrganizationMemberRoleResponse process(
-      UpdateOrganizationMemberRoleRequest request, OperationServiceContext context)
-      throws Throwable {
+      UpdateOrganizationMemberRoleRequest request, OperationServiceContext context) {
     Organization organization = getOrganization(request.organizationId());
     context
         .repository()
@@ -62,11 +61,12 @@ public class UpdateOrganizationMemberRole
     checkIfRequestToUpdateUserRoleIsValidForCaller(
         toRole(request.role()), context.profile(), callerRole);
     checkIfAdminCallerIsTryingToDowngradeAnOwner(caller, callerRole, organization, request);
+    checkLastOwner(request.userId(), organization);
   }
 
   private void checkIfRequestToUpdateUserRoleIsValidForCaller(
       Role targetRole, Profile profile, Role callerRole) throws AccessPermissionException {
-    if (RoleRank.from(callerRole).isHigherRank(targetRole)) {
+    if (targetRole.isHigherThan(callerRole)) {
       throw new AccessPermissionException(
           String.format(
               "user: '%s', name: '%s', role: '%s'," + " cannot promote to a higher role: '%s'",
@@ -85,7 +85,7 @@ public class UpdateOrganizationMemberRole
       throws AccessPermissionException, EntityNotFoundException {
     Role updateUserCurrentRole = getRole(request.userId(), organization);
 
-    if (RoleRank.from(callerRole).isHigherRank(updateUserCurrentRole)) {
+    if (updateUserCurrentRole.isHigherThan(callerRole)) {
       throw new AccessPermissionException(
           String.format(
               "user: '%s', name: '%s', role: %s,"

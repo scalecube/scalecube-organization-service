@@ -1,4 +1,4 @@
-package io.scalecube.organization;
+package io.scalecube.organization.it;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -11,6 +11,7 @@ import io.scalecube.account.api.Token;
 import io.scalecube.organization.fixtures.InMemoryOrganizationServiceFixture;
 import io.scalecube.organization.repository.exception.InvalidInputException;
 import io.scalecube.organization.repository.exception.NameAlreadyInUseException;
+import io.scalecube.organization.repository.inmem.InMemoryPublicKeyProvider;
 import io.scalecube.security.Profile;
 import io.scalecube.test.fixtures.Fixtures;
 import io.scalecube.test.fixtures.WithFixture;
@@ -26,7 +27,7 @@ import reactor.test.StepVerifier;
 /** @see features/mpa-7657-Create-organization.feature */
 @ExtendWith(Fixtures.class)
 @WithFixture(value = InMemoryOrganizationServiceFixture.class)
-public class CreateOrganizationIntegrationTest {
+class CreateOrganizationIntegrationTest {
 
   private static final Duration TIMEOUT = Duration.ofSeconds(5);
 
@@ -38,9 +39,9 @@ public class CreateOrganizationIntegrationTest {
   @TestTemplate
   @DisplayName("#MPA-7657 (#1) Scenario: Successful creation of the Organization")
   void testOrganizationCreation(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
+    Profile userA = TestProfiles.USER_A;
 
-    Token userAToken = MockPublicKeyProvider.token(userA);
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
 
     StepVerifier.create(
@@ -63,7 +64,7 @@ public class CreateOrganizationIntegrationTest {
   @DisplayName(
       "#MPA-7657 (#2) Scenario: Fail to create the Organization if the token is invalid (expired)")
   void testFailOrganizationCreationWithInvalidToken(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
+    Profile userA = TestProfiles.USER_A;
 
     // create organization with invalid token
     StepVerifier.create(
@@ -81,9 +82,9 @@ public class CreateOrganizationIntegrationTest {
   @DisplayName(
       "#MPA-7657 (#3) Scenario: Fail to create the Organization with the name which already exists (duplicate)")
   void testFailOrganizationCreationWithExistingName(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
+    Profile userA = TestProfiles.USER_A;
 
-    Token userAToken = MockPublicKeyProvider.token(userA);
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
 
     service
@@ -106,9 +107,9 @@ public class CreateOrganizationIntegrationTest {
   @TestTemplate
   @DisplayName("#MPA-7657 (#4) Scenario: Fail to create the Organization without email")
   void testFailOrganizationCreationWithoutEmail(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
+    Profile userA = TestProfiles.USER_A;
 
-    Token userAToken = MockPublicKeyProvider.token(userA);
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
 
     StepVerifier.create(
@@ -125,9 +126,9 @@ public class CreateOrganizationIntegrationTest {
   @DisplayName(
       "#MPA-7657 (#5) Scenario: Fail to create the Organization with the name which contain else symbols apart of allowed chars")
   void testFailOrganizationCreationWithDeniedSymbolsName(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
+    Profile userA = TestProfiles.USER_A;
 
-    Token userAToken = MockPublicKeyProvider.token(userA);
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
     String organizationName = RandomStringUtils.randomAlphabetic(10) + "+";
 
     StepVerifier.create(

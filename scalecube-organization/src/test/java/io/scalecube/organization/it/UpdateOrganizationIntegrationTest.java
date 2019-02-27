@@ -1,4 +1,4 @@
-package io.scalecube.organization;
+package io.scalecube.organization.it;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -9,12 +9,14 @@ import io.scalecube.account.api.CreateOrganizationRequest;
 import io.scalecube.account.api.InviteOrganizationMemberRequest;
 import io.scalecube.account.api.LeaveOrganizationRequest;
 import io.scalecube.account.api.OrganizationInfo;
+import io.scalecube.account.api.OrganizationNotFoundException;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
 import io.scalecube.account.api.UpdateOrganizationRequest;
 import io.scalecube.organization.fixtures.InMemoryOrganizationServiceFixture;
+import io.scalecube.organization.repository.inmem.InMemoryPublicKeyProvider;
 import io.scalecube.security.Profile;
 import io.scalecube.test.fixtures.Fixtures;
 import io.scalecube.test.fixtures.WithFixture;
@@ -47,8 +49,8 @@ class UpdateOrganizationIntegrationTest {
   @TestTemplate
   @DisplayName("#MPA-7603 (#19) Successful update of the relevant Organization by the Owner")
   void testUpdateOrganizationByOwner(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Token userAToken = MockPublicKeyProvider.token(userA);
+    Profile userA = TestProfiles.USER_A;
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
 
     String organizationName = RandomStringUtils.randomAlphabetic(10);
     String newOrganizationName = "new" + organizationName;
@@ -100,10 +102,10 @@ class UpdateOrganizationIntegrationTest {
   @Disabled // todo need to implement this behavior
   @DisplayName("#MPA-7603 (#20) Successful update of the relevant Organization by the Admin")
   void testUpdateOrganizationByAdmin(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Profile userB = TestProfiles.USER_2;
-    Token userAToken = MockPublicKeyProvider.token(userA);
-    Token userBToken = MockPublicKeyProvider.token(userB);
+    Profile userA = TestProfiles.USER_A;
+    Profile userB = TestProfiles.USER_B;
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
+    Token userBToken = InMemoryPublicKeyProvider.token(userB);
 
     String organizationName = RandomStringUtils.randomAlphabetic(10);
     String newOrganizationName = "new" + organizationName;
@@ -165,10 +167,10 @@ class UpdateOrganizationIntegrationTest {
   @DisplayName(
       "#MPA-7603 (#21) Successful update of the Organization upon it's member was granted with Owner role")
   void testUpdateOrganizationByMember(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Profile userB = TestProfiles.USER_2;
-    Token userAToken = MockPublicKeyProvider.token(userA);
-    Token userBToken = MockPublicKeyProvider.token(userB);
+    Profile userA = TestProfiles.USER_A;
+    Profile userB = TestProfiles.USER_B;
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
+    Token userBToken = InMemoryPublicKeyProvider.token(userB);
 
     String organizationName = RandomStringUtils.randomAlphabetic(10);
     String newOrganizationName = "new" + organizationName;
@@ -218,10 +220,10 @@ class UpdateOrganizationIntegrationTest {
   @DisplayName(
       "#MPA-7603 (#22) Fail to update relevant Organization by the Member with similar role")
   void testFailToUpdateOrganizationMemberByMember(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Profile userB = TestProfiles.USER_2;
-    Token userAToken = MockPublicKeyProvider.token(userA);
-    Token userBToken = MockPublicKeyProvider.token(userB);
+    Profile userA = TestProfiles.USER_A;
+    Profile userB = TestProfiles.USER_B;
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
+    Token userBToken = InMemoryPublicKeyProvider.token(userB);
 
     String organizationName = RandomStringUtils.randomAlphabetic(10);
     String newOrganizationName = "new" + organizationName;
@@ -258,9 +260,9 @@ class UpdateOrganizationIntegrationTest {
   @DisplayName(
       "#MPA-7603 (#23) Fail to update relevant Organization upon the Owner was removed from it")
   void testFailToUpdateOrganizationBecauseOwnerWasRemoved(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Profile userB = TestProfiles.USER_2;
-    Token userAToken = MockPublicKeyProvider.token(userA);
+    Profile userA = TestProfiles.USER_A;
+    Profile userB = TestProfiles.USER_B;
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
 
     String organizationName = RandomStringUtils.randomAlphabetic(10);
     String newOrganizationName = "new" + organizationName;
@@ -302,10 +304,10 @@ class UpdateOrganizationIntegrationTest {
   @DisplayName(
       "#MPA-7603 (#24) Fail to update the Organization with the name which already exists (duplicate)")
   void testFailToUpdateOrganizationBecauseNameIsDuplicated(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Profile userB = TestProfiles.USER_2;
-    Token userAToken = MockPublicKeyProvider.token(userA);
-    Token userBToken = MockPublicKeyProvider.token(userB);
+    Profile userA = TestProfiles.USER_A;
+    Profile userB = TestProfiles.USER_B;
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
+    Token userBToken = InMemoryPublicKeyProvider.token(userB);
 
     String userAOrganizationName = RandomStringUtils.randomAlphabetic(10);
     String userBOrganizationName = RandomStringUtils.randomAlphabetic(10);
@@ -338,8 +340,8 @@ class UpdateOrganizationIntegrationTest {
   @TestTemplate
   @DisplayName("#MPA-7603 (#25) Fail to update the non-existent Organization")
   void testFailToUpdateNonExistingOrganization(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Token userAToken = MockPublicKeyProvider.token(userA);
+    Profile userA = TestProfiles.USER_A;
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
     String nonExistingOrganizationId = RandomStringUtils.randomAlphabetic(10);
 
     // user "A" updates the name and email of non-existent organization
@@ -347,7 +349,13 @@ class UpdateOrganizationIntegrationTest {
             service.updateOrganization(
                 new UpdateOrganizationRequest(
                     nonExistingOrganizationId, userAToken, "fictionalName", userA.getEmail())))
-        .expectErrorMessage(nonExistingOrganizationId)
+        .expectErrorSatisfies(
+            e -> {
+              assertEquals(OrganizationNotFoundException.class, e.getClass());
+              assertEquals(
+                  String.format("Organization [id=%s] not found", nonExistingOrganizationId),
+                  e.getMessage());
+            })
         .verify();
   }
 
@@ -355,8 +363,8 @@ class UpdateOrganizationIntegrationTest {
   @DisplayName(
       "#MPA-7603 (#26) Fail to update the Organization with the name which contain else symbols apart of allowed chars")
   void testFailToUpdateOrganizationNameWithNotAllowedSymbols(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Token userAToken = MockPublicKeyProvider.token(userA);
+    Profile userA = TestProfiles.USER_A;
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
 
     String organizationName = RandomStringUtils.randomAlphabetic(10);
     String incorrectName = organizationName + "+";
@@ -382,7 +390,7 @@ class UpdateOrganizationIntegrationTest {
   @TestTemplate
   @DisplayName("#MPA-7603 (#27) Fail to update the Organization if the token is invalid (expired)")
   void testFailToUpdateOrganizationWithInvalidToken(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
+    Profile userA = TestProfiles.USER_A;
 
     // user "A" updates organization with invalid token
     StepVerifier.create(

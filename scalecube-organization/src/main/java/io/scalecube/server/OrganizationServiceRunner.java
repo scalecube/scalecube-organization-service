@@ -9,6 +9,7 @@ import io.scalecube.organization.repository.couchbase.CouchbaseRepositoryFactory
 import io.scalecube.organization.repository.couchbase.CouchbaseSettings;
 import io.scalecube.services.Microservices;
 import io.scalecube.tokens.Auth0PublicKeyProvider;
+import io.scalecube.tokens.TokenVerifier;
 import io.scalecube.tokens.TokenVerifierImpl;
 import io.scalecube.tokens.store.KeyStore;
 import io.scalecube.tokens.store.VaultKeyStore;
@@ -64,15 +65,15 @@ public class OrganizationServiceRunner {
 
     CouchbaseRepositoryFactory factory = new CouchbaseRepositoryFactory(settings);
 
-    OrganizationsDataAccess repository =
-        OrganizationsDataAccessImpl.builder()
-            .organizations(factory.organizations())
-            .members(factory.organizationMembers())
-            .repositoryAdmin(factory.organizationMembersRepositoryAdmin())
-            .build();
+    OrganizationsDataAccess dataAccess =
+        new OrganizationsDataAccessImpl(
+            factory.organizations(),
+            factory.organizationMembers(),
+            factory.organizationMembersRepositoryAdmin());
     KeyStore keyStore = new VaultKeyStore();
-    TokenVerifierImpl tokenVerifier = new TokenVerifierImpl(new Auth0PublicKeyProvider());
-    return new OrganizationServiceImpl(repository, keyStore, tokenVerifier);
+    TokenVerifier tokenVerifier = new TokenVerifierImpl(new Auth0PublicKeyProvider());
+
+    return new OrganizationServiceImpl(dataAccess, keyStore, tokenVerifier);
   }
 
   private static Map<String, String> couchbaseSettingsBindingMap() {

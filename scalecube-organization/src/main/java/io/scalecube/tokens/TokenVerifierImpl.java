@@ -17,7 +17,7 @@ public class TokenVerifierImpl implements TokenVerifier {
   }
 
   @Override
-  public Profile verify(Token token) {
+  public Profile verify(Token token) throws InvalidTokenException {
     try {
       Objects.requireNonNull(token, "token");
       Objects.requireNonNull(token.token(), "token");

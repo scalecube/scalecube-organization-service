@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.scalecube.account.api.GetOrganizationMembersRequest;
 import io.scalecube.account.api.InvalidAuthenticationToken;
 import io.scalecube.account.api.InviteOrganizationMemberRequest;
+import io.scalecube.account.api.OrganizationNotFoundException;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
-import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
@@ -131,12 +131,12 @@ class InviteMemberTest extends Base {
   }
 
   @Test
-  void inviteMemberOrgNotExistsShouldFailWithEntityNotFoundException() {
+  void inviteMemberOrgNotExistsShouldFailWithOrganizationNotFoundException() {
     assertMonoCompletesWithError(
         service.inviteMember(
             new InviteOrganizationMemberRequest(
                 token, "orgNotExists", testProfile5.getUserId(), Role.Member.toString())),
-        EntityNotFoundException.class);
+        OrganizationNotFoundException.class);
   }
 
   @Test

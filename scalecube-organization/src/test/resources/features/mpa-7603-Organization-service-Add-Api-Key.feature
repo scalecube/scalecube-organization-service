@@ -41,7 +41,7 @@ Feature: Organization service API keys management - Add API key
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
     And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with a "admin" role
     When the user "B" requested to add the API key "name" for user's "A" organization with assigned role "owner"
-    Then user "B" should get an error message: "user: 'userId "B"', name: 'null', not in role Owner of organization: 'org "A" name'"
+    Then user "B" should get an error message: "user: 'userId "B"', name: 'null', role: 'Admin' cannot add api key with higher role 'Owner'"
 
 
   #MPA-7603 (#38)
@@ -77,7 +77,7 @@ Feature: Organization service API keys management - Add API key
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
     When the user "A" requested to add the API key "name" for user's "A" organization assigned with invalid "role" like "boss"
-    Then user "A" should receive the error message: "role": 'boss' is invalid"
+    Then user "A" should receive the error message: "Role 'boss' is invalid"
 
 
   #MPA-7603 (#42)

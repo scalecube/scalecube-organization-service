@@ -7,9 +7,9 @@ import static org.hamcrest.core.Is.is;
 import io.scalecube.account.api.GetOrganizationMembersRequest;
 import io.scalecube.account.api.InvalidAuthenticationToken;
 import io.scalecube.account.api.OrganizationMember;
+import io.scalecube.account.api.OrganizationNotFoundException;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
-import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -95,9 +95,9 @@ class OrganizationMembersTest extends Base {
   }
 
   @Test
-  void getOrganizationMembersShouldFailWithEntityNotFoundException() {
+  void getOrganizationMembersShouldFailWithOrganizationNotFoundException() {
     assertMonoCompletesWithError(
         service.getOrganizationMembers(new GetOrganizationMembersRequest("orgNotExists", token)),
-        EntityNotFoundException.class);
+        OrganizationNotFoundException.class);
   }
 }

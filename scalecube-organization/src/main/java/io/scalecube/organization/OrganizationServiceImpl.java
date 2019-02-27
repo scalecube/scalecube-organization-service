@@ -21,6 +21,7 @@ import io.scalecube.account.api.KickoutOrganizationMemberResponse;
 import io.scalecube.account.api.LeaveOrganizationRequest;
 import io.scalecube.account.api.LeaveOrganizationResponse;
 import io.scalecube.account.api.OrganizationService;
+import io.scalecube.account.api.OrganizationServiceException;
 import io.scalecube.account.api.ServiceOperationException;
 import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
 import io.scalecube.account.api.UpdateOrganizationMemberRoleResponse;
@@ -43,9 +44,9 @@ import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.tokens.TokenVerifier;
 import io.scalecube.tokens.store.KeyStore;
 import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
 public class OrganizationServiceImpl implements OrganizationService {
@@ -370,9 +371,10 @@ public class OrganizationServiceImpl implements OrganizationService {
 
       KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(algorithm);
       keyPairGenerator.initialize(keySize);
+
       return keyPairGenerator;
-    } catch (Exception e) {
-      throw Exceptions.propagate(e);
+    } catch (NoSuchAlgorithmException e) {
+      throw new OrganizationServiceException("Error during initialing KeyPairGenerator", e);
     }
   }
 }

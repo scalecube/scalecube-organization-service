@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.emptyArray;
 import io.scalecube.account.api.AddOrganizationApiKeyRequest;
 import io.scalecube.account.api.DeleteOrganizationApiKeyRequest;
 import io.scalecube.account.api.InvalidAuthenticationToken;
+import io.scalecube.account.api.OrganizationNotFoundException;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
@@ -60,11 +61,11 @@ class DeleteOrganizationApiKeyTest extends Base {
   }
 
   @Test
-  void deleteOrganizationApiKeyOrgNotExistsShouldFailWithEntityNotFoundException() {
+  void deleteOrganizationApiKeyOrgNotExistsShouldFailWithOrganizationNotFoundException() {
     assertMonoCompletesWithError(
         service.deleteOrganizationApiKey(
             new DeleteOrganizationApiKeyRequest(token, "bla", "api_key")),
-        EntityNotFoundException.class);
+        OrganizationNotFoundException.class);
   }
 
   @Test

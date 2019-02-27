@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.scalecube.account.api.GetOrganizationRequest;
 import io.scalecube.account.api.InvalidAuthenticationToken;
+import io.scalecube.account.api.OrganizationNotFoundException;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
-import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
@@ -30,10 +30,10 @@ class GetOrganizationTest extends Base {
   }
 
   @Test
-  void getOrganizationShouldFailWithEntityNotFoundException() {
+  void getOrganizationShouldFailWithOrganizationNotFoundException() {
     assertMonoCompletesWithError(
         service.getOrganization(new GetOrganizationRequest(token, "bla")),
-        EntityNotFoundException.class);
+        OrganizationNotFoundException.class);
   }
 
   @Test
@@ -75,11 +75,11 @@ class GetOrganizationTest extends Base {
   }
 
   @Test
-  void getOrganizationWithIdNotExistsShouldFailWithEntityNotFoundException() {
+  void getOrganizationWithIdNotExistsShouldFailWithOrganizationNotFoundException() {
     assertMonoCompletesWithError(
         createService(testProfile)
             .getOrganization(new GetOrganizationRequest(token, "orgIdNotExists")),
-        EntityNotFoundException.class);
+        OrganizationNotFoundException.class);
   }
 
   @Test

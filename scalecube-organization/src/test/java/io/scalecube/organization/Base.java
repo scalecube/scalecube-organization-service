@@ -16,6 +16,7 @@ import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.organization.repository.OrganizationsDataAccessImpl;
 import io.scalecube.organization.repository.Repository;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
+import io.scalecube.organization.repository.inmem.InMemoryOrganizationMembersRepositoryAdmin;
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
 import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
 import io.scalecube.organization.token.store.PropertiesFileKeyStore;
@@ -107,26 +108,9 @@ public class Base {
   protected Base() {
     orgMembersRepository = new InMemoryUserOrganizationMembershipRepository();
     organizationRepository = new InMemoryOrganizationRepository();
-    admin =
-        new OrganizationMembersRepositoryAdmin() {
-          @Override
-          public void createRepository(Organization organization) {
-            // dummy body
-            System.out.print(".");
-          }
-
-          @Override
-          public void deleteRepository(Organization organization) {
-            // dummy body
-            System.out.print("'");
-          }
-        };
+    admin = new InMemoryOrganizationMembersRepositoryAdmin();
     service = createService(testProfile);
     new File("keystore.properties").deleteOnExit();
-    // init with couchbase
-    //    orgMembersRepository = CouchbaseRepositoryFactory.organizationMembers();
-    //    organizationRepository = CouchbaseRepositoryFactory.organizations();
-    //    admin = CouchbaseRepositoryFactory.organizationMembersRepositoryAdmin();
   }
 
   @BeforeAll
@@ -178,15 +162,12 @@ public class Base {
   }
 
   protected OrganizationService createService(Profile profile) {
-    OrganizationsDataAccess repository =
-        OrganizationsDataAccessImpl.builder()
-            .organizations(organizationRepository)
-            .members(orgMembersRepository)
-            .repositoryAdmin(admin)
-            .build();
-    TokenVerifier tokenVerifier = (t) -> Objects.equals(profile, invalidProfile) ? null : profile;
+    OrganizationsDataAccess dataAccess =
+        new OrganizationsDataAccessImpl(organizationRepository, orgMembersRepository, admin);
+    TokenVerifier tokenVerifier = token -> Objects.equals(profile, invalidProfile) ? null : profile;
     KeyStore keyStore = new PropertiesFileKeyStore();
-    return new OrganizationServiceImpl(repository, keyStore, tokenVerifier);
+
+    return new OrganizationServiceImpl(dataAccess, keyStore, tokenVerifier);
   }
 
   protected static <T> void assertMonoCompletesWithError(

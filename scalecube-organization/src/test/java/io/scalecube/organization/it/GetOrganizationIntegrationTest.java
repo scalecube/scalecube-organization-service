@@ -1,4 +1,4 @@
-package io.scalecube.organization;
+package io.scalecube.organization.it;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -10,18 +10,18 @@ import io.scalecube.account.api.GetOrganizationRequest;
 import io.scalecube.account.api.InviteOrganizationMemberRequest;
 import io.scalecube.account.api.LeaveOrganizationRequest;
 import io.scalecube.account.api.OrganizationInfo;
+import io.scalecube.account.api.OrganizationNotFoundException;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.fixtures.InMemoryOrganizationServiceFixture;
+import io.scalecube.organization.repository.inmem.InMemoryPublicKeyProvider;
 import io.scalecube.security.Profile;
 import io.scalecube.test.fixtures.Fixtures;
 import io.scalecube.test.fixtures.WithFixture;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -48,10 +48,10 @@ class GetOrganizationIntegrationTest {
   @TestTemplate
   @DisplayName("#MPA-7603 (#13) Successful info get about relevant Organization by the Owner")
   void testGetOrganizationInfoByOwner(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Profile userB = TestProfiles.USER_2;
-    Token userAToken = MockPublicKeyProvider.token(userA);
-    Token userBToken = MockPublicKeyProvider.token(userB);
+    Profile userA = TestProfiles.USER_A;
+    Profile userB = TestProfiles.USER_B;
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
+    Token userBToken = InMemoryPublicKeyProvider.token(userB);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
 
     // create a single organization which will be owned by user "A"
@@ -104,10 +104,10 @@ class GetOrganizationIntegrationTest {
   @Disabled // todo need to implement this behavior
   @DisplayName("#MPA-7603 (#14) Successful info get about relevant Organization by the Admin")
   void testGetOrganizationInfoByAdmin(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Profile userB = TestProfiles.USER_2;
-    Token userAToken = MockPublicKeyProvider.token(userA);
-    Token userBToken = MockPublicKeyProvider.token(userB);
+    Profile userA = TestProfiles.USER_A;
+    Profile userB = TestProfiles.USER_B;
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
+    Token userBToken = InMemoryPublicKeyProvider.token(userB);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
 
     // create a single organization which will be owned by user "A"
@@ -162,10 +162,10 @@ class GetOrganizationIntegrationTest {
   @Disabled // todo need to implement this behavior
   @DisplayName("#MPA-7603 (#15) Successful info get about relevant Organization by the Member")
   void testGetOrganizationInfoByMember(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Profile userB = TestProfiles.USER_2;
-    Token userAToken = MockPublicKeyProvider.token(userA);
-    Token userBToken = MockPublicKeyProvider.token(userB);
+    Profile userA = TestProfiles.USER_A;
+    Profile userB = TestProfiles.USER_B;
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
+    Token userBToken = InMemoryPublicKeyProvider.token(userB);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
 
     // create a single organization which will be owned by user "A"
@@ -220,9 +220,9 @@ class GetOrganizationIntegrationTest {
   @DisplayName(
       "#MPA-7603 (#16) Fail to get of specific Organization info upon the Owner was removed from relevant Organization")
   void testFailToGetOrganizationInfoBecauseOwnerWasRemoved(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Profile userB = TestProfiles.USER_2;
-    Token userAToken = MockPublicKeyProvider.token(userA);
+    Profile userA = TestProfiles.USER_A;
+    Profile userB = TestProfiles.USER_B;
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
 
     // create a single organization which will be owned by user "A"
@@ -258,23 +258,26 @@ class GetOrganizationIntegrationTest {
   @TestTemplate
   @DisplayName("#MPA-7603 (#17) Fail to get a non-existent Organization info")
   void testFailToGetNonExistingOrganizationInfo(OrganizationService service) {
-    Profile userA = TestProfiles.USER_1;
-    Token userAToken = MockPublicKeyProvider.token(userA);
-    String organizationId = "non-existing organization id";
+    Profile userA = TestProfiles.USER_A;
+    Token userAToken = InMemoryPublicKeyProvider.token(userA);
+    String organizationId = "NON_EXISTING_ID";
 
     // the user "A" requests to get info of non-existing organization
     StepVerifier.create(
             service.getOrganization(new GetOrganizationRequest(userAToken, organizationId)))
-        .expectErrorMessage(organizationId)
+        .expectErrorSatisfies(
+            e -> {
+              assertEquals(OrganizationNotFoundException.class, e.getClass());
+              assertEquals(
+                  String.format("Organization [id=%s] not found", organizationId), e.getMessage());
+            })
         .verify();
   }
 
   @TestTemplate
   @DisplayName("#MPA-7603 (#18) Fail to get the Organization info if the token is invalid")
   void testFailToGetOrganizationInfoWithInvalidToken(OrganizationService service) {
-    Token expiredToken =
-        MockPublicKeyProvider.token(
-            TestProfiles.USER_1, op -> op.setExpiration(Date.from(Instant.ofEpochMilli(0))));
+    Token expiredToken = InMemoryPublicKeyProvider.expiredToken(TestProfiles.USER_A);
 
     // the user "A" requests to get info with invalid token
     StepVerifier.create(
