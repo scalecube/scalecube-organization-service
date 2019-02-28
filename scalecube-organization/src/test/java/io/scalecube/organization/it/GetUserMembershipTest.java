@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,7 +37,6 @@ import reactor.test.StepVerifier;
 @WithFixture(value = InMemoryOrganizationServiceFixture.class)
 class GetUserMembershipTest extends BaseTest {
 
-  @Disabled("Feature (filter ApiKeys by Role) is not yet implemented")
   @TestTemplate
   @DisplayName(
       "#98 Successful get the list of all Organizations (Membership) in each the user became a Member")
@@ -123,14 +121,15 @@ class GetUserMembershipTest extends BaseTest {
                   0, apiKeys.get(organizationA.id()).size(), "api keys count in the response");
 
               assertTrue(
-                  apiKeys.get(organizationB.id()).stream()
+                  apiKeys
+                      .get(organizationB.id())
+                      .stream()
                       .allMatch(apiKey -> Role.Member.name().equals(apiKey.claims().get("role"))),
                   "only 'Member' api keys are in the response");
             })
         .verifyComplete();
   }
 
-  @Disabled("Feature (filter ApiKeys by Role) is not yet implemented")
   @TestTemplate
   @DisplayName(
       "#99 Successful get the list of all Organizations (Membership) in each the user became an Admin")
@@ -212,7 +211,9 @@ class GetUserMembershipTest extends BaseTest {
                               OrganizationInfo::id, info -> Arrays.asList(info.apiKeys())));
 
               assertTrue(
-                  apiKeys.get(organizationA.id()).stream()
+                  apiKeys
+                      .get(organizationA.id())
+                      .stream()
                       .allMatch(
                           apiKey -> {
                             String role = apiKey.claims().get("role");
@@ -221,7 +222,9 @@ class GetUserMembershipTest extends BaseTest {
                   "only 'Admin' api keys are in the response");
 
               assertTrue(
-                  apiKeys.get(organizationB.id()).stream()
+                  apiKeys
+                      .get(organizationB.id())
+                      .stream()
                       .allMatch(
                           apiKey -> {
                             String role = apiKey.claims().get("role");

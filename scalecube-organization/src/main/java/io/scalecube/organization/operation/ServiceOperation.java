@@ -144,8 +144,7 @@ public abstract class ServiceOperation<I, O> {
         || isInRole(profile.getUserId(), organization, Role.Admin);
   }
 
-  protected Role getRole(String userId, Organization organization)
-      throws AccessPermissionException, EntityNotFoundException {
+  protected Role getRole(String userId, Organization organization) throws EntityNotFoundException {
     return repository
         .getOrganizationMembers(organization)
         .stream()
@@ -164,7 +163,7 @@ public abstract class ServiceOperation<I, O> {
   }
 
   protected boolean isInRole(String userId, Organization organization, Role role)
-      throws AccessPermissionException, EntityNotFoundException {
+      throws EntityNotFoundException {
     return repository
         .getOrganizationMembers(organization)
         .stream()
