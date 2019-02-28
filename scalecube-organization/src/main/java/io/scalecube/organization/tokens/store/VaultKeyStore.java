@@ -5,6 +5,7 @@ import com.bettercloud.vault.VaultConfig;
 import com.bettercloud.vault.VaultException;
 import com.bettercloud.vault.api.Logical;
 import com.bettercloud.vault.response.LogicalResponse;
+import io.scalecube.account.api.OrganizationServiceException;
 import io.scalecube.config.ConfigRegistry;
 import io.scalecube.config.IntConfigProperty;
 import io.scalecube.config.StringConfigProperty;
@@ -60,7 +61,7 @@ public class VaultKeyStore implements KeyStore {
     try {
       vault = new Vault(new VaultConfig().build());
     } catch (VaultException ex) {
-      throw new RuntimeException(ex);
+      throw new OrganizationServiceException("Error during vault initialization", ex);
     }
   }
 
