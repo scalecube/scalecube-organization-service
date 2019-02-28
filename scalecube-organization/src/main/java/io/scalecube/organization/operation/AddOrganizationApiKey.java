@@ -65,7 +65,8 @@ public class AddOrganizationApiKey
     Organization clonedOrg = Organization.builder().apiKey(apiKeys).copy(organization);
     context.repository().updateOrganizationDetails(context.profile(), organization, clonedOrg);
 
-    return getOrganizationResponse(clonedOrg);
+    Role role = getRole(context.profile().getUserId(), organization);
+    return getOrganizationResponse(clonedOrg, apiKeyFilterBy(role));
   }
 
   @Override

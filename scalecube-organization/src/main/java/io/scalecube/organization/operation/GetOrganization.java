@@ -2,6 +2,7 @@ package io.scalecube.organization.operation;
 
 import io.scalecube.account.api.GetOrganizationRequest;
 import io.scalecube.account.api.GetOrganizationResponse;
+import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.organization.tokens.TokenVerifier;
@@ -18,7 +19,8 @@ public class GetOrganization
       GetOrganizationRequest request, OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
     checkMemberAccess(organization, context.profile());
-    return getOrganizationResponse(organization);
+    Role role = getRole(context.profile().getUserId(), organization);
+    return getOrganizationResponse(organization, apiKeyFilterBy(role));
   }
 
   @Override
