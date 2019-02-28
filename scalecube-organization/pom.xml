@@ -13,7 +13,7 @@
   <name>scalecube-organization</name>
 
   <properties>
-    <mainClass>io.scalecube.server.OrganizationServiceRunner</mainClass>
+    <mainClass>io.scalecube.organization.server.OrganizationServiceRunner</mainClass>
     <!--<extratags>${env.TRAVIS_COMMIT}</extratags>-->
   </properties>
 

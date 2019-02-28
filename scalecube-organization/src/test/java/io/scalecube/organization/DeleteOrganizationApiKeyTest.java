@@ -10,7 +10,6 @@ import io.scalecube.account.api.InvalidAuthenticationToken;
 import io.scalecube.account.api.OrganizationNotFoundException;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
-import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;

@@ -9,9 +9,9 @@ import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository
 import io.scalecube.organization.repository.inmem.InMemoryPublicKeyProvider;
 import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
 import io.scalecube.organization.token.store.PropertiesFileKeyStore;
+import io.scalecube.organization.tokens.TokenVerifierImpl;
+import io.scalecube.organization.tokens.store.KeyStore;
 import io.scalecube.test.fixtures.Fixture;
-import io.scalecube.tokens.TokenVerifierImpl;
-import io.scalecube.tokens.store.KeyStore;
 import java.io.File;
 import org.opentest4j.TestAbortedException;
 

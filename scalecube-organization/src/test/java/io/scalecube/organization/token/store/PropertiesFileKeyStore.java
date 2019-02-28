@@ -1,7 +1,7 @@
 package io.scalecube.organization.token.store;
 
-import io.scalecube.tokens.KeyStoreException;
-import io.scalecube.tokens.store.KeyStore;
+import io.scalecube.organization.tokens.KeyStoreException;
+import io.scalecube.organization.tokens.store.KeyStore;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

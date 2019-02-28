@@ -11,6 +11,7 @@ import io.scalecube.account.api.OrganizationNotFoundException;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
+import io.scalecube.organization.operation.Organization;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.security.Profile;
 import java.util.HashMap;
