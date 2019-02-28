@@ -1,6 +1,7 @@
 package io.scalecube.organization.opearation;
 
 import io.scalecube.account.api.OrganizationInfo;
+import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.UpdateOrganizationRequest;
 import io.scalecube.account.api.UpdateOrganizationResponse;
@@ -28,12 +29,9 @@ public class UpdateOrganization
             .copy(organization);
 
     context.repository().updateOrganizationDetails(context.profile(), organization, orgUpdate);
-    return new UpdateOrganizationResponse(
-        OrganizationInfo.builder()
-            .id(orgUpdate.id())
-            .name(orgUpdate.name())
-            .apiKeys(orgUpdate.apiKeys())
-            .email(orgUpdate.email()));
+
+    Role role = getRole(context.profile().getUserId(), organization);
+    return new UpdateOrganizationResponse(organizationInfo(orgUpdate, apiKeyFilterBy(role)));
   }
 
   @Override

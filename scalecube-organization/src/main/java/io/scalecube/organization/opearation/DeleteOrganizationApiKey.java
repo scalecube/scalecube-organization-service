@@ -3,6 +3,7 @@ package io.scalecube.organization.opearation;
 import io.scalecube.account.api.ApiKey;
 import io.scalecube.account.api.DeleteOrganizationApiKeyRequest;
 import io.scalecube.account.api.GetOrganizationResponse;
+import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.Organization;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
@@ -41,7 +42,8 @@ public class DeleteOrganizationApiKey
 
     context.repository().updateOrganizationDetails(context.profile(), organization, newOrg);
 
-    return getOrganizationResponse(newOrg);
+    Role role = getRole(context.profile().getUserId(), organization);
+    return getOrganizationResponse(newOrg, apiKeyFilterBy(role));
   }
 
   @Override
