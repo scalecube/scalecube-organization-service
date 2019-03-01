@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.Role;
-import io.scalecube.organization.Organization;
+import io.scalecube.organization.operation.Organization;
 import io.scalecube.security.Profile;
 import org.junit.jupiter.api.Test;
 

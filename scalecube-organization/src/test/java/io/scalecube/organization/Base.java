@@ -11,11 +11,18 @@ import io.scalecube.account.api.InviteOrganizationMemberRequest;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
+import io.scalecube.organization.operation.Organization;
 import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
+import io.scalecube.organization.repository.OrganizationsDataAccess;
+import io.scalecube.organization.repository.OrganizationsDataAccessImpl;
 import io.scalecube.organization.repository.Repository;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
+import io.scalecube.organization.repository.inmem.InMemoryOrganizationMembersRepositoryAdmin;
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
 import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
+import io.scalecube.organization.token.store.PropertiesFileKeyStore;
+import io.scalecube.organization.tokens.TokenVerifier;
+import io.scalecube.organization.tokens.store.KeyStore;
 import io.scalecube.security.Profile;
 import java.io.File;
 import java.security.KeyPairGenerator;
@@ -102,26 +109,9 @@ public class Base {
   protected Base() {
     orgMembersRepository = new InMemoryUserOrganizationMembershipRepository();
     organizationRepository = new InMemoryOrganizationRepository();
-    admin =
-        new OrganizationMembersRepositoryAdmin() {
-          @Override
-          public void createRepository(Organization organization) {
-            // dummy body
-            System.out.print(".");
-          }
-
-          @Override
-          public void deleteRepository(Organization organization) {
-            // dummy body
-            System.out.print("'");
-          }
-        };
+    admin = new InMemoryOrganizationMembersRepositoryAdmin();
     service = createService(testProfile);
     new File("keystore.properties").deleteOnExit();
-    // init with couchbase
-    //    orgMembersRepository = CouchbaseRepositoryFactory.organizationMembers();
-    //    organizationRepository = CouchbaseRepositoryFactory.organizations();
-    //    admin = CouchbaseRepositoryFactory.organizationMembersRepositoryAdmin();
   }
 
   @BeforeAll
@@ -173,13 +163,12 @@ public class Base {
   }
 
   protected OrganizationService createService(Profile profile) {
-    return OrganizationServiceImpl.builder()
-        .organizationRepository(organizationRepository)
-        .organizationMembershipRepository(orgMembersRepository)
-        .organizationMembershipRepositoryAdmin(admin)
-        .tokenVerifier((t) -> Objects.equals(profile, invalidProfile) ? null : profile)
-        .keyPairGenerator(keyPairGenerator)
-        .build();
+    OrganizationsDataAccess dataAccess =
+        new OrganizationsDataAccessImpl(organizationRepository, orgMembersRepository, admin);
+    TokenVerifier tokenVerifier = token -> Objects.equals(profile, invalidProfile) ? null : profile;
+    KeyStore keyStore = new PropertiesFileKeyStore();
+
+    return new OrganizationServiceImpl(dataAccess, keyStore, tokenVerifier);
   }
 
   protected static <T> void assertMonoCompletesWithError(

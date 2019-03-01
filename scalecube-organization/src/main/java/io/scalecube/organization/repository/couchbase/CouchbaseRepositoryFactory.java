@@ -2,7 +2,7 @@ package io.scalecube.organization.repository.couchbase;
 
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseCluster;
-import io.scalecube.organization.Organization;
+import io.scalecube.organization.operation.Organization;
 import io.scalecube.organization.repository.Repository;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
 import java.util.List;

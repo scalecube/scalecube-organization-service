@@ -11,7 +11,7 @@
     </Console>
   </Appenders>
   <Loggers>
-    <Root level="${env:logLevel:-info}">
+    <Root level="${env:logLevel:-OFF}">
       <AppenderRef ref="STDOUT"/>
     </Root>
   </Loggers>

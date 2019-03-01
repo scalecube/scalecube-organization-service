@@ -8,9 +8,9 @@ import io.scalecube.account.api.GetOrganizationMembersRequest;
 import io.scalecube.account.api.InvalidAuthenticationToken;
 import io.scalecube.account.api.KickoutOrganizationMemberRequest;
 import io.scalecube.account.api.OrganizationMember;
+import io.scalecube.account.api.OrganizationNotFoundException;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
-import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -112,11 +112,11 @@ class KickoutMemberTest extends Base {
   }
 
   @Test
-  void kickoutMemberOrgNotExistsShouldFailWithEntityNotFoundException() {
+  void kickoutMemberOrgNotExistsShouldFailWithOrganizationNotFoundException() {
     assertMonoCompletesWithError(
         service.kickoutMember(
             new KickoutOrganizationMemberRequest("orgNotExists", token, testProfile5.getUserId())),
-        EntityNotFoundException.class);
+        OrganizationNotFoundException.class);
   }
 
   @Test

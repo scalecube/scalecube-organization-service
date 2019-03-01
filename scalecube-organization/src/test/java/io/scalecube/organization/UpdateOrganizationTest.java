@@ -10,12 +10,13 @@ import io.scalecube.account.api.GetOrganizationMembersRequest;
 import io.scalecube.account.api.InvalidAuthenticationToken;
 import io.scalecube.account.api.NotAnOrganizationMemberException;
 import io.scalecube.account.api.OrganizationMember;
+import io.scalecube.account.api.OrganizationNotFoundException;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
 import io.scalecube.account.api.UpdateOrganizationRequest;
+import io.scalecube.organization.operation.Organization;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
-import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.organization.repository.exception.NameAlreadyInUseException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -37,11 +38,11 @@ class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  void updateOrganizationWithIdNotExistsShouldFailWithEntityNotFoundException() {
+  void updateOrganizationWithIdNotExistsShouldFailWithOrganizationNotFoundException() {
     assertMonoCompletesWithError(
         service.updateOrganization(
             new UpdateOrganizationRequest("orgNotExists", token, "update_name", "update@email")),
-        EntityNotFoundException.class);
+        OrganizationNotFoundException.class);
   }
 
   @Test
@@ -294,12 +295,12 @@ class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  void updateOrganizationMemberRoleWithNonExistOrgShouldFailWithEntityNotFoundException() {
+  void updateOrganizationMemberRoleWithNonExistOrgShouldFailWithOrganizationNotFoundException() {
     assertMonoCompletesWithError(
         service.updateOrganizationMemberRole(
             new UpdateOrganizationMemberRoleRequest(
                 token, "bla", testProfile5.getUserId(), Role.Admin.toString())),
-        EntityNotFoundException.class);
+        OrganizationNotFoundException.class);
   }
 
   @Test
