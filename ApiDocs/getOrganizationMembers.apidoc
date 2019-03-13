@@ -12,7 +12,7 @@
  *
  * @apiSuccess {Object[]} members List of all the members (Array of Objects) in the specified organization
  *
- * @apiError {String} field value of invalid or non-existent organization id
+ * @apiError {String} field user isn't the manager either outsider of the specified organization
  *
  * @apiErrorExample {json} WebSocket
  * Request:

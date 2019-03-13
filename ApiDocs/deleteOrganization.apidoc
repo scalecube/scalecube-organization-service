@@ -52,7 +52,7 @@
   *         "sid":1,
   *         "d":{
   *                "errorCode":500,
-  *                "errorMessage":"ORG-ID"
+  *                "errorMessage":"Organization [id=ORG-ID] not found"
   *         }
   *     }
   *
@@ -85,7 +85,7 @@
   *     {
   *         "data":{
   *                   "errorCode":500,
-  *                   "errorMessage":"ORG-ID"
+  *                   "errorMessage":"Organization [id=ORG-ID] not found"
   *         },
   *         "metadata":{
   *                      "q":"/io.scalecube.services.error/500"
@@ -113,6 +113,6 @@
   * Error Response:
   *     {
   *         "errorCode":500,
-  *         "errorMessage":"ORG-ID"
+  *         "errorMessage":"Organization [id=ORG-ID] not found"
   *     }
   */
