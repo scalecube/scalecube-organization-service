@@ -5,7 +5,11 @@
   * @apiVersion 0.0.0-CURRENT
   * @apiPermission Request / Response / Error-response
   *
-  * @apiDescription This operation enables <b>all members</b> of the relevant organization to get the organization information
+  * @apiDescription This operation enables <b>all members</b> of the relevant organization to get the organization information.
+  * >Note: this method returns all organization info thus API keys with:
+  *  - all accessible access levels ("Owner" | "Admin" | "Member") will be returned only for the related Organization Owner
+  *  - "Admin" | "Member" access levels will be returned only for the related Organization Admin
+  *  - "Member" access level will be returned only for the related Organization Member
   *
   * @apiParam {Object} token The requested token issued by relevant authority (Auth0)
   * @apiParam {String} organizationId Already stored id for the specific organization

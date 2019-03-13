@@ -12,10 +12,10 @@
       "sid": 1,
       "d": {
         "token": {
-          "token": "PUT IN YOUR VALID TOKEN"
+          "token": "AUTH-0-TOKEN"
         },
-        "name": "CUSTOM THE NAME OF YOUR ORGANIZATION",
-        "email": "CUSTOM THE E-MAIL OF YOUR ORGANIZATION"
+        "name": "ORGANIZATION-NAME",
+        "email": "ORGANIZATION@email.com"
       }
     }
 
@@ -28,9 +28,9 @@
       "sid": 1,
       "d": {
         "token": {
-          "token": "PUT IN YOUR VALID TOKEN"
+          "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB"
+        "organizationId": "ORG-ID"
 
       }
     }
@@ -43,11 +43,11 @@
       "sid": 1,
       "d": {
         "token": {
-          "token": "PUT IN YOUR VALID TOKEN"
+          "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB",
-        "name": "CUSTOM THE NEW NAME OF YOUR ORGANIZATION",
-        "email": "CUSTOM THE NEW E-MAIL OF YOUR ORGANIZATION"
+        "organizationId": "ORG-ID",
+        "name": "NEW-ORGANIZATION-NAME",
+        "email": "NEW-ORGANIZATION@email.com"
       }
     }
   }, {
@@ -59,9 +59,9 @@
       "sid": 1,
       "d": {
         "token": {
-          "token": "PUT IN YOUR VALID TOKEN"
+          "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB"
+        "organizationId": "ORG-ID"
 
       }
     }
@@ -75,11 +75,11 @@
       "sid": 1,
       "d": {
         "token": {
-          "token": "PUT IN YOUR VALID TOKEN"
+          "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB",
+        "organizationId": "ORG-ID",
         "userId": "[Auth0 generated Client ID]@clients",
-        "role":"ASSIGN THE ROLE OWNER/ADMIN/MEMBER (PERMISSION LEVEL FOR ORGANIZATION MEMEBERS)"
+        "role":"Owner/Admin/Member(PERMISSION LEVEL FOR ORGANIZATION MEMBERS)"
       }
     }
   }, {
@@ -91,9 +91,9 @@
       "sid": 1,
       "d": {
         "token": {
-          "token": "PUT IN YOUR VALID TOKEN"
+          "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB",
+        "organizationId": "ORG-ID",
         "userId": "[Auth0 generated Client ID]@clients"
       }
     }
@@ -106,9 +106,9 @@
       "sid": 1,
       "d": {
         "token": {
-          "token": "PUT IN YOUR VALID TOKEN"
+          "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB"
+        "organizationId": "ORG-ID"
 
       }
     }
@@ -121,11 +121,11 @@
       "sid": 1,
       "d": {
         "token": {
-          "token": "PUT IN YOUR VALID TOKEN"
+          "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB",
+        "organizationId": "ORG-ID",
         "userId": "[Auth0 generated Client ID]@clients",
-        "role": "ASSIGN THE NEW ROLE OWNER/ADMIN/MEMBER (PERMISSION LEVEL FOR THE ORG MANAGE (NO RELEVANCE TO API KEY ROLE)"
+        "role": "Owner/Admin/Member (PERMISSION LEVEL FOR ORGANIZATION MEMBERS)"
       }
     }
   }, {
@@ -137,9 +137,9 @@
       "sid": 1,
       "d": {
         "token": {
-          "token": "PUT IN YOUR VALID TOKEN"
+          "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB"
+        "organizationId": "ORG-ID"
 
       }
     }
@@ -152,7 +152,7 @@
       "sid": 1,
       "d": {
         "token": {
-          "token": "PUT IN YOUR VALID TOKEN"
+          "token": "AUTH-0-TOKEN"
         }
       }
     }
@@ -165,12 +165,12 @@
       "sid": 1,
       "d": {
         "token": {
-          "token": "PUT IN YOUR VALID TOKEN"
+          "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB",
-        "apiKeyName": "CUSTOM SOME NAME FOR API KEY",
+        "organizationId": "ORG-ID",
+        "apiKeyName": "NAME-FOR-API-KEY",
         "claims": {
-          "role": "ASSIGN THE ROLE OWNER/ADMIN/MEMBER (PERMISSION LEVEL FOR API KEY)"
+          "role": "Owner/Admin/Member (PERMISSION LEVEL FOR API KEY TO CONFIGURATION SERVICE)"
         }
       }
     }
@@ -183,13 +183,12 @@
       "sid": 1,
       "d": {
         "token": {
-          "token": "PUT IN YOUR VALID TOKEN"
+          "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB",
-        "apiKeyName": "STORED NAME OF THE RELEVANT API KEY"
+        "organizationId": "ORG-ID",
+        "apiKeyName": "NAME-OF-RELEVANT-API-KEY"
       }
     }
 
   }]
-
 }

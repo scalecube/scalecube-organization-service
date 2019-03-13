@@ -7,6 +7,8 @@
   *
   * @apiDescription This operation enables each organization member to step-out (leave) from the relevant organization.
   * <br>Nevertheless at least one Owner (origin or granted one) should be persisted in the organization
+  * <!--<br>Each API key with permission level "Owner" either "Admin" will be automatically updated to the "Member" one and API key with permission level "Member"
+  * will kept as it is upon some of the managers who already issued these API keys leaved the organization.-->
   *
   * @apiParam {Object} token The requested token issued by relevant authority (Auth0)
   * @apiParam {String} organizationId Already stored id for the specific organization

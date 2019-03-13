@@ -6,6 +6,10 @@
   * @apiPermission Request / Response / Error-response
   *
   * @apiDescription This operation enables each organization member to get the list of all relevant organizations (full info) which the member was invited
+  * >Note: this method returns all organization info thus API keys with:
+  *  - all accessible access levels ("Owner" | "Admin" | "Member") will be returned only for the related Organization Owner
+  *  - "Admin" | "Member" access levels will be returned only for the related Organization Admin
+  *  - "Member" access level will be returned only for the related Organization Member
   *
   * @apiParam {Object} token The requested token issued by relevant authority (Auth0)
   *
