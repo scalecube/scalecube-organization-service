@@ -5,8 +5,8 @@
   * @apiVersion 0.0.0-CURRENT
   * @apiPermission Request / Response / Error-response
   *
-  * @apiDescription This operation enables each organization member to step-out (leave) from the relevant organization.
-  * <br>Nevertheless at least one Owner (origin or granted one) should be persisted in the organization
+  * @apiDescription This operation enables each organization <b>member</b> to step-out (leave) from the relevant organization.
+  * <br>Nevertheless at least one Owner (origin or granted one) should be persisted in the organization.
   * <!--<br>Each API key with permission level "Owner" either "Admin" will be automatically updated to the "Member" one and API key with permission level "Member"
   * will kept as it is upon some of the managers who already issued these API keys leaved the organization.-->
   *

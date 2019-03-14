@@ -5,10 +5,10 @@
   * @apiVersion 0.0.0-CURRENT
   * @apiPermission Request / Response / Error-response
   *
-  * @apiDescription This operation enables only organization managers <b>(Owner/Admin)</b> to upgrade/downgrade relevant organization member role.
+  * @apiDescription This operation enables only organization managers <b>(Owner | Admin)</b> to upgrade/downgrade relevant organization members' roles.
   * <br>Any of the members who posses Admin role couldn't upgrade themselves whereby only the members with higher - Owner roles are able to do that.
   * Nevertheless any member with Admin or Owner role could downgrade themselves as do the members with Owner role could downgrade the members with Admin role.
-  * <br>Furthermore at least one Owner (origin or granted one) should be persisted in the organization
+  * Furthermore at least one Owner (origin or granted one) should be persisted in the organization
   * <!--<br>Permission level (Owner/Admin/Member) for each API key is automatically updated to the relevant one upon the managers who already issued these API keys were
   * upgraded or downgraded to one of the accessible roles (Owner/Admin/Member) in the organization.-->
   *

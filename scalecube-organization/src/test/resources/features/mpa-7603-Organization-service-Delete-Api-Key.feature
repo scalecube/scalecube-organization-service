@@ -39,7 +39,7 @@ Feature: Organization service API keys management - Delete API key
 
   /**
     *
-    *##MPA-7603 (#45) - TBD if Admin could delete the API key assigned with "owner" role?
+    *##MPA-7603 (#44.a) - TBD if Admin could delete the API key assigned with "owner" role?
     *#Scenario: Fail to delete the API key (token) with "owner" role from relevant Organization by Admin
     *#  Given the user "A" have got a valid "token" issued by relevant authority
     *#  And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -48,6 +48,16 @@ Feature: Organization service API keys management - Delete API key
     *#  When the user "B" requested to delete the API key "name" from user's "A" organization with assigned role "owner"
     *#  Then user "B" should get an error message: "user: 'userId "B"', name: 'null', not in role Owner of organization: 'org "A" name'"
     */
+
+  #MPA-7603 (#45)
+  Scenario: Fail to delete some of accessible API keys (token) from relevant Organization upon the owner was removed from own Organization
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And the user "A" added API key "specifiedApiKeyName" for own organization with assigned role "owner"
+    And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with an "owner" role
+    And the user "A" was removed from user's "A" organization
+    When the user "A" requested to delete the API key "specifiedApiKeyName" from his former organization
+    Then user "A" should get an error message: "user: 'userId "B"', name: 'null', not in role Owner or Admin of organization: 'org "A" name'"
 
 
   #MPA-7603 (#46)

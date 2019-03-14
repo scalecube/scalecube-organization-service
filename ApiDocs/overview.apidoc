@@ -5,13 +5,17 @@
   * @apiVersion 0.0.0-CURRENT
   * @apiDescription Organization service enable you to integrate the API in order to create and manage the organizations.
   * Besides the origin owner unique ability to create the organization there is a necessity for each organization member to achieve appropriate
-  * managers' permission level (roles: Owner/Admin) granted by other managers of the relevant organization for management ability.
+  * managers' permission level (roles: Owner | Admin) granted by other managers of the relevant organization for management ability.
   * Thus each organization could be deleted or relevant credentials updated, authorized users could be invited to and removed from the relevant organization,
   * each member could get the info about the relevant organization and also to know the own membership in the all related organizations.
-  * Organization managers could provide and delete the relevant API keys (permission level with appropriate assigned role: Owner/Admin/Member) which are vital leverage
-  * for the <a href="http://scalecube.io/configuration-service/index.html">Configuration service</a> management and security purpose.
-  * >Note: API keys assigned with some of the relevant role (Owner/Admin/Member) doesn't correspond with the organization members' similar roles and purposed
-  * only for the appropriate permission level (write or read) provision for <a href="http://scalecube.io/configuration-service/index.html">Configuration service</a> users
+  * Organization managers could provide and delete the relevant API keys (permission level with appropriate assigned role: Owner | Admin |Member) which are
+  * vital leverage (write or read permission provision) for the <a href="http://scalecube.io/configuration-service/index.html">Configuration service</a> management and security purpose.
+  *
+  * >Note: API keys assigned with some of the relevant roles (Owner | Admin | Member) are visible to organization members' similar roles only via
+  *  permission level (role) in the specific Organization:
+  *  ><br>-Owner could observe all accessible API keys
+  *  ><br>-Admin could observe only the "Admin" and "Member" API keys
+  *  ><br>-Member could observe only the "Member" API keys
   *
   * <b>Getting Started</b>
   *

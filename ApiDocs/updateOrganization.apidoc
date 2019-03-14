@@ -5,7 +5,7 @@
   * @apiVersion 0.0.0-CURRENT
   * @apiPermission Request / Response / Error-response
   *
-  * @apiDescription This operation enables only organization managers <b>(Owner/Admin)</b> to update (edit)
+  * @apiDescription This operation enables only organization managers <b>(Owner | Admin)</b> to update (edit)
   * the specific organization information (name or email) optionally
   * >Note: this method returns all organization info thus API keys with:
   *  - all accessible access levels ("Owner" | "Admin" | "Member") will be returned only for the related Organization Owner

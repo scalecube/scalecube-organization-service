@@ -5,13 +5,13 @@
   * @apiVersion 0.0.0-CURRENT
   * @apiPermission Request / Response / Error-response
   *
-  * @apiDescription This operation enables only organization managers <b>(Owner/Admin)</b> to create the API key (token) for the relevant organization and further
+  * @apiDescription This operation enables only organization managers <b>(Owner | Admin)</b> to create the API key (token) for the relevant organization and further
   * to be used by potential users of the <a href="http://scalecube.io/configuration-service/index.html">Configuration service</a> according to appropriate permission level.
   * Each API key got the unique name which couldn't be duplicated. Thus owners could issue the API keys with all accessible roles but the admins are restricted by the "Admin" or "Member" role API keys issuing.
   * >Note: this method returns all organization info thus API keys with:
-  *  - all accessible access levels ("Owner" | "Admin" | "Member") will be returned only for the related Organization Owner
-  *  - "Admin" | "Member" access levels will be returned only for the related Organization Admin
-  *  - "Member" access level will be returned only for the related Organization Member
+  *  ><br>-all accessible permission levels ("Owner" | "Admin" | "Member") will be returned only for the related Organization Owner
+  *  ><br>-"Admin" | "Member" permission levels will be returned only for the related Organization Admin
+  *  ><br>-"Member" permission level will be returned only for the related Organization Member
   *
   * @apiParam {Object} token The requested token issued by relevant authority (Auth0)
   * @apiParam {String} organizationId Already stored org-id for the specific organization

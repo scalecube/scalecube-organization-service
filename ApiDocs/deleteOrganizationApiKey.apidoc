@@ -5,13 +5,12 @@
  * @apiVersion 0.0.0-CURRENT
  * @apiPermission Request / Response / Error-response
  *
- * @apiDescription This operation enables only organization managers <b>(Owner/Admin)</b> to delete the API key (token) from the relevant organization.
- * >Note: API keys assigned with any of the relevant roles (Owner/Admin/Member) don't corresponds with the organization members similar roles
- * and purposed only for the appropriate permission level (write or read) provision for <a href="http://scalecube.io/configuration-service/index.html">Configuration service</a> users
+ * @apiDescription This operation enables only organization managers <b>(Owner | Admin)</b> to delete the API keys (token) from the relevant organization.
+ *
  * >Note: this method returns all organization info thus API keys with:
- *  - all accessible access levels ("Owner" | "Admin" | "Member") will be returned only for the related Organization Owner
- *  - "Admin" | "Member" access levels will be returned only for the related Organization Admin
- *  - "Member" access level will be returned only for the related Organization Member
+ *  ><br>-all accessible permission levels ("Owner" | "Admin" | "Member") will be returned only for the related Organization Owner
+ *  ><br>-"Admin" | "Member" permission levels will be returned only for the related Organization Admin
+ *  ><br>-"Member" permission level will be returned only for the related Organization Member
  *
  * @apiParam {Object} token The requested token issued by relevant authority (Auth0)
  * @apiParam {String} organizationId Already stored id for the specific organization
