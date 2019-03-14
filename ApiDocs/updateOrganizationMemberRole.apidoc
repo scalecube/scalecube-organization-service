@@ -19,7 +19,7 @@
   *
   * @apiSuccess Acknowledgment Empty object
   *
-  * @apiError {String} field Invalid role for specified organization member
+  * @apiError {String} field Invalid role for specified organization member is applied
   *
   * @apiErrorExample {json} WebSocket
   * Request:
@@ -56,7 +56,7 @@
   *         "sid":1,
   *         "d":{
   *                "errorCode":500,
-  *                "errorMessage":"role: Client"
+  *                "errorMessage":"Role 'Boss' is invalid"
   *         }
   *     }
   *
@@ -88,7 +88,7 @@
   *     {
   *         "data":{
   *                   "errorCode":500,
-  *                   "errorMessage":"role: Client"
+  *                   "errorMessage":"Role 'Boss' is invalid"
   *         },
   *         "metadata":{
   *                      "q":"/io.scalecube.services.error/500"
@@ -117,6 +117,6 @@
   * Error Response:
   *     {
   *         "errorCode":500,
-  *         "errorMessage":"role: Client"
+  *         "errorMessage":"Role 'Boss' is invalid"
   *     }
   */

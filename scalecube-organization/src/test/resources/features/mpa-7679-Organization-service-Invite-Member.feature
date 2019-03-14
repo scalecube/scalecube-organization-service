@@ -51,16 +51,25 @@ Feature: Organization service members management - Invite member
 
 
   #MPA-7679 (#53)
-  Scenario: Ignore to invite the existent "member" (duplicate) to the same Organization
+  Scenario: Fail to invite the existent "member" (duplicate) to the same Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by this user "A"
     And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with a "member" role
     When the user "A" requested to invite the existent user "B" to step into organization of user's "A" again with an "admin" role
-    Then the user "B" shouldn't be duplicated as the existent member in the user's "A" organization thus ignored by the system
-    And user "A" should get successful response with the empty object
+    Then the user "B" shouldn't be duplicated as the existent member in the user's "A" organization
+    And user "A" should get an error message:"user:'id@clients' already exists"
 
 
   #__________________________________________________NEGATIVE___________________________________________________________
+
+  #MPA-7679 (#54)
+  Scenario: Fail to invite the user with invalid role to specific Organization
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by this user "A"
+    And the user "B" who have got the "userId" issued by relevant authority
+    When the user "A" requested to invite the user "B" to step into organization of user's "A" with invalid "Boss" role
+    Then user "A" should get an error message:"Role 'Boss' is invalid"
+
 
   #MPA-7679 (#55)
   Scenario: Fail to invite the user into relevant Organization upon the existing member (requester) got "member" role permission level

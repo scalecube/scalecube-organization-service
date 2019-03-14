@@ -169,7 +169,7 @@ Feature: Organization service members management - Update member role
     * #  And the API keys with assigned roles: "admin" and "admin" should be persisted for the relevant organization
 
 
-    * ##MPA-7679 (#86)
+    * ##MPA-7679 (#85.a)
     * #Scenario: Permission level of the "member" and "admin" API keys (token) successfully upgraded to "owner" API keys upon the Organization "admin" was promoted to "owner" again
     * #  Given the user "A" have got a valid "token" issued by relevant authority
     * #  And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -185,13 +185,21 @@ Feature: Organization service members management - Update member role
 
   #__________________________________________________NEGATIVE___________________________________________________________
 
+  #MPA-7679 (#86)
+  Scenario: Fail to update the existing Member valid role to invalid role in the specific Organization
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by this user "A"
+    And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with a "member" role
+    When the user "A" requested to update user's "B" role "member" to invalid role "Boss" in the own organization
+    Then user "A" should get an error message:"Role 'Boss' is invalid"
+
+
   #MPA-7679 (#87)
   Scenario: Fail to downgrade yourself as the single "owner" to "member" either "admin" role in the relevant Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
     When the user "A" requested to update himself to role "member" either "admin" in the user's "A" organization
     Then user "A" should get an error message: "At least one Owner should be persisted in the organization: 'organizationId'"
-
 
 
   #MPA-7679 (#88)
@@ -202,7 +210,6 @@ Feature: Organization service members management - Update member role
     And the user "C" who have got the "userId" issued by relevant authority was invited to user's "A" organization with a "admin" role
     When the user "C" requested to update himself and the user "B" to role "owner" in the user's "A" organization
     Then user "C" for both requests should get an error message: ""user: 'userId "C"', name: 'null', role: 'Admin' cannot promote to a higher role: 'Owner'"
-
 
 
   #MPA-7679 (#89)

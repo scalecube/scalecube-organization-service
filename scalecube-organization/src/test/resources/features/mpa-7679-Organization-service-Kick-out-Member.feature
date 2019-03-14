@@ -78,7 +78,7 @@ Feature: Organization service members management - Kick-out member
 
 
   /**
-    * ##MPA-7679 (#65) - API key permission level is updated to "member" role upon the related manager was removed from organization
+    * ##MPA-7679 (#65) - API key permission level is updated to "member" role upon the related manager (Owner) was removed from organization
     * #Scenario: Admin API key (token) for relevant Organization is downgraded to "member" one upon the issuer (Owner) of that API key was removed from Organization
     *  #Given the user "A" have got a valid "token" issued by relevant authority
     *  #And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -90,7 +90,7 @@ Feature: Organization service members management - Kick-out member
     *  #And the API key with assigned role "member" should be persisted for the relevant organization
     *
     *
-    * ##MPA-7679 (#66) - API key permission level is updated to "member" role upon the related manager was removed from organization
+    * ##MPA-7679 (#65.a) - API key permission level is updated to "member" role upon the related manager (Admin) was removed from organization
     * #Scenario: Admin API key (token) for relevant Organization is downgraded to "member" one upon the issuer (Admin) of that API key was removed from Organization
     *  #Given the user "A" have got a valid "token" issued by relevant authority
     *  #And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -104,6 +104,14 @@ Feature: Organization service members management - Kick-out member
 
 
   #__________________________________________________NEGATIVE___________________________________________________________
+
+  #MPA-7679 (#66)
+  Scenario: Fail to kick-out non-existent "member" from some Organization
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by this user "A"
+    When the user "A" requested to remove the non-existent user "non-existent-id@clients" from own organization
+    Then user "A" should get an error message:"user:'id@clients' doesn't exist"
+
 
   #MPA-7679 (#67)
   Scenario: Fail to kick-out (remove) yourself as the single "owner" from relevant Organization

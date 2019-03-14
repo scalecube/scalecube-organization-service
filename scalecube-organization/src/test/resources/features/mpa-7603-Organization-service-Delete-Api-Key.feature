@@ -64,9 +64,8 @@ Feature: Organization service API keys management - Delete API key
   Scenario: Fail to delete non-existent (invalid) API key (token) from specific Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    And the user "A" requested to add the API key "name" for own organization with assigned role "member"
-    When the user "A" requested to delete the non-existent API key "someKey" from user's "A" organization
-    Then user "A" should get successful response with extended organization info which include the API key with "member" role only
+    When the user "A" requested to delete the non-existent API key "someKey" name from user's "A" organization
+    Then user "A" should receive the error message: "Key 'someKey' doesn't exist"
 
 
   #MPA-7603 (#48)
