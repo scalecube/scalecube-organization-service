@@ -41,7 +41,7 @@ Feature: Creation of the Organization
       | name  | email |
       | Org-1 |       |
       | Org-1 | null  |
-    Then for each request user "A" should get an error message: "Organization email cannot be empty"
+    Then for each request user "A" should get an error message: "Please specify Organization email"
 
 
   #MPA-7657 (#5)
@@ -58,4 +58,4 @@ Feature: Creation of the Organization
       | name | email          |
       |      | my@email.com   |
       | null | some@email.com |
-    Then for each request user "A" should get an error message: "Organization name cannot be empty"
+    Then for each request user "A" should get an error message: "Please specify Organization name"
