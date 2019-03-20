@@ -105,7 +105,7 @@ Feature: Organization service members management - Kick-out member
 
   #__________________________________________________NEGATIVE___________________________________________________________
 
-  #MPA-7679 (#66)
+  #MPA-8170 (#66)
   Scenario: Fail to kick-out non-existent "member" from some Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by this user "A"
@@ -154,3 +154,10 @@ Feature: Organization service members management - Kick-out member
     Given a user "D" have got the invalid either expired "token"
     When user "D" requested to remove some user from some organization
     Then user "D" should receive the error message: "Token verification failed"
+
+
+  #MPA-8170 (#71.1)
+  Scenario: Fail to remove the user from non-existent Organization
+    Given the user "A" have got a valid "token" issued by relevant authority
+    When user "A" requested to remove some user from "non-existent" organizationId
+    Then user "A" should receive the error message: "Organization [id=non-existent] not found"

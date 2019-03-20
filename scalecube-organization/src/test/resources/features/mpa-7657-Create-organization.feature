@@ -7,6 +7,8 @@ Feature: Creation of the Organization
 
   #CREATE ORG
 
+  #__________________________________________________POSITIVE___________________________________________________________
+
   #MPA-7657 (#1)
   Scenario: Successful creation of the Organization
     Given the user "A" have got a valid "token" issued by relevant authority
@@ -14,6 +16,8 @@ Feature: Creation of the Organization
     Then user "A" should receive successful response with relevant organization details and relevant permission "owner"
     And "secret" for the relevant organization should be stored in Vault
 
+
+  #__________________________________________________NEGATIVE___________________________________________________________
 
   #MPA-7657 (#2)
   Scenario: Fail to create the Organization if the token is invalid (expired)
@@ -31,10 +35,13 @@ Feature: Creation of the Organization
 
 
   #MPA-7657 (#4)
-  Scenario: Fail to create the Organization without email
+  Scenario: Fail to create the Organization without email either undefined email (i.e. null)
     Given the user "A" have got a valid "token" issued by relevant authority
-    When user "A" requested to create the organization with specified non-existent "name" but without "empty" email
-    Then user "A" should get an error message: "Organization email cannot be empty"
+    When user "A" requested to create the organization with following details
+      | name  | email |
+      | Org-1 |       |
+      | Org-1 | null  |
+    Then for each request user "A" should get an error message: "Organization email cannot be empty"
 
 
   #MPA-7657 (#5)
@@ -42,3 +49,13 @@ Feature: Creation of the Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     When the user "A" requested to create the organization with specified "name" which contains "+" and some "email"
     Then user "A" should get an error message: "name can only contain characters in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent"
+
+
+  #MPA-7657 (#5.1)
+  Scenario: Fail to create the Organization without name either undefined name (i.e. null)
+    Given the user "A" have got a valid "token" issued by relevant authority
+    When user "A" requested to create the organization with following details
+      | name | email          |
+      |      | my@email.com   |
+      | null | some@email.com |
+    Then for each request user "A" should get an error message: "Organization name cannot be empty"

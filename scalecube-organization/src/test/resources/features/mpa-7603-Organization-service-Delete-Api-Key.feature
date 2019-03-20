@@ -49,7 +49,7 @@ Feature: Organization service API keys management - Delete API key
     *#  Then user "B" should get an error message: "user: 'userId "B"', name: 'null', not in role Owner of organization: 'org "A" name'"
     */
 
-  #MPA-7603 (#45)
+  #MPA-8170 (#45)
   Scenario: Fail to delete some of accessible API keys (token) from relevant Organization upon the owner was removed from own Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
@@ -83,6 +83,13 @@ Feature: Organization service API keys management - Delete API key
     Given a user have got the invalid either expired "token"
     When this user requested to delete some API key "name" in some Organization
     Then this user should receive the error message: "Token verification failed"
+
+
+  #MPA-8170 (#48.1)
+  Scenario: Fail to delete the API key (token) from non-existent Organization
+    Given the user "A" have got a valid "token" issued by relevant authority
+    When the user "A" requested to delete some API key "name" from "non-existent" organizationId
+    Then user "A" should receive the error message: "Organization [id=non-existent] not found"
 
   
 

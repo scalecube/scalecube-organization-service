@@ -185,7 +185,7 @@ Feature: Organization service members management - Update member role
 
   #__________________________________________________NEGATIVE___________________________________________________________
 
-  #MPA-7679 (#86)
+  #MPA-8170 (#86)
   Scenario: Fail to update the existing Member valid role to invalid role in the specific Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by this user "A"
@@ -238,3 +238,10 @@ Feature: Organization service members management - Update member role
     Given a user "D" have got the invalid either expired "token"
     When the user "D" requested to update the some user role in some organization
     Then user "D" should receive the error message: "Token verification failed"
+
+
+  #MPA-8170 (#91.1)
+  Scenario: Fail to update some member role in the non-existent Organization
+    Given the user "A" have got a valid "token" issued by relevant authority
+    When user "A" requested to update some user's role in the "non-existent" organizationId
+    Then user "A" should receive the error message: "Organization [id=non-existent] not found"

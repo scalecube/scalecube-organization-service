@@ -58,8 +58,8 @@ Feature: Organization service Org management - Leave Organization
   Scenario: Fail to leave a non-existent Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And there is no organization "organizationId" was created and stored
-    When the user "A" requested to leave the non-existent organization "organizationId"
-    Then user "A" should receive the error message with non-existent: "organizationId"
+    When the user "A" requested to leave the "non-existent" organizationId
+    Then user "A" should receive the error message: "Organization [id=non-existent] not found"
 
 
   #MPA-7603 (#34)

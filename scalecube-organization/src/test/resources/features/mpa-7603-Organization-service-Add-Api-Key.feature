@@ -86,3 +86,10 @@ Feature: Organization service API keys management - Add API key
     When this user requested to add some API key for some Organization
     Then this user should receive the error message: "Token verification failed"
 
+
+  #MPA-8170 (#42.1)
+  Scenario: Fail to add the API key (token) for a non-existent Organization
+    Given the user "A" have got a valid "token" issued by relevant authority
+    When the user "A" requested to add the API key "name" for "non-existent" organizationId
+    Then user "A" should receive the error message: "Organization [id=non-existent] not found"
+

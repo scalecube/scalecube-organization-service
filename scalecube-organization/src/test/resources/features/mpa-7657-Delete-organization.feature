@@ -7,6 +7,8 @@ Feature: Delete of the Organization
 
   #DELETE ORG
 
+  #__________________________________________________POSITIVE___________________________________________________________
+
   #MPA-7657 (#6)
   Scenario: Successful delete of specific Organization
     Given the user "A" have got a valid "token" issued by relevant authority
@@ -28,6 +30,8 @@ Feature: Delete of the Organization
     And user "B" should receive the successful response: "deleted":true,"organizationId":"org "A" organizationId"
     And the relevant secret should be deleted from the Vault
 
+
+  #__________________________________________________NEGATIVE___________________________________________________________
 
   #MPA-7657 (#8)
   Scenario: Fail to delete a specific Organization upon the origin owner was removed from own Organization

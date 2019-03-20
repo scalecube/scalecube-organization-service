@@ -62,7 +62,7 @@ Feature: Organization service members management - Invite member
 
   #__________________________________________________NEGATIVE___________________________________________________________
 
-  #MPA-7679 (#54)
+  #MPA-8170 (#54)
   Scenario: Fail to invite the user with invalid role to specific Organization
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by this user "A"
@@ -107,3 +107,10 @@ Feature: Organization service members management - Invite member
     Given a user "D" have got the invalid either expired "token"
     When user "D" requested to invite some another user to step into some organization with some role
     Then user "D" should receive the error message: "Token verification failed"
+
+
+  #MPA-8170 (#58.1)
+  Scenario: Fail to invite the user to non-existent Organization
+    Given the user "A" have got a valid "token" issued by relevant authority
+    When user "A" requested to invite some user to step into "non-existent" organizationId with some role
+    Then user "A" should receive the error message: "Organization [id=non-existent] not found"
