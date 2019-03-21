@@ -51,7 +51,7 @@ Feature: Organization service members management - Invite member
 
 
   #MPA-7679 (#53)
-  Scenario: Fail to invite the existent "member" (duplicate) to the same Organization
+  Scenario: Fail to invite the existent "member" (duplicate) to the same Organization with the new role "Admin"
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by this user "A"
     And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with a "member" role
