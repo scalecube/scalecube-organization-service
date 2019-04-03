@@ -1,59 +1,69 @@
 package io.scalecube.organization.repository.couchbase;
 
 import com.couchbase.client.java.Bucket;
-import com.couchbase.client.java.Cluster;
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.organization.operation.Organization;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
-import io.scalecube.organization.repository.couchbase.admin.PasswordGenerator;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import java.util.stream.Stream;
 
 final class CouchbaseUserOrganizationMembershipRepository
-    extends CouchbaseEntityRepository<OrganizationMember, String>
+    extends CouchbaseEntityRepository<Organization, String>
     implements UserOrganizationMembershipRepository {
 
-  CouchbaseUserOrganizationMembershipRepository(CouchbaseSettings settings, Cluster cluster) {
-    super(settings, cluster, null, OrganizationMember.class);
+  CouchbaseUserOrganizationMembershipRepository(Bucket bucket) {
+    super(bucket, Organization.class);
   }
 
   @Override
-  public void addMember(Organization org, OrganizationMember member) {
-    save(client(org), member.id(), member);
+  public void addMember(Organization organization, OrganizationMember member) {
+    findById(organization.id())
+        .ifPresent(
+            org -> {
+              OrganizationMember[] members = Arrays.copyOf(org.members(), org.members().length + 1);
+              members[org.members().length] = member;
+
+              Organization updatedOrganization =
+                  Organization.builder().members(members).apiKeys(org.apiKeys()).copy(org);
+
+              save(updatedOrganization.id(), updatedOrganization);
+            });
   }
 
   @Override
   public boolean isMember(String userId, Organization organization) {
-    return existsById(client(organization), userId);
+    return Arrays.stream(organization.members()).anyMatch(member -> member.id().equals(userId));
   }
 
   @Override
   public Collection<OrganizationMember> getMembers(Organization organization) {
-    return StreamSupport.stream(findAll(client(organization)).spliterator(), false)
-        .collect(Collectors.toList());
+    return Arrays.asList(organization.members());
   }
 
   @Override
   public void removeMember(String userId, Organization organization) {
-    deleteById(client(organization), userId);
+    findById(organization.id())
+        .ifPresent(
+            org -> {
+              Organization updatedOrganization =
+                  Organization.builder()
+                      .members(
+                          Stream.of(org.members())
+                              .filter(member -> !member.id().equals(userId))
+                              .toArray(OrganizationMember[]::new))
+                      .apiKeys(org.apiKeys())
+                      .copy(org);
+
+              save(updatedOrganization.id(), updatedOrganization);
+            });
   }
 
   @Override
   public Optional<OrganizationMember> getMember(String userId, Organization organization) {
-    return findById(client(organization), userId);
-  }
-
-  private Bucket client(Organization organization) {
-    return client(getBucketName(organization), PasswordGenerator.md5Hash(organization.id()));
-  }
-
-  private Bucket client(String bucketName, String bucketPassword) {
-    return cluster.openBucket(bucketName, bucketPassword);
-  }
-
-  private String getBucketName(Organization organization) {
-    return String.format(settings.bucketNamePattern(), organization.id());
+    return Stream.of(organization.members())
+        .filter(member -> member.id().equals(userId))
+        .findFirst();
   }
 }

@@ -15,7 +15,7 @@ public class LeaveOrganization
 
   @Override
   protected LeaveOrganizationResponse process(
-      LeaveOrganizationRequest request, OperationServiceContext context) throws Throwable {
+      LeaveOrganizationRequest request, OperationServiceContext context) {
     Organization organization = getOrganization(request.organizationId());
     checkLastOwner(context.profile().getUserId(), organization);
     context.repository().leave(organization, context.profile().getUserId());

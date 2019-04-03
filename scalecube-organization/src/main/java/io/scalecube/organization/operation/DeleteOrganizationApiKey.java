@@ -32,7 +32,8 @@ public class DeleteOrganizationApiKey
     List<ApiKey> apiKeys = Arrays.asList(organization.apiKeys());
     Organization newOrg =
         Organization.builder()
-            .apiKey(
+            .members(organization.members())
+            .apiKeys(
                 apiKeys
                     .stream()
                     .filter(api -> !api.name().equals(request.apiKeyName()))

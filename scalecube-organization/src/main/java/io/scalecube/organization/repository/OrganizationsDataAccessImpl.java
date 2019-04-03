@@ -18,22 +18,18 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
 
   private final Repository<Organization, String> organizations;
   private final UserOrganizationMembershipRepository membershipRepository;
-  private final OrganizationMembersRepositoryAdmin membersAdmin;
 
   /**
    * Creates instance of Organizations Data Access.
    *
    * @param organizationRepository organization repository.
    * @param membershipRepository membership repository.
-   * @param repositoryAdmin admin repository.
    */
   public OrganizationsDataAccessImpl(
       Repository<Organization, String> organizationRepository,
-      UserOrganizationMembershipRepository membershipRepository,
-      OrganizationMembersRepositoryAdmin repositoryAdmin) {
+      UserOrganizationMembershipRepository membershipRepository) {
     this.organizations = organizationRepository;
     this.membershipRepository = membershipRepository;
-    this.membersAdmin = repositoryAdmin;
   }
 
   private static void requireNonNullId(String id) {
@@ -67,18 +63,15 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
     requireNonNullProfile(owner);
     requireNonNullOrganization(organization);
 
-    // create members repository for the organization
-    membersAdmin.createRepository(organization);
+    OrganizationMember organizationOwner =
+        new OrganizationMember(owner.getUserId(), Role.Owner.toString());
 
-    try {
-      membershipRepository.addMember(
-          organization, new OrganizationMember(owner.getUserId(), Role.Owner.toString()));
-      return organizations.save(organization.id(), organization);
-    } catch (Throwable throwable) {
-      // rollback
-      membersAdmin.deleteRepository(organization);
-      throw throwable;
-    }
+    return organizations.save(
+        organization.id(),
+        Organization.builder()
+            .members(new OrganizationMember[] {organizationOwner})
+            .apiKeys(organization.apiKeys())
+            .copy(organization));
   }
 
   @Override
@@ -87,7 +80,6 @@ public final class OrganizationsDataAccessImpl implements OrganizationsDataAcces
     requireNonNullProfile(owner);
     requireNonNullOrganization(organization);
     verifyOrganizationExists(organization);
-    membersAdmin.deleteRepository(organization);
     organizations.deleteById(organization.id());
   }
 

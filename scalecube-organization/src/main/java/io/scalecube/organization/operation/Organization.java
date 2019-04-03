@@ -1,6 +1,7 @@
 package io.scalecube.organization.operation;
 
 import io.scalecube.account.api.ApiKey;
+import io.scalecube.account.api.OrganizationMember;
 
 /** Represents an Organization. */
 public class Organization {
@@ -9,15 +10,23 @@ public class Organization {
   private String name;
   private String email;
   private String keyId;
+  private OrganizationMember[] members;
   private ApiKey[] apiKeys;
 
   Organization() {}
 
-  private Organization(String id, String name, String email, String keyId, ApiKey[] apiKeys) {
+  private Organization(
+      String id,
+      String name,
+      String email,
+      String keyId,
+      OrganizationMember[] members,
+      ApiKey[] apiKeys) {
     this.id = id;
     this.name = name;
     this.email = email;
     this.keyId = keyId;
+    this.members = members;
     this.apiKeys = apiKeys;
   }
 
@@ -26,6 +35,7 @@ public class Organization {
     this.name = builder.name;
     this.email = builder.email;
     this.keyId = builder.keyId;
+    this.members = builder.members;
     this.apiKeys = builder.apiKeys;
   }
 
@@ -45,6 +55,10 @@ public class Organization {
     return keyId;
   }
 
+  public OrganizationMember[] members() {
+    return members;
+  }
+
   public ApiKey[] apiKeys() {
     return apiKeys;
   }
@@ -59,6 +73,7 @@ public class Organization {
     private String name;
     private String email;
     private String keyId;
+    private OrganizationMember[] members = {};
     private ApiKey[] apiKeys = {};
 
     public Builder id(String id) {
@@ -81,7 +96,12 @@ public class Organization {
       return this;
     }
 
-    public Builder apiKey(ApiKey[] apiKeys) {
+    public Builder members(OrganizationMember[] members) {
+      this.members = members;
+      return this;
+    }
+
+    public Builder apiKeys(ApiKey[] apiKeys) {
       this.apiKeys = apiKeys;
       return this;
     }
@@ -95,8 +115,9 @@ public class Organization {
     public Organization copy(Organization source) {
       String email = this.email == null ? source.email : this.email;
       String name = this.name == null ? source.name : this.name;
+      OrganizationMember[] members = this.members == null ? source.members : this.members;
       ApiKey[] apiKeys = this.apiKeys == null ? source.apiKeys : this.apiKeys;
-      return new Organization(source.id(), name, email, source.keyId(), apiKeys);
+      return new Organization(source.id(), name, email, source.keyId(), members, apiKeys);
     }
 
     public Organization build() {

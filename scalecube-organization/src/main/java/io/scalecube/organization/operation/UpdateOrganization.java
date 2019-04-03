@@ -24,7 +24,8 @@ public class UpdateOrganization
         Organization.builder()
             .name(request.name())
             .email(request.email())
-            .apiKey(organization.apiKeys())
+            .members(organization.members())
+            .apiKeys(organization.apiKeys())
             .copy(organization);
 
     context.repository().updateOrganizationDetails(context.profile(), organization, orgUpdate);

@@ -12,14 +12,11 @@ import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.operation.Organization;
-import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
 import io.scalecube.organization.repository.OrganizationsDataAccess;
 import io.scalecube.organization.repository.OrganizationsDataAccessImpl;
 import io.scalecube.organization.repository.Repository;
 import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
-import io.scalecube.organization.repository.inmem.InMemoryOrganizationMembersRepositoryAdmin;
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
-import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
 import io.scalecube.organization.token.store.PropertiesFileKeyStore;
 import io.scalecube.organization.tokens.TokenVerifier;
 import io.scalecube.organization.tokens.store.KeyStore;
@@ -104,12 +101,12 @@ public class Base {
   protected Token token = new Token("user1");
   protected Repository<Organization, String> organizationRepository;
   protected UserOrganizationMembershipRepository orgMembersRepository;
-  private OrganizationMembersRepositoryAdmin admin;
 
   protected Base() {
-    orgMembersRepository = new InMemoryUserOrganizationMembershipRepository();
-    organizationRepository = new InMemoryOrganizationRepository();
-    admin = new InMemoryOrganizationMembersRepositoryAdmin();
+    InMemoryOrganizationRepository inMemoryOrganizationRepository =
+        new InMemoryOrganizationRepository();
+    orgMembersRepository = inMemoryOrganizationRepository;
+    organizationRepository = inMemoryOrganizationRepository;
     service = createService(testProfile);
     new File("keystore.properties").deleteOnExit();
   }
@@ -164,7 +161,7 @@ public class Base {
 
   protected OrganizationService createService(Profile profile) {
     OrganizationsDataAccess dataAccess =
-        new OrganizationsDataAccessImpl(organizationRepository, orgMembersRepository, admin);
+        new OrganizationsDataAccessImpl(organizationRepository, orgMembersRepository);
     TokenVerifier tokenVerifier = token -> Objects.equals(profile, invalidProfile) ? null : profile;
     KeyStore keyStore = new PropertiesFileKeyStore();
 

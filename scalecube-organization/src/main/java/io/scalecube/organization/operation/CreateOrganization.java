@@ -34,11 +34,7 @@ public final class CreateOrganization
       CreateOrganizationRequest request, OperationServiceContext context) throws Throwable {
     String id = "ORG-" + IdGenerator.generateId();
     validate(
-        new OrganizationInfo.Builder()
-            .id(id)
-            .email(request.email())
-            .name(request.name())
-            .build(),
+        new OrganizationInfo.Builder().id(id).email(request.email()).name(request.name()).build(),
         context);
 
     Organization organization = createOrganization(request, context, id);
@@ -55,8 +51,8 @@ public final class CreateOrganization
         OrganizationInfo.builder()
             .id(organization.id())
             .name(organization.name())
-            .apiKeys(organization.apiKeys())
-            .email(organization.email()));
+            .email(organization.email())
+            .apiKeys(organization.apiKeys()));
   }
 
   private Organization createOrganization(

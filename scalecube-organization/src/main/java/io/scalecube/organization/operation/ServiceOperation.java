@@ -16,6 +16,7 @@ import io.scalecube.security.Profile;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 /**
  * Represents a service operation.
@@ -125,29 +126,25 @@ public abstract class ServiceOperation<I, O> {
   }
 
   protected boolean isOwner(Organization organization, Profile profile)
-      throws EntityNotFoundException, AccessPermissionException {
+      throws EntityNotFoundException {
     return isInRole(profile.getUserId(), organization, Role.Owner);
   }
 
   protected boolean isLastOwner(Organization organization, String userId)
       throws EntityNotFoundException {
-    return repository
-        .getOrganizationMembers(organization)
-        .stream()
+    return Stream.of(organization.members())
         .filter(member -> !member.id().equals(userId))
         .noneMatch(member -> Role.Owner.name().equals(member.role()));
   }
 
   protected boolean isSuperUser(Organization organization, Profile profile)
-      throws EntityNotFoundException, AccessPermissionException {
+      throws EntityNotFoundException {
     return isOwner(organization, profile)
         || isInRole(profile.getUserId(), organization, Role.Admin);
   }
 
   protected Role getRole(String userId, Organization organization) throws EntityNotFoundException {
-    return repository
-        .getOrganizationMembers(organization)
-        .stream()
+    return Stream.of(organization.members())
         .filter(i -> Objects.equals(i.id(), userId))
         .map(i -> Role.valueOf(i.role()))
         .findFirst()
@@ -164,9 +161,7 @@ public abstract class ServiceOperation<I, O> {
 
   protected boolean isInRole(String userId, Organization organization, Role role)
       throws EntityNotFoundException {
-    return repository
-        .getOrganizationMembers(organization)
-        .stream()
+    return Stream.of(organization.members())
         .anyMatch(i -> Objects.equals(i.id(), userId) && Objects.equals(i.role(), role.toString()));
   }
 

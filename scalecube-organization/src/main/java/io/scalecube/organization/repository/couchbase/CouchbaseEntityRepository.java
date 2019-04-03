@@ -5,15 +5,17 @@ import static com.couchbase.client.java.query.dsl.Expression.i;
 import static java.util.Objects.requireNonNull;
 
 import com.couchbase.client.java.Bucket;
-import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.RawJsonDocument;
 import com.couchbase.client.java.query.N1qlQuery;
+import com.couchbase.client.java.query.N1qlQueryResult;
+import com.couchbase.client.java.query.N1qlQueryRow;
 import com.couchbase.client.java.query.SimpleN1qlQuery;
 import io.scalecube.organization.repository.Repository;
 import io.scalecube.organization.repository.exception.DataRetrievalFailureException;
 import io.scalecube.organization.repository.exception.OperationInterruptedException;
 import io.scalecube.organization.repository.exception.QueryTimeoutException;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -27,39 +29,36 @@ import rx.Observable;
  */
 abstract class CouchbaseEntityRepository<T, I extends String> implements Repository<T, I> {
 
+  private static final String SELECT_COUNT_BY_DOCUMENT_FIELD =
+      "select count(id) as count from %s where %s = '%s'";
+
   private final CouchbaseExceptionTranslator exceptionTranslator =
       new CouchbaseExceptionTranslator();
   private final TranslationService translationService = new JacksonTranslationService();
-  protected final CouchbaseSettings settings;
-  protected final Cluster cluster;
+
+  private final Bucket bucket;
   private final Class<T> type;
-  private String bucketName;
 
-  CouchbaseEntityRepository(
-      CouchbaseSettings settings, Cluster cluster, String bucketName, Class<T> type) {
-    this.settings = requireNonNull(settings);
-    this.cluster = requireNonNull(cluster);
+  CouchbaseEntityRepository(Bucket bucket, Class<T> type) {
+    this.bucket = requireNonNull(bucket);
     this.type = requireNonNull(type);
-    this.bucketName = bucketName;
-  }
-
-  String getBucketName() {
-    return bucketName;
   }
 
   @Override
   public boolean existByProperty(String propertyName, Object propertyValue) {
-    return false;
+    N1qlQuery query =
+        N1qlQuery.simple(
+            String.format(
+                SELECT_COUNT_BY_DOCUMENT_FIELD, bucket.name(), propertyName, propertyValue));
+    N1qlQueryResult queryResult = bucket.query(query);
+    List<N1qlQueryRow> rows = queryResult.allRows();
+    return !rows.isEmpty() && rows.get(0).value().getInt("count") > 0;
   }
 
   @Override
   public Optional<T> findById(I id) {
-    return findById(client(), id);
-  }
-
-  protected Optional<T> findById(Bucket client, I id) {
     requireNonNull(id);
-    return toEntity(execute(() -> client.get(id), client));
+    return toEntity(execute(() -> bucket.get(id), bucket));
   }
 
   private Optional<T> toEntity(JsonDocument document) {
@@ -74,76 +73,52 @@ abstract class CouchbaseEntityRepository<T, I extends String> implements Reposit
 
   @Override
   public boolean existsById(I id) {
-    return existsById(client(), id);
-  }
-
-  protected boolean existsById(Bucket client, I id) {
     requireNonNull(id);
-    return execute(() -> client.exists(id), client);
+    return execute(() -> bucket.exists(id), bucket);
   }
 
   @Override
   public T save(I id, T entity) {
-    return save(client(), id, entity);
-  }
-
-  protected T save(Bucket client, I id, T entity) {
     requireNonNull(id);
     requireNonNull(entity);
 
     execute(
-        () -> client.upsert(RawJsonDocument.create(id, translationService.encode(entity))), client);
+        () -> bucket.upsert(RawJsonDocument.create(id, translationService.encode(entity))), bucket);
     return entity;
   }
 
   @Override
   public void deleteById(I id) {
     requireNonNull(id);
-    deleteById(client(), id);
-  }
-
-  protected void deleteById(Bucket client, I id) {
-    execute(() -> client.remove(id), client);
+    execute(() -> bucket.remove(id), bucket);
   }
 
   @Override
   public Iterable<T> findAll() {
-    return findAll(client());
-  }
+    requireNonNull(bucket);
+    final SimpleN1qlQuery query = N1qlQuery.simple(select("*").from(i(bucket.name())));
 
-  protected Iterable<T> findAll(Bucket client) {
-    requireNonNull(client);
-    final SimpleN1qlQuery query = N1qlQuery.simple(select("*").from(i(client.name())));
-
-    try {
-      return executeAsync(client.async().query(query))
-          .flatMap(
-              result ->
-                  result
-                      .rows()
-                      .mergeWith(
-                          result
-                              .errors()
-                              .flatMap(
-                                  error ->
-                                      Observable.error(
-                                          new DataRetrievalFailureException(
-                                              "N1QL error: " + error.toString()))))
-                      .flatMap(
-                          row ->
-                              Observable.just(
-                                  translationService.decode(
-                                      row.value().get(client.name()).toString(), type)))
-                      .toList())
-          .toBlocking()
-          .single();
-    } finally {
-      client.close();
-    }
-  }
-
-  protected Bucket client() {
-    return cluster.openBucket(bucketName, settings.password());
+    return executeAsync(bucket.async().query(query))
+        .flatMap(
+            result ->
+                result
+                    .rows()
+                    .mergeWith(
+                        result
+                            .errors()
+                            .flatMap(
+                                error ->
+                                    Observable.error(
+                                        new DataRetrievalFailureException(
+                                            "N1QL error: " + error.toString()))))
+                    .flatMap(
+                        row ->
+                            Observable.just(
+                                translationService.decode(
+                                    row.value().get(bucket.name()).toString(), type)))
+                    .toList())
+        .toBlocking()
+        .single();
   }
 
   private <R> Observable<R> executeAsync(Observable<R> asyncAction) {
@@ -164,8 +139,8 @@ abstract class CouchbaseEntityRepository<T, I extends String> implements Reposit
         });
   }
 
-  protected <R> R execute(BucketCallback<R> action, Bucket client) {
-    requireNonNull(client);
+  protected <R> R execute(BucketCallback<R> action, Bucket bucket) {
+    requireNonNull(bucket);
     requireNonNull(action);
 
     try {
@@ -176,8 +151,6 @@ abstract class CouchbaseEntityRepository<T, I extends String> implements Reposit
       throw new QueryTimeoutException(ex.getMessage(), ex);
     } catch (InterruptedException | ExecutionException ex) {
       throw new OperationInterruptedException(ex.getMessage(), ex);
-    } finally {
-      client.close();
     }
   }
 }

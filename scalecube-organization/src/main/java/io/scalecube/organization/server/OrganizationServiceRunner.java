@@ -66,10 +66,7 @@ public class OrganizationServiceRunner {
     CouchbaseRepositoryFactory factory = new CouchbaseRepositoryFactory(settings);
 
     OrganizationsDataAccess dataAccess =
-        new OrganizationsDataAccessImpl(
-            factory.organizations(),
-            factory.organizationMembers(),
-            factory.organizationMembersRepositoryAdmin());
+        new OrganizationsDataAccessImpl(factory.organizations(), factory.organizationMembers());
     KeyStore keyStore = new VaultKeyStore();
     TokenVerifier tokenVerifier = new TokenVerifierImpl(new Auth0PublicKeyProvider());
 
