@@ -11,11 +11,8 @@ import io.scalecube.account.api.InviteOrganizationMemberRequest;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
-import io.scalecube.organization.operation.Organization;
-import io.scalecube.organization.repository.OrganizationsDataAccess;
-import io.scalecube.organization.repository.OrganizationsDataAccessImpl;
-import io.scalecube.organization.repository.Repository;
-import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
+import io.scalecube.organization.domain.Organization;
+import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
 import io.scalecube.organization.token.store.PropertiesFileKeyStore;
 import io.scalecube.organization.tokens.TokenVerifier;
@@ -36,8 +33,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 public class Base {
-
-  protected static KeyPairGenerator keyPairGenerator;
 
   protected final Profile testProfile =
       Profile.builder()
@@ -99,22 +94,12 @@ public class Base {
   protected String organizationId;
   protected Organization organisation;
   protected Token token = new Token("user1");
-  protected Repository<Organization, String> organizationRepository;
-  protected UserOrganizationMembershipRepository orgMembersRepository;
+  protected OrganizationsRepository organizationRepository;
 
   protected Base() {
-    InMemoryOrganizationRepository inMemoryOrganizationRepository =
-        new InMemoryOrganizationRepository();
-    orgMembersRepository = inMemoryOrganizationRepository;
-    organizationRepository = inMemoryOrganizationRepository;
+    organizationRepository = new InMemoryOrganizationRepository();
     service = createService(testProfile);
     new File("keystore.properties").deleteOnExit();
-  }
-
-  @BeforeAll
-  static void beforeAll() throws NoSuchAlgorithmException {
-    keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-    keyPairGenerator.initialize(2048);
   }
 
   protected static String randomString() {
@@ -160,12 +145,10 @@ public class Base {
   }
 
   protected OrganizationService createService(Profile profile) {
-    OrganizationsDataAccess dataAccess =
-        new OrganizationsDataAccessImpl(organizationRepository, orgMembersRepository);
     TokenVerifier tokenVerifier = token -> Objects.equals(profile, invalidProfile) ? null : profile;
     KeyStore keyStore = new PropertiesFileKeyStore();
 
-    return new OrganizationServiceImpl(dataAccess, keyStore, tokenVerifier);
+    return new OrganizationServiceImpl(organizationRepository, keyStore, tokenVerifier);
   }
 
   protected static <T> void assertMonoCompletesWithError(

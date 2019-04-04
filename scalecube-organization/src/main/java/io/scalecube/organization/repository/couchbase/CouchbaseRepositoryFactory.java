@@ -3,9 +3,7 @@ package io.scalecube.organization.repository.couchbase;
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseCluster;
-import io.scalecube.organization.operation.Organization;
-import io.scalecube.organization.repository.Repository;
-import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
+import io.scalecube.organization.repository.OrganizationsRepository;
 import java.util.List;
 
 public final class CouchbaseRepositoryFactory {
@@ -28,11 +26,7 @@ public final class CouchbaseRepositoryFactory {
             .openBucket(settings.organizationsBucketName());
   }
 
-  public Repository<Organization, String> organizations() {
-    return new CouchbaseOrganizationRepository(bucket);
-  }
-
-  public UserOrganizationMembershipRepository organizationMembers() {
-    return new CouchbaseUserOrganizationMembershipRepository(bucket);
+  public OrganizationsRepository organizations() {
+    return new CouchbaseOrganizationsRepository(bucket);
   }
 }

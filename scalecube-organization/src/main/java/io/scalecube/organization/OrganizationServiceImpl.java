@@ -40,7 +40,7 @@ import io.scalecube.organization.operation.KickoutMember;
 import io.scalecube.organization.operation.LeaveOrganization;
 import io.scalecube.organization.operation.UpdateOrganization;
 import io.scalecube.organization.operation.UpdateOrganizationMemberRole;
-import io.scalecube.organization.repository.OrganizationsDataAccess;
+import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.tokens.TokenVerifier;
 import io.scalecube.organization.tokens.store.KeyStore;
 import java.security.KeyPairGenerator;
@@ -54,7 +54,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   private static final Logger logger = LoggerFactory.getLogger(OrganizationServiceImpl.class);
 
   private final TokenVerifier tokenVerifier;
-  private final OrganizationsDataAccess repository;
+  private final OrganizationsRepository repository;
   private final KeyStore keyStore;
   private final KeyPairGenerator keyPairGenerator;
 
@@ -66,7 +66,7 @@ public class OrganizationServiceImpl implements OrganizationService {
    * @param tokenVerifier token verifier
    */
   public OrganizationServiceImpl(
-      OrganizationsDataAccess repository, KeyStore keyStore, TokenVerifier tokenVerifier) {
+      OrganizationsRepository repository, KeyStore keyStore, TokenVerifier tokenVerifier) {
     this.repository = repository;
     this.keyStore = keyStore;
     this.tokenVerifier = tokenVerifier;

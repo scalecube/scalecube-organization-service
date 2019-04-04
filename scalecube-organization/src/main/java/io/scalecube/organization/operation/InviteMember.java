@@ -2,16 +2,18 @@ package io.scalecube.organization.operation;
 
 import io.scalecube.account.api.InviteOrganizationMemberRequest;
 import io.scalecube.account.api.InviteOrganizationMemberResponse;
+import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
-import io.scalecube.organization.repository.OrganizationsDataAccess;
+import io.scalecube.organization.domain.Organization;
+import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.tokens.TokenVerifier;
 
 public class InviteMember
     extends ServiceOperation<InviteOrganizationMemberRequest, InviteOrganizationMemberResponse> {
 
-  private InviteMember(TokenVerifier tokenVerifier, OrganizationsDataAccess repository) {
+  private InviteMember(TokenVerifier tokenVerifier, OrganizationsRepository repository) {
     super(tokenVerifier, repository);
   }
 
@@ -34,9 +36,9 @@ public class InviteMember
               invitedMemberRole.toString()));
     }
 
-    context
-        .repository()
-        .invite(context.profile(), organization, request.userId(), invitedMemberRole);
+    organization.addMember(new OrganizationMember(request.userId(), invitedMemberRole.name()));
+    context.repository().save(organization.id(), organization);
+
     return new InviteOrganizationMemberResponse();
   }
 
@@ -59,14 +61,14 @@ public class InviteMember
 
   public static class Builder {
     private TokenVerifier tokenVerifier;
-    private OrganizationsDataAccess repository;
+    private OrganizationsRepository repository;
 
     public Builder tokenVerifier(TokenVerifier tokenVerifier) {
       this.tokenVerifier = tokenVerifier;
       return this;
     }
 
-    public Builder repository(OrganizationsDataAccess repository) {
+    public Builder repository(OrganizationsRepository repository) {
       this.repository = repository;
       return this;
     }

@@ -5,13 +5,14 @@ import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.UpdateOrganizationRequest;
 import io.scalecube.account.api.UpdateOrganizationResponse;
-import io.scalecube.organization.repository.OrganizationsDataAccess;
+import io.scalecube.organization.domain.Organization;
+import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.tokens.TokenVerifier;
 
 public class UpdateOrganization
     extends OrganizationInfoOperation<UpdateOrganizationRequest, UpdateOrganizationResponse> {
 
-  private UpdateOrganization(TokenVerifier tokenVerifier, OrganizationsDataAccess repository) {
+  private UpdateOrganization(TokenVerifier tokenVerifier, OrganizationsRepository repository) {
     super(tokenVerifier, repository);
   }
 
@@ -19,19 +20,16 @@ public class UpdateOrganization
   protected UpdateOrganizationResponse process(
       UpdateOrganizationRequest request, OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
-    checkSuperUserAccess(organization, context.profile());
-    Organization orgUpdate =
-        Organization.builder()
-            .name(request.name())
-            .email(request.email())
-            .members(organization.members())
-            .apiKeys(organization.apiKeys())
-            .copy(organization);
 
-    context.repository().updateOrganizationDetails(context.profile(), organization, orgUpdate);
+    checkSuperUserAccess(organization, context.profile());
+
+    organization.changeName(request.name());
+    organization.changeEmail(request.email());
+
+    context.repository().save(organization.id(), organization);
 
     Role role = getRole(context.profile().getUserId(), organization);
-    return new UpdateOrganizationResponse(organizationInfo(orgUpdate, apiKeyFilterBy(role)));
+    return new UpdateOrganizationResponse(organizationInfo(organization, apiKeyFilterBy(role)));
   }
 
   @Override
@@ -59,14 +57,14 @@ public class UpdateOrganization
 
   public static class Builder {
     private TokenVerifier tokenVerifier;
-    private OrganizationsDataAccess repository;
+    private OrganizationsRepository repository;
 
     public Builder tokenVerifier(TokenVerifier tokenVerifier) {
       this.tokenVerifier = tokenVerifier;
       return this;
     }
 
-    public Builder repository(OrganizationsDataAccess repository) {
+    public Builder repository(OrganizationsRepository repository) {
       this.repository = repository;
       return this;
     }

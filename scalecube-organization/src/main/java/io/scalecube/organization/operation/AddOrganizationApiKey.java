@@ -6,14 +6,13 @@ import io.scalecube.account.api.GetOrganizationResponse;
 import io.scalecube.account.api.OrganizationServiceException;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
-import io.scalecube.organization.repository.OrganizationsDataAccess;
+import io.scalecube.organization.domain.Organization;
+import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.tokens.TokenVerifier;
 import io.scalecube.organization.tokens.store.ApiKeyBuilder;
 import io.scalecube.organization.tokens.store.KeyStore;
-import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.stream.Stream;
 
 public class AddOrganizationApiKey
     extends ServiceOperation<AddOrganizationApiKeyRequest, GetOrganizationResponse> {
@@ -57,17 +56,13 @@ public class AddOrganizationApiKey
     }
 
     ApiKey apiKey = ApiKeyBuilder.build(keyStore, organization, request);
-    int newLength = organization.apiKeys().length + 1;
-    ApiKey[] apiKeys = Arrays.copyOf(organization.apiKeys(), newLength);
 
-    apiKeys[organization.apiKeys().length] = apiKey;
+    organization.addApiKey(apiKey);
 
-    Organization clonedOrg =
-        Organization.builder().members(organization.members()).apiKeys(apiKeys).copy(organization);
-    context.repository().updateOrganizationDetails(context.profile(), organization, clonedOrg);
+    context.repository().save(organization.id(), organization);
 
     Role role = getRole(context.profile().getUserId(), organization);
-    return getOrganizationResponse(clonedOrg, apiKeyFilterBy(role));
+    return getOrganizationResponse(organization, apiKeyFilterBy(role));
   }
 
   @Override
@@ -78,7 +73,7 @@ public class AddOrganizationApiKey
     requireNonNullOrEmpty(request.apiKeyName(), "apiKeyName is a required argument");
     Organization organization = getOrganization(request.organizationId());
     boolean alreadyExists =
-        Stream.of(organization.apiKeys())
+        organization.apiKeys().stream()
             .anyMatch(existingKey -> existingKey.name().equals(request.apiKeyName()));
     if (alreadyExists) {
       throw new IllegalArgumentException(
@@ -97,7 +92,7 @@ public class AddOrganizationApiKey
 
   public static class Builder {
     private TokenVerifier tokenVerifier;
-    private OrganizationsDataAccess repository;
+    private OrganizationsRepository repository;
     private KeyStore keyStore;
 
     public Builder tokenVerifier(TokenVerifier tokenVerifier) {
@@ -105,7 +100,7 @@ public class AddOrganizationApiKey
       return this;
     }
 
-    public Builder repository(OrganizationsDataAccess repository) {
+    public Builder repository(OrganizationsRepository repository) {
       this.repository = repository;
       return this;
     }
