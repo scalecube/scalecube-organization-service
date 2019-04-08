@@ -74,13 +74,6 @@ public class OrganizationServiceRunner {
     bindingMap.put("hosts", "couchbase.hosts");
     bindingMap.put("username", "couchbase.username");
     bindingMap.put("password", "couchbase.password");
-    bindingMap.put("userRoles", "organizations.members.userRoles");
-    bindingMap.put("bucketNamePattern", "organizations.members.bucketNamePattern");
-    bindingMap.put("bucketType", "organizations.members.bucketType");
-    bindingMap.put("bucketQuota", "organizations.members.bucketQuota");
-    bindingMap.put("bucketReplicas", "organizations.members.bucketReplicas");
-    bindingMap.put("bucketIndexReplicas", "organizations.members.bucketIndexReplicas");
-    bindingMap.put("bucketEnableFlush", "organizations.members.bucketEnableFlush");
     bindingMap.put("organizationsBucketName", "organizations.bucket");
 
     return bindingMap;
