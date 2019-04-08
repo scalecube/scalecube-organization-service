@@ -8,12 +8,12 @@ import io.scalecube.account.api.OrganizationNotFoundException;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.ServiceOperationException;
 import io.scalecube.account.api.Token;
-import io.scalecube.organization.repository.OrganizationsDataAccess;
+import io.scalecube.organization.domain.Organization;
+import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.organization.tokens.TokenVerifier;
 import io.scalecube.security.Profile;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -26,9 +26,9 @@ import java.util.function.Predicate;
 public abstract class ServiceOperation<I, O> {
 
   private final TokenVerifier tokenVerifier;
-  private final OrganizationsDataAccess repository;
+  private final OrganizationsRepository repository;
 
-  protected ServiceOperation(TokenVerifier tokenVerifier, OrganizationsDataAccess repository) {
+  protected ServiceOperation(TokenVerifier tokenVerifier, OrganizationsRepository repository) {
     this.tokenVerifier = tokenVerifier;
     this.repository = repository;
   }
@@ -77,13 +77,7 @@ public abstract class ServiceOperation<I, O> {
     Objects.requireNonNull(repository, "repository");
 
     try {
-      Organization organization = repository.getOrganization(id);
-
-      if (organization == null) {
-        throw new OrganizationNotFoundException(id);
-      }
-
-      return organization;
+      return repository.findById(id).orElseThrow(() -> new OrganizationNotFoundException(id));
     } catch (EntityNotFoundException e) {
       throw new OrganizationNotFoundException(id);
     }
@@ -96,11 +90,10 @@ public abstract class ServiceOperation<I, O> {
 
   protected OrganizationInfo.Builder organizationInfo(
       Organization organization, Predicate<ApiKey> filter) {
-    ApiKey[] apiKeys = Arrays.stream(organization.apiKeys()).filter(filter).toArray(ApiKey[]::new);
     return OrganizationInfo.builder()
         .id(organization.id())
         .name(organization.name())
-        .apiKeys(apiKeys)
+        .apiKeys(organization.apiKeys().stream().filter(filter).toArray(ApiKey[]::new))
         .email(organization.email());
   }
 
@@ -115,8 +108,7 @@ public abstract class ServiceOperation<I, O> {
   protected void checkMemberAccess(Organization organization, Profile profile)
       throws AccessPermissionException, EntityNotFoundException {
 
-    if (!isOwner(organization, profile)
-        && !repository.isMember(profile.getUserId(), organization)) {
+    if (!isOwner(organization, profile) && !organization.isMember(profile.getUserId())) {
       throw new AccessPermissionException(
           String.format(
               "user: '%s', name: '%s', is not a member of organization: '%s'",
@@ -125,29 +117,25 @@ public abstract class ServiceOperation<I, O> {
   }
 
   protected boolean isOwner(Organization organization, Profile profile)
-      throws EntityNotFoundException, AccessPermissionException {
+      throws EntityNotFoundException {
     return isInRole(profile.getUserId(), organization, Role.Owner);
   }
 
   protected boolean isLastOwner(Organization organization, String userId)
       throws EntityNotFoundException {
-    return repository
-        .getOrganizationMembers(organization)
-        .stream()
+    return organization.members().stream()
         .filter(member -> !member.id().equals(userId))
         .noneMatch(member -> Role.Owner.name().equals(member.role()));
   }
 
   protected boolean isSuperUser(Organization organization, Profile profile)
-      throws EntityNotFoundException, AccessPermissionException {
+      throws EntityNotFoundException {
     return isOwner(organization, profile)
         || isInRole(profile.getUserId(), organization, Role.Admin);
   }
 
   protected Role getRole(String userId, Organization organization) throws EntityNotFoundException {
-    return repository
-        .getOrganizationMembers(organization)
-        .stream()
+    return organization.members().stream()
         .filter(i -> Objects.equals(i.id(), userId))
         .map(i -> Role.valueOf(i.role()))
         .findFirst()
@@ -158,15 +146,13 @@ public abstract class ServiceOperation<I, O> {
     try {
       return Role.valueOf(role);
     } catch (Throwable ex) {
-      throw new IllegalArgumentException("role: " + role);
+      throw new IllegalArgumentException("Unknown role: " + role);
     }
   }
 
   protected boolean isInRole(String userId, Organization organization, Role role)
       throws EntityNotFoundException {
-    return repository
-        .getOrganizationMembers(organization)
-        .stream()
+    return organization.members().stream()
         .anyMatch(i -> Objects.equals(i.id(), userId) && Objects.equals(i.role(), role.toString()));
   }
 

@@ -15,7 +15,7 @@ import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
 import io.scalecube.account.api.UpdateOrganizationRequest;
-import io.scalecube.organization.operation.Organization;
+import io.scalecube.organization.domain.Organization;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.NameAlreadyInUseException;
 import java.util.Arrays;
@@ -118,9 +118,10 @@ class UpdateOrganizationTest extends Base {
 
   @Test
   void updateOrganizationNotAdminShouldFail() {
-    orgMembersRepository.addMember(
-        getOrganizationFromRepository(organizationId),
-        new OrganizationMember(testProfile2.getUserId(), Role.Member.toString()));
+    Organization organization = getOrganizationFromRepository(organizationId);
+    organization.addMember(new OrganizationMember(testProfile2.getUserId(), Role.Member.name()));
+    organizationRepository.save(organizationId, organization);
+
     assertMonoCompletesWithError(
         createService(testProfile2)
             .updateOrganization(
@@ -131,9 +132,8 @@ class UpdateOrganizationTest extends Base {
 
   @Test
   void updateOrganization() {
-    orgMembersRepository.addMember(
-        getOrganizationFromRepository(organizationId),
-        new OrganizationMember(testAdminProfile.getUserId(), Role.Admin.toString()));
+    Organization organization = getOrganizationFromRepository(organizationId);
+    organization.addMember(new OrganizationMember(testAdminProfile.getUserId(), Role.Admin.name()));
 
     StepVerifier.create(
             service.addOrganizationApiKey(
@@ -322,8 +322,7 @@ class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  void
-      updateOrganizationMemberRoleWithEmptyInnerTokenShouldFailWithIllegalArgumentException() {
+  void updateOrganizationMemberRoleWithEmptyInnerTokenShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         service.updateOrganizationMemberRole(
             new UpdateOrganizationMemberRoleRequest(
@@ -350,8 +349,7 @@ class UpdateOrganizationTest extends Base {
   }
 
   @Test
-  void
-      updateOrganizationMemberRoleInvalidRoleEnumValueShouldFailWithIllegalArgumentException() {
+  void updateOrganizationMemberRoleInvalidRoleEnumValueShouldFailWithIllegalArgumentException() {
     addMemberToOrganization(organizationId, testProfile5);
 
     assertMonoCompletesWithError(

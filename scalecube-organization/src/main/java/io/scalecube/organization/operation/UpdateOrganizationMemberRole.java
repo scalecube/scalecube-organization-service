@@ -5,7 +5,8 @@ import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
 import io.scalecube.account.api.UpdateOrganizationMemberRoleResponse;
-import io.scalecube.organization.repository.OrganizationsDataAccess;
+import io.scalecube.organization.domain.Organization;
+import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.organization.tokens.TokenVerifier;
@@ -22,7 +23,7 @@ public class UpdateOrganizationMemberRole
         UpdateOrganizationMemberRoleRequest, UpdateOrganizationMemberRoleResponse> {
 
   private UpdateOrganizationMemberRole(
-      TokenVerifier tokenVerifier, OrganizationsDataAccess repository) {
+      TokenVerifier tokenVerifier, OrganizationsRepository repository) {
     super(tokenVerifier, repository);
   }
 
@@ -35,9 +36,10 @@ public class UpdateOrganizationMemberRole
   protected UpdateOrganizationMemberRoleResponse process(
       UpdateOrganizationMemberRoleRequest request, OperationServiceContext context) {
     Organization organization = getOrganization(request.organizationId());
-    context
-        .repository()
-        .updateOrganizationMemberRole(organization, request.userId(), request.role());
+
+    organization.updateMemberRole(request.userId(), Role.valueOf(request.role()));
+
+    context.repository().save(organization.id(), organization);
 
     return new UpdateOrganizationMemberRoleResponse();
   }
@@ -55,7 +57,7 @@ public class UpdateOrganizationMemberRole
     Profile caller = context.profile();
     Role callerRole = getRole(context.profile().getUserId(), organization);
 
-    checkIsMember(request.userId(), context, organization);
+    checkIsMember(request.userId(), organization);
     checkSuperUserAccess(organization, caller);
     checkIfRequestToUpdateUserRoleIsValidForCaller(
         toRole(request.role()), context.profile(), callerRole);
@@ -97,10 +99,9 @@ public class UpdateOrganizationMemberRole
     }
   }
 
-  private void checkIsMember(
-      String userId, OperationServiceContext context, Organization organization)
+  private void checkIsMember(String userId, Organization organization)
       throws NotAnOrganizationMemberException {
-    if (!context.repository().isMember(userId, organization)) {
+    if (!organization.isMember(userId)) {
       throw new NotAnOrganizationMemberException(
           String.format(
               "user: %s, is not a member of organization: %s", userId, organization.id()));
@@ -113,14 +114,14 @@ public class UpdateOrganizationMemberRole
 
   public static class Builder {
     private TokenVerifier tokenVerifier;
-    private OrganizationsDataAccess repository;
+    private OrganizationsRepository repository;
 
     public UpdateOrganizationMemberRole.Builder tokenVerifier(TokenVerifier tokenVerifier) {
       this.tokenVerifier = tokenVerifier;
       return this;
     }
 
-    public UpdateOrganizationMemberRole.Builder repository(OrganizationsDataAccess repository) {
+    public UpdateOrganizationMemberRole.Builder repository(OrganizationsRepository repository) {
       this.repository = repository;
       return this;
     }

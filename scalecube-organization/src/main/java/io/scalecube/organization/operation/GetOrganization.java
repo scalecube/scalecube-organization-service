@@ -4,13 +4,14 @@ import io.scalecube.account.api.GetOrganizationRequest;
 import io.scalecube.account.api.GetOrganizationResponse;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
-import io.scalecube.organization.repository.OrganizationsDataAccess;
+import io.scalecube.organization.domain.Organization;
+import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.tokens.TokenVerifier;
 
 public class GetOrganization
     extends ServiceOperation<GetOrganizationRequest, GetOrganizationResponse> {
 
-  private GetOrganization(TokenVerifier tokenVerifier, OrganizationsDataAccess repository) {
+  private GetOrganization(TokenVerifier tokenVerifier, OrganizationsRepository repository) {
     super(tokenVerifier, repository);
   }
 
@@ -41,14 +42,14 @@ public class GetOrganization
 
   public static class Builder {
     private TokenVerifier tokenVerifier;
-    private OrganizationsDataAccess repository;
+    private OrganizationsRepository repository;
 
     public Builder tokenVerifier(TokenVerifier tokenVerifier) {
       this.tokenVerifier = tokenVerifier;
       return this;
     }
 
-    public Builder repository(OrganizationsDataAccess repository) {
+    public Builder repository(OrganizationsRepository repository) {
       this.repository = repository;
       return this;
     }

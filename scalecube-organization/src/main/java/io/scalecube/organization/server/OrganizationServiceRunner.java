@@ -3,8 +3,6 @@ package io.scalecube.organization.server;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.organization.OrganizationServiceImpl;
 import io.scalecube.organization.config.AppConfiguration;
-import io.scalecube.organization.repository.OrganizationsDataAccess;
-import io.scalecube.organization.repository.OrganizationsDataAccessImpl;
 import io.scalecube.organization.repository.couchbase.CouchbaseRepositoryFactory;
 import io.scalecube.organization.repository.couchbase.CouchbaseSettings;
 import io.scalecube.organization.tokens.Auth0PublicKeyProvider;
@@ -13,7 +11,6 @@ import io.scalecube.organization.tokens.TokenVerifierImpl;
 import io.scalecube.organization.tokens.store.KeyStore;
 import io.scalecube.organization.tokens.store.VaultKeyStore;
 import io.scalecube.services.Microservices;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -34,7 +31,7 @@ public class OrganizationServiceRunner {
     Thread.currentThread().join();
   }
 
-  private static void start() throws NoSuchAlgorithmException {
+  private static void start() {
     DiscoveryOptions discoveryOptions =
         AppConfiguration.configRegistry()
             .objectProperty("io.scalecube.organization", DiscoveryOptions.class)
@@ -65,15 +62,10 @@ public class OrganizationServiceRunner {
 
     CouchbaseRepositoryFactory factory = new CouchbaseRepositoryFactory(settings);
 
-    OrganizationsDataAccess dataAccess =
-        new OrganizationsDataAccessImpl(
-            factory.organizations(),
-            factory.organizationMembers(),
-            factory.organizationMembersRepositoryAdmin());
     KeyStore keyStore = new VaultKeyStore();
     TokenVerifier tokenVerifier = new TokenVerifierImpl(new Auth0PublicKeyProvider());
 
-    return new OrganizationServiceImpl(dataAccess, keyStore, tokenVerifier);
+    return new OrganizationServiceImpl(factory.organizations(), keyStore, tokenVerifier);
   }
 
   private static Map<String, String> couchbaseSettingsBindingMap() {
@@ -82,13 +74,6 @@ public class OrganizationServiceRunner {
     bindingMap.put("hosts", "couchbase.hosts");
     bindingMap.put("username", "couchbase.username");
     bindingMap.put("password", "couchbase.password");
-    bindingMap.put("userRoles", "organizations.members.userRoles");
-    bindingMap.put("bucketNamePattern", "organizations.members.bucketNamePattern");
-    bindingMap.put("bucketType", "organizations.members.bucketType");
-    bindingMap.put("bucketQuota", "organizations.members.bucketQuota");
-    bindingMap.put("bucketReplicas", "organizations.members.bucketReplicas");
-    bindingMap.put("bucketIndexReplicas", "organizations.members.bucketIndexReplicas");
-    bindingMap.put("bucketEnableFlush", "organizations.members.bucketEnableFlush");
     bindingMap.put("organizationsBucketName", "organizations.bucket");
 
     return bindingMap;
