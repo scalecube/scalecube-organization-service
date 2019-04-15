@@ -11,6 +11,9 @@ import io.scalecube.organization.tokens.TokenVerifierImpl;
 import io.scalecube.organization.tokens.store.KeyStore;
 import io.scalecube.organization.tokens.store.VaultKeyStore;
 import io.scalecube.services.Microservices;
+import io.scalecube.services.discovery.ScalecubeServiceDiscovery;
+import io.scalecube.services.transport.rsocket.RSocketServiceTransport;
+import io.scalecube.services.transport.rsocket.RSocketTransportResources;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -42,13 +45,20 @@ public class OrganizationServiceRunner {
 
     Microservices.builder()
         .discovery(
-            options ->
-                options
-                    .seeds(discoveryOptions.seeds())
-                    .port(discoveryOptions.discoveryPort())
-                    .memberHost(discoveryOptions.memberHost())
-                    .memberPort(discoveryOptions.memberPort()))
-        .transport(options -> options.port(discoveryOptions.servicePort()))
+            (serviceEndpoint) ->
+                new ScalecubeServiceDiscovery(serviceEndpoint)
+                    .options(
+                        opts ->
+                            opts.seedMembers(discoveryOptions.seeds())
+                                .port(discoveryOptions.discoveryPort())
+                                .memberHost(discoveryOptions.memberHost())
+                                .memberPort(discoveryOptions.memberPort())))
+        .transport(
+            opts ->
+                opts.resources(RSocketTransportResources::new)
+                    .client(RSocketServiceTransport.INSTANCE::clientTransport)
+                    .server(RSocketServiceTransport.INSTANCE::serverTransport)
+                    .port(discoveryOptions.servicePort()))
         .services(createOrganizationService())
         .startAwait();
   }
