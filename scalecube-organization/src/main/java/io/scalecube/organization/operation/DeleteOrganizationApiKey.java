@@ -30,7 +30,7 @@ public class DeleteOrganizationApiKey
     organization.removeApiKey(request.apiKeyName());
     context.repository().save(organization.id(), organization);
 
-    Role role = getRole(context.profile().getUserId(), organization);
+    Role role = getRole(context.profile().userId(), organization);
     return getOrganizationResponse(organization, apiKeyFilterBy(role));
   }
 

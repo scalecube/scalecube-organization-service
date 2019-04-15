@@ -24,14 +24,14 @@ public class InviteMember
     checkSuperUserAccess(organization, context.profile());
     Role invitedMemberRole = toRole(request.role());
 
-    Role callerRole = getRole(context.profile().getUserId(), organization);
+    Role callerRole = getRole(context.profile().userId(), organization);
 
     if (invitedMemberRole.isHigherThan(callerRole)) {
       throw new AccessPermissionException(
           String.format(
               "user: '%s', name: '%s', role: '%s' cannot invite to a higher role: '%s'",
-              context.profile().getUserId(),
-              context.profile().getName(),
+              context.profile().userId(),
+              context.profile().name(),
               callerRole,
               invitedMemberRole.toString()));
     }

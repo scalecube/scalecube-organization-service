@@ -26,7 +26,7 @@
   <properties>
     <scalecube.config.version>0.3.9</scalecube.config.version>
     <scalecube-services.version>2.5.3</scalecube-services.version>
-    <scalecube-security-jwt.version>1.0.3</scalecube-security-jwt.version>
+    <scalecube-security-jwt.version>1.0.7</scalecube-security-jwt.version>
     <junit-jupiter.version>5.3.2</junit-jupiter.version>
     <jackson.version>2.9.8</jackson.version>
     <vault-java-driver.version>3.1.0</vault-java-driver.version>

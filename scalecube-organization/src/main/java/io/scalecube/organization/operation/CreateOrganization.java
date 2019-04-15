@@ -64,7 +64,7 @@ public final class CreateOrganization
             request.name(),
             request.email(),
             UUID.randomUUID().toString(),
-            context.profile().getUserId());
+            context.profile().userId());
 
     return context.repository().save(organization.id(), organization);
   }

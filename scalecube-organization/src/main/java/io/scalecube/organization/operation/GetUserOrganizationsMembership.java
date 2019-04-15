@@ -22,10 +22,10 @@ public class GetUserOrganizationsMembership
       GetMembershipRequest request, OperationServiceContext context) {
     return new GetMembershipResponse(
         StreamSupport.stream(context.repository().findAll().spliterator(), false)
-            .filter(organization -> organization.isMember(context.profile().getUserId()))
+            .filter(organization -> organization.isMember(context.profile().userId()))
             .map(
                 organization -> {
-                  Role role = getRole(context.profile().getUserId(), organization);
+                  Role role = getRole(context.profile().userId(), organization);
                   return organizationInfo(organization, apiKeyFilterBy(role)).build();
                 })
             .toArray(OrganizationInfo[]::new));

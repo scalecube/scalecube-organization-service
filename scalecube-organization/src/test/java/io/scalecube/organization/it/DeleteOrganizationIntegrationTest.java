@@ -16,7 +16,7 @@ import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
 import io.scalecube.organization.fixtures.InMemoryOrganizationServiceFixture;
 import io.scalecube.organization.repository.inmem.InMemoryPublicKeyProvider;
 import io.scalecube.organization.tokens.InvalidTokenException;
-import io.scalecube.security.Profile;
+import io.scalecube.security.api.Profile;
 import io.scalecube.test.fixtures.Fixtures;
 import io.scalecube.test.fixtures.WithFixture;
 import java.time.Duration;
@@ -50,7 +50,7 @@ class DeleteOrganizationIntegrationTest {
     String organizationId =
         service
             .createOrganization(
-                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+                new CreateOrganizationRequest(organizationName, userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -82,7 +82,7 @@ class DeleteOrganizationIntegrationTest {
     String organizationId =
         service
             .createOrganization(
-                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+                new CreateOrganizationRequest(organizationName, userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -90,14 +90,14 @@ class DeleteOrganizationIntegrationTest {
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Member.name()))
+                userAToken, organizationId, userB.userId(), Role.Member.name()))
         .block(TIMEOUT);
 
     // "A" user updates the "B" user to "owner" in his organization
     service
         .updateOrganizationMemberRole(
             new UpdateOrganizationMemberRoleRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Owner.name()))
+                userAToken, organizationId, userB.userId(), Role.Owner.name()))
         .block(TIMEOUT);
 
     // "B" user deletes "A" user created organization
@@ -127,7 +127,7 @@ class DeleteOrganizationIntegrationTest {
     String organizationId =
         service
             .createOrganization(
-                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+                new CreateOrganizationRequest(organizationName, userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -135,7 +135,7 @@ class DeleteOrganizationIntegrationTest {
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Owner.name()))
+                userAToken, organizationId, userB.userId(), Role.Owner.name()))
         .block(TIMEOUT);
 
     // "A" user leaves own organization
@@ -149,7 +149,7 @@ class DeleteOrganizationIntegrationTest {
         .expectErrorMessage(
             String.format(
                 "user: '%s', name: '%s', is not in role Owner of organization: '%s'",
-                userA.getName(), userA.getUserId(), organizationName))
+                userA.name(), userA.userId(), organizationName))
         .verify();
   }
 
@@ -169,7 +169,7 @@ class DeleteOrganizationIntegrationTest {
     String organizationId =
         service
             .createOrganization(
-                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+                new CreateOrganizationRequest(organizationName, userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -177,14 +177,14 @@ class DeleteOrganizationIntegrationTest {
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Member.name()))
+                userAToken, organizationId, userB.userId(), Role.Member.name()))
         .block(TIMEOUT);
 
     // "A" user updates the "B" user to "owner" in his organization
     service
         .updateOrganizationMemberRole(
             new UpdateOrganizationMemberRoleRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Admin.name()))
+                userAToken, organizationId, userB.userId(), Role.Admin.name()))
         .block(TIMEOUT);
 
     // "B" user deletes organization
@@ -193,7 +193,7 @@ class DeleteOrganizationIntegrationTest {
         .expectErrorMessage(
             String.format(
                 "user: '%s', name: '%s', is not in role Owner of organization: '%s'",
-                userB.getName(), userB.getUserId(), organizationName))
+                userB.name(), userB.userId(), organizationName))
         .verify();
   }
 
@@ -213,7 +213,7 @@ class DeleteOrganizationIntegrationTest {
     String organizationId =
         service
             .createOrganization(
-                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+                new CreateOrganizationRequest(organizationName, userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -221,14 +221,14 @@ class DeleteOrganizationIntegrationTest {
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Member.name()))
+                userAToken, organizationId, userB.userId(), Role.Member.name()))
         .block(TIMEOUT);
 
     // "A" user updates the "B" user to "owner" in his organization
     service
         .updateOrganizationMemberRole(
             new UpdateOrganizationMemberRoleRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Member.name()))
+                userAToken, organizationId, userB.userId(), Role.Member.name()))
         .block(TIMEOUT);
 
     // "B" user deletes organization
@@ -237,7 +237,7 @@ class DeleteOrganizationIntegrationTest {
         .expectErrorMessage(
             String.format(
                 "user: '%s', name: '%s', is not in role Owner of organization: '%s'",
-                userB.getName(), userB.getUserId(), organizationName))
+                userB.name(), userB.userId(), organizationName))
         .verify();
   }
 
@@ -253,7 +253,7 @@ class DeleteOrganizationIntegrationTest {
     String organizationId =
         service
             .createOrganization(
-                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+                new CreateOrganizationRequest(organizationName, userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -279,7 +279,7 @@ class DeleteOrganizationIntegrationTest {
 
     service
         .createOrganization(
-            new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+            new CreateOrganizationRequest(organizationName, userA.email(), userAToken))
         .map(OrganizationInfo::id)
         .block(TIMEOUT);
 

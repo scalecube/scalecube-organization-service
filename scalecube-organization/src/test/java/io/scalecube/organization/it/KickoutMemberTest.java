@@ -45,20 +45,20 @@ class KickoutMemberTest extends BaseTest {
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
+                    RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
             .block(TIMEOUT);
 
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenA, organizationA.id(), USER_B.getUserId(), Role.Member.name()))
+                tokenA, organizationA.id(), USER_B.userId(), Role.Member.name()))
         .block(TIMEOUT);
 
     StepVerifier.create(
             organizationService
                 .kickoutMember(
                     new KickoutOrganizationMemberRequest(
-                        organizationA.id(), tokenA, USER_B.getUserId()))
+                        organizationA.id(), tokenA, USER_B.userId()))
                 .then(
                     organizationService.getOrganizationMembers(
                         new GetOrganizationMembersRequest(organizationA.id(), tokenA))))
@@ -69,7 +69,7 @@ class KickoutMemberTest extends BaseTest {
                       .map(OrganizationMember::id)
                       .collect(Collectors.toList());
 
-              assertFalse(members.contains(USER_B.getUserId()), "member is found in organization");
+              assertFalse(members.contains(USER_B.userId()), "member is found in organization");
             })
         .verifyComplete();
   }
@@ -85,30 +85,30 @@ class KickoutMemberTest extends BaseTest {
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
+                    RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
             .block(TIMEOUT);
 
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenA, organizationA.id(), USER_B.getUserId(), Role.Owner.name()))
+                tokenA, organizationA.id(), USER_B.userId(), Role.Owner.name()))
         .block(TIMEOUT);
 
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenA, organizationA.id(), USER_C.getUserId(), Role.Member.name()))
+                tokenA, organizationA.id(), USER_C.userId(), Role.Member.name()))
         .block(TIMEOUT);
 
     StepVerifier.create(
             organizationService
                 .kickoutMember(
                     new KickoutOrganizationMemberRequest(
-                        organizationA.id(), tokenB, USER_A.getUserId()))
+                        organizationA.id(), tokenB, USER_A.userId()))
                 .then(
                     organizationService.kickoutMember(
                         new KickoutOrganizationMemberRequest(
-                            organizationA.id(), tokenB, USER_C.getUserId())))
+                            organizationA.id(), tokenB, USER_C.userId())))
                 .then(
                     organizationService.getOrganizationMembers(
                         new GetOrganizationMembersRequest(organizationA.id(), tokenB))))
@@ -119,8 +119,8 @@ class KickoutMemberTest extends BaseTest {
                       .map(OrganizationMember::id)
                       .collect(Collectors.toList());
 
-              assertFalse(members.contains(USER_A.getUserId()), "member is found in organization");
-              assertFalse(members.contains(USER_C.getUserId()), "member is found in organization");
+              assertFalse(members.contains(USER_A.userId()), "member is found in organization");
+              assertFalse(members.contains(USER_C.userId()), "member is found in organization");
             })
         .verifyComplete();
   }
@@ -136,36 +136,36 @@ class KickoutMemberTest extends BaseTest {
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
+                    RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
             .block(TIMEOUT);
 
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenA, organizationA.id(), USER_B.getUserId(), Role.Admin.name()))
+                tokenA, organizationA.id(), USER_B.userId(), Role.Admin.name()))
         .block(TIMEOUT);
 
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenA, organizationA.id(), USER_C.getUserId(), Role.Admin.name()))
+                tokenA, organizationA.id(), USER_C.userId(), Role.Admin.name()))
         .block(TIMEOUT);
 
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenA, organizationA.id(), USER_D.getUserId(), Role.Member.name()))
+                tokenA, organizationA.id(), USER_D.userId(), Role.Member.name()))
         .block(TIMEOUT);
 
     StepVerifier.create(
             organizationService
                 .kickoutMember(
                     new KickoutOrganizationMemberRequest(
-                        organizationA.id(), tokenB, USER_C.getUserId()))
+                        organizationA.id(), tokenB, USER_C.userId()))
                 .then(
                     organizationService.kickoutMember(
                         new KickoutOrganizationMemberRequest(
-                            organizationA.id(), tokenB, USER_D.getUserId())))
+                            organizationA.id(), tokenB, USER_D.userId())))
                 .then(
                     organizationService.getOrganizationMembers(
                         new GetOrganizationMembersRequest(organizationA.id(), tokenB))))
@@ -176,8 +176,8 @@ class KickoutMemberTest extends BaseTest {
                       .map(OrganizationMember::id)
                       .collect(Collectors.toList());
 
-              assertFalse(members.contains(USER_C.getUserId()), "member is found in organization");
-              assertFalse(members.contains(USER_D.getUserId()), "member is found in organization");
+              assertFalse(members.contains(USER_C.userId()), "member is found in organization");
+              assertFalse(members.contains(USER_D.userId()), "member is found in organization");
             })
         .verifyComplete();
   }
@@ -193,26 +193,26 @@ class KickoutMemberTest extends BaseTest {
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
+                    RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
             .block(TIMEOUT);
 
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenA, organizationA.id(), USER_B.getUserId(), Role.Owner.name()))
+                tokenA, organizationA.id(), USER_B.userId(), Role.Owner.name()))
         .block(TIMEOUT);
 
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenA, organizationA.id(), USER_C.getUserId(), Role.Admin.name()))
+                tokenA, organizationA.id(), USER_C.userId(), Role.Admin.name()))
         .block(TIMEOUT);
 
     StepVerifier.create(
             organizationService
                 .kickoutMember(
                     new KickoutOrganizationMemberRequest(
-                        organizationA.id(), tokenB, USER_C.getUserId()))
+                        organizationA.id(), tokenB, USER_C.userId()))
                 .then(
                     organizationService.getOrganizationMembers(
                         new GetOrganizationMembersRequest(organizationA.id(), tokenB))))
@@ -223,7 +223,7 @@ class KickoutMemberTest extends BaseTest {
                       .map(OrganizationMember::id)
                       .collect(Collectors.toList());
 
-              assertFalse(members.contains(USER_C.getUserId()), "member is found in organization");
+              assertFalse(members.contains(USER_C.userId()), "member is found in organization");
             })
         .verifyComplete();
   }
@@ -239,20 +239,20 @@ class KickoutMemberTest extends BaseTest {
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
+                    RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
             .block(TIMEOUT);
 
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenA, organizationA.id(), USER_B.getUserId(), Role.Owner.name()))
+                tokenA, organizationA.id(), USER_B.userId(), Role.Owner.name()))
         .block(TIMEOUT);
 
     StepVerifier.create(
             organizationService
                 .kickoutMember(
                     new KickoutOrganizationMemberRequest(
-                        organizationA.id(), tokenA, USER_A.getUserId()))
+                        organizationA.id(), tokenA, USER_A.userId()))
                 .then(
                     organizationService.getOrganizationMembers(
                         new GetOrganizationMembersRequest(organizationA.id(), tokenB))))
@@ -263,7 +263,7 @@ class KickoutMemberTest extends BaseTest {
                       .map(OrganizationMember::id)
                       .collect(Collectors.toList());
 
-              assertFalse(members.contains(USER_A.getUserId()), "member is found in organization");
+              assertFalse(members.contains(USER_A.userId()), "member is found in organization");
             })
         .verifyComplete();
   }
@@ -279,20 +279,20 @@ class KickoutMemberTest extends BaseTest {
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
+                    RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
             .block(TIMEOUT);
 
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenA, organizationA.id(), USER_B.getUserId(), Role.Admin.name()))
+                tokenA, organizationA.id(), USER_B.userId(), Role.Admin.name()))
         .block(TIMEOUT);
 
     StepVerifier.create(
             organizationService
                 .kickoutMember(
                     new KickoutOrganizationMemberRequest(
-                        organizationA.id(), tokenB, USER_B.getUserId()))
+                        organizationA.id(), tokenB, USER_B.userId()))
                 .then(
                     organizationService.getOrganizationMembers(
                         new GetOrganizationMembersRequest(organizationA.id(), tokenA))))
@@ -303,7 +303,7 @@ class KickoutMemberTest extends BaseTest {
                       .map(OrganizationMember::id)
                       .collect(Collectors.toList());
 
-              assertFalse(members.contains(USER_B.getUserId()), "member is found in organization");
+              assertFalse(members.contains(USER_B.userId()), "member is found in organization");
             })
         .verifyComplete();
   }
@@ -318,13 +318,13 @@ class KickoutMemberTest extends BaseTest {
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
+                    RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
             .block(TIMEOUT);
 
     StepVerifier.create(
             organizationService.kickoutMember(
                 new KickoutOrganizationMemberRequest(
-                    organizationA.id(), tokenA, USER_A.getUserId())))
+                    organizationA.id(), tokenA, USER_A.userId())))
         .expectErrorSatisfies(
             e -> {
               assertEquals(IllegalStateException.class, e.getClass());
@@ -348,28 +348,28 @@ class KickoutMemberTest extends BaseTest {
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
+                    RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
             .block(TIMEOUT);
 
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenA, organizationA.id(), USER_B.getUserId(), Role.Admin.name()))
+                tokenA, organizationA.id(), USER_B.userId(), Role.Admin.name()))
         .block(TIMEOUT);
 
     StepVerifier.create(
             organizationService.kickoutMember(
                 new KickoutOrganizationMemberRequest(
-                    organizationA.id(), tokenB, USER_A.getUserId())))
+                    organizationA.id(), tokenB, USER_A.userId())))
         .expectErrorSatisfies(
             e -> {
               assertEquals(AccessPermissionException.class, e.getClass());
               assertEquals(
                   String.format(
                       "user: '%s', name: '%s', role: 'Admin' cannot kickout user: '%s' in role 'Owner' of organization: '%s'",
-                      USER_B.getUserId(),
-                      USER_B.getName(),
-                      USER_A.getUserId(),
+                      USER_B.userId(),
+                      USER_B.name(),
+                      USER_A.userId(),
                       organizationA.name()),
                   e.getMessage());
             })
@@ -387,32 +387,32 @@ class KickoutMemberTest extends BaseTest {
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
+                    RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
             .block(TIMEOUT);
 
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenA, organizationA.id(), USER_B.getUserId(), Role.Member.name()))
+                tokenA, organizationA.id(), USER_B.userId(), Role.Member.name()))
         .block(TIMEOUT);
 
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenA, organizationA.id(), USER_C.getUserId(), Role.Member.name()))
+                tokenA, organizationA.id(), USER_C.userId(), Role.Member.name()))
         .block(TIMEOUT);
 
     StepVerifier.create(
             organizationService.kickoutMember(
                 new KickoutOrganizationMemberRequest(
-                    organizationA.id(), tokenB, USER_C.getUserId())))
+                    organizationA.id(), tokenB, USER_C.userId())))
         .expectErrorSatisfies(
             e -> {
               assertEquals(AccessPermissionException.class, e.getClass());
               assertEquals(
                   String.format(
                       "user: '%s', name: '%s', not in role Owner or Admin of organization: '%s'",
-                      USER_B.getUserId(), USER_B.getName(), organizationA.name()),
+                      USER_B.userId(), USER_B.name(), organizationA.name()),
                   e.getMessage());
             })
         .verify();
@@ -429,31 +429,31 @@ class KickoutMemberTest extends BaseTest {
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
+                    RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
             .block(TIMEOUT);
 
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenA, organizationA.id(), USER_B.getUserId(), Role.Owner.name()))
+                tokenA, organizationA.id(), USER_B.userId(), Role.Owner.name()))
         .block(TIMEOUT);
 
     organizationService
         .kickoutMember(
-            new KickoutOrganizationMemberRequest(organizationA.id(), tokenB, USER_A.getUserId()))
+            new KickoutOrganizationMemberRequest(organizationA.id(), tokenB, USER_A.userId()))
         .block(TIMEOUT);
 
     StepVerifier.create(
             organizationService.kickoutMember(
                 new KickoutOrganizationMemberRequest(
-                    organizationA.id(), tokenA, USER_B.getUserId())))
+                    organizationA.id(), tokenA, USER_B.userId())))
         .expectErrorSatisfies(
             e -> {
               assertEquals(AccessPermissionException.class, e.getClass());
               assertEquals(
                   String.format(
                       "user: '%s', name: '%s', not in role Owner or Admin of organization: '%s'",
-                      USER_A.getUserId(), USER_A.getName(), organizationA.name()),
+                      USER_A.userId(), USER_A.name(), organizationA.name()),
                   e.getMessage());
             })
         .verify();
@@ -468,7 +468,7 @@ class KickoutMemberTest extends BaseTest {
     StepVerifier.create(
             organizationService.kickoutMember(
                 new KickoutOrganizationMemberRequest(
-                    "ORG-organization-1", tokenA, USER_B.getUserId())))
+                    "ORG-organization-1", tokenA, USER_B.userId())))
         .expectErrorSatisfies(
             e -> {
               assertEquals(InvalidTokenException.class, e.getClass());

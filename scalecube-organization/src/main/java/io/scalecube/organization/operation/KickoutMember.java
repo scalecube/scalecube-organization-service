@@ -37,7 +37,7 @@ public class KickoutMember
       Organization organization)
       throws EntityNotFoundException, AccessPermissionException {
 
-    Role callerRole = getRole(context.profile().getUserId(), organization);
+    Role callerRole = getRole(context.profile().userId(), organization);
     Role targetRole = getRole(request.userId(), organization);
 
     if (targetRole.isHigherThan(callerRole)) {
@@ -45,8 +45,8 @@ public class KickoutMember
           String.format(
               "user: '%s', name: '%s', role: '%s' cannot kickout "
                   + "user: '%s' in role '%s' of organization: '%s'",
-              context.profile().getUserId(),
-              context.profile().getName(),
+              context.profile().userId(),
+              context.profile().name(),
               callerRole,
               request.userId(),
               targetRole,

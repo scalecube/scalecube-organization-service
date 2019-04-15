@@ -31,7 +31,7 @@ public class AddOrganizationApiKey
 
     checkSuperUserAccess(organization, context.profile());
 
-    Role callerRole = getRole(context.profile().getUserId(), organization);
+    Role callerRole = getRole(context.profile().userId(), organization);
 
     if (request.claims() != null) {
       String roleClaim = request.claims().get("role");
@@ -47,8 +47,8 @@ public class AddOrganizationApiKey
           throw new AccessPermissionException(
               String.format(
                   "user: '%s', name: '%s', role: '%s' cannot add api key with higher role '%s'",
-                  context.profile().getUserId(),
-                  context.profile().getName(),
+                  context.profile().userId(),
+                  context.profile().name(),
                   callerRole,
                   targetRole));
         }
@@ -61,7 +61,7 @@ public class AddOrganizationApiKey
 
     context.repository().save(organization.id(), organization);
 
-    Role role = getRole(context.profile().getUserId(), organization);
+    Role role = getRole(context.profile().userId(), organization);
     return getOrganizationResponse(organization, apiKeyFilterBy(role));
   }
 

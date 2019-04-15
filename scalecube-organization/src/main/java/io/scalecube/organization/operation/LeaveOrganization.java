@@ -18,9 +18,9 @@ public class LeaveOrganization
   protected LeaveOrganizationResponse process(
       LeaveOrganizationRequest request, OperationServiceContext context) {
     Organization organization = getOrganization(request.organizationId());
-    checkLastOwner(context.profile().getUserId(), organization);
+    checkLastOwner(context.profile().userId(), organization);
 
-    organization.removeMember(context.profile().getUserId());
+    organization.removeMember(context.profile().userId());
     context.repository().save(organization.id(), organization);
 
     return new LeaveOrganizationResponse();

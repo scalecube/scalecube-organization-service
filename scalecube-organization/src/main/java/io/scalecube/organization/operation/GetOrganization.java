@@ -20,7 +20,7 @@ public class GetOrganization
       GetOrganizationRequest request, OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
     checkMemberAccess(organization, context.profile());
-    Role role = getRole(context.profile().getUserId(), organization);
+    Role role = getRole(context.profile().userId(), organization);
     return getOrganizationResponse(organization, apiKeyFilterBy(role));
   }
 

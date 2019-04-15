@@ -16,7 +16,7 @@ import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.fixtures.InMemoryOrganizationServiceFixture;
 import io.scalecube.organization.repository.inmem.InMemoryPublicKeyProvider;
-import io.scalecube.security.Profile;
+import io.scalecube.security.api.Profile;
 import io.scalecube.test.fixtures.Fixtures;
 import io.scalecube.test.fixtures.WithFixture;
 import java.time.Duration;
@@ -57,7 +57,7 @@ class GetOrganizationIntegrationTest {
     String organizationId =
         service
             .createOrganization(
-                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+                new CreateOrganizationRequest(organizationName, userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -82,7 +82,7 @@ class GetOrganizationIntegrationTest {
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Owner.name()))
+                userAToken, organizationId, userB.userId(), Role.Owner.name()))
         .block(TIMEOUT);
 
     // the user "B" requested to get the user's "A" organization info
@@ -112,7 +112,7 @@ class GetOrganizationIntegrationTest {
     String organizationId =
         service
             .createOrganization(
-                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+                new CreateOrganizationRequest(organizationName, userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -139,7 +139,7 @@ class GetOrganizationIntegrationTest {
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Admin.name()))
+                userAToken, organizationId, userB.userId(), Role.Admin.name()))
         .block(TIMEOUT);
 
     // the user "B" requested to get the user's "A" organization info
@@ -169,7 +169,7 @@ class GetOrganizationIntegrationTest {
     String organizationId =
         service
             .createOrganization(
-                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+                new CreateOrganizationRequest(organizationName, userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -196,7 +196,7 @@ class GetOrganizationIntegrationTest {
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Member.name()))
+                userAToken, organizationId, userB.userId(), Role.Member.name()))
         .block(TIMEOUT);
 
     // the user "B" requested to get the user's "A" organization info
@@ -226,7 +226,7 @@ class GetOrganizationIntegrationTest {
     String organizationId =
         service
             .createOrganization(
-                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+                new CreateOrganizationRequest(organizationName, userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -234,7 +234,7 @@ class GetOrganizationIntegrationTest {
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Owner.name()))
+                userAToken, organizationId, userB.userId(), Role.Owner.name()))
         .block(TIMEOUT);
 
     // the user "A" leaves own organization
@@ -248,7 +248,7 @@ class GetOrganizationIntegrationTest {
         .expectErrorMessage(
             String.format(
                 "user: '%s', name: '%s', is not a member of organization: '%s'",
-                userA.getName(), userA.getUserId(), organizationId))
+                userA.name(), userA.userId(), organizationId))
         .verify();
   }
 
