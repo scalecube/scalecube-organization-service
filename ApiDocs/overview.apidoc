@@ -49,10 +49,11 @@
   						  <br><b>RSocket (RS)</b>
   						   <li> "metadata": object which contains "q": The query of the relevant service name and method used </li>
                              <li> "d": object: The request data (parameters and values) </li>
-  						  <br><b>HTTP</b> (service name and method used should be added to the relevant host address)
-  						   <li> "headers": Content-Type application/json </li>
+  						  <br><b>HTTP</b>
+                             <li> "endpoint url": host address/serviceName/method </li>
+                             <li> "method" request: POST </li>
+                             <li> "headers": Content-Type application/json </li>
                              <li> "body" json: The request data object (parameters and values) </li>
-                             <li>  request "method": POST </li>
                       </ul>
 
   * @apiParamExample {json} WebSocket:
