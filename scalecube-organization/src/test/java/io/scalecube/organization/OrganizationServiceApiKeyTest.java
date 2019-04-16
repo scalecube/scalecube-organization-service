@@ -11,9 +11,9 @@ import io.scalecube.account.api.OrganizationNotFoundException;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
-import io.scalecube.organization.operation.Organization;
+import io.scalecube.organization.domain.Organization;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
-import io.scalecube.security.Profile;
+import io.scalecube.security.api.Profile;
 import java.util.HashMap;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
@@ -42,7 +42,7 @@ class OrganizationServiceApiKeyTest extends Base {
         .assertNext(
             x -> {
               Organization org = getOrganizationFromRepository(organizationId);
-              assertThat(org.apiKeys()[0].name(), equalTo(apiKeyName));
+              assertThat(org.apiKeys().iterator().next().name(), equalTo(apiKeyName));
             })
         .verifyComplete();
   }
@@ -74,7 +74,7 @@ class OrganizationServiceApiKeyTest extends Base {
     StepVerifier.create(
             service.updateOrganizationMemberRole(
                 new UpdateOrganizationMemberRoleRequest(
-                    token, organizationId2, testProfile.getUserId(), Role.Member.toString())))
+                    token, organizationId2, testProfile.userId(), Role.Member.toString())))
         .assertNext(Assertions::assertNotNull)
         .verifyComplete();
     final HashMap<String, String> claims = new HashMap<>();
@@ -217,7 +217,7 @@ class OrganizationServiceApiKeyTest extends Base {
     StepVerifier.create(
             service.updateOrganizationMemberRole(
                 new UpdateOrganizationMemberRoleRequest(
-                    token, organizationId, adminUser.getUserId(), Role.Admin.toString())))
+                    token, organizationId, adminUser.userId(), Role.Admin.toString())))
         .assertNext(Assertions::assertNotNull)
         .verifyComplete();
     // add api key by admin
@@ -229,7 +229,7 @@ class OrganizationServiceApiKeyTest extends Base {
         .assertNext(
             x -> {
               Organization org = getOrganizationFromRepository(organizationId);
-              assertThat(org.apiKeys()[0].name(), equalTo("apiKey"));
+              assertThat(org.apiKeys().iterator().next().name(), equalTo("apiKey"));
             })
         .verifyComplete();
   }

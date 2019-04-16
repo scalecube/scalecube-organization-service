@@ -14,7 +14,7 @@ import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.fixtures.InMemoryOrganizationServiceFixture;
 import io.scalecube.organization.repository.inmem.InMemoryPublicKeyProvider;
-import io.scalecube.security.Profile;
+import io.scalecube.security.api.Profile;
 import io.scalecube.test.fixtures.Fixtures;
 import io.scalecube.test.fixtures.WithFixture;
 import java.time.Duration;
@@ -54,7 +54,7 @@ class AddOrganizationApiKeyIntegrationTest {
         service
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), userA.getEmail(), userAToken))
+                    RandomStringUtils.randomAlphabetic(10), userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -139,7 +139,7 @@ class AddOrganizationApiKeyIntegrationTest {
         service
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), userA.getEmail(), userAToken))
+                    RandomStringUtils.randomAlphabetic(10), userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -157,7 +157,7 @@ class AddOrganizationApiKeyIntegrationTest {
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Admin.name()))
+                userAToken, organizationId, userB.userId(), Role.Admin.name()))
         .block(TIMEOUT);
 
     // user "B" creates API keys for the organization with roles: "admin" and "member"
@@ -227,7 +227,7 @@ class AddOrganizationApiKeyIntegrationTest {
     String organizationId =
         service
             .createOrganization(
-                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+                new CreateOrganizationRequest(organizationName, userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -235,7 +235,7 @@ class AddOrganizationApiKeyIntegrationTest {
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Admin.name()))
+                userAToken, organizationId, userB.userId(), Role.Admin.name()))
         .block(TIMEOUT);
 
     // user "B" creates API keys for the organization with roles: "owner"
@@ -249,7 +249,7 @@ class AddOrganizationApiKeyIntegrationTest {
         .expectErrorMessage(
             String.format(
                 "user: '%s', name: '%s', role: 'Admin' cannot add api key with higher role 'Owner'",
-                userB.getUserId(), userB.getName()))
+                userB.userId(), userB.name()))
         .verify();
   }
 
@@ -267,7 +267,7 @@ class AddOrganizationApiKeyIntegrationTest {
     String organizationId =
         service
             .createOrganization(
-                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+                new CreateOrganizationRequest(organizationName, userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -275,7 +275,7 @@ class AddOrganizationApiKeyIntegrationTest {
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Member.name()))
+                userAToken, organizationId, userB.userId(), Role.Member.name()))
         .block(TIMEOUT);
 
     // user "B" creates API keys for the organization with roles: "member"
@@ -289,7 +289,7 @@ class AddOrganizationApiKeyIntegrationTest {
         .expectErrorMessage(
             String.format(
                 "user: '%s', name: '%s', not in role Owner or Admin of organization: '%s'",
-                userB.getUserId(), userB.getName(), organizationName))
+                userB.userId(), userB.name(), organizationName))
         .verify();
   }
 
@@ -306,7 +306,7 @@ class AddOrganizationApiKeyIntegrationTest {
         service
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), userA.getEmail(), userAToken))
+                    RandomStringUtils.randomAlphabetic(10), userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -346,7 +346,7 @@ class AddOrganizationApiKeyIntegrationTest {
     String organizationId =
         service
             .createOrganization(
-                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+                new CreateOrganizationRequest(organizationName, userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -354,7 +354,7 @@ class AddOrganizationApiKeyIntegrationTest {
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Owner.name()))
+                userAToken, organizationId, userB.userId(), Role.Owner.name()))
         .block(TIMEOUT);
 
     // the user "A" leaves own organization
@@ -373,7 +373,7 @@ class AddOrganizationApiKeyIntegrationTest {
         .expectErrorMessage(
             String.format(
                 "user: '%s', name: '%s', not in role Owner or Admin of organization: '%s'",
-                userA.getUserId(), userA.getName(), organizationName))
+                userA.userId(), userA.name(), organizationName))
         .verify();
   }
 
@@ -390,7 +390,7 @@ class AddOrganizationApiKeyIntegrationTest {
     String organizationId =
         service
             .createOrganization(
-                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+                new CreateOrganizationRequest(organizationName, userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 

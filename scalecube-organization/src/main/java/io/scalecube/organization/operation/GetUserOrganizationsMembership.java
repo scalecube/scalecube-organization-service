@@ -5,14 +5,15 @@ import io.scalecube.account.api.GetMembershipResponse;
 import io.scalecube.account.api.OrganizationInfo;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
-import io.scalecube.organization.repository.OrganizationsDataAccess;
+import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.tokens.TokenVerifier;
+import java.util.stream.StreamSupport;
 
 public class GetUserOrganizationsMembership
     extends ServiceOperation<GetMembershipRequest, GetMembershipResponse> {
 
   private GetUserOrganizationsMembership(
-      TokenVerifier tokenVerifier, OrganizationsDataAccess repository) {
+      TokenVerifier tokenVerifier, OrganizationsRepository repository) {
     super(tokenVerifier, repository);
   }
 
@@ -20,14 +21,12 @@ public class GetUserOrganizationsMembership
   protected GetMembershipResponse process(
       GetMembershipRequest request, OperationServiceContext context) {
     return new GetMembershipResponse(
-        context
-            .repository()
-            .getUserMembership(context.profile().getUserId())
-            .stream()
+        StreamSupport.stream(context.repository().findAll().spliterator(), false)
+            .filter(organization -> organization.isMember(context.profile().userId()))
             .map(
-                item -> {
-                  Role role = getRole(context.profile().getUserId(), item);
-                  return organizationInfo(item, apiKeyFilterBy(role)).build();
+                organization -> {
+                  Role role = getRole(context.profile().userId(), organization);
+                  return organizationInfo(organization, apiKeyFilterBy(role)).build();
                 })
             .toArray(OrganizationInfo[]::new));
   }
@@ -43,14 +42,14 @@ public class GetUserOrganizationsMembership
 
   public static class Builder {
     private TokenVerifier tokenVerifier;
-    private OrganizationsDataAccess repository;
+    private OrganizationsRepository repository;
 
     public Builder tokenVerifier(TokenVerifier tokenVerifier) {
       this.tokenVerifier = tokenVerifier;
       return this;
     }
 
-    public Builder repository(OrganizationsDataAccess repository) {
+    public Builder repository(OrganizationsRepository repository) {
       this.repository = repository;
       return this;
     }

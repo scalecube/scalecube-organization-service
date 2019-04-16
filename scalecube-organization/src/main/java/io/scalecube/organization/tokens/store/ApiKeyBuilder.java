@@ -5,7 +5,7 @@ import io.scalecube.account.api.ApiKey;
 import io.scalecube.account.api.Role;
 import io.scalecube.config.LongConfigProperty;
 import io.scalecube.organization.config.AppConfiguration;
-import io.scalecube.organization.operation.Organization;
+import io.scalecube.organization.domain.Organization;
 import io.scalecube.organization.tokens.JwtApiKey;
 import java.security.PrivateKey;
 import java.util.HashMap;

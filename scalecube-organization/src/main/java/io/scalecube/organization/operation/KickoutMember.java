@@ -4,7 +4,8 @@ import io.scalecube.account.api.KickoutOrganizationMemberRequest;
 import io.scalecube.account.api.KickoutOrganizationMemberResponse;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
-import io.scalecube.organization.repository.OrganizationsDataAccess;
+import io.scalecube.organization.domain.Organization;
+import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.organization.tokens.TokenVerifier;
@@ -12,7 +13,7 @@ import io.scalecube.organization.tokens.TokenVerifier;
 public class KickoutMember
     extends ServiceOperation<KickoutOrganizationMemberRequest, KickoutOrganizationMemberResponse> {
 
-  private KickoutMember(TokenVerifier tokenVerifier, OrganizationsDataAccess repository) {
+  private KickoutMember(TokenVerifier tokenVerifier, OrganizationsRepository repository) {
     super(tokenVerifier, repository);
   }
 
@@ -23,7 +24,10 @@ public class KickoutMember
     checkSuperUserAccess(organization, context.profile());
     ensureCallerIsInHigherRoleThanKickedOutUser(request, context, organization);
     checkLastOwner(request.userId(), organization);
-    context.repository().kickout(context.profile(), organization, request.userId());
+
+    organization.removeMember(request.userId());
+    context.repository().save(organization.id(), organization);
+
     return new KickoutOrganizationMemberResponse();
   }
 
@@ -33,7 +37,7 @@ public class KickoutMember
       Organization organization)
       throws EntityNotFoundException, AccessPermissionException {
 
-    Role callerRole = getRole(context.profile().getUserId(), organization);
+    Role callerRole = getRole(context.profile().userId(), organization);
     Role targetRole = getRole(request.userId(), organization);
 
     if (targetRole.isHigherThan(callerRole)) {
@@ -41,8 +45,8 @@ public class KickoutMember
           String.format(
               "user: '%s', name: '%s', role: '%s' cannot kickout "
                   + "user: '%s' in role '%s' of organization: '%s'",
-              context.profile().getUserId(),
-              context.profile().getName(),
+              context.profile().userId(),
+              context.profile().name(),
               callerRole,
               request.userId(),
               targetRole,
@@ -69,14 +73,14 @@ public class KickoutMember
 
   public static class Builder {
     private TokenVerifier tokenVerifier;
-    private OrganizationsDataAccess repository;
+    private OrganizationsRepository repository;
 
     public Builder tokenVerifier(TokenVerifier tokenVerifier) {
       this.tokenVerifier = tokenVerifier;
       return this;
     }
 
-    public Builder repository(OrganizationsDataAccess repository) {
+    public Builder repository(OrganizationsRepository repository) {
       this.repository = repository;
       return this;
     }

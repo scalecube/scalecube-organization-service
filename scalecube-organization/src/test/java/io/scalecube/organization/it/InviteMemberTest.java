@@ -45,21 +45,21 @@ class InviteMemberTest extends BaseTest {
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
+                    RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
             .block(TIMEOUT);
 
     CreateOrganizationResponse organizationB =
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_B.getEmail(), tokenB))
+                    RandomStringUtils.randomAlphabetic(10), USER_B.email(), tokenB))
             .block(TIMEOUT);
 
     StepVerifier.create(
             organizationService
                 .inviteMember(
                     new InviteOrganizationMemberRequest(
-                        tokenA, organizationA.id(), USER_C.getUserId(), Role.Member.name()))
+                        tokenA, organizationA.id(), USER_C.userId(), Role.Member.name()))
                 .then(
                     organizationService.getOrganizationMembers(
                         new GetOrganizationMembersRequest(organizationA.id(), tokenA))))
@@ -69,8 +69,8 @@ class InviteMemberTest extends BaseTest {
                   Stream.of(response.members())
                       .collect(Collectors.toMap(OrganizationMember::id, OrganizationMember::role));
 
-              assertNotNull(members.get(USER_C.getUserId()), "member is not found in organization");
-              assertEquals(Role.Member.name(), members.get(USER_C.getUserId()));
+              assertNotNull(members.get(USER_C.userId()), "member is not found in organization");
+              assertEquals(Role.Member.name(), members.get(USER_C.userId()));
             })
         .verifyComplete();
 
@@ -78,7 +78,7 @@ class InviteMemberTest extends BaseTest {
             organizationService
                 .inviteMember(
                     new InviteOrganizationMemberRequest(
-                        tokenB, organizationB.id(), USER_C.getUserId(), Role.Member.name()))
+                        tokenB, organizationB.id(), USER_C.userId(), Role.Member.name()))
                 .then(
                     organizationService.getOrganizationMembers(
                         new GetOrganizationMembersRequest(organizationB.id(), tokenB))))
@@ -88,8 +88,8 @@ class InviteMemberTest extends BaseTest {
                   Stream.of(response.members())
                       .collect(Collectors.toMap(OrganizationMember::id, OrganizationMember::role));
 
-              assertNotNull(members.get(USER_C.getUserId()), "member is not found in organization");
-              assertEquals(Role.Member.name(), members.get(USER_C.getUserId()));
+              assertNotNull(members.get(USER_C.userId()), "member is not found in organization");
+              assertEquals(Role.Member.name(), members.get(USER_C.userId()));
             })
         .verifyComplete();
   }
@@ -104,21 +104,21 @@ class InviteMemberTest extends BaseTest {
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
+                    RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
             .block(TIMEOUT);
 
     CreateOrganizationResponse organizationA2 =
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
+                    RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
             .block(TIMEOUT);
 
     StepVerifier.create(
             organizationService
                 .inviteMember(
                     new InviteOrganizationMemberRequest(
-                        tokenA, organizationA1.id(), USER_B.getUserId(), Role.Owner.name()))
+                        tokenA, organizationA1.id(), USER_B.userId(), Role.Owner.name()))
                 .then(
                     organizationService.getOrganizationMembers(
                         new GetOrganizationMembersRequest(organizationA1.id(), tokenA))))
@@ -128,8 +128,8 @@ class InviteMemberTest extends BaseTest {
                   Stream.of(response.members())
                       .collect(Collectors.toMap(OrganizationMember::id, OrganizationMember::role));
 
-              assertNotNull(members.get(USER_B.getUserId()), "member is not found in organization");
-              assertEquals(Role.Owner.name(), members.get(USER_B.getUserId()));
+              assertNotNull(members.get(USER_B.userId()), "member is not found in organization");
+              assertEquals(Role.Owner.name(), members.get(USER_B.userId()));
             })
         .verifyComplete();
 
@@ -137,7 +137,7 @@ class InviteMemberTest extends BaseTest {
             organizationService
                 .inviteMember(
                     new InviteOrganizationMemberRequest(
-                        tokenA, organizationA2.id(), USER_B.getUserId(), Role.Owner.name()))
+                        tokenA, organizationA2.id(), USER_B.userId(), Role.Owner.name()))
                 .then(
                     organizationService.getOrganizationMembers(
                         new GetOrganizationMembersRequest(organizationA2.id(), tokenA))))
@@ -147,8 +147,8 @@ class InviteMemberTest extends BaseTest {
                   Stream.of(response.members())
                       .collect(Collectors.toMap(OrganizationMember::id, OrganizationMember::role));
 
-              assertNotNull(members.get(USER_B.getUserId()), "member is not found in organization");
-              assertEquals(Role.Owner.name(), members.get(USER_B.getUserId()));
+              assertNotNull(members.get(USER_B.userId()), "member is not found in organization");
+              assertEquals(Role.Owner.name(), members.get(USER_B.userId()));
             })
         .verifyComplete();
   }
@@ -164,20 +164,20 @@ class InviteMemberTest extends BaseTest {
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
+                    RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
             .block(TIMEOUT);
 
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenA, organizationA.id(), USER_B.getUserId(), Role.Admin.name()))
+                tokenA, organizationA.id(), USER_B.userId(), Role.Admin.name()))
         .block(TIMEOUT);
 
     StepVerifier.create(
             organizationService
                 .inviteMember(
                     new InviteOrganizationMemberRequest(
-                        tokenB, organizationA.id(), USER_C.getUserId(), Role.Member.name()))
+                        tokenB, organizationA.id(), USER_C.userId(), Role.Member.name()))
                 .then(
                     organizationService.getOrganizationMembers(
                         new GetOrganizationMembersRequest(organizationA.id(), tokenB))))
@@ -187,8 +187,8 @@ class InviteMemberTest extends BaseTest {
                   Stream.of(response.members())
                       .collect(Collectors.toMap(OrganizationMember::id, OrganizationMember::role));
 
-              assertNotNull(members.get(USER_C.getUserId()), "member is not found in organization");
-              assertEquals(Role.Member.name(), members.get(USER_C.getUserId()));
+              assertNotNull(members.get(USER_C.userId()), "member is not found in organization");
+              assertEquals(Role.Member.name(), members.get(USER_C.userId()));
             })
         .verifyComplete();
   }
@@ -204,20 +204,20 @@ class InviteMemberTest extends BaseTest {
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
+                    RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
             .block(TIMEOUT);
 
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenA, organizationA.id(), USER_B.getUserId(), Role.Owner.name()))
+                tokenA, organizationA.id(), USER_B.userId(), Role.Owner.name()))
         .block(TIMEOUT);
 
     StepVerifier.create(
             organizationService
                 .inviteMember(
                     new InviteOrganizationMemberRequest(
-                        tokenB, organizationA.id(), USER_C.getUserId(), Role.Admin.name()))
+                        tokenB, organizationA.id(), USER_C.userId(), Role.Admin.name()))
                 .then(
                     organizationService.getOrganizationMembers(
                         new GetOrganizationMembersRequest(organizationA.id(), tokenB))))
@@ -227,8 +227,8 @@ class InviteMemberTest extends BaseTest {
                   Stream.of(response.members())
                       .collect(Collectors.toMap(OrganizationMember::id, OrganizationMember::role));
 
-              assertNotNull(members.get(USER_C.getUserId()), "member is not found in organization");
-              assertEquals(Role.Admin.name(), members.get(USER_C.getUserId()));
+              assertNotNull(members.get(USER_C.userId()), "member is not found in organization");
+              assertEquals(Role.Admin.name(), members.get(USER_C.userId()));
             })
         .verifyComplete();
   }
@@ -242,20 +242,20 @@ class InviteMemberTest extends BaseTest {
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
+                    RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
             .block(TIMEOUT);
 
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenA, organizationA.id(), USER_B.getUserId(), Role.Member.name()))
+                tokenA, organizationA.id(), USER_B.userId(), Role.Member.name()))
         .block(TIMEOUT);
 
     StepVerifier.create(
             organizationService
                 .inviteMember(
                     new InviteOrganizationMemberRequest(
-                        tokenA, organizationA.id(), USER_B.getUserId(), Role.Admin.name()))
+                        tokenA, organizationA.id(), USER_B.userId(), Role.Admin.name()))
                 .then(
                     organizationService.getOrganizationMembers(
                         new GetOrganizationMembersRequest(organizationA.id(), tokenA))))
@@ -265,8 +265,8 @@ class InviteMemberTest extends BaseTest {
                   Stream.of(response.members())
                       .collect(Collectors.toMap(OrganizationMember::id, OrganizationMember::role));
 
-              assertNotNull(members.get(USER_B.getUserId()), "member is not found in organization");
-              assertEquals(Role.Member.name(), members.get(USER_B.getUserId()));
+              assertNotNull(members.get(USER_B.userId()), "member is not found in organization");
+              assertEquals(Role.Member.name(), members.get(USER_B.userId()));
             })
         .verifyComplete();
   }
@@ -282,26 +282,26 @@ class InviteMemberTest extends BaseTest {
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
+                    RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
             .block(TIMEOUT);
 
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenA, organizationA.id(), USER_B.getUserId(), Role.Member.name()))
+                tokenA, organizationA.id(), USER_B.userId(), Role.Member.name()))
         .block(TIMEOUT);
 
     StepVerifier.create(
             organizationService.inviteMember(
                 new InviteOrganizationMemberRequest(
-                    tokenB, organizationA.id(), USER_C.getUserId(), Role.Member.name())))
+                    tokenB, organizationA.id(), USER_C.userId(), Role.Member.name())))
         .expectErrorSatisfies(
             e -> {
               assertEquals(AccessPermissionException.class, e.getClass());
               assertEquals(
                   String.format(
                       "user: '%s', name: '%s', not in role Owner or Admin of organization: '%s'",
-                      USER_B.getUserId(), USER_B.getName(), organizationA.name()),
+                      USER_B.userId(), USER_B.name(), organizationA.name()),
                   e.getMessage());
             })
         .verify();
@@ -318,31 +318,31 @@ class InviteMemberTest extends BaseTest {
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
+                    RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
             .block(TIMEOUT);
 
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenA, organizationA.id(), USER_B.getUserId(), Role.Owner.name()))
+                tokenA, organizationA.id(), USER_B.userId(), Role.Owner.name()))
         .block(TIMEOUT);
 
     organizationService
         .kickoutMember(
-            new KickoutOrganizationMemberRequest(organizationA.id(), tokenB, USER_A.getUserId()))
+            new KickoutOrganizationMemberRequest(organizationA.id(), tokenB, USER_A.userId()))
         .block(TIMEOUT);
 
     StepVerifier.create(
             organizationService.inviteMember(
                 new InviteOrganizationMemberRequest(
-                    tokenA, organizationA.id(), USER_C.getUserId(), Role.Member.name())))
+                    tokenA, organizationA.id(), USER_C.userId(), Role.Member.name())))
         .expectErrorSatisfies(
             e -> {
               assertEquals(AccessPermissionException.class, e.getClass());
               assertEquals(
                   String.format(
                       "user: '%s', name: '%s', not in role Owner or Admin of organization: '%s'",
-                      USER_A.getUserId(), USER_A.getName(), organizationA.name()),
+                      USER_A.userId(), USER_A.name(), organizationA.name()),
                   e.getMessage());
             })
         .verify();
@@ -359,26 +359,26 @@ class InviteMemberTest extends BaseTest {
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
+                    RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
             .block(TIMEOUT);
 
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenA, organizationA.id(), USER_B.getUserId(), Role.Admin.name()))
+                tokenA, organizationA.id(), USER_B.userId(), Role.Admin.name()))
         .block(TIMEOUT);
 
     StepVerifier.create(
             organizationService.inviteMember(
                 new InviteOrganizationMemberRequest(
-                    tokenB, organizationA.id(), USER_C.getUserId(), Role.Owner.name())))
+                    tokenB, organizationA.id(), USER_C.userId(), Role.Owner.name())))
         .expectErrorSatisfies(
             e -> {
               assertEquals(AccessPermissionException.class, e.getClass());
               assertEquals(
                   String.format(
                       "user: '%s', name: '%s', role: '%s' cannot invite to a higher role: '%s'",
-                      USER_B.getUserId(), USER_B.getName(), Role.Admin.name(), Role.Owner.name()),
+                      USER_B.userId(), USER_B.name(), Role.Admin.name(), Role.Owner.name()),
                   e.getMessage());
             })
         .verify();
@@ -393,7 +393,7 @@ class InviteMemberTest extends BaseTest {
     StepVerifier.create(
             organizationService.inviteMember(
                 new InviteOrganizationMemberRequest(
-                    tokenA, "ORG-organization-1", USER_B.getUserId(), Role.Member.name())))
+                    tokenA, "ORG-organization-1", USER_B.userId(), Role.Member.name())))
         .expectErrorSatisfies(
             e -> {
               assertEquals(InvalidTokenException.class, e.getClass());

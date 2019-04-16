@@ -1,6 +1,6 @@
 package io.scalecube.organization.it;
 
-import io.scalecube.security.Profile;
+import io.scalecube.security.api.Profile;
 
 public interface TestProfiles {
 

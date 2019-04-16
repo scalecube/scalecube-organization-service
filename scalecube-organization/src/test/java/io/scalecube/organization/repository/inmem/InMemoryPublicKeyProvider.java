@@ -7,7 +7,7 @@ import io.scalecube.account.api.OrganizationServiceException;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.tokens.InvalidTokenException;
 import io.scalecube.organization.tokens.PublicKeyProvider;
-import io.scalecube.security.Profile;
+import io.scalecube.security.api.Profile;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -21,7 +21,9 @@ public class InMemoryPublicKeyProvider implements PublicKeyProvider {
 
   static {
     try {
-      KEY_PAIR = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+      KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+      keyPairGenerator.initialize(2048);
+      KEY_PAIR = keyPairGenerator.generateKeyPair();
     } catch (NoSuchAlgorithmException e) {
       throw new OrganizationServiceException("Error during initialing KeyPairGenerator", e);
     }
@@ -41,15 +43,15 @@ public class InMemoryPublicKeyProvider implements PublicKeyProvider {
         options ->
             consumer.accept(
                 options
-                    .setSubject(profile.getUserId())
-                    .setAudience(profile.getTenant())
+                    .setSubject(profile.userId())
+                    .setAudience(profile.tenant())
                     .setHeaderParam("kid", "42")
-                    .claim("email", profile.getEmail())
+                    .claim("email", profile.email())
                     .claim("email_verified", profile.isEmailVerified())
-                    .claim("name", profile.getName())
-                    .claim("family_name", profile.getFamilyName())
-                    .claim("given_name", profile.getGivenName())
-                    .addClaims(profile.getClaims())));
+                    .claim("name", profile.name())
+                    .claim("family_name", profile.familyName())
+                    .claim("given_name", profile.givenName())
+                    .addClaims(profile.claims())));
   }
 
   public static Token token(Consumer<JwtBuilder> consumer) {

@@ -1,15 +1,16 @@
 package io.scalecube.account.api;
 
 import java.util.Objects;
+import java.util.StringJoiner;
 
 /** Represents an organization member. */
 public class OrganizationMember {
-  private String id;
 
+  private String id;
   private String role;
 
   /** Constructs an empty organization member. */
-  public OrganizationMember() {}
+  OrganizationMember() {}
 
   /**
    * Constructs an organization member using the user and role arguments.
@@ -45,6 +46,9 @@ public class OrganizationMember {
 
   @Override
   public String toString() {
-    return super.toString() + String.format("[userId=%s, role=%s]", id, role);
+    return new StringJoiner(", ", OrganizationMember.class.getSimpleName() + "[", "]")
+        .add("id='" + id + "'")
+        .add("role='" + role + "'")
+        .toString();
   }
 }

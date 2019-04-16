@@ -4,14 +4,14 @@ import io.scalecube.account.api.GetOrganizationMembersRequest;
 import io.scalecube.account.api.GetOrganizationMembersResponse;
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.Token;
-import io.scalecube.organization.repository.OrganizationsDataAccess;
+import io.scalecube.organization.domain.Organization;
+import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.tokens.TokenVerifier;
-import java.util.Collection;
 
 public class GetOrganizationMembers
     extends ServiceOperation<GetOrganizationMembersRequest, GetOrganizationMembersResponse> {
 
-  private GetOrganizationMembers(TokenVerifier tokenVerifier, OrganizationsDataAccess repository) {
+  private GetOrganizationMembers(TokenVerifier tokenVerifier, OrganizationsRepository repository) {
     super(tokenVerifier, repository);
   }
 
@@ -21,11 +21,9 @@ public class GetOrganizationMembers
     Organization organization = getOrganization(request.organizationId());
 
     checkSuperUserAccess(organization, context.profile());
-    Collection<OrganizationMember> organizationMembers =
-        context.repository().getOrganizationMembers(organization);
-    OrganizationMember[] members = new OrganizationMember[organizationMembers.size()];
 
-    return new GetOrganizationMembersResponse(organizationMembers.toArray(members));
+    return new GetOrganizationMembersResponse(
+        organization.members().toArray(new OrganizationMember[0]));
   }
 
   @Override
@@ -46,14 +44,14 @@ public class GetOrganizationMembers
 
   public static class Builder {
     private TokenVerifier tokenVerifier;
-    private OrganizationsDataAccess repository;
+    private OrganizationsRepository repository;
 
     public Builder tokenVerifier(TokenVerifier tokenVerifier) {
       this.tokenVerifier = tokenVerifier;
       return this;
     }
 
-    public Builder repository(OrganizationsDataAccess repository) {
+    public Builder repository(OrganizationsRepository repository) {
       this.repository = repository;
       return this;
     }

@@ -1,7 +1,7 @@
 package io.scalecube.organization.operation;
 
 import io.scalecube.account.api.OrganizationInfo;
-import io.scalecube.organization.repository.OrganizationsDataAccess;
+import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.repository.exception.InvalidInputException;
 import io.scalecube.organization.repository.exception.NameAlreadyInUseException;
 import io.scalecube.organization.tokens.TokenVerifier;
@@ -9,8 +9,7 @@ import io.scalecube.organization.tokens.TokenVerifier;
 public abstract class OrganizationInfoOperation<I, O> extends ServiceOperation<I, O> {
   private static final String VALID_ORG_NAME_CHARS_REGEX = "^[.%a-zA-Z0-9_-]*$";
 
-  protected OrganizationInfoOperation(
-      TokenVerifier tokenVerifier, OrganizationsDataAccess repository) {
+  OrganizationInfoOperation(TokenVerifier tokenVerifier, OrganizationsRepository repository) {
     super(tokenVerifier, repository);
   }
 
@@ -26,7 +25,7 @@ public abstract class OrganizationInfoOperation<I, O> extends ServiceOperation<I
               + "underscore, period, dash & percent");
     }
 
-    if (context.repository().existByName(info.name())) {
+    if (context.repository().existsByName(info.name())) {
       throw new NameAlreadyInUseException(
           String.format("Organization name: '%s' already in use", info.name()));
     }

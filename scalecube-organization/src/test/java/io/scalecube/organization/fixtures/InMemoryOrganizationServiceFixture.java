@@ -2,12 +2,8 @@ package io.scalecube.organization.fixtures;
 
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.organization.OrganizationServiceImpl;
-import io.scalecube.organization.repository.OrganizationsDataAccess;
-import io.scalecube.organization.repository.OrganizationsDataAccessImpl;
-import io.scalecube.organization.repository.inmem.InMemoryOrganizationMembersRepositoryAdmin;
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
 import io.scalecube.organization.repository.inmem.InMemoryPublicKeyProvider;
-import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
 import io.scalecube.organization.token.store.PropertiesFileKeyStore;
 import io.scalecube.organization.tokens.TokenVerifierImpl;
 import io.scalecube.organization.tokens.store.KeyStore;
@@ -21,17 +17,13 @@ public class InMemoryOrganizationServiceFixture implements Fixture {
 
   @Override
   public void setUp() throws TestAbortedException {
-    OrganizationsDataAccess repository =
-        new OrganizationsDataAccessImpl(
-            new InMemoryOrganizationRepository(),
-            new InMemoryUserOrganizationMembershipRepository(),
-            new InMemoryOrganizationMembersRepositoryAdmin());
+    InMemoryOrganizationRepository organizationRepository = new InMemoryOrganizationRepository();
 
     TokenVerifierImpl tokenVerifier = new TokenVerifierImpl(new InMemoryPublicKeyProvider());
 
     KeyStore keyStore = new PropertiesFileKeyStore();
 
-    service = new OrganizationServiceImpl(repository, keyStore, tokenVerifier);
+    service = new OrganizationServiceImpl(organizationRepository, keyStore, tokenVerifier);
   }
 
   @Override

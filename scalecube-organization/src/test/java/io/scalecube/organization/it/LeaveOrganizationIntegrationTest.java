@@ -12,7 +12,7 @@ import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.fixtures.InMemoryOrganizationServiceFixture;
 import io.scalecube.organization.repository.inmem.InMemoryPublicKeyProvider;
-import io.scalecube.security.Profile;
+import io.scalecube.security.api.Profile;
 import io.scalecube.test.fixtures.Fixtures;
 import io.scalecube.test.fixtures.WithFixture;
 import java.time.Duration;
@@ -47,7 +47,7 @@ class LeaveOrganizationIntegrationTest {
         service
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), userA.getEmail(), userAToken))
+                    RandomStringUtils.randomAlphabetic(10), userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -55,7 +55,7 @@ class LeaveOrganizationIntegrationTest {
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Owner.name()))
+                userAToken, organizationId, userB.userId(), Role.Owner.name()))
         .block(TIMEOUT);
 
     // the user "A" requested to leave its organization
@@ -79,7 +79,7 @@ class LeaveOrganizationIntegrationTest {
         service
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), userA.getEmail(), userAToken))
+                    RandomStringUtils.randomAlphabetic(10), userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -87,7 +87,7 @@ class LeaveOrganizationIntegrationTest {
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Admin.name()))
+                userAToken, organizationId, userB.userId(), Role.Admin.name()))
         .block(TIMEOUT);
 
     // the user "B" requested to leave its organization
@@ -111,7 +111,7 @@ class LeaveOrganizationIntegrationTest {
         service
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), userA.getEmail(), userAToken))
+                    RandomStringUtils.randomAlphabetic(10), userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -119,7 +119,7 @@ class LeaveOrganizationIntegrationTest {
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Member.name()))
+                userAToken, organizationId, userB.userId(), Role.Member.name()))
         .block(TIMEOUT);
 
     // the user "B" requested to leave its organization
@@ -141,7 +141,7 @@ class LeaveOrganizationIntegrationTest {
         service
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), userA.getEmail(), userAToken))
+                    RandomStringUtils.randomAlphabetic(10), userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -167,7 +167,7 @@ class LeaveOrganizationIntegrationTest {
             .createOrganization(
                 new CreateOrganizationRequest(
                     RandomStringUtils.randomAlphabetic(10),
-                    TestProfiles.USER_A.getEmail(),
+                    TestProfiles.USER_A.email(),
                     userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
