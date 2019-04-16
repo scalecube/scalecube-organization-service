@@ -17,7 +17,7 @@ public final class DiscoveryOptions {
   }
 
   public Integer discoveryPort() {
-    return discoveryPort;
+    return discoveryPort != null ? discoveryPort : 0;
   }
 
   /**
