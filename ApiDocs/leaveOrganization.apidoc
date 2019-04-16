@@ -5,8 +5,8 @@
   * @apiVersion 0.0.0-CURRENT
   * @apiPermission Request / Response / Error-response
   *
-  * @apiDescription This operation enables each organization member to step-out (leave) from the relevant organization.
-  * <br>Nevertheless at least one Owner (origin or granted one) should be persisted in the organization
+  * @apiDescription This operation enables each organization <b>member</b> to step-out (leave) from the relevant organization.
+  * <br>Nevertheless at least one Owner (origin or granted one) should be persisted in the organization.
   *
   * @apiParam {Object} token The requested token issued by relevant authority (Auth0)
   * @apiParam {String} organizationId Already stored id for the specific organization

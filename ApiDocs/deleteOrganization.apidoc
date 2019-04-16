@@ -6,7 +6,7 @@
   * @apiPermission Request / Response / Error-response
   *
   * @apiDescription This operation enables only <b>Owners</b> to delete relevant organization.
-  * <br>All relevant API keys issued for organization also deleted thus become invalid upon this operation was done
+  * <br>All relevant API keys issued for organization also deleted thus become invalid after 5 minutes left upon this operation was done.
   *
   * @apiParam {Object} token The requested token issued by relevant authority (Auth0)
   * @apiParam {String} organizationId Already stored id for the specific organization
