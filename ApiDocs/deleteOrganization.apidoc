@@ -5,8 +5,8 @@
   * @apiVersion 0.0.0-CURRENT
   * @apiPermission Request / Response / Error-response
   *
-  * @apiDescription This operation enables only <b>Owners</b> to delete related organization.
-  * <br>All relevant API keys issued for organization also deleted thus become invalid upon this operation was done.
+  * @apiDescription This operation enables only <b>Owners</b> to delete relevant organization.
+  * <br>All relevant API keys issued for organization also deleted thus become invalid after specific period of time is left upon this operation was done.
   *
   * @apiParam {Object} token The requested token issued by relevant authority (Auth0)
   * @apiParam {String} organizationId Already stored id for the specific organization
@@ -52,7 +52,7 @@
   *         "sid":1,
   *         "d":{
   *                "errorCode":500,
-  *                "errorMessage":"Organization [id=ORG-ID] not found"
+  *                "errorMessage":"ORG-ID"
   *         }
   *     }
   *
@@ -85,7 +85,7 @@
   *     {
   *         "data":{
   *                   "errorCode":500,
-  *                   "errorMessage":"Organization [id=ORG-ID] not found"
+  *                   "errorMessage":"ORG-ID"
   *         },
   *         "metadata":{
   *                      "q":"/io.scalecube.services.error/500"
@@ -113,6 +113,6 @@
   * Error Response:
   *     {
   *         "errorCode":500,
-  *         "errorMessage":"Organization [id=ORG-ID] not found"
+  *         "errorMessage":"ORG-ID"
   *     }
   */

@@ -6,12 +6,7 @@
   * @apiPermission Request / Response / Error-response
   *
   * @apiDescription This operation enables only organization managers <b>(Owner | Admin)</b> to invite a valid user
-  * (which client id issued by relevant authority - <a href="https://manage.auth0.com/">Auth0</a>) to step into relevant
-  * organization with relevant member's role (permission level).
-  * >Note: this method returns all organization info thus API keys with:
-  *  ><br>-all accessible permission levels ("Owner" | "Admin" | "Member") will be returned only for the related Organization Owner
-  *  ><br>-"Admin" | "Member" permission levels will be returned only for the related Organization Admin
-  *  ><br>-"Member" permission level will be returned only for the related Organization Member
+  * (which client id issued by relevant authority - <a href="https://manage.auth0.com/">Auth0</a>) to step into relevant organization with relevant member's role (permission level).
   *
   * @apiParam {Object} token The requested token issued by relevant authority (Auth0)
   * @apiParam {String} organizationId Already stored id for the specific organization
@@ -57,7 +52,7 @@
   *         "sid":1,
   *         "d":{
   *                "errorCode":500,
-  *                "errorMessage":"Role 'Boss' is invalid"
+  *                "errorMessage":"Unknown role: Boss"
   *         }
   *     }
   *
@@ -89,7 +84,7 @@
   *     {
   *         "data":{
   *                   "errorCode":500,
-  *                   "errorMessage":"Role 'Boss' is invalid"
+  *                   "errorMessage":"Unknown role: Boss"
   *         },
   *         "metadata":{
   *                      "q":"/io.scalecube.services.error/500"
@@ -118,6 +113,6 @@
   * Error Response:
   *     {
   *         "errorCode":500,
-  *         "errorMessage":"Role 'Boss' is invalid"
+  *         "errorMessage":"Unknown role: Boss"
   *     }
   */

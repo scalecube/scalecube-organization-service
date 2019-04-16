@@ -9,8 +9,6 @@
   * <br>Any of the members who posses Admin role couldn't upgrade themselves whereby only the members with higher - Owner roles are able to do that.
   * Nevertheless any member with Admin or Owner role could downgrade themselves as do the members with Owner role could downgrade the members with Admin role.
   * Furthermore at least one Owner (origin or granted one) should be persisted in the organization.
-  * <!--<br>Permission level (Owner/Admin/Member) for each API key is automatically updated to the relevant one upon the managers who already issued these API keys were
-  * upgraded or downgraded to one of the accessible roles (Owner/Admin/Member) in the organization.-->
   *
   * @apiParam {Object} token The requested token issued by relevant authority (Auth0)
   * @apiParam {String} organizationId Already stored id for the specific organization
@@ -56,7 +54,7 @@
   *         "sid":1,
   *         "d":{
   *                "errorCode":500,
-  *                "errorMessage":"Role 'Boss' is invalid"
+  *                "errorMessage":"Unknown role: Boss"
   *         }
   *     }
   *
@@ -88,7 +86,7 @@
   *     {
   *         "data":{
   *                   "errorCode":500,
-  *                   "errorMessage":"Role 'Boss' is invalid"
+  *                   "errorMessage":"Unknown role: Boss"
   *         },
   *         "metadata":{
   *                      "q":"/io.scalecube.services.error/500"
@@ -117,6 +115,6 @@
   * Error Response:
   *     {
   *         "errorCode":500,
-  *         "errorMessage":"Role 'Boss' is invalid"
+  *         "errorMessage":"Unknown role: Boss"
   *     }
   */
