@@ -5,7 +5,7 @@
   * @apiVersion 0.0.0-CURRENT
   * @apiPermission Request / Response / Error-response
   *
-  * @apiDescription This operation enables only organization managers <b>(Owner/Admin)</b> to remove the existent organization member with any accessible role.
+  * @apiDescription This operation enables only organization managers <b>(Owner | Admin)</b> to remove the existent organization member with any accessible role.
   * <br>Nevertheless at least one Owner (origin or granted one) should be persisted in the organization
   *
   * @apiParam {Object} token The requested token issued by relevant authority (Auth0)
