@@ -17,7 +17,7 @@ import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository
 import io.scalecube.organization.token.store.PropertiesFileKeyStore;
 import io.scalecube.organization.tokens.TokenVerifier;
 import io.scalecube.organization.tokens.store.KeyStore;
-import io.scalecube.security.Profile;
+import io.scalecube.security.api.Profile;
 import java.io.File;
 import java.util.Collections;
 import java.util.Objects;
@@ -136,7 +136,7 @@ public class Base {
     StepVerifier.create(
             this.service.inviteMember(
                 new InviteOrganizationMemberRequest(
-                    token, organisationId, profile.getUserId(), role.toString())))
+                    token, organisationId, profile.userId(), role.toString())))
         .assertNext(Assertions::assertNotNull)
         .verifyComplete();
   }

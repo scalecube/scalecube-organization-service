@@ -26,7 +26,7 @@ class InviteMemberTest extends Base {
             response ->
                 assertTrue(
                     Arrays.stream(response.members())
-                        .anyMatch(member -> testProfile2.getUserId().equals(member.id()))))
+                        .anyMatch(member -> testProfile2.userId().equals(member.id()))))
         .verifyComplete();
   }
 
@@ -35,7 +35,7 @@ class InviteMemberTest extends Base {
     assertMonoCompletesWithError(
         service.inviteMember(
             new InviteOrganizationMemberRequest(
-                token, organizationId, testProfile5.getUserId(), null)),
+                token, organizationId, testProfile5.userId(), null)),
         IllegalArgumentException.class);
   }
 
@@ -44,7 +44,7 @@ class InviteMemberTest extends Base {
     assertMonoCompletesWithError(
         service.inviteMember(
             new InviteOrganizationMemberRequest(
-                token, organizationId, testProfile5.getUserId(), "")),
+                token, organizationId, testProfile5.userId(), "")),
         IllegalArgumentException.class);
   }
 
@@ -53,7 +53,7 @@ class InviteMemberTest extends Base {
     assertMonoCompletesWithError(
         service.inviteMember(
             new InviteOrganizationMemberRequest(
-                token, organizationId, testProfile5.getUserId(), "bla")),
+                token, organizationId, testProfile5.userId(), "bla")),
         IllegalArgumentException.class);
   }
 
@@ -64,7 +64,7 @@ class InviteMemberTest extends Base {
         createService(testProfile2)
             .inviteMember(
                 new InviteOrganizationMemberRequest(
-                    token, organizationId, testProfile5.getUserId(), Role.Owner.toString())),
+                    token, organizationId, testProfile5.userId(), Role.Owner.toString())),
         AccessPermissionException.class);
   }
 
@@ -73,7 +73,7 @@ class InviteMemberTest extends Base {
     assertMonoCompletesWithError(
         service.inviteMember(
             new InviteOrganizationMemberRequest(
-                token, "", testProfile5.getUserId(), Role.Member.toString())),
+                token, "", testProfile5.userId(), Role.Member.toString())),
         IllegalArgumentException.class);
   }
 
@@ -82,7 +82,7 @@ class InviteMemberTest extends Base {
     assertMonoCompletesWithError(
         service.inviteMember(
             new InviteOrganizationMemberRequest(
-                token, null, testProfile5.getUserId(), Role.Member.toString())),
+                token, null, testProfile5.userId(), Role.Member.toString())),
         NullPointerException.class);
   }
 
@@ -108,7 +108,7 @@ class InviteMemberTest extends Base {
     assertMonoCompletesWithError(
         service.inviteMember(
             new InviteOrganizationMemberRequest(
-                new Token(""), organizationId, testProfile5.getUserId(), Role.Member.toString())),
+                new Token(""), organizationId, testProfile5.userId(), Role.Member.toString())),
         IllegalArgumentException.class);
   }
 
@@ -117,7 +117,7 @@ class InviteMemberTest extends Base {
     assertMonoCompletesWithError(
         service.inviteMember(
             new InviteOrganizationMemberRequest(
-                null, organizationId, testProfile5.getUserId(), Role.Member.toString())),
+                null, organizationId, testProfile5.userId(), Role.Member.toString())),
         NullPointerException.class);
   }
 
@@ -126,7 +126,7 @@ class InviteMemberTest extends Base {
     assertMonoCompletesWithError(
         service.inviteMember(
             new InviteOrganizationMemberRequest(
-                new Token(null), organizationId, testProfile5.getUserId(), Role.Member.toString())),
+                new Token(null), organizationId, testProfile5.userId(), Role.Member.toString())),
         NullPointerException.class);
   }
 
@@ -135,7 +135,7 @@ class InviteMemberTest extends Base {
     assertMonoCompletesWithError(
         service.inviteMember(
             new InviteOrganizationMemberRequest(
-                token, "orgNotExists", testProfile5.getUserId(), Role.Member.toString())),
+                token, "orgNotExists", testProfile5.userId(), Role.Member.toString())),
         OrganizationNotFoundException.class);
   }
 
@@ -145,7 +145,7 @@ class InviteMemberTest extends Base {
         createService(invalidProfile)
             .inviteMember(
                 new InviteOrganizationMemberRequest(
-                    token, organizationId, testProfile5.getUserId(), Role.Member.toString())),
+                    token, organizationId, testProfile5.userId(), Role.Member.toString())),
         InvalidAuthenticationToken.class);
   }
 }

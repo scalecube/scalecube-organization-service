@@ -1,7 +1,7 @@
 package io.scalecube.organization.tokens;
 
 import io.scalecube.account.api.Token;
-import io.scalecube.security.Profile;
+import io.scalecube.security.api.Profile;
 
 public interface TokenVerifier {
 

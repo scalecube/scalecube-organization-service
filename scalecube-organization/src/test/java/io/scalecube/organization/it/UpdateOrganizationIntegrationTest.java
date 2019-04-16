@@ -17,7 +17,7 @@ import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
 import io.scalecube.account.api.UpdateOrganizationRequest;
 import io.scalecube.organization.fixtures.InMemoryOrganizationServiceFixture;
 import io.scalecube.organization.repository.inmem.InMemoryPublicKeyProvider;
-import io.scalecube.security.Profile;
+import io.scalecube.security.api.Profile;
 import io.scalecube.test.fixtures.Fixtures;
 import io.scalecube.test.fixtures.WithFixture;
 import java.time.Duration;
@@ -53,13 +53,13 @@ class UpdateOrganizationIntegrationTest {
 
     String organizationName = RandomStringUtils.randomAlphabetic(10);
     String newOrganizationName = "new" + organizationName;
-    String newEmail = "new" + userA.getEmail();
+    String newEmail = "new" + userA.email();
 
     // create a single organization which will be owned by user "A"
     String organizationId =
         service
             .createOrganization(
-                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+                new CreateOrganizationRequest(organizationName, userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -107,13 +107,13 @@ class UpdateOrganizationIntegrationTest {
 
     String organizationName = RandomStringUtils.randomAlphabetic(10);
     String newOrganizationName = "new" + organizationName;
-    String newEmail = "new" + userA.getEmail();
+    String newEmail = "new" + userA.email();
 
     // create a single organization which will be owned by user "A"
     String organizationId =
         service
             .createOrganization(
-                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+                new CreateOrganizationRequest(organizationName, userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -140,7 +140,7 @@ class UpdateOrganizationIntegrationTest {
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Admin.name()))
+                userAToken, organizationId, userB.userId(), Role.Admin.name()))
         .block(TIMEOUT);
 
     // user "B" updates repo name and email in the organization
@@ -173,13 +173,13 @@ class UpdateOrganizationIntegrationTest {
 
     String organizationName = RandomStringUtils.randomAlphabetic(10);
     String newOrganizationName = "new" + organizationName;
-    String newEmail = "new" + userA.getEmail();
+    String newEmail = "new" + userA.email();
 
     // create a single organization which will be owned by user "A"
     String organizationId =
         service
             .createOrganization(
-                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+                new CreateOrganizationRequest(organizationName, userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -187,14 +187,14 @@ class UpdateOrganizationIntegrationTest {
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Member.name()))
+                userAToken, organizationId, userB.userId(), Role.Member.name()))
         .block(TIMEOUT);
 
     // the user "A" updates the user "B" role to "owner" in the own organization
     service
         .updateOrganizationMemberRole(
             new UpdateOrganizationMemberRoleRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Owner.name()))
+                userAToken, organizationId, userB.userId(), Role.Owner.name()))
         .block(TIMEOUT);
 
     // user "B" updates repo name and email in the organization
@@ -226,13 +226,13 @@ class UpdateOrganizationIntegrationTest {
 
     String organizationName = RandomStringUtils.randomAlphabetic(10);
     String newOrganizationName = "new" + organizationName;
-    String newEmail = "new" + userA.getEmail();
+    String newEmail = "new" + userA.email();
 
     // create a single organization which will be owned by user "A"
     String organizationId =
         service
             .createOrganization(
-                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+                new CreateOrganizationRequest(organizationName, userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -240,7 +240,7 @@ class UpdateOrganizationIntegrationTest {
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Member.name()))
+                userAToken, organizationId, userB.userId(), Role.Member.name()))
         .block(TIMEOUT);
 
     // user "B" updates repo name and email in the organization
@@ -251,7 +251,7 @@ class UpdateOrganizationIntegrationTest {
         .expectErrorMessage(
             String.format(
                 "user: '%s', name: '%s', not in role Owner or Admin of organization: '%s'",
-                userB.getUserId(), userB.getName(), organizationName))
+                userB.userId(), userB.name(), organizationName))
         .verify();
   }
 
@@ -265,13 +265,13 @@ class UpdateOrganizationIntegrationTest {
 
     String organizationName = RandomStringUtils.randomAlphabetic(10);
     String newOrganizationName = "new" + organizationName;
-    String newEmail = "new" + userA.getEmail();
+    String newEmail = "new" + userA.email();
 
     // create a single organization which will be owned by user "A"
     String organizationId =
         service
             .createOrganization(
-                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+                new CreateOrganizationRequest(organizationName, userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -279,7 +279,7 @@ class UpdateOrganizationIntegrationTest {
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Owner.name()))
+                userAToken, organizationId, userB.userId(), Role.Owner.name()))
         .block(TIMEOUT);
 
     // the user "A" leaves own organization
@@ -295,7 +295,7 @@ class UpdateOrganizationIntegrationTest {
         .expectErrorMessage(
             String.format(
                 "user: '%s', name: '%s', not in role Owner or Admin of organization: '%s'",
-                userA.getUserId(), userA.getName(), organizationName))
+                userA.userId(), userA.name(), organizationName))
         .verify();
   }
 
@@ -315,14 +315,14 @@ class UpdateOrganizationIntegrationTest {
     String userAOrganizationId =
         service
             .createOrganization(
-                new CreateOrganizationRequest(userAOrganizationName, userA.getEmail(), userAToken))
+                new CreateOrganizationRequest(userAOrganizationName, userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
     // create a single organization which will be owned by user "B"
     service
         .createOrganization(
-            new CreateOrganizationRequest(userBOrganizationName, userB.getEmail(), userBToken))
+            new CreateOrganizationRequest(userBOrganizationName, userB.email(), userBToken))
         .map(OrganizationInfo::id)
         .block(TIMEOUT);
 
@@ -330,7 +330,7 @@ class UpdateOrganizationIntegrationTest {
     StepVerifier.create(
             service.updateOrganization(
                 new UpdateOrganizationRequest(
-                    userAOrganizationId, userAToken, userBOrganizationName, userA.getEmail())))
+                    userAOrganizationId, userAToken, userBOrganizationName, userA.email())))
         .expectErrorMessage(
             String.format("Organization name: '%s' already in use", userBOrganizationName))
         .verify();
@@ -347,7 +347,7 @@ class UpdateOrganizationIntegrationTest {
     StepVerifier.create(
             service.updateOrganization(
                 new UpdateOrganizationRequest(
-                    nonExistingOrganizationId, userAToken, "fictionalName", userA.getEmail())))
+                    nonExistingOrganizationId, userAToken, "fictionalName", userA.email())))
         .expectErrorSatisfies(
             e -> {
               assertEquals(OrganizationNotFoundException.class, e.getClass());
@@ -372,7 +372,7 @@ class UpdateOrganizationIntegrationTest {
     String organizationId =
         service
             .createOrganization(
-                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+                new CreateOrganizationRequest(organizationName, userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -380,7 +380,7 @@ class UpdateOrganizationIntegrationTest {
     StepVerifier.create(
             service.updateOrganization(
                 new UpdateOrganizationRequest(
-                    organizationId, userAToken, incorrectName, userA.getEmail())))
+                    organizationId, userAToken, incorrectName, userA.email())))
         .expectErrorMessage(
             "Organization name can only contain characters in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent")
         .verify();
@@ -395,7 +395,7 @@ class UpdateOrganizationIntegrationTest {
     StepVerifier.create(
             service.updateOrganization(
                 new UpdateOrganizationRequest(
-                    "organizationId", new Token("invalid"), "name", userA.getEmail())))
+                    "organizationId", new Token("invalid"), "name", userA.email())))
         .expectErrorMessage("Token verification failed")
         .verify();
   }

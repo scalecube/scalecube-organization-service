@@ -13,7 +13,7 @@ import io.scalecube.organization.repository.exception.InvalidInputException;
 import io.scalecube.organization.repository.exception.NameAlreadyInUseException;
 import io.scalecube.organization.repository.inmem.InMemoryPublicKeyProvider;
 import io.scalecube.organization.tokens.InvalidTokenException;
-import io.scalecube.security.Profile;
+import io.scalecube.security.api.Profile;
 import io.scalecube.test.fixtures.Fixtures;
 import io.scalecube.test.fixtures.WithFixture;
 import java.time.Duration;
@@ -46,13 +46,13 @@ class CreateOrganizationIntegrationTest {
 
     StepVerifier.create(
             service.createOrganization(
-                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken)))
+                new CreateOrganizationRequest(organizationName, userA.email(), userAToken)))
         .assertNext(
             organization -> {
               assertNotNull(organization.id());
               assertTrue(organization.id().startsWith("ORG-"));
               assertEquals(organizationName, organization.name());
-              assertEquals(userA.getEmail(), organization.email());
+              assertEquals(userA.email(), organization.email());
               assertNotNull(organization.apiKeys());
               assertEquals(0, organization.apiKeys().length);
             })
@@ -70,7 +70,7 @@ class CreateOrganizationIntegrationTest {
     StepVerifier.create(
             service.createOrganization(
                 new CreateOrganizationRequest(
-                    "organizationName", userA.getEmail(), new Token("invalid"))))
+                    "organizationName", userA.email(), new Token("invalid"))))
         .expectErrorMatches(
             ex ->
                 ex instanceof InvalidTokenException
@@ -89,13 +89,13 @@ class CreateOrganizationIntegrationTest {
 
     service
         .createOrganization(
-            new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+            new CreateOrganizationRequest(organizationName, userA.email(), userAToken))
         .map(OrganizationInfo::id)
         .block(TIMEOUT);
 
     StepVerifier.create(
             service.createOrganization(
-                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken)))
+                new CreateOrganizationRequest(organizationName, userA.email(), userAToken)))
         .expectErrorMatches(
             ex ->
                 ex instanceof NameAlreadyInUseException
@@ -133,7 +133,7 @@ class CreateOrganizationIntegrationTest {
 
     StepVerifier.create(
             service.createOrganization(
-                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken)))
+                new CreateOrganizationRequest(organizationName, userA.email(), userAToken)))
         .expectErrorMatches(
             ex ->
                 ex instanceof InvalidInputException

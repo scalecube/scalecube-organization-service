@@ -28,7 +28,7 @@ public class UpdateOrganization
 
     context.repository().save(organization.id(), organization);
 
-    Role role = getRole(context.profile().getUserId(), organization);
+    Role role = getRole(context.profile().userId(), organization);
     return new UpdateOrganizationResponse(organizationInfo(organization, apiKeyFilterBy(role)));
   }
 

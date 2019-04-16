@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.Role;
 import io.scalecube.organization.domain.Organization;
-import io.scalecube.security.Profile;
+import io.scalecube.security.api.Profile;
 import org.junit.jupiter.api.Test;
 
 class JacksonTranslationServiceTest {
@@ -33,7 +33,7 @@ class JacksonTranslationServiceTest {
   void shouldEncodeUserOrgMembership() {
     JacksonTranslationService service = new JacksonTranslationService();
     OrganizationMember member =
-        new OrganizationMember(testProfile.getUserId(), Role.Owner.toString());
+        new OrganizationMember(testProfile.userId(), Role.Owner.toString());
     String s = service.encode(member);
     assertNotNull(s);
   }

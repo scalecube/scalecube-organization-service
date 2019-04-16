@@ -1,7 +1,7 @@
 package io.scalecube.organization.operation;
 
 import io.scalecube.organization.repository.OrganizationsRepository;
-import io.scalecube.security.Profile;
+import io.scalecube.security.api.Profile;
 
 public class OperationServiceContext {
   private final Profile profile;

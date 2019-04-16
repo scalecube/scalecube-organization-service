@@ -10,7 +10,7 @@ import io.scalecube.account.api.InvalidAuthenticationToken;
 import io.scalecube.account.api.OrganizationInfo;
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.Token;
-import io.scalecube.security.Profile;
+import io.scalecube.security.api.Profile;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -91,6 +91,6 @@ class UserMembershipTest extends Base {
         getOrganizationFromRepository(organisationId).members().stream()
             .map(OrganizationMember::id)
             .collect(Collectors.toList());
-    assertThat(members, hasItem(profile.getUserId()));
+    assertThat(members, hasItem(profile.userId()));
   }
 }

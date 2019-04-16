@@ -10,7 +10,7 @@ import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.organization.tokens.TokenVerifier;
-import io.scalecube.security.Profile;
+import io.scalecube.security.api.Profile;
 
 /**
  * Encapsulates the processing of a request to update the role of an organization member. This
@@ -55,7 +55,7 @@ public class UpdateOrganizationMemberRole
 
     Organization organization = getOrganization(request.organizationId());
     Profile caller = context.profile();
-    Role callerRole = getRole(context.profile().getUserId(), organization);
+    Role callerRole = getRole(context.profile().userId(), organization);
 
     checkIsMember(request.userId(), organization);
     checkSuperUserAccess(organization, caller);
@@ -71,10 +71,7 @@ public class UpdateOrganizationMemberRole
       throw new AccessPermissionException(
           String.format(
               "user: '%s', name: '%s', role: '%s'," + " cannot promote to a higher role: '%s'",
-              profile.getUserId(),
-              profile.getName(),
-              callerRole.toString(),
-              targetRole.toString()));
+              profile.userId(), profile.name(), callerRole.toString(), targetRole.toString()));
     }
   }
 
@@ -91,8 +88,8 @@ public class UpdateOrganizationMemberRole
           String.format(
               "user: '%s', name: '%s', role: %s,"
                   + " cannot downgrade user id: %s, in higher role: '%s'.",
-              caller.getUserId(),
-              caller.getName(),
+              caller.userId(),
+              caller.name(),
               callerRole.toString(),
               request.userId(),
               updateUserCurrentRole.toString()));

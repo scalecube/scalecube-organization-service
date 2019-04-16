@@ -13,7 +13,7 @@ import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.organization.tokens.TokenVerifier;
-import io.scalecube.security.Profile;
+import io.scalecube.security.api.Profile;
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -108,17 +108,17 @@ public abstract class ServiceOperation<I, O> {
   protected void checkMemberAccess(Organization organization, Profile profile)
       throws AccessPermissionException, EntityNotFoundException {
 
-    if (!isOwner(organization, profile) && !organization.isMember(profile.getUserId())) {
+    if (!isOwner(organization, profile) && !organization.isMember(profile.userId())) {
       throw new AccessPermissionException(
           String.format(
               "user: '%s', name: '%s', is not a member of organization: '%s'",
-              profile.getName(), profile.getUserId(), organization.id()));
+              profile.name(), profile.userId(), organization.id()));
     }
   }
 
   protected boolean isOwner(Organization organization, Profile profile)
       throws EntityNotFoundException {
-    return isInRole(profile.getUserId(), organization, Role.Owner);
+    return isInRole(profile.userId(), organization, Role.Owner);
   }
 
   protected boolean isLastOwner(Organization organization, String userId)
@@ -130,8 +130,7 @@ public abstract class ServiceOperation<I, O> {
 
   protected boolean isSuperUser(Organization organization, Profile profile)
       throws EntityNotFoundException {
-    return isOwner(organization, profile)
-        || isInRole(profile.getUserId(), organization, Role.Admin);
+    return isOwner(organization, profile) || isInRole(profile.userId(), organization, Role.Admin);
   }
 
   protected Role getRole(String userId, Organization organization) throws EntityNotFoundException {
@@ -161,7 +160,7 @@ public abstract class ServiceOperation<I, O> {
     throw new AccessPermissionException(
         String.format(
             "user: '%s', name: '%s', is not in role Owner of organization: '%s'",
-            owner.getName(), owner.getUserId(), organization.name()));
+            owner.name(), owner.userId(), organization.name()));
   }
 
   protected void checkOwnerAccess(Organization organization, Profile profile)
@@ -177,7 +176,7 @@ public abstract class ServiceOperation<I, O> {
       throw new AccessPermissionException(
           String.format(
               "user: '%s', name: '%s', not in role Owner or Admin of organization: '%s'",
-              profile.getUserId(), profile.getName(), organization.name()));
+              profile.userId(), profile.name(), organization.name()));
     }
   }
 

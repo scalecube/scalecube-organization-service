@@ -43,8 +43,8 @@ class OrganizationMembersTest extends Base {
               assertThat(membersCount, is(2L));
               List<String> ids =
                   members.get().map(OrganizationMember::id).collect(Collectors.toList());
-              assertThat(ids, hasItem(testProfile4.getUserId()));
-              assertThat(ids, hasItem(testProfile5.getUserId()));
+              assertThat(ids, hasItem(testProfile4.userId()));
+              assertThat(ids, hasItem(testProfile5.userId()));
             })
         .verifyComplete();
   }
