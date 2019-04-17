@@ -41,7 +41,16 @@ Feature: Creation of the Organization
       | name  | email |
       | Org-1 |       |
       | Org-1 | null  |
-    Then for each request user "A" should get an error message: "Please specify Organization email"
+    Then for each request user "A" should get an error message: "Please specify an Organization email"
+
+
+  #MPA-7657 (#4.1)
+  Scenario: Fail to create the Organization upon the "email" key is missed
+    Given the user "A" have got a valid "token" issued by relevant authority
+    When user "A" requested to create the organization without "email" key at all
+      | name  |
+      | Org-1 |
+    Then the user "A" should get an error message: "Please specify an Organization email"
 
 
   #MPA-7657 (#5)
@@ -58,4 +67,13 @@ Feature: Creation of the Organization
       | name | email          |
       |      | my@email.com   |
       | null | some@email.com |
-    Then for each request user "A" should get an error message: "Please specify Organization name"
+    Then for each request user "A" should get an error message: "Please specify an Organization name"
+
+
+  #MPA-7657 (#5.2)
+  Scenario: Fail to create the Organization upon the "name" key is missed
+    Given the user "A" have got a valid "token" issued by relevant authority
+    When user "A" requested to create the organization without "name" key at all
+     | email          |
+     | my@email.com   |
+    Then the user "A" should get an error message: "Please specify an Organization name"
