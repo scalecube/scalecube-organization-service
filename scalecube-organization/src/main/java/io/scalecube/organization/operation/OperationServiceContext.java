@@ -1,13 +1,13 @@
 package io.scalecube.organization.operation;
 
-import io.scalecube.organization.repository.OrganizationsDataAccess;
-import io.scalecube.security.Profile;
+import io.scalecube.organization.repository.OrganizationsRepository;
+import io.scalecube.security.api.Profile;
 
 public class OperationServiceContext {
   private final Profile profile;
-  private final OrganizationsDataAccess repository;
+  private final OrganizationsRepository repository;
 
-  public OperationServiceContext(Profile profile, OrganizationsDataAccess repository) {
+  public OperationServiceContext(Profile profile, OrganizationsRepository repository) {
     this.profile = profile;
     this.repository = repository;
   }
@@ -16,7 +16,7 @@ public class OperationServiceContext {
     return profile;
   }
 
-  public OrganizationsDataAccess repository() {
+  public OrganizationsRepository repository() {
     return repository;
   }
 }

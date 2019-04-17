@@ -49,14 +49,14 @@ class GetUserMembershipTest extends BaseTest {
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
+                    RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
             .block(TIMEOUT);
 
     CreateOrganizationResponse organizationB =
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_B.getEmail(), tokenB))
+                    RandomStringUtils.randomAlphabetic(10), USER_B.email(), tokenB))
             .block(TIMEOUT);
 
     organizationService
@@ -98,13 +98,13 @@ class GetUserMembershipTest extends BaseTest {
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenA, organizationA.id(), USER_C.getUserId(), Role.Member.name()))
+                tokenA, organizationA.id(), USER_C.userId(), Role.Member.name()))
         .block(TIMEOUT);
 
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenB, organizationB.id(), USER_C.getUserId(), Role.Member.name()))
+                tokenB, organizationB.id(), USER_C.userId(), Role.Member.name()))
         .block(TIMEOUT);
 
     StepVerifier.create(
@@ -142,14 +142,14 @@ class GetUserMembershipTest extends BaseTest {
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
+                    RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
             .block(TIMEOUT);
 
     CreateOrganizationResponse organizationB =
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_B.getEmail(), tokenB))
+                    RandomStringUtils.randomAlphabetic(10), USER_B.email(), tokenB))
             .block(TIMEOUT);
 
     organizationService
@@ -191,13 +191,13 @@ class GetUserMembershipTest extends BaseTest {
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenA, organizationA.id(), USER_C.getUserId(), Role.Admin.name()))
+                tokenA, organizationA.id(), USER_C.userId(), Role.Admin.name()))
         .block(TIMEOUT);
 
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenB, organizationB.id(), USER_C.getUserId(), Role.Admin.name()))
+                tokenB, organizationB.id(), USER_C.userId(), Role.Admin.name()))
         .block(TIMEOUT);
 
     StepVerifier.create(
@@ -247,7 +247,7 @@ class GetUserMembershipTest extends BaseTest {
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
+                    RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
             .block(TIMEOUT);
 
     organizationService
@@ -280,7 +280,7 @@ class GetUserMembershipTest extends BaseTest {
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenA, organizationA.id(), USER_B.getUserId(), Role.Owner.name()))
+                tokenA, organizationA.id(), USER_B.userId(), Role.Owner.name()))
         .block(TIMEOUT);
 
     StepVerifier.create(
@@ -309,7 +309,7 @@ class GetUserMembershipTest extends BaseTest {
     organizationService
         .createOrganization(
             new CreateOrganizationRequest(
-                RandomStringUtils.randomAlphabetic(10), USER_A.getEmail(), tokenA))
+                RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
         .block(TIMEOUT);
 
     StepVerifier.create(

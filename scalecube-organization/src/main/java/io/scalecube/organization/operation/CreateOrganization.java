@@ -1,11 +1,12 @@
 package io.scalecube.organization.operation;
 
+import io.scalecube.account.api.ApiKey;
 import io.scalecube.account.api.CreateOrganizationRequest;
 import io.scalecube.account.api.CreateOrganizationResponse;
 import io.scalecube.account.api.OrganizationInfo;
 import io.scalecube.account.api.Token;
-import io.scalecube.organization.repository.OrganizationsDataAccess;
-import io.scalecube.organization.repository.exception.AccessPermissionException;
+import io.scalecube.organization.domain.Organization;
+import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.tokens.IdGenerator;
 import io.scalecube.organization.tokens.TokenVerifier;
 import io.scalecube.organization.tokens.store.KeyStore;
@@ -31,14 +32,10 @@ public final class CreateOrganization
 
   @Override
   protected CreateOrganizationResponse process(
-      CreateOrganizationRequest request, OperationServiceContext context) throws Throwable {
+      CreateOrganizationRequest request, OperationServiceContext context) {
     String id = "ORG-" + IdGenerator.generateId();
     validate(
-        new OrganizationInfo.Builder()
-            .id(id)
-            .email(request.email())
-            .name(request.name())
-            .build(),
+        new OrganizationInfo.Builder().id(id).email(request.email()).name(request.name()).build(),
         context);
 
     Organization organization = createOrganization(request, context, id);
@@ -47,7 +44,7 @@ public final class CreateOrganization
       generateOrganizationKeyPair(organization);
     } catch (Exception ex) {
       // failed to persist organization secret rollback
-      context.repository().deleteOrganization(context.profile(), organization);
+      context.repository().deleteById(organization.id());
       throw ex;
     }
 
@@ -55,23 +52,21 @@ public final class CreateOrganization
         OrganizationInfo.builder()
             .id(organization.id())
             .name(organization.name())
-            .apiKeys(organization.apiKeys())
-            .email(organization.email()));
+            .email(organization.email())
+            .apiKeys(organization.apiKeys().toArray(new ApiKey[0])));
   }
 
   private Organization createOrganization(
-      CreateOrganizationRequest request, OperationServiceContext context, String id)
-      throws AccessPermissionException {
-    return context
-        .repository()
-        .createOrganization(
-            context.profile(),
-            Organization.builder()
-                .id(id)
-                .name(request.name())
-                .email(request.email())
-                .keyId(UUID.randomUUID().toString())
-                .build());
+      CreateOrganizationRequest request, OperationServiceContext context, String id) {
+    Organization organization =
+        new Organization(
+            id,
+            request.name(),
+            request.email(),
+            UUID.randomUUID().toString(),
+            context.profile().userId());
+
+    return context.repository().save(organization.id(), organization);
   }
 
   private void generateOrganizationKeyPair(Organization organization) {
@@ -86,7 +81,7 @@ public final class CreateOrganization
 
   public static class Builder {
     private TokenVerifier tokenVerifier;
-    private OrganizationsDataAccess repository;
+    private OrganizationsRepository repository;
     private KeyPairGenerator keyPairGenerator;
     private KeyStore keyStore;
 
@@ -95,7 +90,7 @@ public final class CreateOrganization
       return this;
     }
 
-    public Builder repository(OrganizationsDataAccess repository) {
+    public Builder repository(OrganizationsRepository repository) {
       this.repository = repository;
       return this;
     }

@@ -11,36 +11,25 @@ import io.scalecube.account.api.InviteOrganizationMemberRequest;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
-import io.scalecube.organization.operation.Organization;
-import io.scalecube.organization.repository.OrganizationMembersRepositoryAdmin;
-import io.scalecube.organization.repository.OrganizationsDataAccess;
-import io.scalecube.organization.repository.OrganizationsDataAccessImpl;
-import io.scalecube.organization.repository.Repository;
-import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
-import io.scalecube.organization.repository.inmem.InMemoryOrganizationMembersRepositoryAdmin;
+import io.scalecube.organization.domain.Organization;
+import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
-import io.scalecube.organization.repository.inmem.InMemoryUserOrganizationMembershipRepository;
 import io.scalecube.organization.token.store.PropertiesFileKeyStore;
 import io.scalecube.organization.tokens.TokenVerifier;
 import io.scalecube.organization.tokens.store.KeyStore;
-import io.scalecube.security.Profile;
+import io.scalecube.security.api.Profile;
 import java.io.File;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 public class Base {
-
-  protected static KeyPairGenerator keyPairGenerator;
 
   protected final Profile testProfile =
       Profile.builder()
@@ -102,22 +91,12 @@ public class Base {
   protected String organizationId;
   protected Organization organisation;
   protected Token token = new Token("user1");
-  protected Repository<Organization, String> organizationRepository;
-  protected UserOrganizationMembershipRepository orgMembersRepository;
-  private OrganizationMembersRepositoryAdmin admin;
+  protected OrganizationsRepository organizationRepository;
 
   protected Base() {
-    orgMembersRepository = new InMemoryUserOrganizationMembershipRepository();
     organizationRepository = new InMemoryOrganizationRepository();
-    admin = new InMemoryOrganizationMembersRepositoryAdmin();
     service = createService(testProfile);
     new File("keystore.properties").deleteOnExit();
-  }
-
-  @BeforeAll
-  static void beforeAll() throws NoSuchAlgorithmException {
-    keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-    keyPairGenerator.initialize(2048);
   }
 
   protected static String randomString() {
@@ -157,18 +136,16 @@ public class Base {
     StepVerifier.create(
             this.service.inviteMember(
                 new InviteOrganizationMemberRequest(
-                    token, organisationId, profile.getUserId(), role.toString())))
+                    token, organisationId, profile.userId(), role.toString())))
         .assertNext(Assertions::assertNotNull)
         .verifyComplete();
   }
 
   protected OrganizationService createService(Profile profile) {
-    OrganizationsDataAccess dataAccess =
-        new OrganizationsDataAccessImpl(organizationRepository, orgMembersRepository, admin);
     TokenVerifier tokenVerifier = token -> Objects.equals(profile, invalidProfile) ? null : profile;
     KeyStore keyStore = new PropertiesFileKeyStore();
 
-    return new OrganizationServiceImpl(dataAccess, keyStore, tokenVerifier);
+    return new OrganizationServiceImpl(organizationRepository, keyStore, tokenVerifier);
   }
 
   protected static <T> void assertMonoCompletesWithError(

@@ -1,17 +1,14 @@
 package io.scalecube.organization.repository.couchbase;
 
+import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseCluster;
-import io.scalecube.organization.operation.Organization;
-import io.scalecube.organization.repository.Repository;
-import io.scalecube.organization.repository.UserOrganizationMembershipRepository;
+import io.scalecube.organization.repository.OrganizationsRepository;
 import java.util.List;
 
 public final class CouchbaseRepositoryFactory {
 
-  private final CouchbaseSettings settings;
-  private final Cluster cluster;
-  private final CouchbaseCluster adminCluster;
+  private final Bucket bucket;
 
   /**
    * Creates a couchbase repository factory, initializes two couchbase clusters.
@@ -19,22 +16,17 @@ public final class CouchbaseRepositoryFactory {
    * @param settings the settings
    */
   public CouchbaseRepositoryFactory(CouchbaseSettings settings) {
-    this.settings = settings;
     List<String> nodes = settings.hosts();
-    adminCluster = nodes.isEmpty() ? CouchbaseCluster.create() : CouchbaseCluster.create(nodes);
-    adminCluster.authenticate(settings.username(), settings.password());
-    cluster = nodes.isEmpty() ? CouchbaseCluster.create() : CouchbaseCluster.create(nodes);
+
+    Cluster cluster = nodes.isEmpty() ? CouchbaseCluster.create() : CouchbaseCluster.create(nodes);
+
+    bucket =
+        cluster
+            .authenticate(settings.username(), settings.password())
+            .openBucket(settings.organizationsBucketName());
   }
 
-  public Repository<Organization, String> organizations() {
-    return new CouchbaseOrganizationRepository(settings, cluster);
-  }
-
-  public UserOrganizationMembershipRepository organizationMembers() {
-    return new CouchbaseUserOrganizationMembershipRepository(settings, cluster);
-  }
-
-  public CouchbaseOrganizationMembersRepositoryAdmin organizationMembersRepositoryAdmin() {
-    return new CouchbaseOrganizationMembersRepositoryAdmin(settings, adminCluster);
+  public OrganizationsRepository organizations() {
+    return new CouchbaseOrganizationsRepository(bucket);
   }
 }

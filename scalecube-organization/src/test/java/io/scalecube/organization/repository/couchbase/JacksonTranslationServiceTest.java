@@ -6,11 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.Role;
-import io.scalecube.organization.operation.Organization;
-import io.scalecube.security.Profile;
+import io.scalecube.organization.domain.Organization;
+import io.scalecube.security.api.Profile;
 import org.junit.jupiter.api.Test;
 
-public class JacksonTranslationServiceTest {
+class JacksonTranslationServiceTest {
 
   private final Profile testProfile =
       Profile.builder()
@@ -23,34 +23,43 @@ public class JacksonTranslationServiceTest {
           .build();
 
   @Test
-  public void shouldEncodeUser() {
+  void shouldEncodeUser() {
     JacksonTranslationService service = new JacksonTranslationService();
     String s = service.encode(testProfile);
     assertNotNull(s);
   }
 
   @Test
-  public void shouldEncodeUserOrgMembership() {
+  void shouldEncodeUserOrgMembership() {
     JacksonTranslationService service = new JacksonTranslationService();
     OrganizationMember member =
-        new OrganizationMember(testProfile.getUserId(), Role.Owner.toString());
+        new OrganizationMember(testProfile.userId(), Role.Owner.toString());
     String s = service.encode(member);
     assertNotNull(s);
   }
 
   @Test
-  public void shouldEncodeOrganization() {
+  void shouldEncodeOrganization() {
     JacksonTranslationService service = new JacksonTranslationService();
-    String s = service.encode(new Organization.Builder().name("myorg").build());
+    String s = service.encode(new Organization("1", "TEST-ORG", "test@scalecube.io", "1", "1"));
     assertNotNull(s);
   }
 
   @Test
-  public void shouldDecodeOrganization() {
+  void shouldDecodeOrganization() {
     JacksonTranslationService service = new JacksonTranslationService();
-    String s = service.encode(new Organization.Builder().name("myorg").build());
+    String id = "org-id";
+    String name = "org-name";
+    String email = "test@scalecube.io";
+    String keyId = "org-key-id";
+    String ownerUserId = "owner-user-id";
+    String s = service.encode(new Organization(id, name, email, keyId, ownerUserId));
     Organization org = service.decode(s, Organization.class);
     assertNotNull(org);
-    assertThat(org.name(), is("myorg"));
+    assertThat(org.id(), is(id));
+    assertThat(org.name(), is(name));
+    assertThat(org.email(), is(email));
+    assertThat(org.keyId(), is(keyId));
+    assertThat(org.members().iterator().next().id(), is(ownerUserId));
   }
 }

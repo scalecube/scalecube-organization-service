@@ -15,7 +15,7 @@ import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.fixtures.InMemoryOrganizationServiceFixture;
 import io.scalecube.organization.repository.inmem.InMemoryPublicKeyProvider;
-import io.scalecube.security.Profile;
+import io.scalecube.security.api.Profile;
 import io.scalecube.test.fixtures.Fixtures;
 import io.scalecube.test.fixtures.WithFixture;
 import java.time.Duration;
@@ -53,7 +53,7 @@ class DeleteOrganizationApiKeyIntegrationTest {
         service
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), userA.getEmail(), userAToken))
+                    RandomStringUtils.randomAlphabetic(10), userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -128,7 +128,7 @@ class DeleteOrganizationApiKeyIntegrationTest {
         service
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), userA.getEmail(), userAToken))
+                    RandomStringUtils.randomAlphabetic(10), userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -149,7 +149,7 @@ class DeleteOrganizationApiKeyIntegrationTest {
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Admin.name()))
+                userAToken, organizationId, userB.userId(), Role.Admin.name()))
         .block(TIMEOUT);
 
     // the user "B" deletes the API keys which were assigned roles: "admin" and "member"
@@ -204,7 +204,7 @@ class DeleteOrganizationApiKeyIntegrationTest {
     String organizationId =
         service
             .createOrganization(
-                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+                new CreateOrganizationRequest(organizationName, userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 
@@ -225,7 +225,7 @@ class DeleteOrganizationApiKeyIntegrationTest {
     service
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                userAToken, organizationId, userB.getUserId(), Role.Member.name()))
+                userAToken, organizationId, userB.userId(), Role.Member.name()))
         .block(TIMEOUT);
 
     // the user "B" deletes the API key which was assigned roles "member"
@@ -236,7 +236,7 @@ class DeleteOrganizationApiKeyIntegrationTest {
         .expectErrorMessage(
             String.format(
                 "user: '%s', name: '%s', not in role Owner or Admin of organization: '%s'",
-                userB.getUserId(), userB.getName(), organizationName))
+                userB.userId(), userB.name(), organizationName))
         .verify();
   }
 
@@ -252,7 +252,7 @@ class DeleteOrganizationApiKeyIntegrationTest {
     String organizationId =
         service
             .createOrganization(
-                new CreateOrganizationRequest(organizationName, userA.getEmail(), userAToken))
+                new CreateOrganizationRequest(organizationName, userA.email(), userAToken))
             .map(OrganizationInfo::id)
             .block(TIMEOUT);
 

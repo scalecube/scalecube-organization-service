@@ -25,7 +25,7 @@ class KickoutMemberTest extends Base {
     StepVerifier.create(
             service.kickoutMember(
                 new KickoutOrganizationMemberRequest(
-                    organizationId, token, testProfile5.getUserId())))
+                    organizationId, token, testProfile5.userId())))
         .expectSubscription()
         .assertNext(
             x ->
@@ -39,7 +39,7 @@ class KickoutMemberTest extends Base {
                               Arrays.stream(response.members())
                                   .map(OrganizationMember::id)
                                   .collect(Collectors.toList());
-                          assertThat(members, not(hasItem(testProfile5.getUserId())));
+                          assertThat(members, not(hasItem(testProfile5.userId())));
                         })
                     .verifyComplete())
         .verifyComplete();
@@ -51,7 +51,7 @@ class KickoutMemberTest extends Base {
         createService(invalidProfile)
             .kickoutMember(
                 new KickoutOrganizationMemberRequest(
-                    organizationId, token, testProfile5.getUserId())),
+                    organizationId, token, testProfile5.userId())),
         InvalidAuthenticationToken.class);
   }
 
@@ -59,7 +59,7 @@ class KickoutMemberTest extends Base {
   void kickoutMemberEmptyOrgIdShouldFailWithIllegalArgumentException() {
     assertMonoCompletesWithError(
         service.kickoutMember(
-            new KickoutOrganizationMemberRequest("", token, testProfile5.getUserId())),
+            new KickoutOrganizationMemberRequest("", token, testProfile5.userId())),
         IllegalArgumentException.class);
   }
 
@@ -67,7 +67,7 @@ class KickoutMemberTest extends Base {
   void kickoutMemberNullOrgIdShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.kickoutMember(
-            new KickoutOrganizationMemberRequest(null, token, testProfile5.getUserId())),
+            new KickoutOrganizationMemberRequest(null, token, testProfile5.userId())),
         NullPointerException.class);
   }
 
@@ -76,7 +76,7 @@ class KickoutMemberTest extends Base {
     assertMonoCompletesWithError(
         service.kickoutMember(
             new KickoutOrganizationMemberRequest(
-                organizationId, new Token(""), testProfile5.getUserId())),
+                organizationId, new Token(""), testProfile5.userId())),
         IllegalArgumentException.class);
   }
 
@@ -84,7 +84,7 @@ class KickoutMemberTest extends Base {
   void kickoutMemberNullTokenShouldFailWithNullPointerException() {
     assertMonoCompletesWithError(
         service.kickoutMember(
-            new KickoutOrganizationMemberRequest(organizationId, null, testProfile5.getUserId())),
+            new KickoutOrganizationMemberRequest(organizationId, null, testProfile5.userId())),
         NullPointerException.class);
   }
 
@@ -93,7 +93,7 @@ class KickoutMemberTest extends Base {
     assertMonoCompletesWithError(
         service.kickoutMember(
             new KickoutOrganizationMemberRequest(
-                organizationId, new Token(null), testProfile5.getUserId())),
+                organizationId, new Token(null), testProfile5.userId())),
         NullPointerException.class);
   }
 
@@ -115,7 +115,7 @@ class KickoutMemberTest extends Base {
   void kickoutMemberOrgNotExistsShouldFailWithOrganizationNotFoundException() {
     assertMonoCompletesWithError(
         service.kickoutMember(
-            new KickoutOrganizationMemberRequest("orgNotExists", token, testProfile5.getUserId())),
+            new KickoutOrganizationMemberRequest("orgNotExists", token, testProfile5.userId())),
         OrganizationNotFoundException.class);
   }
 
@@ -125,7 +125,7 @@ class KickoutMemberTest extends Base {
         createService(testProfile5)
             .kickoutMember(
                 new KickoutOrganizationMemberRequest(
-                    organizationId, token, testProfile5.getUserId())),
+                    organizationId, token, testProfile5.userId())),
         AccessPermissionException.class);
   }
 }

@@ -38,7 +38,7 @@ class LeaveOrganizationTest extends Base {
                                 not(
                                     hasItem(
                                         new OrganizationMember(
-                                            testProfile5.getUserId(), Role.Member.toString())))))
+                                            testProfile5.userId(), Role.Member.toString())))))
                     .verifyComplete())
         .verifyComplete();
   }

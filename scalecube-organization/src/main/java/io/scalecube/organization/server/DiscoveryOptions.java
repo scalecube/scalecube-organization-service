@@ -1,6 +1,6 @@
 package io.scalecube.organization.server;
 
-import io.scalecube.services.transport.api.Address;
+import io.scalecube.transport.Address;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,7 +17,7 @@ public final class DiscoveryOptions {
   }
 
   public Integer discoveryPort() {
-    return discoveryPort;
+    return discoveryPort != null ? discoveryPort : 0;
   }
 
   /**
