@@ -24,12 +24,13 @@ public final class ApiKeyBuilder {
    * apiKeyName</code> arguments.
    *
    * @param signingKey private key of key pair.
-   * @param organization organization context of the API key.
+   * @param orgId organization Id.
+   * @param keyId generated keyId for storage.
    * @param request context for creating the API key.
    * @return a signed ApiKey instance
    */
   public static ApiKey build(
-      PrivateKey signingKey, Organization organization, AddOrganizationApiKeyRequest request) {
+      PrivateKey signingKey, String orgId, String keyId, AddOrganizationApiKeyRequest request) {
     final Map<String, String> tokenClaims =
         request.claims() == null || request.claims().isEmpty() ? new HashMap<>() : request.claims();
 
@@ -40,13 +41,13 @@ public final class ApiKeyBuilder {
 
     return JwtApiKey.builder()
         .issuer(ISSUER)
-        .subject(organization.id())
+        .subject(orgId)
         .name(request.apiKeyName())
         .claims(tokenClaims)
-        .id(organization.id())
-        .audience(organization.id())
+        .id(orgId)
+        .audience(orgId)
         .expiration(tokenExpiration.value().orElse(null))
-        .build(organization.keyId(), signingKey);
+        .build(keyId, signingKey);
   }
 
   private static boolean isRoleValid(String role) {

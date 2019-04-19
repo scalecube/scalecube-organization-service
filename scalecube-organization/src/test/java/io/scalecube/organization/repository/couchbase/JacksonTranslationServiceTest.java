@@ -41,7 +41,7 @@ class JacksonTranslationServiceTest {
   @Test
   void shouldEncodeOrganization() {
     JacksonTranslationService service = new JacksonTranslationService();
-    String s = service.encode(new Organization("1", "TEST-ORG", "test@scalecube.io", "1", "1"));
+    String s = service.encode(new Organization("1", "TEST-ORG", "test@scalecube.io", "1"));
     assertNotNull(s);
   }
 
@@ -53,13 +53,12 @@ class JacksonTranslationServiceTest {
     String email = "test@scalecube.io";
     String keyId = "org-key-id";
     String ownerUserId = "owner-user-id";
-    String s = service.encode(new Organization(id, name, email, keyId, ownerUserId));
+    String s = service.encode(new Organization(id, name, email, ownerUserId));
     Organization org = service.decode(s, Organization.class);
     assertNotNull(org);
     assertThat(org.id(), is(id));
     assertThat(org.name(), is(name));
     assertThat(org.email(), is(email));
-    assertThat(org.keyId(), is(keyId));
     assertThat(org.members().iterator().next().id(), is(ownerUserId));
   }
 }

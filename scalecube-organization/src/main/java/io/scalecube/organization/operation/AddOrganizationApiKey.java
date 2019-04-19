@@ -63,8 +63,8 @@ public class AddOrganizationApiKey
     String keyId = UUID.randomUUID().toString();
 
     try {
-      KeyPair keyPair = generateOrganizationKeyPair(keyId);
-      ApiKey apiKey = ApiKeyBuilder.build(keyPair.getPrivate(), organization, request);
+      KeyPair keyPair = generateKeyPair(keyId);
+      ApiKey apiKey = ApiKeyBuilder.build(keyPair.getPrivate(), organization.id(), keyId, request);
       organization.addApiKey(apiKey);
     } catch (Exception ex) {
       // failed to persist organization secret rollback
@@ -94,7 +94,7 @@ public class AddOrganizationApiKey
     }
   }
 
-  private KeyPair generateOrganizationKeyPair(String keyId) {
+  private KeyPair generateKeyPair(String keyId) {
     KeyPair keyPair = keyPairGenerator.generateKeyPair();
     keyStore.store(keyId, keyPair);
     return keyPair;
