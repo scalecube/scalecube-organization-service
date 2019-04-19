@@ -25,9 +25,8 @@ public class DeleteOrganization
     checkOwnerAccess(organization, context.profile());
     context.repository().deleteById(organization.id());
     organization.apiKeys().stream()
-        .map(apiKey ->
-            apiKey.keyId()
-        )
+        .map(apiKey -> apiKey.keyId())
+        .filter(keyId -> keyId != null && !keyId.isEmpty())
         .forEach(keyId -> keyStore.delete(keyId));
     return new DeleteOrganizationResponse(organization.id(), true);
   }

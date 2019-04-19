@@ -9,7 +9,6 @@ import io.scalecube.organization.domain.Organization;
 import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.tokens.IdGenerator;
 import io.scalecube.organization.tokens.TokenVerifier;
-import java.util.UUID;
 
 public final class CreateOrganization
     extends OrganizationInfoOperation<CreateOrganizationRequest, CreateOrganizationResponse> {

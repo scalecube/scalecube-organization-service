@@ -18,10 +18,11 @@ public class JwtApiKey extends ApiKey {
    * @param claims Key claims.
    * @param apiKey The API key.
    */
-  public JwtApiKey(String name, Map<String, String> claims, String apiKey) {
+  public JwtApiKey(String name, Map<String, String> claims, String apiKey, String keyId) {
     super.name = name;
     super.claims = claims;
     super.key = apiKey;
+    super.keyId = keyId;
   }
 
   public static Builder builder() {
@@ -80,7 +81,7 @@ public class JwtApiKey extends ApiKey {
       final String apiKey =
           jwt.createToken(
               this.id, this.audience, this.tokenTimeToLiveInMillis, keyId, signingKey, claims);
-      return new JwtApiKey(this.name, this.claims, apiKey);
+      return new JwtApiKey(this.name, this.claims, apiKey, keyId);
     }
 
     public Builder audience(String audience) {

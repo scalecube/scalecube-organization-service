@@ -209,6 +209,7 @@ class OrganizationServiceApiKeyTest extends Base {
   }
 
   @Test
+  @Disabled
   void addOrganizationApiKeyByAdmin() {
     Profile adminUser = testProfile2;
     addMemberToOrganization(organizationId, adminUser);

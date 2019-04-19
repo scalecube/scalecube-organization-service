@@ -51,7 +51,6 @@ class JacksonTranslationServiceTest {
     String id = "org-id";
     String name = "org-name";
     String email = "test@scalecube.io";
-    String keyId = "org-key-id";
     String ownerUserId = "owner-user-id";
     String s = service.encode(new Organization(id, name, email, ownerUserId));
     Organization org = service.decode(s, Organization.class);
