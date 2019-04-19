@@ -20,4 +20,6 @@ public interface KeyStore {
   PublicKey getPublicKey(String keyId);
 
   PrivateKey getPrivateKey(String keyId);
+
+  void delete(String keyId);
 }

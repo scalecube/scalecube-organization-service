@@ -23,13 +23,13 @@ public final class ApiKeyBuilder {
    * Builds an APiKey based on the <code>organization</code>, <ocde>claims</ocde> and <code>
    * apiKeyName</code> arguments.
    *
-   * @param keyStore key store.
+   * @param signingKey private key of key pair.
    * @param organization organization context of the API key.
    * @param request context for creating the API key.
    * @return a signed ApiKey instance
    */
   public static ApiKey build(
-      KeyStore keyStore, Organization organization, AddOrganizationApiKeyRequest request) {
+      PrivateKey signingKey, Organization organization, AddOrganizationApiKeyRequest request) {
     final Map<String, String> tokenClaims =
         request.claims() == null || request.claims().isEmpty() ? new HashMap<>() : request.claims();
 
@@ -37,8 +37,6 @@ public final class ApiKeyBuilder {
       // add minimal role
       tokenClaims.put(ROLE_KEY, Role.Member.toString());
     }
-
-    PrivateKey signingKey = keyStore.getPrivateKey(organization.keyId());
 
     return JwtApiKey.builder()
         .issuer(ISSUER)

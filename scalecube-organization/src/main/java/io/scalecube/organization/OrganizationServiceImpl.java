@@ -84,8 +84,6 @@ public class OrganizationServiceImpl implements OrganizationService {
                 CreateOrganization.builder()
                     .tokenVerifier(tokenVerifier)
                     .repository(repository)
-                    .keyPairGenerator(keyPairGenerator)
-                    .keyStore(keyStore)
                     .build()
                     .execute(request);
 
@@ -134,6 +132,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                 DeleteOrganization.builder()
                     .tokenVerifier(tokenVerifier)
                     .repository(repository)
+                    .keyStore(keyStore)
                     .build()
                     .execute(request);
             logger.debug("deleteOrganization: exit, request: {}, response: {}", request, response);
@@ -266,6 +265,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                 AddOrganizationApiKey.builder()
                     .tokenVerifier(tokenVerifier)
                     .repository(repository)
+                    .keyPairGenerator(keyPairGenerator)
                     .keyStore(keyStore)
                     .build()
                     .execute(request);

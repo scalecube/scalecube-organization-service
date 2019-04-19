@@ -6,12 +6,16 @@ import io.scalecube.account.api.Token;
 import io.scalecube.organization.domain.Organization;
 import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.tokens.TokenVerifier;
+import io.scalecube.organization.tokens.store.KeyStore;
 
 public class DeleteOrganization
     extends ServiceOperation<DeleteOrganizationRequest, DeleteOrganizationResponse> {
+  private final KeyStore keyStore;
 
-  private DeleteOrganization(TokenVerifier tokenVerifier, OrganizationsRepository repository) {
+  private DeleteOrganization(
+      TokenVerifier tokenVerifier, OrganizationsRepository repository, KeyStore keyStore) {
     super(tokenVerifier, repository);
+    this.keyStore = keyStore;
   }
 
   @Override
@@ -20,6 +24,11 @@ public class DeleteOrganization
     Organization organization = getOrganization(request.organizationId());
     checkOwnerAccess(organization, context.profile());
     context.repository().deleteById(organization.id());
+    organization.apiKeys().stream()
+        .map(apiKey ->
+            apiKey.keyId()
+        )
+        .forEach(keyId -> keyStore.delete(keyId));
     return new DeleteOrganizationResponse(organization.id(), true);
   }
 
@@ -42,6 +51,7 @@ public class DeleteOrganization
   public static class Builder {
     private TokenVerifier tokenVerifier;
     private OrganizationsRepository repository;
+    private KeyStore keyStore;
 
     public Builder tokenVerifier(TokenVerifier tokenVerifier) {
       this.tokenVerifier = tokenVerifier;
@@ -54,7 +64,12 @@ public class DeleteOrganization
     }
 
     public DeleteOrganization build() {
-      return new DeleteOrganization(tokenVerifier, repository);
+      return new DeleteOrganization(tokenVerifier, repository, keyStore);
+    }
+
+    public Builder keyStore(KeyStore keyStore) {
+      this.keyStore = keyStore;
+      return this;
     }
   }
 }

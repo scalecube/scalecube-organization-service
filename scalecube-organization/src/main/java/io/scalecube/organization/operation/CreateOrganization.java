@@ -9,21 +9,13 @@ import io.scalecube.organization.domain.Organization;
 import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.tokens.IdGenerator;
 import io.scalecube.organization.tokens.TokenVerifier;
-import io.scalecube.organization.tokens.store.KeyStore;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.util.UUID;
 
 public final class CreateOrganization
     extends OrganizationInfoOperation<CreateOrganizationRequest, CreateOrganizationResponse> {
 
-  private final KeyPairGenerator keyPairGenerator;
-  private final KeyStore keyStore;
-
   private CreateOrganization(Builder builder) {
     super(builder.tokenVerifier, builder.repository);
-    this.keyPairGenerator = builder.keyPairGenerator;
-    this.keyStore = builder.keyStore;
   }
 
   public static Builder builder() {
@@ -39,14 +31,6 @@ public final class CreateOrganization
         context);
 
     Organization organization = createOrganization(request, context, id);
-
-    try {
-      generateOrganizationKeyPair(organization);
-    } catch (Exception ex) {
-      // failed to persist organization secret rollback
-      context.repository().deleteById(organization.id());
-      throw ex;
-    }
 
     return new CreateOrganizationResponse(
         OrganizationInfo.builder()
@@ -69,11 +53,6 @@ public final class CreateOrganization
     return context.repository().save(organization.id(), organization);
   }
 
-  private void generateOrganizationKeyPair(Organization organization) {
-    KeyPair keyPair = keyPairGenerator.generateKeyPair();
-    keyStore.store(organization.keyId(), keyPair);
-  }
-
   @Override
   protected Token getToken(CreateOrganizationRequest request) {
     return request.token();
@@ -82,8 +61,6 @@ public final class CreateOrganization
   public static class Builder {
     private TokenVerifier tokenVerifier;
     private OrganizationsRepository repository;
-    private KeyPairGenerator keyPairGenerator;
-    private KeyStore keyStore;
 
     public Builder tokenVerifier(TokenVerifier tokenVerifier) {
       this.tokenVerifier = tokenVerifier;
@@ -92,16 +69,6 @@ public final class CreateOrganization
 
     public Builder repository(OrganizationsRepository repository) {
       this.repository = repository;
-      return this;
-    }
-
-    public Builder keyPairGenerator(KeyPairGenerator keyPairGenerator) {
-      this.keyPairGenerator = keyPairGenerator;
-      return this;
-    }
-
-    public Builder keyStore(KeyStore keyStore) {
-      this.keyStore = keyStore;
       return this;
     }
 

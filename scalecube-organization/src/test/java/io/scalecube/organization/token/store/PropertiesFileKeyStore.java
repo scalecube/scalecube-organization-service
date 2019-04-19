@@ -71,6 +71,12 @@ public class PropertiesFileKeyStore implements KeyStore {
     }
   }
 
+  @Override
+  public void delete(String keyId) {
+    properties.remove(properties.getProperty(keyId + "-public"));
+    properties.remove(properties.getProperty(keyId + "-private"));
+  }
+
   private String encodeKey(Key key) {
     return new String(Base64.getEncoder().encode(key.getEncoded()));
   }
