@@ -53,14 +53,7 @@ Feature: Creation of the Organization
     Then the user "A" should get an error message: "Please specify an Organization email"
 
 
-  #MPA-7657 (#5)
-  Scenario: Fail to create the Organization with the name which contain else symbols apart of allowed chars
-    Given the user "A" have got a valid "token" issued by relevant authority
-    When the user "A" requested to create the organization with specified "name" which contains "+" and some "email"
-    Then user "A" should get an error message: "name can only contain characters in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent"
-
-
-  #MPA-7657 (#5.1)
+  #MPA-7657 (#4.2)
   Scenario: Fail to create the Organization without name either undefined name (i.e. null)
     Given the user "A" have got a valid "token" issued by relevant authority
     When user "A" requested to create the organization with following details
@@ -70,10 +63,17 @@ Feature: Creation of the Organization
     Then for each request user "A" should get an error message: "Please specify an Organization name"
 
 
-  #MPA-7657 (#5.2)
+  #MPA-7657 (#4.3)
   Scenario: Fail to create the Organization upon the "name" key is missed
     Given the user "A" have got a valid "token" issued by relevant authority
     When user "A" requested to create the organization without "name" key at all
-     | email          |
-     | my@email.com   |
+      | email          |
+      | my@email.com   |
     Then the user "A" should get an error message: "Please specify an Organization name"
+
+
+  #MPA-7657 (#5)
+  Scenario: Fail to create the Organization with the name which contain else symbols apart of allowed chars
+    Given the user "A" have got a valid "token" issued by relevant authority
+    When the user "A" requested to create the organization with specified "name" which contains "+" and some "email"
+    Then user "A" should get an error message: "name can only contain characters in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent"
