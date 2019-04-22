@@ -1,6 +1,5 @@
 package io.scalecube.organization.operation;
 
-import io.scalecube.account.api.ApiKey;
 import io.scalecube.account.api.DeleteOrganizationApiKeyRequest;
 import io.scalecube.account.api.GetOrganizationResponse;
 import io.scalecube.account.api.Role;
@@ -32,15 +31,15 @@ public class DeleteOrganizationApiKey
 
     checkSuperUserAccess(organization, context.profile());
 
-    ApiKey apiKey =
-        organization.apiKeys().stream()
-            .filter(ak -> ak.name().equalsIgnoreCase(request.apiKeyName()))
-            .findFirst()
-            .orElse(null);
-
-    if (apiKey != null && apiKey.keyId() != null) {
-      keyStore.delete(apiKey.keyId());
-    }
+    organization.apiKeys().stream()
+        .filter(apiKey -> apiKey.name().equalsIgnoreCase(request.apiKeyName()))
+        .findAny()
+        .ifPresent(
+            foundApiKey -> {
+              if (foundApiKey.keyId() != null) {
+                keyStore.delete(foundApiKey.keyId());
+              }
+            });
 
     organization.removeApiKey(request.apiKeyName());
     context.repository().save(organization.id(), organization);
