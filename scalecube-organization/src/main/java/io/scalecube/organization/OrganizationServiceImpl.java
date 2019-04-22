@@ -291,6 +291,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                 DeleteOrganizationApiKey.builder()
                     .tokenVerifier(tokenVerifier)
                     .repository(repository)
+                    .keyStore(keyStore)
                     .build()
                     .execute(request);
             logger.debug(
