@@ -20,13 +20,11 @@ import java.util.UUID;
 public class AddOrganizationApiKey
     extends ServiceOperation<AddOrganizationApiKeyRequest, GetOrganizationResponse> {
 
-  private final KeyPairGenerator keyPairGenerator;
-  private final KeyStore keyStore;
+  private final Builder builder;
 
   private AddOrganizationApiKey(Builder builder) {
     super(builder.tokenVerifier, builder.repository);
-    this.keyPairGenerator = builder.keyPairGenerator;
-    this.keyStore = builder.keyStore;
+    this.builder = builder;
   }
 
   @Override
@@ -52,10 +50,7 @@ public class AddOrganizationApiKey
           throw new AccessPermissionException(
               String.format(
                   "user: '%s', name: '%s', role: '%s' cannot add api key with higher role '%s'",
-                  context.profile().userId(),
-                  context.profile().name(),
-                  callerRole,
-                  targetRole));
+                  context.profile().userId(), context.profile().name(), callerRole, targetRole));
         }
       }
     }
@@ -68,7 +63,6 @@ public class AddOrganizationApiKey
       organization.addApiKey(apiKey);
     } catch (Exception ex) {
       // failed to persist organization secret rollback
-      context.repository().deleteById(organization.id());
       throw ex;
     }
 
@@ -95,8 +89,8 @@ public class AddOrganizationApiKey
   }
 
   private KeyPair generateKeyPair(String keyId) {
-    KeyPair keyPair = keyPairGenerator.generateKeyPair();
-    keyStore.store(keyId, keyPair);
+    KeyPair keyPair = builder.keyPairGenerator.generateKeyPair();
+    builder.keyStore.store(keyId, keyPair);
     return keyPair;
   }
 

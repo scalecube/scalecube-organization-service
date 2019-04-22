@@ -47,7 +47,9 @@ public final class ApiKeyBuilder {
         .id(orgId)
         .audience(orgId)
         .expiration(tokenExpiration.value().orElse(null))
-        .build(keyId, signingKey);
+        .keyId(keyId)
+        .signingKey(signingKey)
+        .build();
   }
 
   private static boolean isRoleValid(String role) {
