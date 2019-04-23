@@ -4,9 +4,14 @@ import java.util.Map;
 
 public class ApiKey {
 
+  protected String keyId;
   protected String name;
   protected Map<String, String> claims;
   protected String key;
+
+  public String keyId() {
+    return this.keyId;
+  }
 
   public String name() {
     return this.name;
@@ -31,6 +36,9 @@ public class ApiKey {
 
     ApiKey apiKey = (ApiKey) o;
 
+    if (keyId != null ? !keyId.equals(apiKey.keyId) : apiKey.keyId != null) {
+      return false;
+    }
     if (name != null ? !name.equals(apiKey.name) : apiKey.name != null) {
       return false;
     }
@@ -42,7 +50,8 @@ public class ApiKey {
 
   @Override
   public int hashCode() {
-    int result = name != null ? name.hashCode() : 0;
+    int result = keyId != null ? keyId.hashCode() : 0;
+    result = 31 * result + (name != null ? name.hashCode() : 0);
     result = 31 * result + (claims != null ? claims.hashCode() : 0);
     result = 31 * result + (key != null ? key.hashCode() : 0);
     return result;

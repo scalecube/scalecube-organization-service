@@ -15,7 +15,6 @@ public class Organization extends Entity {
 
   private String name;
   private String email;
-  private String keyId;
   private Set<OrganizationMember> members = new HashSet<>();
   private Set<ApiKey> apiKeys = new HashSet<>();
 
@@ -27,14 +26,12 @@ public class Organization extends Entity {
    * @param id organization id.
    * @param name organization name.
    * @param email organization email.
-   * @param keyId organization key id.
    * @param creatorUserId user id of organization creator.
    */
-  public Organization(String id, String name, String email, String keyId, String creatorUserId) {
+  public Organization(String id, String name, String email, String creatorUserId) {
     this.id = requireNonNull(id, "organization id cannot be null");
     this.name = requireNonNull(name, "organization name cannot be null");
     this.email = requireNonNull(email, "organization email cannot be null");
-    this.keyId = requireNonNull(keyId, "organization keyId cannot be null");
 
     addMember(
         new OrganizationMember(
@@ -48,10 +45,6 @@ public class Organization extends Entity {
 
   public String email() {
     return email;
-  }
-
-  public String keyId() {
-    return keyId;
   }
 
   public Set<OrganizationMember> members() {
@@ -101,7 +94,6 @@ public class Organization extends Entity {
         .add("id='" + id + "'")
         .add("name='" + name + "'")
         .add("email='" + email + "'")
-        .add("keyId='" + keyId + "'")
         .add("members=" + members)
         .toString();
   }
