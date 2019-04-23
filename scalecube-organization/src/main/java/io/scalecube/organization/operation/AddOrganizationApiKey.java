@@ -12,15 +12,20 @@ import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.tokens.TokenVerifier;
 import io.scalecube.organization.tokens.store.ApiKeyBuilder;
 import io.scalecube.organization.tokens.store.KeyStore;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.util.EnumSet;
+import java.util.UUID;
 
 public class AddOrganizationApiKey
     extends ServiceOperation<AddOrganizationApiKeyRequest, GetOrganizationResponse> {
 
+  private final KeyPairGenerator keyPairGenerator;
   private final KeyStore keyStore;
 
   private AddOrganizationApiKey(Builder builder) {
     super(builder.tokenVerifier, builder.repository);
+    this.keyPairGenerator = builder.keyPairGenerator;
     this.keyStore = builder.keyStore;
   }
 
@@ -47,16 +52,15 @@ public class AddOrganizationApiKey
           throw new AccessPermissionException(
               String.format(
                   "user: '%s', name: '%s', role: '%s' cannot add api key with higher role '%s'",
-                  context.profile().userId(),
-                  context.profile().name(),
-                  callerRole,
-                  targetRole));
+                  context.profile().userId(), context.profile().name(), callerRole, targetRole));
         }
       }
     }
 
-    ApiKey apiKey = ApiKeyBuilder.build(keyStore, organization, request);
+    String keyId = UUID.randomUUID().toString();
 
+    KeyPair keyPair = generateKeyPair(keyId);
+    ApiKey apiKey = ApiKeyBuilder.build(keyPair.getPrivate(), organization.id(), keyId, request);
     organization.addApiKey(apiKey);
 
     context.repository().save(organization.id(), organization);
@@ -81,6 +85,12 @@ public class AddOrganizationApiKey
     }
   }
 
+  private KeyPair generateKeyPair(String keyId) {
+    KeyPair keyPair = keyPairGenerator.generateKeyPair();
+    keyStore.store(keyId, keyPair);
+    return keyPair;
+  }
+
   @Override
   protected Token getToken(AddOrganizationApiKeyRequest request) {
     return request.token();
@@ -93,6 +103,7 @@ public class AddOrganizationApiKey
   public static class Builder {
     private TokenVerifier tokenVerifier;
     private OrganizationsRepository repository;
+    private KeyPairGenerator keyPairGenerator;
     private KeyStore keyStore;
 
     public Builder tokenVerifier(TokenVerifier tokenVerifier) {
@@ -102,6 +113,11 @@ public class AddOrganizationApiKey
 
     public Builder repository(OrganizationsRepository repository) {
       this.repository = repository;
+      return this;
+    }
+
+    public Builder keyPairGenerator(KeyPairGenerator keyPairGenerator) {
+      this.keyPairGenerator = keyPairGenerator;
       return this;
     }
 
