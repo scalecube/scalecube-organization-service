@@ -20,11 +20,13 @@ import java.util.UUID;
 public class AddOrganizationApiKey
     extends ServiceOperation<AddOrganizationApiKeyRequest, GetOrganizationResponse> {
 
-  private final Builder builder;
+  private final KeyPairGenerator keyPairGenerator;
+  private final KeyStore keyStore;
 
   private AddOrganizationApiKey(Builder builder) {
     super(builder.tokenVerifier, builder.repository);
-    this.builder = builder;
+    this.keyPairGenerator = builder.keyPairGenerator;
+    this.keyStore = builder.keyStore;
   }
 
   @Override
@@ -57,14 +59,9 @@ public class AddOrganizationApiKey
 
     String keyId = UUID.randomUUID().toString();
 
-    try {
-      KeyPair keyPair = generateKeyPair(keyId);
-      ApiKey apiKey = ApiKeyBuilder.build(keyPair.getPrivate(), organization.id(), keyId, request);
-      organization.addApiKey(apiKey);
-    } catch (Exception ex) {
-      // failed to persist organization secret rollback
-      throw ex;
-    }
+    KeyPair keyPair = generateKeyPair(keyId);
+    ApiKey apiKey = ApiKeyBuilder.build(keyPair.getPrivate(), organization.id(), keyId, request);
+    organization.addApiKey(apiKey);
 
     context.repository().save(organization.id(), organization);
 
@@ -89,8 +86,8 @@ public class AddOrganizationApiKey
   }
 
   private KeyPair generateKeyPair(String keyId) {
-    KeyPair keyPair = builder.keyPairGenerator.generateKeyPair();
-    builder.keyStore.store(keyId, keyPair);
+    KeyPair keyPair = keyPairGenerator.generateKeyPair();
+    keyStore.store(keyId, keyPair);
     return keyPair;
   }
 
