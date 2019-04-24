@@ -23,7 +23,8 @@
   * All API endpoints documented below are the integral part of <a href="http://scalecube.io/configuration-service/index.html">Configuration service</a> <a href="https://github.com/jivygroup/exchange/wiki/Configuration-&-Organization-services-host-addresses"><b>host address</b></a>.
   * <br> You can try out any query in realtime using our interactive API.
   * Actually service requires authentication, so there is a necessity to get the token issued via secured authority.
-  * Thus, firstly we recommend to create an account in <a href="https://manage.auth0.com/">Auth0</a> and issue the token whereby to perform the valid requests across all service endpoints.
+  * Thus, firstly we recommend to create an account in <a href="https://manage.auth0.com/"><b>Auth0</b></a> and issue the token whereby to perform the valid requests across all service endpoints.
+  * In order to reach a effective security <a href="http://scalecube.io/configuration-service/index.html"><b>RS256</b></a> algorithm to be used when signing the access tokens for this service API.
   *
   * <b>Validation</b> for the object entities is handled by <b>Scalecube</b> services and do the next upon the request object:
   * >~ ignores any excessive keys and values added besides the required parameters
