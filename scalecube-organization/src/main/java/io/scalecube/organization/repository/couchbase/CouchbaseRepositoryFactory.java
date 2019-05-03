@@ -4,13 +4,11 @@ import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseCluster;
 import io.scalecube.organization.repository.OrganizationsRepository;
+import java.time.Duration;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import reactor.core.publisher.Mono;
 
 public final class CouchbaseRepositoryFactory {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(CouchbaseRepositoryFactory.class);
 
   private Bucket bucket;
 
@@ -24,21 +22,11 @@ public final class CouchbaseRepositoryFactory {
 
     Cluster cluster = nodes.isEmpty() ? CouchbaseCluster.create() : CouchbaseCluster.create(nodes);
 
-    int time = 0;
-    int maxTimes = 3;
-    do {
-      try {
-        bucket = cluster
+    bucket = Mono.fromCallable(() ->
+        cluster
             .authenticate(settings.username(), settings.password())
-            .openBucket(settings.organizationsBucketName());
-        break;
-      } catch (Exception e) {
-        if (++time == maxTimes) {
-          LOGGER.warn(e.getMessage() + " [times: " + time + "]", e);
-          throw e;
-        }
-      }
-    } while (true);
+            .openBucket(settings.organizationsBucketName())).retryBackoff(3, Duration.ofSeconds(1))
+        .block(Duration.ofSeconds(30));
   }
 
   public OrganizationsRepository organizations() {
