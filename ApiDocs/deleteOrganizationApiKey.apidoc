@@ -1,11 +1,12 @@
 /**
- * @api {ServiceMethod: deleteOrganizationApiKey} /organizations/deleteOrganizationApiKey deleteOrganizationApiKey
- * @apiName DeleteOrganizationApiKey
+ * @api {ServiceMethod: deleteApiKey} /organizations/deleteApiKey deleteApiKey
+ * @apiName DeleteApiKey
  * @apiGroup ApiKey
  * @apiVersion 0.0.0-CURRENT
  * @apiPermission Request / Response / Error-response
  *
  * @apiDescription This operation enables only organization managers <b>(Owner | Admin)</b> to delete the API keys (token) from the relevant organization.
+ * Thus write or read rights will be revoked from the consumers of the Configuration service who was using the related terminated API key.
  *
  * >Note: this method returns all organization info thus API keys with:
  *  ><br>-all accessible permission levels ("Owner" | "Admin" | "Member") will be returned only for the related Organization Owner

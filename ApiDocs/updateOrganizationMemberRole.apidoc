@@ -1,6 +1,6 @@
 /**
-  * @api {ServiceMethod: updateOrganizationMemberRole} /organizations/updateOrganizationMemberRole updateOrganizationMemberRole
-  * @apiName UpdateOrganizationMemberRole
+  * @api {ServiceMethod: updateMemberRole} /organizations/updateMemberRole updateMemberRole
+  * @apiName UpdateMemberRole
   * @apiGroup Member
   * @apiVersion 0.0.0-CURRENT
   * @apiPermission Request / Response / Error-response

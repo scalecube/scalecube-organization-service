@@ -8,14 +8,14 @@
     "text": "createOrganization",
     "backColor": "black",
     "data": {
-      "q": "/organizations/create",
+      "q": "/organizations/createOrganization",
       "sid": 1,
       "d": {
         "token": {
-          "token": "PUT IN YOUR VALID TOKEN"
+          "token": "AUTH-0-TOKEN"
         },
-        "name": "CUSTOM THE NAME OF YOUR ORGANIZATION",
-        "email": "CUSTOM THE E-MAIL OF YOUR ORGANIZATION"
+        "name": "ORGANIZATION-NAME",
+        "email": "ORGANIZATION-EMAIL"
       }
     }
 
@@ -28,9 +28,9 @@
       "sid": 1,
       "d": {
         "token": {
-          "token": "PUT IN YOUR VALID TOKEN"
+          "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB"
+        "organizationId": "ORD-ID"
 
       }
     }
@@ -43,11 +43,11 @@
       "sid": 1,
       "d": {
         "token": {
-          "token": "PUT IN YOUR VALID TOKEN"
+          "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB",
-        "name": "CUSTOM THE NEW NAME OF YOUR ORGANIZATION",
-        "email": "CUSTOM THE NEW E-MAIL OF YOUR ORGANIZATION"
+        "organizationId": "ORD-ID",
+        "name": "NEW-ORGANIZATION-NAME",
+        "email": "NEW-ORGANIZATION-EMAIL"
       }
     }
   }, {
@@ -55,13 +55,13 @@
     "text": "deleteOrganization",
     "backColor": "black",
     "data": {
-      "q": "/organizations/delete",
+      "q": "/organizations/createOrganization",
       "sid": 1,
       "d": {
         "token": {
-          "token": "PUT IN YOUR VALID TOKEN"
+          "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB"
+        "organizationId": "ORD-ID"
 
       }
     }
@@ -75,11 +75,11 @@
       "sid": 1,
       "d": {
         "token": {
-          "token": "PUT IN YOUR VALID TOKEN"
+          "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB",
+        "organizationId": "ORD-ID",
         "userId": "[Auth0 generated Client ID]@clients",
-        "role":"ASSIGN THE ROLE OWNER/ADMIN/MEMBER (PERMISSION LEVEL FOR ORGANIZATION MEMEBERS)"
+        "role":"Owner/Admin/Member (PERMISSION LEVEL FOR ORGANIZATION MEMBERS)"
       }
     }
   }, {
@@ -91,9 +91,9 @@
       "sid": 1,
       "d": {
         "token": {
-          "token": "PUT IN YOUR VALID TOKEN"
+          "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB",
+        "organizationId": "ORD-ID",
         "userId": "[Auth0 generated Client ID]@clients"
       }
     }
@@ -106,26 +106,26 @@
       "sid": 1,
       "d": {
         "token": {
-          "token": "PUT IN YOUR VALID TOKEN"
+          "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB"
+        "organizationId": "ORD-ID"
 
       }
     }
   }, {
     "id": "9",
-    "text": "UpdateOrganizationMemberRole",
+    "text": "updateMemberRole",
     "backColor": "black",
     "data": {
-      "q": "/organizations/updateOrganizationMemberRole",
+      "q": "/organizations/updateMemberRole",
       "sid": 1,
       "d": {
         "token": {
-          "token": "PUT IN YOUR VALID TOKEN"
+          "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB",
+        "organizationId": "ORD-ID",
         "userId": "[Auth0 generated Client ID]@clients",
-        "role": "ASSIGN THE NEW ROLE OWNER/ADMIN/MEMBER (PERMISSION LEVEL FOR THE ORG MANAGE (NO RELEVANCE TO API KEY ROLE)"
+        "role": "Owner/Admin/Member (PERMISSION LEVEL FOR ORGANIZATION MEMBERS)"
       }
     }
   }, {
@@ -137,56 +137,56 @@
       "sid": 1,
       "d": {
         "token": {
-          "token": "PUT IN YOUR VALID TOKEN"
+          "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB"
+        "organizationId": "ORD-ID"
 
       }
     }
   }, {
     "id": "11",
-    "text": "getUserOrganizationMembership",
+    "text": "getMyOrganizations",
     "backColor": "black",
     "data": {
-      "q": "/organizations/getUserOrganizationsMembership",
+      "q": "/organizations/getMyOrganizations",
       "sid": 1,
       "d": {
         "token": {
-          "token": "PUT IN YOUR VALID TOKEN"
+          "token": "AUTH-0-TOKEN"
         }
       }
     }
   },  {
     "id": "12",
-    "text": "addOrganizationApiKey",
+    "text": "addApiKey",
     "backColor": "black",
     "data": {
-      "q": "/organizations/addOrganizationApiKey",
+      "q": "/organizations/addApiKey",
       "sid": 1,
       "d": {
         "token": {
-          "token": "PUT IN YOUR VALID TOKEN"
+          "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB",
-        "apiKeyName": "CUSTOM SOME NAME FOR API KEY",
+        "organizationId": "ORD-ID",
+        "apiKeyName": "API-KEY-NAME",
         "claims": {
-          "role": "ASSIGN THE ROLE OWNER/ADMIN/MEMBER (PERMISSION LEVEL FOR API KEY)"
+          "role": "Owner/Admin/Member (API KEY PERMISSION LEVEL FOR CONFIGURATION)"
         }
       }
     }
   }, {
     "id": "13",
-    "text": "deleteOrganizationApiKey",
+    "text": "deleteApiKey",
     "backColor": "black",
     "data": {
-      "q": "/organizations/deleteOrganizationApiKey",
+      "q": "/organizations/deleteApiKey",
       "sid": 1,
       "d": {
         "token": {
-          "token": "PUT IN YOUR VALID TOKEN"
+          "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "PUT IN YOUR ORG-ID WHICH BEEN GENERATED AND STORED IN DB",
-        "apiKeyName": "STORED NAME OF THE RELEVANT API KEY"
+        "organizationId": "ORD-ID",
+        "apiKeyName": "API-KEY-NAME"
       }
     }
 
