@@ -37,17 +37,16 @@ Feature: Organization service API keys management - Delete API key
 
   #__________________________________________________NEGATIVE___________________________________________________________
 
-  /**
-    *
-    *##MPA-7603 (#44.a) - TBD if Admin could delete the API key assigned with "owner" role?
-    *#Scenario: Fail to delete the API key (token) with "owner" role from relevant Organization by Admin
-    *#  Given the user "A" have got a valid "token" issued by relevant authority
-    *#  And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
-    *#  And the user "A" requested to add the API key "name" for own organization with assigned role "owner"
-    *#  And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with an "admin" role
-    *#  When the user "B" requested to delete the API key "name" from user's "A" organization with assigned role "owner"
-    *#  Then user "B" should get an error message: "user: 'userId "B"', name: 'null', not in role Owner of organization: 'org "A" name'"
-    */
+
+  #MPA-7603 (#44.1)
+  Scenario: Fail to delete the API key (token) with "owner" role from relevant Organization by Admin
+    Given the user "A" have got a valid "token" issued by relevant authority
+    And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
+    And the user "A" requested to add the API key "name" for own organization with assigned role "owner"
+    And the user "B" who have got the "userId" issued by relevant authority was invited to user's "A" organization with an "admin" role
+    When the user "B" requested to delete the API key "name" from user's "A" organization with assigned role "owner"
+    Then user "B" should get an error message: "user: 'userId "B"', name: 'null', not in role Owner of organization: 'org "A" name'"
+
 
   #MPA-8170 (#45)
   Scenario: Fail to delete some of accessible API keys (token) from relevant Organization upon the owner was removed from own Organization
