@@ -96,15 +96,6 @@ public class UpdateOrganizationMemberRole
     }
   }
 
-  private void checkIsMember(String userId, Organization organization)
-      throws NotAnOrganizationMemberException {
-    if (!organization.isMember(userId)) {
-      throw new NotAnOrganizationMemberException(
-          String.format(
-              "user: %s, is not a member of organization: %s", userId, organization.id()));
-    }
-  }
-
   public static Builder builder() {
     return new Builder();
   }

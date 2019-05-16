@@ -22,6 +22,7 @@ public class KickoutMember
       KickoutOrganizationMemberRequest request, OperationServiceContext context) throws Throwable {
     Organization organization = getOrganization(request.organizationId());
     checkSuperUserAccess(organization, context.profile());
+    checkIsMember(request.userId(), organization);
     ensureCallerIsInHigherRoleThanKickedOutUser(request, context, organization);
     checkLastOwner(request.userId(), organization);
 
