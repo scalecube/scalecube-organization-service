@@ -1,11 +1,12 @@
 /**
- * @api {ServiceMethod: create} /organizations/create create
+ * @api {ServiceMethod: createOrganization} /organizations/createOrganization createOrganization
  * @apiName CreateOrganization
  * @apiGroup Organization
  * @apiVersion 0.0.0-CURRENT
  * @apiPermission Request / Response / Error-response
  *
  * @apiDescription This operation enables any user with valid <a href="https://manage.auth0.com/">Token</a> to create the specific organization and store its information (metadata).
+ * Organization name can only contain characters in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent.
  *
  * @apiParam {Object} token The requested token issued by relevant authority (Auth0)
  * @apiParam {String} name Specified organization name

@@ -1,5 +1,5 @@
 /**
-  * @api {ServiceMethod: delete} /organizations/delete delete
+  * @api {ServiceMethod: deleteOrganization} /organizations/deleteOrganization deleteOrganization
   * @apiName DeleteOrganization
   * @apiGroup Organization
   * @apiVersion 0.0.0-CURRENT
