@@ -7,16 +7,16 @@ import reactor.core.publisher.Mono;
 @Service("organizations")
 public interface OrganizationService {
 
-  @ServiceMethod("create")
+  @ServiceMethod
   Mono<CreateOrganizationResponse> createOrganization(CreateOrganizationRequest request);
 
-  @ServiceMethod
+  @ServiceMethod ("getMyOrganizations")
   Mono<GetMembershipResponse> getUserOrganizationsMembership(GetMembershipRequest request);
 
   @ServiceMethod
   Mono<GetOrganizationResponse> getOrganization(GetOrganizationRequest request);
 
-  @ServiceMethod("delete")
+  @ServiceMethod
   Mono<DeleteOrganizationResponse> deleteOrganization(DeleteOrganizationRequest request);
 
   @ServiceMethod
@@ -35,13 +35,13 @@ public interface OrganizationService {
   @ServiceMethod
   Mono<LeaveOrganizationResponse> leaveOrganization(LeaveOrganizationRequest request);
 
-  @ServiceMethod
+  @ServiceMethod ("addApiKey")
   Mono<GetOrganizationResponse> addOrganizationApiKey(AddOrganizationApiKeyRequest request);
 
-  @ServiceMethod
+  @ServiceMethod ("deleteApiKey")
   Mono<GetOrganizationResponse> deleteOrganizationApiKey(DeleteOrganizationApiKeyRequest request);
 
-  @ServiceMethod
+  @ServiceMethod ("updateMemberRole")
   Mono<UpdateOrganizationMemberRoleResponse> updateOrganizationMemberRole(
       UpdateOrganizationMemberRoleRequest request);
 

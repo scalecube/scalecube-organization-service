@@ -1,6 +1,6 @@
 /**
-  * @api {ServiceMethod: addOrganizationApiKey} /organizations/addOrganizationApiKey addOrganizationApiKey
-  * @apiName AddOrganizationApiKey
+  * @api {ServiceMethod: addApiKey} /organizations/addApiKey addApiKey
+  * @apiName AddApiKey
   * @apiGroup ApiKey
   * @apiVersion 0.0.0-CURRENT
   * @apiPermission Request / Response / Error-response
