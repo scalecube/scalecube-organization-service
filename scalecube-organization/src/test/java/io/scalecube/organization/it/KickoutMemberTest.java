@@ -12,6 +12,7 @@ import io.scalecube.account.api.CreateOrganizationResponse;
 import io.scalecube.account.api.GetOrganizationMembersRequest;
 import io.scalecube.account.api.InviteOrganizationMemberRequest;
 import io.scalecube.account.api.KickoutOrganizationMemberRequest;
+import io.scalecube.account.api.NotAnOrganizationMemberException;
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
@@ -473,6 +474,33 @@ class KickoutMemberTest extends BaseTest {
             e -> {
               assertEquals(InvalidTokenException.class, e.getClass());
               assertEquals("Token verification failed", e.getMessage());
+            })
+        .verify();
+  }
+
+  @TestTemplate
+  @DisplayName("Fail to kick non-existent user member")
+  void kickoutNonExistentMember(OrganizationService organizationService) {
+    Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
+
+    CreateOrganizationResponse organizationA =
+        organizationService
+            .createOrganization(
+                new CreateOrganizationRequest(
+                    RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
+            .block(TIMEOUT);
+
+    StepVerifier.create(
+            organizationService.kickoutMember(
+                new KickoutOrganizationMemberRequest(organizationA.id(), tokenA, USER_B.userId())))
+        .expectErrorSatisfies(
+            e -> {
+              assertEquals(NotAnOrganizationMemberException.class, e.getClass());
+              assertEquals(
+                  String.format(
+                      "user: %s is not a member of organization: %s",
+                      USER_B.userId(), organizationA.id()),
+                  e.getMessage());
             })
         .verify();
   }

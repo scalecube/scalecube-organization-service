@@ -222,9 +222,8 @@ class OrganizationServiceApiKeyTest extends Base {
         .verifyComplete();
     // add api key by admin
     StepVerifier.create(
-            createService(adminUser)
-                .addOrganizationApiKey(
-                    new AddOrganizationApiKeyRequest(token, organizationId, "apiKey", null)))
+            service.addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(token, organizationId, "apiKey", null)))
         .expectSubscription()
         .assertNext(
             x -> {

@@ -18,10 +18,11 @@ public class JwtApiKey extends ApiKey {
    * @param claims Key claims.
    * @param apiKey The API key.
    */
-  public JwtApiKey(String name, Map<String, String> claims, String apiKey) {
+  public JwtApiKey(String name, Map<String, String> claims, String apiKey, String keyId) {
     super.name = name;
     super.claims = claims;
     super.key = apiKey;
+    super.keyId = keyId;
   }
 
   public static Builder builder() {
@@ -37,6 +38,8 @@ public class JwtApiKey extends ApiKey {
     private String name;
     private Long tokenTimeToLiveInMillis;
     private String audience;
+    private String keyId;
+    private Key signingKey;
 
     public Builder name(String name) {
       this.name = name;
@@ -68,24 +71,37 @@ public class JwtApiKey extends ApiKey {
       return this;
     }
 
-    /**
-     * Constructs an API key object and signs it using the <code>secret</code> argument.
-     *
-     * @param keyId The token signing key id.
-     * @param signingKey The token signing key.
-     * @return an API key.
-     */
-    public ApiKey build(String keyId, Key signingKey) {
-      final WebToken jwt = new WebToken(this.issuer, this.subject);
-      final String apiKey =
-          jwt.createToken(
-              this.id, this.audience, this.tokenTimeToLiveInMillis, keyId, signingKey, claims);
-      return new JwtApiKey(this.name, this.claims, apiKey);
+    public Builder keyId(String keyId) {
+      this.keyId = keyId;
+      return this;
+    }
+
+    public Builder signingKey(Key signingKey) {
+      this.signingKey = signingKey;
+      return this;
     }
 
     public Builder audience(String audience) {
       this.audience = audience;
       return this;
+    }
+
+    /**
+     * Constructs an API key object and signs it using the <code>secret</code> argument.
+     *
+     * @return an API key.
+     */
+    public ApiKey build() {
+      final WebToken jwt = new WebToken(this.issuer, this.subject);
+      final String apiKey =
+          jwt.createToken(
+              this.id,
+              this.audience,
+              this.tokenTimeToLiveInMillis,
+              this.keyId,
+              this.signingKey,
+              claims);
+      return new JwtApiKey(this.name, this.claims, apiKey, keyId);
     }
   }
 }

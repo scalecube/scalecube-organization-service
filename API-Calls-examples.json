@@ -8,14 +8,14 @@
     "text": "createOrganization",
     "backColor": "black",
     "data": {
-      "q": "/organizations/create",
+      "q": "/organizations/createOrganization",
       "sid": 1,
       "d": {
         "token": {
           "token": "AUTH-0-TOKEN"
         },
         "name": "ORGANIZATION-NAME",
-        "email": "ORGANIZATION@email.com"
+        "email": "ORGANIZATION-EMAIL"
       }
     }
 
@@ -30,7 +30,7 @@
         "token": {
           "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "ORG-ID"
+        "organizationId": "ORD-ID"
 
       }
     }
@@ -45,9 +45,9 @@
         "token": {
           "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "ORG-ID",
+        "organizationId": "ORD-ID",
         "name": "NEW-ORGANIZATION-NAME",
-        "email": "NEW-ORGANIZATION@email.com"
+        "email": "NEW-ORGANIZATION-EMAIL"
       }
     }
   }, {
@@ -55,13 +55,13 @@
     "text": "deleteOrganization",
     "backColor": "black",
     "data": {
-      "q": "/organizations/delete",
+      "q": "/organizations/createOrganization",
       "sid": 1,
       "d": {
         "token": {
           "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "ORG-ID"
+        "organizationId": "ORD-ID"
 
       }
     }
@@ -77,9 +77,9 @@
         "token": {
           "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "ORG-ID",
+        "organizationId": "ORD-ID",
         "userId": "[Auth0 generated Client ID]@clients",
-        "role":"Owner/Admin/Member(PERMISSION LEVEL FOR ORGANIZATION MEMBERS)"
+        "role":"Owner/Admin/Member (PERMISSION LEVEL FOR ORGANIZATION MEMBERS)"
       }
     }
   }, {
@@ -93,7 +93,7 @@
         "token": {
           "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "ORG-ID",
+        "organizationId": "ORD-ID",
         "userId": "[Auth0 generated Client ID]@clients"
       }
     }
@@ -108,22 +108,22 @@
         "token": {
           "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "ORG-ID"
+        "organizationId": "ORD-ID"
 
       }
     }
   }, {
     "id": "9",
-    "text": "UpdateOrganizationMemberRole",
+    "text": "updateMemberRole",
     "backColor": "black",
     "data": {
-      "q": "/organizations/updateOrganizationMemberRole",
+      "q": "/organizations/updateMemberRole",
       "sid": 1,
       "d": {
         "token": {
           "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "ORG-ID",
+        "organizationId": "ORD-ID",
         "userId": "[Auth0 generated Client ID]@clients",
         "role": "Owner/Admin/Member (PERMISSION LEVEL FOR ORGANIZATION MEMBERS)"
       }
@@ -139,16 +139,16 @@
         "token": {
           "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "ORG-ID"
+        "organizationId": "ORD-ID"
 
       }
     }
   }, {
     "id": "11",
-    "text": "getUserOrganizationMembership",
+    "text": "getMyOrganizations",
     "backColor": "black",
     "data": {
-      "q": "/organizations/getUserOrganizationsMembership",
+      "q": "/organizations/getMyOrganizations",
       "sid": 1,
       "d": {
         "token": {
@@ -158,37 +158,38 @@
     }
   },  {
     "id": "12",
-    "text": "addOrganizationApiKey",
+    "text": "addApiKey",
     "backColor": "black",
     "data": {
-      "q": "/organizations/addOrganizationApiKey",
+      "q": "/organizations/addApiKey",
       "sid": 1,
       "d": {
         "token": {
           "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "ORG-ID",
-        "apiKeyName": "NAME-FOR-API-KEY",
+        "organizationId": "ORD-ID",
+        "apiKeyName": "API-KEY-NAME",
         "claims": {
-          "role": "Owner/Admin/Member (PERMISSION LEVEL FOR API KEY TO CONFIGURATION SERVICE)"
+          "role": "Owner/Admin/Member (API KEY PERMISSION LEVEL FOR CONFIGURATION)"
         }
       }
     }
   }, {
     "id": "13",
-    "text": "deleteOrganizationApiKey",
+    "text": "deleteApiKey",
     "backColor": "black",
     "data": {
-      "q": "/organizations/deleteOrganizationApiKey",
+      "q": "/organizations/deleteApiKey",
       "sid": 1,
       "d": {
         "token": {
           "token": "AUTH-0-TOKEN"
         },
-        "organizationId": "ORG-ID",
-        "apiKeyName": "NAME-OF-RELEVANT-API-KEY"
+        "organizationId": "ORD-ID",
+        "apiKeyName": "API-KEY-NAME"
       }
     }
 
   }]
+
 }

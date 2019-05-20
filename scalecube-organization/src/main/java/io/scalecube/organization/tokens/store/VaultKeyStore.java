@@ -129,6 +129,18 @@ public class VaultKeyStore implements KeyStore {
     }
   }
 
+  @Override
+  public void delete(String keyId) {
+    String path = getPath(keyId);
+
+    try {
+      vaultLogical().delete(path);
+    } catch (VaultException e) {
+      LOGGER.error("Error deleting key pair from Vault path={}", path, e);
+      throw new KeyStoreException(e);
+    }
+  }
+
   private Logical vaultLogical() {
     return vault
         .withRetries(

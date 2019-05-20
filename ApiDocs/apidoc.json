@@ -16,12 +16,12 @@
     "UpdateOrganization",
     "DeleteOrganization",
     "LeaveOrganization",
-    "GetUserOrganizationsMembership",
+    "GetMyOrganizations",
     "InviteMember",
     "GetOrganizationMembers",
-    "UpdateOrganizationMemberRole",
+    "UpdateMemberRole",
     "KickoutMember",
-    "AddOrganizationApiKey",
-    "DeleteOrganizationApiKey"
+    "AddApiKey",
+    "DeleteApiKey"
   ]
 }

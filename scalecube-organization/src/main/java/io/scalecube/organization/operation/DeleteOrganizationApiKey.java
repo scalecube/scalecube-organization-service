@@ -7,13 +7,17 @@ import io.scalecube.account.api.Token;
 import io.scalecube.organization.domain.Organization;
 import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.tokens.TokenVerifier;
+import io.scalecube.organization.tokens.store.KeyStore;
 
 public class DeleteOrganizationApiKey
     extends ServiceOperation<DeleteOrganizationApiKeyRequest, GetOrganizationResponse> {
 
+  private final KeyStore keyStore;
+
   private DeleteOrganizationApiKey(
-      TokenVerifier tokenVerifier, OrganizationsRepository repository) {
+      TokenVerifier tokenVerifier, OrganizationsRepository repository, KeyStore keyStore) {
     super(tokenVerifier, repository);
+    this.keyStore = keyStore;
   }
 
   @Override
@@ -26,6 +30,16 @@ public class DeleteOrganizationApiKey
     }
 
     checkSuperUserAccess(organization, context.profile());
+
+    organization.apiKeys().stream()
+        .filter(apiKey -> apiKey.name().equalsIgnoreCase(request.apiKeyName()))
+        .findAny()
+        .ifPresent(
+            foundApiKey -> {
+              if (foundApiKey.keyId() != null) {
+                keyStore.delete(foundApiKey.keyId());
+              }
+            });
 
     organization.removeApiKey(request.apiKeyName());
     context.repository().save(organization.id(), organization);
@@ -54,6 +68,7 @@ public class DeleteOrganizationApiKey
   public static class Builder {
     private TokenVerifier tokenVerifier;
     private OrganizationsRepository repository;
+    private KeyStore keyStore;
 
     public Builder tokenVerifier(TokenVerifier tokenVerifier) {
       this.tokenVerifier = tokenVerifier;
@@ -65,8 +80,13 @@ public class DeleteOrganizationApiKey
       return this;
     }
 
+    public Builder keyStore(KeyStore keyStore) {
+      this.keyStore = keyStore;
+      return this;
+    }
+
     public DeleteOrganizationApiKey build() {
-      return new DeleteOrganizationApiKey(tokenVerifier, repository);
+      return new DeleteOrganizationApiKey(tokenVerifier, repository, keyStore);
     }
   }
 }
