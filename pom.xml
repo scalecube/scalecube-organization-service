@@ -36,7 +36,7 @@
     <netty.version>4.1.34.Final</netty.version>
     <hamcrest-library.version>1.3</hamcrest-library.version>
     <auth0-jwks-rsa.version>0.6.0</auth0-jwks-rsa.version>
-    <reactor.version>Californium-SR5</reactor.version>
+    <reactor.version>Californium-SR8</reactor.version>
     <scalecube-test-utils.version>0.0.4</scalecube-test-utils.version>
   </properties>
 
