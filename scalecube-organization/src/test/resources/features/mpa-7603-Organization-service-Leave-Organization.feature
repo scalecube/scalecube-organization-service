@@ -46,12 +46,12 @@ Feature: Organization service Org management - Leave Organization
     Then user "A" should should receive the error message:"At least one Owner should be persisted in the organization: 'org A id'"
 
 
-  #MPA-7603 (#32) - should we return an error like " is not a "member" of organization" instead of empty object?
+  #MPA-7603 (#32)
   Scenario: Fail to leave the Organization upon the user wasn't invited to any of the relevant Organizations
     Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
     When the user "B" requested to leave the user's "A" organization
-    Then the user "B" should receive successful response with empty object
+    Then the user "B" should receive the error message: "user's B 'id@clients' not a member of Organization [id=non-existent]"
 
 
   #MPA-7603 (#33)
