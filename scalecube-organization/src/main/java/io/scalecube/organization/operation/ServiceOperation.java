@@ -3,6 +3,7 @@ package io.scalecube.organization.operation;
 import io.scalecube.account.api.ApiKey;
 import io.scalecube.account.api.GetOrganizationResponse;
 import io.scalecube.account.api.InvalidAuthenticationToken;
+import io.scalecube.account.api.NotAnOrganizationMemberException;
 import io.scalecube.account.api.OrganizationInfo;
 import io.scalecube.account.api.OrganizationNotFoundException;
 import io.scalecube.account.api.Role;
@@ -133,7 +134,7 @@ public abstract class ServiceOperation<I, O> {
     return isOwner(organization, profile) || isInRole(profile.userId(), organization, Role.Admin);
   }
 
-  protected Role getRole(String userId, Organization organization) throws EntityNotFoundException {
+  protected Role getRole(String userId, Organization organization) {
     return organization.members().stream()
         .filter(i -> Objects.equals(i.id(), userId))
         .map(i -> Role.valueOf(i.role()))
@@ -187,6 +188,15 @@ public abstract class ServiceOperation<I, O> {
           String.format(
               "At least one Owner should be persisted in the organization: '%s'",
               organization.id()));
+    }
+  }
+
+  protected void checkIsMember(String userId, Organization organization)
+      throws NotAnOrganizationMemberException {
+    if (!organization.isMember(userId)) {
+      throw new NotAnOrganizationMemberException(
+          String.format(
+              "user: %s is not a member of organization: %s", userId, organization.id()));
     }
   }
 
