@@ -30,7 +30,7 @@
   * @apiErrorExample {json} WebSocket
   * Request:
   *     {
-  *         "q":"/organizations/addOrganizationApiKey",
+  *         "q":"/organizations/addApiKey",
   *         "sid": 1,
   *         "d":{
   *                "token": {
@@ -46,7 +46,7 @@
   *
   * Response:
   *     {
-  *         "q":"/organizations/addOrganizationApiKey",
+  *         "q":"/organizations/addApiKey",
   *         "sid":1,
   *         "d":{
   *                "apiKeys": [
@@ -84,7 +84,7 @@
   * Request:
   *     {
   *         "metadata":{
-  *                      "q": "/organizations/addOrganizationApiKey"
+  *                      "q": "/organizations/addApiKey"
   *         },
   *         "data":{
   *                   "token": {
@@ -119,7 +119,7 @@
   *                   "ownerId":"id@clients"
   *         },
   *         "metadata":{
-  *           "q": "/organizations/addOrganizationApiKey"
+  *           "q": "/organizations/addApiKey"
   *         }
   *     }
   *
@@ -136,7 +136,7 @@
   *
   * @apiErrorExample{json} HTTP
   * Request:
-  * https://localhost:port/organizations/addOrganizationApiKey (endpoint url)
+  * https://localhost:port/organizations/addApiKey (endpoint url)
   *
   * Body:
   *     {

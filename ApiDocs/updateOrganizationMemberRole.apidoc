@@ -22,7 +22,7 @@
   * @apiErrorExample {json} WebSocket
   * Request:
   *     {
-  *         "q":"/organizations/updateOrganizationMemberRole",
+  *         "q":"/organizations/updateMemberRole",
   *         "sid": 1,
   *         "d":{
   *                "token": {
@@ -36,7 +36,7 @@
   *
   * Response:
   *     {
-  *         "q":"/organizations/updateOrganizationMemberRole",
+  *         "q":"/organizations/updateMemberRole",
   *         "sid":1,
   *         "d":{}
   *
@@ -62,7 +62,7 @@
   * Request:
   *     {
   *         "metadata":{
-  *                      "q": "/organizations/updateOrganizationMemberRole"
+  *                      "q": "/organizations/updateMemberRole"
   *         },
   *         "data":{
   *                   "token": {
@@ -78,7 +78,7 @@
   *     {
   *         "data":{},
   *         "metadata":{
-  *           "q": "/organizations/updateOrganizationMemberRole"
+  *           "q": "/organizations/updateMemberRole"
   *         }
   *     }
   *
@@ -95,7 +95,7 @@
   *
   * @apiErrorExample{json} HTTP
   * Request:
-  * https://localhost:port/organizations/updateOrganizationMemberRole (endpoint url)
+  * https://localhost:port/organizations/updateMemberRole (endpoint url)
   *
   * Body:
   *     {
