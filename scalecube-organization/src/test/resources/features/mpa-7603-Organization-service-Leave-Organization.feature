@@ -51,7 +51,7 @@ Feature: Organization service Org management - Leave Organization
     Given each of the users "A" and "B" have got personal valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by user "A"
     When the user "B" requested to leave the user's "A" organization
-    Then the user "B" should receive the error message: "user's B 'id@clients' not a member of Organization [id=non-existent]"
+    Then the user "B" should receive the error message: "user: 'userId-B' is not a member of organization: ORG-ID
 
 
   #MPA-7603 (#33)

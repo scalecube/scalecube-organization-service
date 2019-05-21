@@ -110,7 +110,7 @@ Feature: Organization service members management - Kick-out member
     Given the user "A" have got a valid "token" issued by relevant authority
     And only single organization "organizationId" with specified "name" and "email" already created and owned by this user "A"
     When the user "A" requested to remove the non-existent user "non-existent-id@clients" from own organization
-    Then user "A" should get an error message:"user:'id@clients' doesn't exist"
+    Then user "A" should get an error message:"user: 'userId' is not a member of organization: ORG-ID"
 
 
   #MPA-7679 (#67)
