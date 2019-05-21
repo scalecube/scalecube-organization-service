@@ -9,7 +9,7 @@
   </parent>
 
   <artifactId>scalecube-organization-parent</artifactId>
-  <version>2.1.7-SNAPSHOT</version>
+  <version>2.1.7</version>
 
   <packaging>pom</packaging>
 
@@ -20,7 +20,7 @@
     <connection>scm:git:git@github.com:scalecube/scalecube-organization-service.git</connection>
     <developerConnection>scm:git:git@github.com:scalecube/scalecube-organization-service.git
     </developerConnection>
-    <tag>HEAD</tag>
+    <tag>v2.1.7</tag>
   </scm>
 
   <properties>
