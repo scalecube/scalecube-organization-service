@@ -27,7 +27,7 @@ public class RunnerUtil {
 
   private static TokenVerifier mockTokenVerifier() {
     String mockToken = Optional.ofNullable(System.getenv("mockTokenVerifierValue"))
-        .orElse("AUTH0_TOKEN");
+        .orElse("AUTH0_TOKEN_MOCK");
 
     return token -> {
       if (token != null && token.token() != null && token.token().equals(mockToken)) {
