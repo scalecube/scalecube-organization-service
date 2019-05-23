@@ -5,9 +5,7 @@ import io.scalecube.organization.OrganizationServiceImpl;
 import io.scalecube.organization.config.AppConfiguration;
 import io.scalecube.organization.repository.couchbase.CouchbaseRepositoryFactory;
 import io.scalecube.organization.repository.couchbase.CouchbaseSettings;
-import io.scalecube.organization.tokens.Auth0PublicKeyProvider;
 import io.scalecube.organization.tokens.TokenVerifier;
-import io.scalecube.organization.tokens.TokenVerifierImpl;
 import io.scalecube.organization.tokens.store.KeyStore;
 import io.scalecube.organization.tokens.store.VaultKeyStore;
 import io.scalecube.services.Microservices;
@@ -73,7 +71,7 @@ public class OrganizationServiceRunner {
     CouchbaseRepositoryFactory factory = new CouchbaseRepositoryFactory(settings);
 
     KeyStore keyStore = new VaultKeyStore();
-    TokenVerifier tokenVerifier = new TokenVerifierImpl(new Auth0PublicKeyProvider());
+    TokenVerifier tokenVerifier = RunnerUtil.getTokenVerifier();
 
     return new OrganizationServiceImpl(factory.organizations(), keyStore, tokenVerifier);
   }
