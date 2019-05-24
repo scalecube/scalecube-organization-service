@@ -94,7 +94,7 @@ public class OrganizationServiceRunner {
   }
 
   /**
-   * In case System property: {@code mockTokenVerifier="true"} TokenVerifier will be mocked
+   * In case System property: {@code mockTokenVerifier="true"} TokenVerifier will be mocked.
    *
    * @return TokenVerifier
    */
