@@ -7,27 +7,25 @@ import io.scalecube.organization.tokens.TokenVerifierImpl;
 import io.scalecube.security.api.Profile;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public class RunnerUtil {
 
   /**
-   * In case environment variable: {@code mockTokenVerifier="true"} it will be mocked with value of
-   * environment variable: {@code mockTokenVerifierValue} or {@code "AUTH0_TOKEN"} by default.
+   * In case System property: {@code mockTokenVerifier="true"} TokenVerifier will be mocked with
+   * value of System property: {@code mockTokenVerifierValue} or {@code "AUTH0_TOKEN"} otherwise by
+   * default.
    *
    * @return Token verifier
    */
   public static TokenVerifier getTokenVerifier() {
-    if (Boolean.valueOf(System.getenv("mockTokenVerifier"))) {
-      return mockTokenVerifier();
-    }
 
-    return new TokenVerifierImpl(new Auth0PublicKeyProvider());
+    return !Boolean.valueOf(System.getProperty("mockTokenVerifier", "false"))
+        ? new TokenVerifierImpl(new Auth0PublicKeyProvider())
+        : mockTokenVerifier();
   }
 
   private static TokenVerifier mockTokenVerifier() {
-    String mockToken = Optional.ofNullable(System.getenv("mockTokenVerifierValue"))
-        .orElse("AUTH0_TOKEN_MOCK");
+    String mockToken = System.getProperty("mockTokenVerifierValue", "AUTH0_TOKEN_MOCK");
 
     return token -> {
       if (token != null && token.token() != null && token.token().equals(mockToken)) {
