@@ -1,11 +1,15 @@
 package io.scalecube.organization.server;
 
+import static io.scalecube.organization.server.RunnerUtil.mockTokenVerifier;
+
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.organization.OrganizationServiceImpl;
 import io.scalecube.organization.config.AppConfiguration;
 import io.scalecube.organization.repository.couchbase.CouchbaseRepositoryFactory;
 import io.scalecube.organization.repository.couchbase.CouchbaseSettings;
+import io.scalecube.organization.tokens.Auth0PublicKeyProvider;
 import io.scalecube.organization.tokens.TokenVerifier;
+import io.scalecube.organization.tokens.TokenVerifierImpl;
 import io.scalecube.organization.tokens.store.KeyStore;
 import io.scalecube.organization.tokens.store.VaultKeyStore;
 import io.scalecube.services.Microservices;
@@ -17,7 +21,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Service runner main entry point. */
+/**
+ * Service runner main entry point.
+ */
 public class OrganizationServiceRunner {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OrganizationServiceRunner.class);
@@ -71,7 +77,7 @@ public class OrganizationServiceRunner {
     CouchbaseRepositoryFactory factory = new CouchbaseRepositoryFactory(settings);
 
     KeyStore keyStore = new VaultKeyStore();
-    TokenVerifier tokenVerifier = RunnerUtil.getTokenVerifier();
+    TokenVerifier tokenVerifier = getTokenVerifier();
 
     return new OrganizationServiceImpl(factory.organizations(), keyStore, tokenVerifier);
   }
@@ -85,5 +91,17 @@ public class OrganizationServiceRunner {
     bindingMap.put("organizationsBucketName", "organizations.bucket");
 
     return bindingMap;
+  }
+
+  /**
+   * In case System property: {@code mockTokenVerifier="true"} TokenVerifier will be mocked
+   *
+   * @return TokenVerifier
+   */
+  private static TokenVerifier getTokenVerifier() {
+
+    return !Boolean.valueOf(System.getProperty("mockTokenVerifier", "false"))
+        ? new TokenVerifierImpl(new Auth0PublicKeyProvider())
+        : mockTokenVerifier();
   }
 }
