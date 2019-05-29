@@ -2,13 +2,9 @@ package io.scalecube.organization.fixtures;
 
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.organization.OrganizationServiceImpl;
-import io.scalecube.organization.repository.inmem.InMemoryOrganizationRepository;
-import io.scalecube.organization.repository.inmem.InMemoryPublicKeyProvider;
-import io.scalecube.organization.token.store.PropertiesFileKeyStore;
 import io.scalecube.organization.tokens.TokenVerifierImpl;
 import io.scalecube.organization.tokens.store.KeyStore;
 import io.scalecube.test.fixtures.Fixture;
-import java.io.File;
 import org.opentest4j.TestAbortedException;
 
 public class InMemoryOrganizationServiceFixture implements Fixture {
@@ -21,7 +17,7 @@ public class InMemoryOrganizationServiceFixture implements Fixture {
 
     TokenVerifierImpl tokenVerifier = new TokenVerifierImpl(new InMemoryPublicKeyProvider());
 
-    KeyStore keyStore = new PropertiesFileKeyStore();
+    KeyStore keyStore = new InMemoryKeyStore();
 
     service = new OrganizationServiceImpl(organizationRepository, keyStore, tokenVerifier);
   }
@@ -36,6 +32,6 @@ public class InMemoryOrganizationServiceFixture implements Fixture {
 
   @Override
   public void tearDown() {
-    new File("keystore.properties").deleteOnExit();
+    // do nothing
   }
 }
