@@ -1,5 +1,6 @@
 package io.scalecube.organization.scenario;
 
+import static io.scalecube.organization.scenario.TestProfiles.generateProfile;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -30,7 +31,7 @@ public class DeleteApiKeyScenario extends BaseScenario {
   @DisplayName(
       "#MPA-7603 (#43) Successful delete any of accessible API key (token) roles from relevant Organization by Owner")
   void testDeleteApiKeysByOwner(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
+    Profile userA = generateProfile();
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
 
     // create a single organization which will be owned by user "A"
@@ -103,9 +104,9 @@ public class DeleteApiKeyScenario extends BaseScenario {
   @DisplayName(
       "#MPA-7603 (#44) Successful delete the API keys (token) only with admin and member roles from relevant Organization by Admin")
   void testDeleteApiKeysByAdmin(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
+    Profile userA = generateProfile();
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
-    Profile userB = TestProfiles.USER_B;
+    Profile userB = generateProfile();
     Token userBToken = InMemoryPublicKeyProvider.token(userB);
 
     // create a single organization which will be owned by user "A"
@@ -179,9 +180,9 @@ public class DeleteApiKeyScenario extends BaseScenario {
   @DisplayName(
       "#MPA-7603 (#46) Fail to delete any of accessible API key (token) roles from relevant Organization by the Member with similar role")
   void testFailToDeleteMemberApiKeysByMemberRole(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
+    Profile userA = generateProfile();
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
-    Profile userB = TestProfiles.USER_B;
+    Profile userB = generateProfile();
     Token userBToken = InMemoryPublicKeyProvider.token(userB);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
 
@@ -229,7 +230,7 @@ public class DeleteApiKeyScenario extends BaseScenario {
   @DisplayName(
       "#MPA-7603 (#47) Fail to delete non-existent (invalid) API key (token) from specific Organization")
   void testFailToDeleteNonExistingApiKey(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
+    Profile userA = generateProfile();
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
 
@@ -273,7 +274,7 @@ public class DeleteApiKeyScenario extends BaseScenario {
   @DisplayName(
       "#MPA-7603 (#48) Fail to delete the API key (token) from relevant Organization if the token is invalid (expired)")
   void testFailToDeleteApiKeyWithExpiredToken(OrganizationService service) {
-    Token expiredToken = InMemoryPublicKeyProvider.expiredToken(TestProfiles.USER_A);
+    Token expiredToken = InMemoryPublicKeyProvider.expiredToken(generateProfile());
 
     // the user "A" requests to get info with expired token
     StepVerifier.create(
