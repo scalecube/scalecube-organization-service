@@ -1,5 +1,6 @@
 package io.scalecube.organization.scenario;
 
+import static io.scalecube.organization.scenario.TestProfiles.generateProfile;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -20,7 +21,6 @@ import java.util.Random;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestTemplate;
-import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 /** @see features/mpa-7603-Organization-service-Add-Api-Key.feature */
@@ -32,7 +32,7 @@ public class AddApiKeyScenario extends BaseScenario {
   @DisplayName(
       "#MPA-7603 (#35) Successful adding the API keys (token) for relevant Organization with all accessible roles by Owner")
   void testAddAllApiKeysForEachAccessibleRoleOfTheOwner(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
+    Profile userA = generateProfile();
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
 
     // create a single organization which will be owned by user "A"
@@ -46,15 +46,12 @@ public class AddApiKeyScenario extends BaseScenario {
 
     // user "A" creates API keys for the organization with roles: "owner", "admin" and "member"
     StepVerifier.create(
-            Flux.just(Role.Owner, Role.Member, Role.Admin)
-                .map(
-                    role ->
-                        new AddOrganizationApiKeyRequest(
-                            userAToken,
-                            organizationId,
-                            role.name() + "-api-key",
-                            Collections.singletonMap("role", role.name())))
-                .flatMap(service::addOrganizationApiKey))
+            service.addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(
+                    userAToken,
+                    organizationId,
+                    Role.Owner + "-api-key",
+                    Collections.singletonMap("role", Role.Owner.name()))))
         .assertNext(
             response -> {
               assertEquals(organizationId, response.id());
@@ -63,6 +60,16 @@ public class AddApiKeyScenario extends BaseScenario {
                   Arrays.stream(response.apiKeys())
                       .anyMatch(apiKey -> Role.Owner.name().equals(apiKey.claims().get("role"))));
             })
+        .expectComplete()
+        .verify();
+
+    StepVerifier.create(
+            service.addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(
+                    userAToken,
+                    organizationId,
+                    Role.Member + "-api-key",
+                    Collections.singletonMap("role", Role.Member.name()))))
         .assertNext(
             response -> {
               assertEquals(organizationId, response.id());
@@ -74,6 +81,16 @@ public class AddApiKeyScenario extends BaseScenario {
                   Arrays.stream(response.apiKeys())
                       .anyMatch(apiKey -> Role.Member.name().equals(apiKey.claims().get("role"))));
             })
+        .expectComplete()
+        .verify();
+
+    StepVerifier.create(
+            service.addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(
+                    userAToken,
+                    organizationId,
+                    Role.Admin + "-api-key",
+                    Collections.singletonMap("role", Role.Admin.name()))))
         .assertNext(
             response -> {
               assertEquals(organizationId, response.id());
@@ -115,8 +132,8 @@ public class AddApiKeyScenario extends BaseScenario {
   @DisplayName(
       "#MPA-7603 (#36) Successful adding the API keys (token) with admin and member roles for relevant Organization by Admin")
   void testAddAllApiKeysForEachAccessibleRoleOfTheAdmin(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
-    Profile userB = TestProfiles.USER_B;
+    Profile userA = generateProfile();
+    Profile userB = generateProfile();
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
     Token userBToken = InMemoryPublicKeyProvider.token(userB);
 
@@ -148,15 +165,12 @@ public class AddApiKeyScenario extends BaseScenario {
 
     // user "B" creates API keys for the organization with roles: "admin" and "member"
     StepVerifier.create(
-            Flux.just(Role.Member, Role.Admin)
-                .map(
-                    role ->
-                        new AddOrganizationApiKeyRequest(
-                            userBToken,
-                            organizationId,
-                            role.name() + "-api-key",
-                            Collections.singletonMap("role", role.name())))
-                .flatMap(service::addOrganizationApiKey))
+            service.addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(
+                    userBToken,
+                    organizationId,
+                    Role.Member + "-api-key",
+                    Collections.singletonMap("role", Role.Member.name()))))
         .assertNext(
             response -> {
               assertEquals(organizationId, response.id());
@@ -165,6 +179,16 @@ public class AddApiKeyScenario extends BaseScenario {
                   Arrays.stream(response.apiKeys())
                       .anyMatch(apiKey -> Role.Member.name().equals(apiKey.claims().get("role"))));
             })
+        .expectComplete()
+        .verify();
+
+    StepVerifier.create(
+            service.addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(
+                    userBToken,
+                    organizationId,
+                    Role.Admin + "-api-key",
+                    Collections.singletonMap("role", Role.Admin.name()))))
         .assertNext(
             response -> {
               assertEquals(organizationId, response.id());
@@ -203,8 +227,8 @@ public class AddApiKeyScenario extends BaseScenario {
   @DisplayName(
       "#MPA-7603 (#37) Fail to add the owner API key (token) for a relevant Organization by the Admin")
   void testFailToAddOwnerApiKeyByAdmin(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
-    Profile userB = TestProfiles.USER_B;
+    Profile userA = generateProfile();
+    Profile userB = generateProfile();
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
     Token userBToken = InMemoryPublicKeyProvider.token(userB);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
@@ -243,8 +267,8 @@ public class AddApiKeyScenario extends BaseScenario {
   @DisplayName(
       "#MPA-7603 (#38) Fail to add some of accessible API keys (token) for a relevant Organization upon the relevant member doesn't manager's permission level")
   void testFailToAddMemberApiKeyByMember(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
-    Profile userB = TestProfiles.USER_B;
+    Profile userA = generateProfile();
+    Profile userB = generateProfile();
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
     Token userBToken = InMemoryPublicKeyProvider.token(userB);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
@@ -283,7 +307,7 @@ public class AddApiKeyScenario extends BaseScenario {
   @DisplayName(
       "#MPA-7603 (#39) Fail to add some of accessible API keys (token) with the duplicate name for a relevant Organization")
   void testFailToAddApiKeyWithDuplicatedName(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
+    Profile userA = generateProfile();
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
     String specifiedApiKeyName = RandomStringUtils.randomAlphabetic(10);
 
@@ -323,8 +347,8 @@ public class AddApiKeyScenario extends BaseScenario {
   @DisplayName(
       "#MPA-7603 (#40) Fail to add some of accessible API keys (token) for relevant Organization upon the owner was removed from own Organization")
   void testFailToAddApiKeyAfterOwnerWasRemoved(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
-    Profile userB = TestProfiles.USER_B;
+    Profile userA = generateProfile();
+    Profile userB = generateProfile();
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
 
@@ -367,7 +391,7 @@ public class AddApiKeyScenario extends BaseScenario {
   @DisplayName(
       "#MPA-7603 (#41) Fail to add the API key (token) for a relevant Organization upon the assigned role is invalid (differs from allowed)")
   void testFailToAddApiKeWithInvalidRole(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
+    Profile userA = generateProfile();
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
     String invalidRole = "boss";

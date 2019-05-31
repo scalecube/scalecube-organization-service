@@ -1,8 +1,6 @@
 package io.scalecube.organization.scenario;
 
-import static io.scalecube.organization.scenario.TestProfiles.USER_A;
-import static io.scalecube.organization.scenario.TestProfiles.USER_B;
-import static io.scalecube.organization.scenario.TestProfiles.USER_C;
+import static io.scalecube.organization.scenario.TestProfiles.generateProfile;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -17,7 +15,7 @@ import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.fixtures.InMemoryPublicKeyProvider;
-import io.scalecube.organization.tokens.InvalidTokenException;
+import io.scalecube.security.api.Profile;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -35,22 +33,25 @@ public class GetUserMembershipScenario extends BaseScenario {
   @DisplayName(
       "#98 Successful get the list of all Organizations (Membership) in each the user became a Member")
   void getUserMembershipOfMember(OrganizationService organizationService) {
-    Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
-    Token tokenB = InMemoryPublicKeyProvider.token(USER_B);
-    Token tokenC = InMemoryPublicKeyProvider.token(USER_C);
+    Profile userA = generateProfile();
+    Profile userB = generateProfile();
+    Profile userC = generateProfile();
+    Token tokenA = InMemoryPublicKeyProvider.token(userA);
+    Token tokenB = InMemoryPublicKeyProvider.token(userB);
+    Token tokenC = InMemoryPublicKeyProvider.token(userC);
 
     CreateOrganizationResponse organizationA =
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
+                    RandomStringUtils.randomAlphabetic(10), userA.email(), tokenA))
             .block(TIMEOUT);
 
     CreateOrganizationResponse organizationB =
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_B.email(), tokenB))
+                    RandomStringUtils.randomAlphabetic(10), userB.email(), tokenB))
             .block(TIMEOUT);
 
     organizationService
@@ -92,13 +93,13 @@ public class GetUserMembershipScenario extends BaseScenario {
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenA, organizationA.id(), USER_C.userId(), Role.Member.name()))
+                tokenA, organizationA.id(), userC.userId(), Role.Member.name()))
         .block(TIMEOUT);
 
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenB, organizationB.id(), USER_C.userId(), Role.Member.name()))
+                tokenB, organizationB.id(), userC.userId(), Role.Member.name()))
         .block(TIMEOUT);
 
     StepVerifier.create(
@@ -115,9 +116,7 @@ public class GetUserMembershipScenario extends BaseScenario {
                   0, apiKeys.get(organizationA.id()).size(), "api keys count in the response");
 
               assertTrue(
-                  apiKeys
-                      .get(organizationB.id())
-                      .stream()
+                  apiKeys.get(organizationB.id()).stream()
                       .allMatch(apiKey -> Role.Member.name().equals(apiKey.claims().get("role"))),
                   "only 'Member' api keys are in the response");
             })
@@ -128,22 +127,25 @@ public class GetUserMembershipScenario extends BaseScenario {
   @DisplayName(
       "#99 Successful get the list of all Organizations (Membership) in each the user became an Admin")
   void getUserMembershipOfAdmin(OrganizationService organizationService) {
-    Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
-    Token tokenB = InMemoryPublicKeyProvider.token(USER_B);
-    Token tokenC = InMemoryPublicKeyProvider.token(USER_C);
+    Profile userA = generateProfile();
+    Profile userB = generateProfile();
+    Profile userC = generateProfile();
+    Token tokenA = InMemoryPublicKeyProvider.token(userA);
+    Token tokenB = InMemoryPublicKeyProvider.token(userB);
+    Token tokenC = InMemoryPublicKeyProvider.token(userC);
 
     CreateOrganizationResponse organizationA =
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
+                    RandomStringUtils.randomAlphabetic(10), userA.email(), tokenA))
             .block(TIMEOUT);
 
     CreateOrganizationResponse organizationB =
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_B.email(), tokenB))
+                    RandomStringUtils.randomAlphabetic(10), userB.email(), tokenB))
             .block(TIMEOUT);
 
     organizationService
@@ -185,13 +187,13 @@ public class GetUserMembershipScenario extends BaseScenario {
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenA, organizationA.id(), USER_C.userId(), Role.Admin.name()))
+                tokenA, organizationA.id(), userC.userId(), Role.Admin.name()))
         .block(TIMEOUT);
 
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenB, organizationB.id(), USER_C.userId(), Role.Admin.name()))
+                tokenB, organizationB.id(), userC.userId(), Role.Admin.name()))
         .block(TIMEOUT);
 
     StepVerifier.create(
@@ -205,9 +207,7 @@ public class GetUserMembershipScenario extends BaseScenario {
                               OrganizationInfo::id, info -> Arrays.asList(info.apiKeys())));
 
               assertTrue(
-                  apiKeys
-                      .get(organizationA.id())
-                      .stream()
+                  apiKeys.get(organizationA.id()).stream()
                       .allMatch(
                           apiKey -> {
                             String role = apiKey.claims().get("role");
@@ -216,9 +216,7 @@ public class GetUserMembershipScenario extends BaseScenario {
                   "only 'Admin' api keys are in the response");
 
               assertTrue(
-                  apiKeys
-                      .get(organizationB.id())
-                      .stream()
+                  apiKeys.get(organizationB.id()).stream()
                       .allMatch(
                           apiKey -> {
                             String role = apiKey.claims().get("role");
@@ -234,14 +232,16 @@ public class GetUserMembershipScenario extends BaseScenario {
   @DisplayName(
       "#100 Successful get the list of all Organizations (Membership) in each the user became an Owner")
   void getUserMembershipOfOwner(OrganizationService organizationService) {
-    Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
-    Token tokenB = InMemoryPublicKeyProvider.token(USER_B);
+    Profile userA = generateProfile();
+    Profile userB = generateProfile();
+    Token tokenA = InMemoryPublicKeyProvider.token(userA);
+    Token tokenB = InMemoryPublicKeyProvider.token(userB);
 
     CreateOrganizationResponse organizationA =
         organizationService
             .createOrganization(
                 new CreateOrganizationRequest(
-                    RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
+                    RandomStringUtils.randomAlphabetic(10), userA.email(), tokenA))
             .block(TIMEOUT);
 
     organizationService
@@ -274,7 +274,7 @@ public class GetUserMembershipScenario extends BaseScenario {
     organizationService
         .inviteMember(
             new InviteOrganizationMemberRequest(
-                tokenA, organizationA.id(), USER_B.userId(), Role.Owner.name()))
+                tokenA, organizationA.id(), userB.userId(), Role.Owner.name()))
         .block(TIMEOUT);
 
     StepVerifier.create(
@@ -297,13 +297,15 @@ public class GetUserMembershipScenario extends BaseScenario {
   @DisplayName(
       "#101 Do not get any Organization data upon the user hasn't became a member (wasn't invited) to any of the relevant Organizations")
   void getUserMembershipOfNotInvitedMember(OrganizationService organizationService) {
-    Token tokenA = InMemoryPublicKeyProvider.token(USER_A);
-    Token tokenC = InMemoryPublicKeyProvider.token(USER_C);
+    Profile userA = generateProfile();
+    Profile userB = generateProfile();
+    Token tokenA = InMemoryPublicKeyProvider.token(userA);
+    Token tokenC = InMemoryPublicKeyProvider.token(userB);
 
     organizationService
         .createOrganization(
             new CreateOrganizationRequest(
-                RandomStringUtils.randomAlphabetic(10), USER_A.email(), tokenA))
+                RandomStringUtils.randomAlphabetic(10), userA.email(), tokenA))
         .block(TIMEOUT);
 
     StepVerifier.create(
@@ -319,15 +321,12 @@ public class GetUserMembershipScenario extends BaseScenario {
   @DisplayName(
       "#102 Fail to get the Membership in Organizations upon the token is invalid (expired)")
   void getUserMembershipUsingExpiredToken(OrganizationService organizationService) {
-    Token tokenA = InMemoryPublicKeyProvider.expiredToken(USER_A);
+    Profile userA = generateProfile();
+    Token tokenA = InMemoryPublicKeyProvider.expiredToken(userA);
 
     StepVerifier.create(
             organizationService.getUserOrganizationsMembership(new GetMembershipRequest(tokenA)))
-        .expectErrorSatisfies(
-            e -> {
-              assertEquals(InvalidTokenException.class, e.getClass());
-              assertEquals("Token verification failed", e.getMessage());
-            })
+        .expectErrorMessage("Token verification failed")
         .verify();
   }
 }

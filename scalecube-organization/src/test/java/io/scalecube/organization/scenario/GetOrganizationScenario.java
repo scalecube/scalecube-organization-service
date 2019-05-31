@@ -1,5 +1,6 @@
 package io.scalecube.organization.scenario;
 
+import static io.scalecube.organization.scenario.TestProfiles.generateProfile;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -10,7 +11,6 @@ import io.scalecube.account.api.GetOrganizationRequest;
 import io.scalecube.account.api.InviteOrganizationMemberRequest;
 import io.scalecube.account.api.LeaveOrganizationRequest;
 import io.scalecube.account.api.OrganizationInfo;
-import io.scalecube.account.api.OrganizationNotFoundException;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
@@ -32,8 +32,8 @@ public class GetOrganizationScenario extends BaseScenario {
   @TestTemplate
   @DisplayName("#MPA-7603 (#13) Successful info get about relevant Organization by the Owner")
   void testGetOrganizationInfoByOwner(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
-    Profile userB = TestProfiles.USER_B;
+    Profile userA = generateProfile();
+    Profile userB = generateProfile();
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
     Token userBToken = InMemoryPublicKeyProvider.token(userB);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
@@ -48,15 +48,27 @@ public class GetOrganizationScenario extends BaseScenario {
 
     // user "A" creates API keys for the organization with roles: "owner", "admin" and "member"
     Set<ApiKey> apiKeys =
-        Flux.just(Role.Owner, Role.Member, Role.Admin)
-            .map(
-                role ->
+        service
+            .addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(
+                    userAToken,
+                    organizationId,
+                    Role.Owner.name() + "-api-key",
+                    Collections.singletonMap("role", Role.Owner.name())))
+            .concatWith(
+                service.addOrganizationApiKey(
                     new AddOrganizationApiKeyRequest(
                         userAToken,
                         organizationId,
-                        role.name() + "-api-key",
-                        Collections.singletonMap("role", role.name())))
-            .flatMap(service::addOrganizationApiKey)
+                        Role.Member.name() + "-api-key",
+                        Collections.singletonMap("role", Role.Member.name()))))
+            .concatWith(
+                service.addOrganizationApiKey(
+                    new AddOrganizationApiKeyRequest(
+                        userAToken,
+                        organizationId,
+                        Role.Admin.name() + "-api-key",
+                        Collections.singletonMap("role", Role.Admin.name()))))
             .map(OrganizationInfo::apiKeys)
             .flatMap(Flux::fromArray)
             .collectList()
@@ -87,8 +99,8 @@ public class GetOrganizationScenario extends BaseScenario {
   @TestTemplate
   @DisplayName("#MPA-7603 (#14) Successful info get about relevant Organization by the Admin")
   void testGetOrganizationInfoByAdmin(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
-    Profile userB = TestProfiles.USER_B;
+    Profile userA = generateProfile();
+    Profile userB = generateProfile();
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
     Token userBToken = InMemoryPublicKeyProvider.token(userB);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
@@ -103,15 +115,27 @@ public class GetOrganizationScenario extends BaseScenario {
 
     // user "A" creates API keys for the organization with roles: "owner", "admin" and "member"
     Set<ApiKey> apiKeys =
-        Flux.just(Role.Owner, Role.Member, Role.Admin)
-            .map(
-                role ->
+        service
+            .addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(
+                    userAToken,
+                    organizationId,
+                    Role.Owner.name() + "-api-key",
+                    Collections.singletonMap("role", Role.Owner.name())))
+            .concatWith(
+                service.addOrganizationApiKey(
                     new AddOrganizationApiKeyRequest(
                         userAToken,
                         organizationId,
-                        role.name() + "-api-key",
-                        Collections.singletonMap("role", role.name())))
-            .flatMap(service::addOrganizationApiKey)
+                        Role.Member.name() + "-api-key",
+                        Collections.singletonMap("role", Role.Member.name()))))
+            .concatWith(
+                service.addOrganizationApiKey(
+                    new AddOrganizationApiKeyRequest(
+                        userAToken,
+                        organizationId,
+                        Role.Admin.name() + "-api-key",
+                        Collections.singletonMap("role", Role.Admin.name()))))
             .map(OrganizationInfo::apiKeys)
             .flatMap(Flux::fromArray)
             // but we need to leave out only "admin" and "member" as the expected result
@@ -144,8 +168,8 @@ public class GetOrganizationScenario extends BaseScenario {
   @TestTemplate
   @DisplayName("#MPA-7603 (#15) Successful info get about relevant Organization by the Member")
   void testGetOrganizationInfoByMember(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
-    Profile userB = TestProfiles.USER_B;
+    Profile userA = generateProfile();
+    Profile userB = generateProfile();
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
     Token userBToken = InMemoryPublicKeyProvider.token(userB);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
@@ -160,15 +184,27 @@ public class GetOrganizationScenario extends BaseScenario {
 
     // user "A" creates API keys for the organization with roles: "owner", "admin" and "member"
     Set<ApiKey> apiKeys =
-        Flux.just(Role.Owner, Role.Member, Role.Admin)
-            .map(
-                role ->
+        service
+            .addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(
+                    userAToken,
+                    organizationId,
+                    Role.Owner.name() + "-api-key",
+                    Collections.singletonMap("role", Role.Owner.name())))
+            .concatWith(
+                service.addOrganizationApiKey(
                     new AddOrganizationApiKeyRequest(
                         userAToken,
                         organizationId,
-                        role.name() + "-api-key",
-                        Collections.singletonMap("role", role.name())))
-            .flatMap(service::addOrganizationApiKey)
+                        Role.Member.name() + "-api-key",
+                        Collections.singletonMap("role", Role.Member.name()))))
+            .concatWith(
+                service.addOrganizationApiKey(
+                    new AddOrganizationApiKeyRequest(
+                        userAToken,
+                        organizationId,
+                        Role.Admin.name() + "-api-key",
+                        Collections.singletonMap("role", Role.Admin.name()))))
             .map(OrganizationInfo::apiKeys)
             .flatMap(Flux::fromArray)
             // but we need to leave out only "member" as the expected result
@@ -202,8 +238,8 @@ public class GetOrganizationScenario extends BaseScenario {
   @DisplayName(
       "#MPA-7603 (#16) Fail to get of specific Organization info upon the Owner was removed from relevant Organization")
   void testFailToGetOrganizationInfoBecauseOwnerWasRemoved(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
-    Profile userB = TestProfiles.USER_B;
+    Profile userA = generateProfile();
+    Profile userB = generateProfile();
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
 
@@ -240,26 +276,21 @@ public class GetOrganizationScenario extends BaseScenario {
   @TestTemplate
   @DisplayName("#MPA-7603 (#17) Fail to get a non-existent Organization info")
   void testFailToGetNonExistingOrganizationInfo(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
+    Profile userA = generateProfile();
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
-    String organizationId = "NON_EXISTING_ID";
+    String organizationId = RandomStringUtils.randomAlphabetic(10);
 
     // the user "A" requests to get info of non-existing organization
     StepVerifier.create(
             service.getOrganization(new GetOrganizationRequest(userAToken, organizationId)))
-        .expectErrorSatisfies(
-            e -> {
-              assertEquals(OrganizationNotFoundException.class, e.getClass());
-              assertEquals(
-                  String.format("Organization [id=%s] not found", organizationId), e.getMessage());
-            })
+        .expectErrorMessage(String.format("Organization [id=%s] not found", organizationId))
         .verify();
   }
 
   @TestTemplate
   @DisplayName("#MPA-7603 (#18) Fail to get the Organization info if the token is invalid")
   void testFailToGetOrganizationInfoWithInvalidToken(OrganizationService service) {
-    Token expiredToken = InMemoryPublicKeyProvider.expiredToken(TestProfiles.USER_A);
+    Token expiredToken = InMemoryPublicKeyProvider.expiredToken(generateProfile());
 
     // the user "A" requests to get info with invalid token
     StepVerifier.create(

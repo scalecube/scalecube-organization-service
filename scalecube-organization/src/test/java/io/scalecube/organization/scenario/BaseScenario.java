@@ -4,9 +4,11 @@ import java.time.Duration;
 import org.junit.jupiter.api.BeforeAll;
 import reactor.test.StepVerifier;
 
-abstract class BaseScenario {
+public abstract class BaseScenario {
 
-  static final Duration TIMEOUT = Duration.ofSeconds(5);
+  public static final int API_KEY_TTL_IN_SECONDS = 3;
+
+  static final Duration TIMEOUT = Duration.ofSeconds(10);
 
   @BeforeAll
   static void beforeAll() {

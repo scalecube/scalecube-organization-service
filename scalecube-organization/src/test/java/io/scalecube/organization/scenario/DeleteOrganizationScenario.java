@@ -1,5 +1,6 @@
 package io.scalecube.organization.scenario;
 
+import static io.scalecube.organization.scenario.TestProfiles.generateProfile;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -14,7 +15,6 @@ import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
 import io.scalecube.organization.fixtures.InMemoryPublicKeyProvider;
-import io.scalecube.organization.tokens.InvalidTokenException;
 import io.scalecube.security.api.Profile;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.DisplayName;
@@ -27,7 +27,7 @@ public class DeleteOrganizationScenario extends BaseScenario {
   @TestTemplate
   @DisplayName("#MPA-7657 (#6) Scenario: Successful delete of specific Organization")
   void testOrganizationDeletion(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
+    Profile userA = generateProfile();
 
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
@@ -55,8 +55,8 @@ public class DeleteOrganizationScenario extends BaseScenario {
   @DisplayName(
       "#MPA-7657 (#7) Scenario: Successful delete of the Organization upon it's \"member\" was granted with owner role")
   void testOrganizationDeletionWithGrantedMember(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
-    Profile userB = TestProfiles.USER_B;
+    Profile userA = generateProfile();
+    Profile userB = generateProfile();
 
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
     Token userBToken = InMemoryPublicKeyProvider.token(userB);
@@ -102,8 +102,8 @@ public class DeleteOrganizationScenario extends BaseScenario {
   @DisplayName(
       "#MPA-7657 (#8) Scenario: Fail to delete a specific Organization upon the origin owner was removed from own Organization")
   void testFailOrganizationDeletionWithRemovedFromOwnOrganizationUser(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
-    Profile userB = TestProfiles.USER_B;
+    Profile userA = generateProfile();
+    Profile userB = generateProfile();
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
 
     String organizationName = RandomStringUtils.randomAlphabetic(10);
@@ -142,8 +142,8 @@ public class DeleteOrganizationScenario extends BaseScenario {
   @DisplayName(
       "#MPA-7657 (#9) Scenario: Fail to delete the Organization upon it's \"member\" was granted with admin role permission level")
   void testFailOrganizationDeletionWithGrantedAdminRoleMember(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
-    Profile userB = TestProfiles.USER_B;
+    Profile userA = generateProfile();
+    Profile userB = generateProfile();
 
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
     Token userBToken = InMemoryPublicKeyProvider.token(userB);
@@ -186,8 +186,8 @@ public class DeleteOrganizationScenario extends BaseScenario {
   @DisplayName(
       "#MPA-7657 (#10) Scenario: Fail to delete the Organization upon the relevant member got the \"member\" role permission level")
   void testFailOrganizationDeletionWithGrantedMemberRoleMember(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
-    Profile userB = TestProfiles.USER_B;
+    Profile userA = generateProfile();
+    Profile userB = generateProfile();
 
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
     Token userBToken = InMemoryPublicKeyProvider.token(userB);
@@ -230,7 +230,7 @@ public class DeleteOrganizationScenario extends BaseScenario {
   @DisplayName(
       "#MPA-7657 (#11) Scenario: Fail to delete the Organization if the token is invalid (expired)")
   void testFailOrganizationDeletionWithExpiredToken(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
+    Profile userA = generateProfile();
 
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
@@ -246,17 +246,14 @@ public class DeleteOrganizationScenario extends BaseScenario {
     StepVerifier.create(
             service.deleteOrganization(
                 new DeleteOrganizationRequest(new Token("invalid"), organizationId)))
-        .expectErrorMatches(
-            ex ->
-                ex instanceof InvalidTokenException
-                    && ex.getMessage().equals("Token verification failed"))
+        .expectErrorMessage("Token verification failed")
         .verify();
   }
 
   @TestTemplate
   @DisplayName("#MPA-7657 (#12) Scenario: Fail to delete a non-existent Organization")
   void testFailOrganizationDeletionNonExistingOrganization(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
+    Profile userA = generateProfile();
 
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
