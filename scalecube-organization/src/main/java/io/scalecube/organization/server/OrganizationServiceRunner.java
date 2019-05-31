@@ -1,9 +1,13 @@
 package io.scalecube.organization.server;
 
+import com.couchbase.client.java.AsyncBucket;
+import com.couchbase.client.java.Cluster;
+import com.couchbase.client.java.CouchbaseCluster;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.organization.OrganizationServiceImpl;
 import io.scalecube.organization.config.AppConfiguration;
-import io.scalecube.organization.repository.couchbase.CouchbaseRepositoryFactory;
+import io.scalecube.organization.repository.OrganizationsRepository;
+import io.scalecube.organization.repository.couchbase.CouchbaseOrganizationsRepository;
 import io.scalecube.organization.repository.couchbase.CouchbaseSettings;
 import io.scalecube.organization.tokens.Auth0PublicKeyProvider;
 import io.scalecube.organization.tokens.TokenVerifier;
@@ -14,10 +18,12 @@ import io.scalecube.services.Microservices;
 import io.scalecube.services.discovery.ScalecubeServiceDiscovery;
 import io.scalecube.services.transport.rsocket.RSocketServiceTransport;
 import io.scalecube.services.transport.rsocket.RSocketTransportResources;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.core.publisher.Mono;
 
 /** Service runner main entry point. */
 public class OrganizationServiceRunner {
@@ -70,12 +76,23 @@ public class OrganizationServiceRunner {
             .value()
             .orElseThrow(() -> new IllegalStateException("Couldn't load couchbase settings"));
 
-    CouchbaseRepositoryFactory factory = new CouchbaseRepositoryFactory(settings);
+    Cluster cluster = CouchbaseCluster.create(settings.hosts());
 
+    AsyncBucket bucket =
+        Mono.fromCallable(
+            () ->
+                cluster
+                    .authenticate(settings.username(), settings.password())
+                    .openBucket(settings.organizationsBucketName())
+                    .async())
+            .retryBackoff(3, Duration.ofSeconds(1))
+            .block(Duration.ofSeconds(30));
+
+    OrganizationsRepository repository = new CouchbaseOrganizationsRepository(bucket);
     KeyStore keyStore = new VaultKeyStore();
     TokenVerifier tokenVerifier = new TokenVerifierImpl(new Auth0PublicKeyProvider());
 
-    return new OrganizationServiceImpl(factory.organizations(), keyStore, tokenVerifier);
+    return new OrganizationServiceImpl(repository, keyStore, tokenVerifier);
   }
 
   private static Map<String, String> couchbaseSettingsBindingMap() {

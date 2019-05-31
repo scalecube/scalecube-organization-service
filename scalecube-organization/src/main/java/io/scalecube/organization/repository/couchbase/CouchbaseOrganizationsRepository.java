@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 public class CouchbaseOrganizationsRepository extends CouchbaseRepository<Organization>
     implements OrganizationsRepository {
 
-  CouchbaseOrganizationsRepository(AsyncBucket bucket) {
+  public CouchbaseOrganizationsRepository(AsyncBucket bucket) {
     super(bucket, Organization.class);
   }
 
