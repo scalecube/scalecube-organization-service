@@ -1,46 +1,24 @@
 package io.scalecube.organization.scenario;
 
 import io.scalecube.security.api.Profile;
+import org.testcontainers.shaded.org.apache.commons.lang.RandomStringUtils;
 
-public interface TestProfiles {
+final class TestProfiles {
 
-  Profile USER_A =
-      Profile.builder()
-          .userId("USER_A")
-          .email("user1@scalecube.io")
-          .emailVerified(true)
-          .name("user1")
-          .familyName("fname")
-          .givenName("lname")
-          .build();
+  private TestProfiles() {
+    // do not instantiate
+  }
 
-  Profile USER_B =
-      Profile.builder()
-          .userId("USER_B")
-          .email("user2@scalecube.io")
-          .emailVerified(true)
-          .name("user2")
-          .familyName("fname")
-          .givenName("lname")
-          .build();
+  static Profile generateProfile() {
+    String user = "user_" + RandomStringUtils.randomAlphabetic(3);
 
-  Profile USER_C =
-      Profile.builder()
-          .userId("USER_C")
-          .email("user3@scalecube.io")
-          .emailVerified(true)
-          .name("user3")
-          .familyName("fname")
-          .givenName("lname")
-          .build();
-
-  Profile USER_D =
-      Profile.builder()
-          .userId("USER_D")
-          .email("user4@scalecube.io")
-          .emailVerified(true)
-          .name("user4")
-          .familyName("fname")
-          .givenName("lname")
-          .build();
+    return Profile.builder()
+        .userId(user)
+        .email(user + "@scalecube.io")
+        .emailVerified(true)
+        .name(user)
+        .familyName("fname")
+        .givenName("lname")
+        .build();
+  }
 }

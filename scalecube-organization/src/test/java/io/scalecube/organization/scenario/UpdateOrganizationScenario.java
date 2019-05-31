@@ -1,5 +1,6 @@
 package io.scalecube.organization.scenario;
 
+import static io.scalecube.organization.scenario.TestProfiles.generateProfile;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -9,7 +10,6 @@ import io.scalecube.account.api.CreateOrganizationRequest;
 import io.scalecube.account.api.InviteOrganizationMemberRequest;
 import io.scalecube.account.api.LeaveOrganizationRequest;
 import io.scalecube.account.api.OrganizationInfo;
-import io.scalecube.account.api.OrganizationNotFoundException;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestTemplate;
@@ -33,7 +34,8 @@ public class UpdateOrganizationScenario extends BaseScenario {
   @TestTemplate
   @DisplayName("#MPA-7603 (#19) Successful update of the relevant Organization by the Owner")
   void testUpdateOrganizationByOwner(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
+    Profile userA = generateProfile();
+
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
 
     String organizationName = RandomStringUtils.randomAlphabetic(10);
@@ -50,15 +52,27 @@ public class UpdateOrganizationScenario extends BaseScenario {
 
     // user "A" creates API keys for the organization with roles: "owner", "admin" and "member"
     Set<ApiKey> apiKeys =
-        Flux.just(Role.Owner, Role.Member, Role.Admin)
-            .map(
-                role ->
+        service
+            .addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(
+                    userAToken,
+                    organizationId,
+                    Role.Owner.name() + "-api-key",
+                    Collections.singletonMap("role", Role.Owner.name())))
+            .concatWith(
+                service.addOrganizationApiKey(
                     new AddOrganizationApiKeyRequest(
                         userAToken,
                         organizationId,
-                        role.name() + "-api-key",
-                        Collections.singletonMap("role", role.name())))
-            .flatMap(service::addOrganizationApiKey)
+                        Role.Member.name() + "-api-key",
+                        Collections.singletonMap("role", Role.Member.name()))))
+            .concatWith(
+                service.addOrganizationApiKey(
+                    new AddOrganizationApiKeyRequest(
+                        userAToken,
+                        organizationId,
+                        Role.Admin.name() + "-api-key",
+                        Collections.singletonMap("role", Role.Admin.name()))))
             .map(OrganizationInfo::apiKeys)
             .flatMap(Flux::fromArray)
             .collectList()
@@ -85,8 +99,9 @@ public class UpdateOrganizationScenario extends BaseScenario {
   @TestTemplate
   @DisplayName("#MPA-7603 (#20) Successful update of the relevant Organization by the Admin")
   void testUpdateOrganizationByAdmin(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
-    Profile userB = TestProfiles.USER_B;
+    Profile userA = generateProfile();
+    Profile userB = generateProfile();
+
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
     Token userBToken = InMemoryPublicKeyProvider.token(userB);
 
@@ -104,15 +119,27 @@ public class UpdateOrganizationScenario extends BaseScenario {
 
     // user "A" creates API keys for the organization with roles: "owner", "admin" and "member"
     Set<ApiKey> apiKeys =
-        Flux.just(Role.Owner, Role.Member, Role.Admin)
-            .map(
-                role ->
+        service
+            .addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(
+                    userAToken,
+                    organizationId,
+                    Role.Owner.name() + "-api-key",
+                    Collections.singletonMap("role", Role.Owner.name())))
+            .concatWith(
+                service.addOrganizationApiKey(
                     new AddOrganizationApiKeyRequest(
                         userAToken,
                         organizationId,
-                        role.name() + "-api-key",
-                        Collections.singletonMap("role", role.name())))
-            .flatMap(service::addOrganizationApiKey)
+                        Role.Member.name() + "-api-key",
+                        Collections.singletonMap("role", Role.Member.name()))))
+            .concatWith(
+                service.addOrganizationApiKey(
+                    new AddOrganizationApiKeyRequest(
+                        userAToken,
+                        organizationId,
+                        Role.Admin.name() + "-api-key",
+                        Collections.singletonMap("role", Role.Admin.name()))))
             .map(OrganizationInfo::apiKeys)
             .flatMap(Flux::fromArray)
             // but we need to leave out only "admin" and "member" as the expected result
@@ -151,8 +178,9 @@ public class UpdateOrganizationScenario extends BaseScenario {
   @DisplayName(
       "#MPA-7603 (#21) Successful update of the Organization upon it's member was granted with Owner role")
   void testUpdateOrganizationByMember(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
-    Profile userB = TestProfiles.USER_B;
+    Profile userA = generateProfile();
+    Profile userB = generateProfile();
+
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
     Token userBToken = InMemoryPublicKeyProvider.token(userB);
 
@@ -204,8 +232,9 @@ public class UpdateOrganizationScenario extends BaseScenario {
   @DisplayName(
       "#MPA-7603 (#22) Fail to update relevant Organization by the Member with similar role")
   void testFailToUpdateOrganizationMemberByMember(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
-    Profile userB = TestProfiles.USER_B;
+    Profile userA = generateProfile();
+    Profile userB = generateProfile();
+
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
     Token userBToken = InMemoryPublicKeyProvider.token(userB);
 
@@ -244,8 +273,9 @@ public class UpdateOrganizationScenario extends BaseScenario {
   @DisplayName(
       "#MPA-7603 (#23) Fail to update relevant Organization upon the Owner was removed from it")
   void testFailToUpdateOrganizationBecauseOwnerWasRemoved(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
-    Profile userB = TestProfiles.USER_B;
+    Profile userA = generateProfile();
+    Profile userB = generateProfile();
+
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
 
     String organizationName = RandomStringUtils.randomAlphabetic(10);
@@ -287,9 +317,11 @@ public class UpdateOrganizationScenario extends BaseScenario {
   @TestTemplate
   @DisplayName(
       "#MPA-7603 (#24) Fail to update the Organization with the name which already exists (duplicate)")
-  void testFailToUpdateOrganizationBecauseNameIsDuplicated(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
-    Profile userB = TestProfiles.USER_B;
+  void testFailToUpdateOrganizationBecauseNameIsDuplicated(OrganizationService service)
+      throws InterruptedException {
+    Profile userA = generateProfile();
+    Profile userB = generateProfile();
+
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
     Token userBToken = InMemoryPublicKeyProvider.token(userB);
 
@@ -311,6 +343,8 @@ public class UpdateOrganizationScenario extends BaseScenario {
         .map(OrganizationInfo::id)
         .block(TIMEOUT);
 
+    TimeUnit.MILLISECONDS.sleep(300);
+
     // user "A" updates the name of own organization using the organization name of user "B"
     StepVerifier.create(
             service.updateOrganization(
@@ -324,8 +358,10 @@ public class UpdateOrganizationScenario extends BaseScenario {
   @TestTemplate
   @DisplayName("#MPA-7603 (#25) Fail to update the non-existent Organization")
   void testFailToUpdateNonExistingOrganization(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
+    Profile userA = generateProfile();
+
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
+
     String nonExistingOrganizationId = RandomStringUtils.randomAlphabetic(10);
 
     // user "A" updates the name and email of non-existent organization
@@ -333,13 +369,8 @@ public class UpdateOrganizationScenario extends BaseScenario {
             service.updateOrganization(
                 new UpdateOrganizationRequest(
                     nonExistingOrganizationId, userAToken, "fictionalName", userA.email())))
-        .expectErrorSatisfies(
-            e -> {
-              assertEquals(OrganizationNotFoundException.class, e.getClass());
-              assertEquals(
-                  String.format("Organization [id=%s] not found", nonExistingOrganizationId),
-                  e.getMessage());
-            })
+        .expectErrorMessage(
+            String.format("Organization [id=%s] not found", nonExistingOrganizationId))
         .verify();
   }
 
@@ -347,7 +378,8 @@ public class UpdateOrganizationScenario extends BaseScenario {
   @DisplayName(
       "#MPA-7603 (#26) Fail to update the Organization with the name which contain else symbols apart of allowed chars")
   void testFailToUpdateOrganizationNameWithNotAllowedSymbols(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
+    Profile userA = generateProfile();
+
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
 
     String organizationName = RandomStringUtils.randomAlphabetic(10);
@@ -374,7 +406,7 @@ public class UpdateOrganizationScenario extends BaseScenario {
   @TestTemplate
   @DisplayName("#MPA-7603 (#27) Fail to update the Organization if the token is invalid (expired)")
   void testFailToUpdateOrganizationWithInvalidToken(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
+    Profile userA = generateProfile();
 
     // user "A" updates organization with invalid token
     StepVerifier.create(

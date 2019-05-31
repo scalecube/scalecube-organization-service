@@ -1,18 +1,16 @@
 package io.scalecube.organization.scenario;
 
+import static io.scalecube.organization.scenario.TestProfiles.generateProfile;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.scalecube.account.api.CreateOrganizationRequest;
-import io.scalecube.account.api.OrganizationInfo;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.account.api.Token;
-import io.scalecube.organization.repository.exception.InvalidInputException;
-import io.scalecube.organization.repository.exception.NameAlreadyInUseException;
 import io.scalecube.organization.fixtures.InMemoryPublicKeyProvider;
-import io.scalecube.organization.tokens.InvalidTokenException;
 import io.scalecube.security.api.Profile;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestTemplate;
@@ -24,7 +22,7 @@ public class CreateOrganizationScenario extends BaseScenario {
   @TestTemplate
   @DisplayName("#MPA-7657 (#1) Scenario: Successful creation of the Organization")
   void testOrganizationCreation(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
+    Profile userA = generateProfile();
 
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
@@ -49,25 +47,23 @@ public class CreateOrganizationScenario extends BaseScenario {
   @DisplayName(
       "#MPA-7657 (#2) Scenario: Fail to create the Organization if the token is invalid (expired)")
   void testFailOrganizationCreationWithInvalidToken(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
+    Profile userA = generateProfile();
 
     // create organization with invalid token
     StepVerifier.create(
             service.createOrganization(
                 new CreateOrganizationRequest(
                     "organizationName", userA.email(), new Token("invalid"))))
-        .expectErrorMatches(
-            ex ->
-                ex instanceof InvalidTokenException
-                    && ex.getMessage().equals("Token verification failed"))
+        .expectErrorMessage("Token verification failed")
         .verify();
   }
 
   @TestTemplate
   @DisplayName(
       "#MPA-7657 (#3) Scenario: Fail to create the Organization with the name which already exists (duplicate)")
-  void testFailOrganizationCreationWithExistingName(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
+  void testFailOrganizationCreationWithExistingName(OrganizationService service)
+      throws InterruptedException {
+    Profile userA = generateProfile();
 
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
@@ -75,24 +71,21 @@ public class CreateOrganizationScenario extends BaseScenario {
     service
         .createOrganization(
             new CreateOrganizationRequest(organizationName, userA.email(), userAToken))
-        .map(OrganizationInfo::id)
         .block(TIMEOUT);
+
+    TimeUnit.MILLISECONDS.sleep(300);
 
     StepVerifier.create(
             service.createOrganization(
                 new CreateOrganizationRequest(organizationName, userA.email(), userAToken)))
-        .expectErrorMatches(
-            ex ->
-                ex instanceof NameAlreadyInUseException
-                    && ex.getMessage()
-                        .equals("Organization name: '" + organizationName + "' already in use"))
+        .expectErrorMessage("Organization name: '" + organizationName + "' already in use")
         .verify();
   }
 
   @TestTemplate
   @DisplayName("#MPA-7657 (#4) Scenario: Fail to create the Organization without email")
   void testFailOrganizationCreationWithoutEmail(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
+    Profile userA = generateProfile();
 
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
     String organizationName = RandomStringUtils.randomAlphabetic(10);
@@ -100,10 +93,7 @@ public class CreateOrganizationScenario extends BaseScenario {
     StepVerifier.create(
             service.createOrganization(
                 new CreateOrganizationRequest(organizationName, null, userAToken)))
-        .expectErrorMatches(
-            ex ->
-                ex instanceof NullPointerException
-                    && ex.getMessage().equals("Organization email cannot be empty"))
+        .expectErrorMessage("Organization email cannot be empty")
         .verify();
   }
 
@@ -111,7 +101,7 @@ public class CreateOrganizationScenario extends BaseScenario {
   @DisplayName(
       "#MPA-7657 (#5) Scenario: Fail to create the Organization with the name which contain else symbols apart of allowed chars")
   void testFailOrganizationCreationWithDeniedSymbolsName(OrganizationService service) {
-    Profile userA = TestProfiles.USER_A;
+    Profile userA = generateProfile();
 
     Token userAToken = InMemoryPublicKeyProvider.token(userA);
     String organizationName = RandomStringUtils.randomAlphabetic(10) + "+";
@@ -119,11 +109,8 @@ public class CreateOrganizationScenario extends BaseScenario {
     StepVerifier.create(
             service.createOrganization(
                 new CreateOrganizationRequest(organizationName, userA.email(), userAToken)))
-        .expectErrorMatches(
-            ex ->
-                ex instanceof InvalidInputException
-                    && ex.getMessage()
-                        .startsWith("Organization name can only contain characters in range"))
+        .expectErrorMessage(
+            "Organization name can only contain characters in range A-Z, a-z, 0-9 as well as underscore, period, dash & percent")
         .verify();
   }
 }
