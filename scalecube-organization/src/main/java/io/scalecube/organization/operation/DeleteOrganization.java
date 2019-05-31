@@ -1,12 +1,13 @@
 package io.scalecube.organization.operation;
 
+import io.scalecube.account.api.ApiKey;
 import io.scalecube.account.api.DeleteOrganizationRequest;
 import io.scalecube.account.api.DeleteOrganizationResponse;
 import io.scalecube.account.api.Token;
-import io.scalecube.organization.domain.Organization;
 import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.tokens.TokenVerifier;
 import io.scalecube.organization.tokens.store.KeyStore;
+import reactor.core.publisher.Mono;
 
 public class DeleteOrganization
     extends ServiceOperation<DeleteOrganizationRequest, DeleteOrganizationResponse> {
@@ -19,23 +20,31 @@ public class DeleteOrganization
   }
 
   @Override
-  protected DeleteOrganizationResponse process(
-      DeleteOrganizationRequest request, OperationServiceContext context) throws Throwable {
-    Organization organization = getOrganization(request.organizationId());
-    checkOwnerAccess(organization, context.profile());
-    context.repository().deleteById(organization.id());
-    organization.apiKeys().stream()
-        .map(apiKey -> apiKey.keyId())
-        .filter(keyId -> keyId != null && !keyId.isEmpty())
-        .forEach(keyId -> keyStore.delete(keyId));
-    return new DeleteOrganizationResponse(organization.id(), true);
+  protected Mono<DeleteOrganizationResponse> process(
+      DeleteOrganizationRequest request, OperationServiceContext context) {
+    return getOrganization(request.organizationId())
+        .doOnNext(organization -> checkOwnerAccess(organization, context.profile()))
+        .flatMap(
+            organization ->
+                context
+                    .repository()
+                    .deleteById(organization.id())
+                    .doOnSuccess(
+                        ignore ->
+                            organization.apiKeys().stream()
+                                .map(ApiKey::keyId)
+                                .filter(keyId -> keyId != null && !keyId.isEmpty())
+                                .forEach(keyStore::delete))
+                    .then(Mono.just(new DeleteOrganizationResponse(organization.id(), true))));
   }
 
   @Override
-  protected void validate(DeleteOrganizationRequest request, OperationServiceContext context)
-      throws Throwable {
-    super.validate(request, context);
-    requireNonNullOrEmpty(request.organizationId(), "organizationId is a required argument");
+  protected Mono<Void> validate(
+      DeleteOrganizationRequest request, OperationServiceContext context) {
+    return Mono.fromRunnable(
+        () ->
+            requireNonNullOrEmpty(
+                request.organizationId(), "organizationId is a required argument"));
   }
 
   @Override

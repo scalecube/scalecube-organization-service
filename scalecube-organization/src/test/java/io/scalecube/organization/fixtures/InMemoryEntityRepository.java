@@ -2,10 +2,11 @@ package io.scalecube.organization.fixtures;
 
 import io.scalecube.organization.repository.Repository;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * Abstract base in-memory <Code>Repository</Code> implementation.
@@ -15,57 +16,55 @@ import java.util.Optional;
  */
 public abstract class InMemoryEntityRepository<T, I> implements Repository<T, I> {
 
-  private final HashMap<I, T> entities = new HashMap<>();
+  private final Map<I, T> entities = new HashMap<>();
 
   @Override
-  public boolean existByProperty(String propertyName, Object propertyValue) {
+  public Mono<Boolean> existByProperty(String propertyName, Object propertyValue) {
     if (entities.isEmpty()) {
-      return false;
+      return Mono.just(false);
     }
     try {
       Field field = entities.values().iterator().next().getClass().getDeclaredField(propertyName);
       field.setAccessible(true);
-      return entities
-          .values()
-          .stream()
-          .anyMatch(
-              i -> {
-                try {
-                  return Objects.equals(field.get(i), propertyValue);
-                } catch (IllegalAccessException e) {
-                  e.printStackTrace();
-                  return false;
-                }
-              });
+      return Mono.just(
+          entities.values().stream()
+              .anyMatch(
+                  i -> {
+                    try {
+                      return Objects.equals(field.get(i), propertyValue);
+                    } catch (IllegalAccessException e) {
+                      e.printStackTrace();
+                      return false;
+                    }
+                  }));
     } catch (NoSuchFieldException e) {
       e.printStackTrace();
     }
-    return false;
+    return Mono.just(false);
   }
 
   @Override
-  public Optional<T> findById(I id) {
-    return entities.containsKey(id) ? Optional.of(entities.get(id)) : Optional.empty();
+  public Mono<T> findById(I id) {
+    return entities.containsKey(id) ? Mono.just(entities.get(id)) : Mono.empty();
   }
 
   @Override
-  public boolean existsById(I id) {
-    return entities.containsKey(id);
+  public Mono<Boolean> existsById(I id) {
+    return Mono.just(entities.containsKey(id));
   }
 
   @Override
-  public T save(I id, T entity) {
-    entities.put(id, entity);
-    return entity;
+  public Mono<T> save(I id, T entity) {
+    return Mono.fromCallable(() -> entities.put(id, entity)).then(Mono.just(entity));
   }
 
   @Override
-  public void deleteById(I id) {
-    entities.remove(id);
+  public Mono<Void> deleteById(I id) {
+    return Mono.fromRunnable(() -> entities.remove(id)).then();
   }
 
   @Override
-  public Iterable<T> findAll() {
-    return new ArrayList<>(entities.values());
+  public Flux<T> findAll() {
+    return Flux.fromIterable(entities.values());
   }
 }

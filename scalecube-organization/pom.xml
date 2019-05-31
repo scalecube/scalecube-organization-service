@@ -17,6 +17,7 @@
   <properties>
     <mainClass>io.scalecube.organization.server.OrganizationServiceRunner</mainClass>
     <!--<extratags>${env.TRAVIS_COMMIT}</extratags>-->
+    <rxjava-reactive-streams.version>1.2.1</rxjava-reactive-streams.version>
   </properties>
 
   <dependencies>
@@ -53,6 +54,13 @@
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>scalecube-services</artifactId>
+    </dependency>
+
+    <!-- ReactiveX -->
+    <dependency>
+      <groupId>io.reactivex</groupId>
+      <artifactId>rxjava-reactive-streams</artifactId>
+      <version>${rxjava-reactive-streams.version}</version>
     </dependency>
 
     <!-- Couchbase -->

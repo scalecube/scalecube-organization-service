@@ -9,6 +9,7 @@ import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.organization.tokens.TokenVerifier;
+import reactor.core.publisher.Mono;
 
 public class KickoutMember
     extends ServiceOperation<KickoutOrganizationMemberRequest, KickoutOrganizationMemberResponse> {
@@ -18,18 +19,20 @@ public class KickoutMember
   }
 
   @Override
-  protected KickoutOrganizationMemberResponse process(
-      KickoutOrganizationMemberRequest request, OperationServiceContext context) throws Throwable {
-    Organization organization = getOrganization(request.organizationId());
-    checkSuperUserAccess(organization, context.profile());
-    checkIsMember(request.userId(), organization);
-    ensureCallerIsInHigherRoleThanKickedOutUser(request, context, organization);
-    checkLastOwner(request.userId(), organization);
+  protected Mono<KickoutOrganizationMemberResponse> process(
+      KickoutOrganizationMemberRequest request, OperationServiceContext context) {
+    return getOrganization(request.organizationId())
+        .doOnNext(
+            organization -> {
+              checkSuperUserAccess(organization, context.profile());
+              checkIsMember(request.userId(), organization);
+              ensureCallerIsInHigherRoleThanKickedOutUser(request, context, organization);
+              checkLastOwner(request.userId(), organization);
 
-    organization.removeMember(request.userId());
-    context.repository().save(organization.id(), organization);
-
-    return new KickoutOrganizationMemberResponse();
+              organization.removeMember(request.userId());
+            })
+        .flatMap(organization -> context.repository().save(organization.id(), organization))
+        .map(organization -> new KickoutOrganizationMemberResponse());
   }
 
   private void ensureCallerIsInHigherRoleThanKickedOutUser(
@@ -56,11 +59,13 @@ public class KickoutMember
   }
 
   @Override
-  protected void validate(KickoutOrganizationMemberRequest request, OperationServiceContext context)
-      throws Throwable {
-    super.validate(request, context);
-    requireNonNullOrEmpty(request.organizationId(), "organizationId is a required argument");
-    requireNonNullOrEmpty(request.userId(), "user id is required");
+  protected Mono<Void> validate(
+      KickoutOrganizationMemberRequest request, OperationServiceContext context) {
+    return Mono.fromRunnable(
+        () -> {
+          requireNonNullOrEmpty(request.organizationId(), "organizationId is a required argument");
+          requireNonNullOrEmpty(request.userId(), "user id is required");
+        });
   }
 
   @Override

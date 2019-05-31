@@ -9,6 +9,7 @@ import io.scalecube.organization.domain.Organization;
 import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.tokens.IdGenerator;
 import io.scalecube.organization.tokens.TokenVerifier;
+import reactor.core.publisher.Mono;
 
 public final class CreateOrganization
     extends OrganizationInfoOperation<CreateOrganizationRequest, CreateOrganizationResponse> {
@@ -22,33 +23,34 @@ public final class CreateOrganization
   }
 
   @Override
-  protected CreateOrganizationResponse process(
+  protected Mono<CreateOrganizationResponse> process(
       CreateOrganizationRequest request, OperationServiceContext context) {
-    String id = "ORG-" + IdGenerator.generateId();
-    validate(
-        new OrganizationInfo.Builder().id(id).email(request.email()).name(request.name()).build(),
-        context);
-
-    Organization organization = createOrganization(request, context, id);
-
-    return new CreateOrganizationResponse(
-        OrganizationInfo.builder()
-            .id(organization.id())
-            .name(organization.name())
-            .email(organization.email())
-            .apiKeys(organization.apiKeys().toArray(new ApiKey[0])));
+    return Mono.fromCallable(() -> "ORG-" + IdGenerator.generateId())
+        .flatMap(
+            id ->
+                validate(
+                        new OrganizationInfo.Builder()
+                            .id(id)
+                            .email(request.email())
+                            .name(request.name())
+                            .build(),
+                        context)
+                    .then(createOrganization(request, context, id)))
+        .map(
+            organization ->
+                new CreateOrganizationResponse(
+                    OrganizationInfo.builder()
+                        .id(organization.id())
+                        .name(organization.name())
+                        .email(organization.email())
+                        .apiKeys(organization.apiKeys().toArray(new ApiKey[0]))));
   }
 
-  private Organization createOrganization(
+  private Mono<Organization> createOrganization(
       CreateOrganizationRequest request, OperationServiceContext context, String id) {
-    Organization organization =
-        new Organization(
-            id,
-            request.name(),
-            request.email(),
-            context.profile().userId());
-
-    return context.repository().save(organization.id(), organization);
+    return Mono.fromCallable(
+        () -> new Organization(id, request.name(), request.email(), context.profile().userId()))
+        .flatMap(organization -> context.repository().save(organization.id(), organization));
   }
 
   @Override

@@ -5,9 +5,9 @@ import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.UpdateOrganizationRequest;
 import io.scalecube.account.api.UpdateOrganizationResponse;
-import io.scalecube.organization.domain.Organization;
 import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.tokens.TokenVerifier;
+import reactor.core.publisher.Mono;
 
 public class UpdateOrganization
     extends OrganizationInfoOperation<UpdateOrganizationRequest, UpdateOrganizationResponse> {
@@ -17,27 +17,29 @@ public class UpdateOrganization
   }
 
   @Override
-  protected UpdateOrganizationResponse process(
-      UpdateOrganizationRequest request, OperationServiceContext context) throws Throwable {
-    Organization organization = getOrganization(request.organizationId());
+  protected Mono<UpdateOrganizationResponse> process(
+      UpdateOrganizationRequest request, OperationServiceContext context) {
+    return getOrganization(request.organizationId())
+        .doOnNext(
+            organization -> {
+              checkSuperUserAccess(organization, context.profile());
 
-    checkSuperUserAccess(organization, context.profile());
-
-    organization.changeName(request.name());
-    organization.changeEmail(request.email());
-
-    context.repository().save(organization.id(), organization);
-
-    Role role = getRole(context.profile().userId(), organization);
-    return new UpdateOrganizationResponse(organizationInfo(organization, apiKeyFilterBy(role)));
+              organization.changeName(request.name());
+              organization.changeEmail(request.email());
+            })
+        .flatMap(organization -> context.repository().save(organization.id(), organization))
+        .map(
+            organization -> {
+              Role role = getRole(context.profile().userId(), organization);
+              return new UpdateOrganizationResponse(
+                  organizationInfo(organization, apiKeyFilterBy(role)));
+            });
   }
 
   @Override
-  protected void validate(UpdateOrganizationRequest request, OperationServiceContext context)
-      throws Throwable {
-    super.validate(request, context);
-
-    validate(
+  protected Mono<Void> validate(
+      UpdateOrganizationRequest request, OperationServiceContext context) {
+    return validate(
         new OrganizationInfo.Builder()
             .id(request.organizationId())
             .email(request.email())

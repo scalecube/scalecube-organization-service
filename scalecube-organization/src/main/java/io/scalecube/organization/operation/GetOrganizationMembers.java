@@ -4,9 +4,9 @@ import io.scalecube.account.api.GetOrganizationMembersRequest;
 import io.scalecube.account.api.GetOrganizationMembersResponse;
 import io.scalecube.account.api.OrganizationMember;
 import io.scalecube.account.api.Token;
-import io.scalecube.organization.domain.Organization;
 import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.tokens.TokenVerifier;
+import reactor.core.publisher.Mono;
 
 public class GetOrganizationMembers
     extends ServiceOperation<GetOrganizationMembersRequest, GetOrganizationMembersResponse> {
@@ -16,21 +16,21 @@ public class GetOrganizationMembers
   }
 
   @Override
-  protected GetOrganizationMembersResponse process(
-      GetOrganizationMembersRequest request, OperationServiceContext context) throws Throwable {
-    Organization organization = getOrganization(request.organizationId());
-
-    checkSuperUserAccess(organization, context.profile());
-
-    return new GetOrganizationMembersResponse(
-        organization.members().toArray(new OrganizationMember[0]));
+  protected Mono<GetOrganizationMembersResponse> process(
+      GetOrganizationMembersRequest request, OperationServiceContext context) {
+    return getOrganization(request.organizationId())
+        .doOnNext(organization -> checkSuperUserAccess(organization, context.profile()))
+        .map(organization -> organization.members().toArray(new OrganizationMember[0]))
+        .map(GetOrganizationMembersResponse::new);
   }
 
   @Override
-  protected void validate(GetOrganizationMembersRequest request, OperationServiceContext context)
-      throws Throwable {
-    super.validate(request, context);
-    requireNonNullOrEmpty(request.organizationId(), "organizationId is a required argument");
+  protected Mono<Void> validate(
+      GetOrganizationMembersRequest request, OperationServiceContext context) {
+    return Mono.fromRunnable(
+        () ->
+            requireNonNullOrEmpty(
+                request.organizationId(), "organizationId is a required argument"));
   }
 
   @Override

@@ -1,6 +1,5 @@
 package io.scalecube.organization.operation;
 
-import io.scalecube.account.api.NotAnOrganizationMemberException;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.account.api.UpdateOrganizationMemberRoleRequest;
@@ -11,6 +10,7 @@ import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.repository.exception.EntityNotFoundException;
 import io.scalecube.organization.tokens.TokenVerifier;
 import io.scalecube.security.api.Profile;
+import reactor.core.publisher.Mono;
 
 /**
  * Encapsulates the processing of a request to update the role of an organization member. This
@@ -33,36 +33,41 @@ public class UpdateOrganizationMemberRole
   }
 
   @Override
-  protected UpdateOrganizationMemberRoleResponse process(
+  protected Mono<UpdateOrganizationMemberRoleResponse> process(
       UpdateOrganizationMemberRoleRequest request, OperationServiceContext context) {
-    Organization organization = getOrganization(request.organizationId());
-
-    organization.updateMemberRole(request.userId(), Role.valueOf(request.role()));
-
-    context.repository().save(organization.id(), organization);
-
-    return new UpdateOrganizationMemberRoleResponse();
+    return getOrganization(request.organizationId())
+        .doOnNext(
+            organization -> {
+              organization.updateMemberRole(request.userId(), Role.valueOf(request.role()));
+            })
+        .flatMap(organization -> context.repository().save(organization.id(), organization))
+        .map(organization -> new UpdateOrganizationMemberRoleResponse());
   }
 
   @Override
-  protected void validate(
-      UpdateOrganizationMemberRoleRequest request, OperationServiceContext context)
-      throws Throwable {
-    super.validate(request, context);
-    requireNonNullOrEmpty(request.userId(), "user id is a required argument");
-    requireNonNullOrEmpty(request.role(), "role is a required argument");
-    requireNonNullOrEmpty(request.organizationId(), "organizationId is a required argument");
+  protected Mono<Void> validate(
+      UpdateOrganizationMemberRoleRequest request, OperationServiceContext context) {
+    return Mono.fromRunnable(
+        () -> {
+          requireNonNullOrEmpty(request.userId(), "user id is a required argument");
+          requireNonNullOrEmpty(request.role(), "role is a required argument");
+          requireNonNullOrEmpty(request.organizationId(), "organizationId is a required argument");
+        })
+        .then(getOrganization(request.organizationId()))
+        .doOnNext(
+            organization -> {
+              Profile caller = context.profile();
+              Role callerRole = getRole(context.profile().userId(), organization);
 
-    Organization organization = getOrganization(request.organizationId());
-    Profile caller = context.profile();
-    Role callerRole = getRole(context.profile().userId(), organization);
-
-    checkIsMember(request.userId(), organization);
-    checkSuperUserAccess(organization, caller);
-    checkIfRequestToUpdateUserRoleIsValidForCaller(
-        toRole(request.role()), context.profile(), callerRole);
-    checkIfAdminCallerIsTryingToDowngradeAnOwner(caller, callerRole, organization, request);
-    checkLastOwner(request.userId(), organization);
+              checkIsMember(request.userId(), organization);
+              checkSuperUserAccess(organization, caller);
+              checkIfRequestToUpdateUserRoleIsValidForCaller(
+                  toRole(request.role()), context.profile(), callerRole);
+              checkIfAdminCallerIsTryingToDowngradeAnOwner(
+                  caller, callerRole, organization, request);
+              checkLastOwner(request.userId(), organization);
+            })
+        .then();
   }
 
   private void checkIfRequestToUpdateUserRoleIsValidForCaller(

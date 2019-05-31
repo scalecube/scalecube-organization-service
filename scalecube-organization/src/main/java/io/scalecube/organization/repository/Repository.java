@@ -1,6 +1,7 @@
 package io.scalecube.organization.repository;
 
-import java.util.Optional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * Represents a repository of entities of type T with entity I type.
@@ -18,7 +19,7 @@ public interface Repository<T, I> {
    * @param propertyValue The entity property value search criteria.
    * @return True if an entity with matching criteria exists in this repository; False otherwise.
    */
-  boolean existByProperty(String propertyName, Object propertyValue);
+  Mono<Boolean> existByProperty(String propertyName, Object propertyValue);
 
   /**
    * Attempts to return an entity corresponding to the <code>I</code> argument in this repository.
@@ -26,7 +27,7 @@ public interface Repository<T, I> {
    * @param id The entity I to return.
    * @return An optional of an entity.
    */
-  Optional<T> findById(I id);
+  Mono<T> findById(I id);
 
   /**
    * Determines if an entity corresponding to the <code>I</code> argument exists in this repository.
@@ -34,7 +35,7 @@ public interface Repository<T, I> {
    * @param id Search entity I criteria.
    * @return True if an entity exists in this repository; False otherwise.
    */
-  boolean existsById(I id);
+  Mono<Boolean> existsById(I id);
 
   /**
    * Saves the <code>entity</code> entity to this repository using the <code>I</code> argument.
@@ -43,19 +44,19 @@ public interface Repository<T, I> {
    * @param entity The entity to save.
    * @return The saved entity.
    */
-  T save(I id, T entity);
+  Mono<T> save(I id, T entity);
 
   /**
    * Removes an entity with I corresponding to the <code>I</code> argument from this repository.
    *
    * @param id The I of the entity to be deleted.
    */
-  void deleteById(I id);
+  Mono<Void> deleteById(I id);
 
   /**
    * Returns an <code>Iterable</code> of all entities in this repository.
    *
    * @return an <code>Iterable</code>.
    */
-  Iterable<T> findAll();
+  Flux<T> findAll();
 }

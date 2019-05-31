@@ -4,9 +4,9 @@ import io.scalecube.account.api.GetOrganizationRequest;
 import io.scalecube.account.api.GetOrganizationResponse;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
-import io.scalecube.organization.domain.Organization;
 import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.tokens.TokenVerifier;
+import reactor.core.publisher.Mono;
 
 public class GetOrganization
     extends ServiceOperation<GetOrganizationRequest, GetOrganizationResponse> {
@@ -16,19 +16,23 @@ public class GetOrganization
   }
 
   @Override
-  protected GetOrganizationResponse process(
-      GetOrganizationRequest request, OperationServiceContext context) throws Throwable {
-    Organization organization = getOrganization(request.organizationId());
-    checkMemberAccess(organization, context.profile());
-    Role role = getRole(context.profile().userId(), organization);
-    return getOrganizationResponse(organization, apiKeyFilterBy(role));
+  protected Mono<GetOrganizationResponse> process(
+      GetOrganizationRequest request, OperationServiceContext context) {
+    return getOrganization(request.organizationId())
+        .doOnNext(organization -> checkMemberAccess(organization, context.profile()))
+        .map(
+            organization -> {
+              Role role = getRole(context.profile().userId(), organization);
+              return getOrganizationResponse(organization, apiKeyFilterBy(role));
+            });
   }
 
   @Override
-  protected void validate(GetOrganizationRequest request, OperationServiceContext context)
-      throws Throwable {
-    super.validate(request, context);
-    requireNonNullOrEmpty(request.organizationId(), "organizationId is a required argument");
+  protected Mono<Void> validate(GetOrganizationRequest request, OperationServiceContext context) {
+    return Mono.fromRunnable(
+        () ->
+            requireNonNullOrEmpty(
+                request.organizationId(), "organizationId is a required argument"));
   }
 
   @Override
