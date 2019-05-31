@@ -28,7 +28,7 @@
  * @apiErrorExample {json} WebSocket
  * Request:
  *     {
- *         "q":"/organizations/deleteOrganizationApiKey",
+ *         "q":"/organizations/deleteApiKey",
  *         "sid": 1,
  *         "d":{
  *               "token": {
@@ -41,7 +41,7 @@
  *
  * Response:
  *     {
- *         "q":"/organizations/deleteOrganizationApiKey",
+ *         "q":"/organizations/deleteApiKey",
  *         "sid":1,
  *         "d":{
  *                "apiKeys":[],
@@ -73,7 +73,7 @@
  * Request:
  *     {
  *         "metadata":{
- *                      "q": "/organizations/deleteOrganizationApiKey"
+ *                      "q": "/organizations/deleteApiKey"
  *         },
  *         "data":{
  *                   "token": {
@@ -94,7 +94,7 @@
  *                   "ownerId":"id@clients"
  *         },
  *         "metadata":{
- *           "q": "/organizations/deleteOrganizationApiKey"
+ *           "q": "/organizations/deleteApiKey"
  *         }
  *     }
  *
@@ -111,7 +111,7 @@
  *
  * @apiErrorExample{json} HTTP
  * Request:
- * https://localhost:port/organizations/createRepository (endpoint url)
+ * https://localhost:port/organizations/deleteApiKey (endpoint url)
  *
  * Body:
  *     {
