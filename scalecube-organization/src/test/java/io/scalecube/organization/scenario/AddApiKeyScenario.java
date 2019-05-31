@@ -21,7 +21,6 @@ import java.util.Random;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.TestTemplate;
-import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 /** @see features/mpa-7603-Organization-service-Add-Api-Key.feature */
@@ -47,15 +46,12 @@ public class AddApiKeyScenario extends BaseScenario {
 
     // user "A" creates API keys for the organization with roles: "owner", "admin" and "member"
     StepVerifier.create(
-            Flux.just(Role.Owner, Role.Member, Role.Admin)
-                .map(
-                    role ->
-                        new AddOrganizationApiKeyRequest(
-                            userAToken,
-                            organizationId,
-                            role.name() + "-api-key",
-                            Collections.singletonMap("role", role.name())))
-                .flatMap(service::addOrganizationApiKey))
+            service.addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(
+                    userAToken,
+                    organizationId,
+                    Role.Owner + "-api-key",
+                    Collections.singletonMap("role", Role.Owner.name()))))
         .assertNext(
             response -> {
               assertEquals(organizationId, response.id());
@@ -64,6 +60,16 @@ public class AddApiKeyScenario extends BaseScenario {
                   Arrays.stream(response.apiKeys())
                       .anyMatch(apiKey -> Role.Owner.name().equals(apiKey.claims().get("role"))));
             })
+        .expectComplete()
+        .verify();
+
+    StepVerifier.create(
+            service.addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(
+                    userAToken,
+                    organizationId,
+                    Role.Member + "-api-key",
+                    Collections.singletonMap("role", Role.Member.name()))))
         .assertNext(
             response -> {
               assertEquals(organizationId, response.id());
@@ -75,6 +81,16 @@ public class AddApiKeyScenario extends BaseScenario {
                   Arrays.stream(response.apiKeys())
                       .anyMatch(apiKey -> Role.Member.name().equals(apiKey.claims().get("role"))));
             })
+        .expectComplete()
+        .verify();
+
+    StepVerifier.create(
+            service.addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(
+                    userAToken,
+                    organizationId,
+                    Role.Admin + "-api-key",
+                    Collections.singletonMap("role", Role.Admin.name()))))
         .assertNext(
             response -> {
               assertEquals(organizationId, response.id());
@@ -149,15 +165,12 @@ public class AddApiKeyScenario extends BaseScenario {
 
     // user "B" creates API keys for the organization with roles: "admin" and "member"
     StepVerifier.create(
-            Flux.just(Role.Member, Role.Admin)
-                .map(
-                    role ->
-                        new AddOrganizationApiKeyRequest(
-                            userBToken,
-                            organizationId,
-                            role.name() + "-api-key",
-                            Collections.singletonMap("role", role.name())))
-                .flatMap(service::addOrganizationApiKey))
+            service.addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(
+                    userBToken,
+                    organizationId,
+                    Role.Member + "-api-key",
+                    Collections.singletonMap("role", Role.Member.name()))))
         .assertNext(
             response -> {
               assertEquals(organizationId, response.id());
@@ -166,6 +179,16 @@ public class AddApiKeyScenario extends BaseScenario {
                   Arrays.stream(response.apiKeys())
                       .anyMatch(apiKey -> Role.Member.name().equals(apiKey.claims().get("role"))));
             })
+        .expectComplete()
+        .verify();
+
+    StepVerifier.create(
+            service.addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(
+                    userBToken,
+                    organizationId,
+                    Role.Admin + "-api-key",
+                    Collections.singletonMap("role", Role.Admin.name()))))
         .assertNext(
             response -> {
               assertEquals(organizationId, response.id());

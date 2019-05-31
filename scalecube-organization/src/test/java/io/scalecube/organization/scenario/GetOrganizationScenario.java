@@ -48,15 +48,27 @@ public class GetOrganizationScenario extends BaseScenario {
 
     // user "A" creates API keys for the organization with roles: "owner", "admin" and "member"
     Set<ApiKey> apiKeys =
-        Flux.just(Role.Owner, Role.Member, Role.Admin)
-            .map(
-                role ->
+        service
+            .addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(
+                    userAToken,
+                    organizationId,
+                    Role.Owner.name() + "-api-key",
+                    Collections.singletonMap("role", Role.Owner.name())))
+            .concatWith(
+                service.addOrganizationApiKey(
                     new AddOrganizationApiKeyRequest(
                         userAToken,
                         organizationId,
-                        role.name() + "-api-key",
-                        Collections.singletonMap("role", role.name())))
-            .flatMap(service::addOrganizationApiKey)
+                        Role.Member.name() + "-api-key",
+                        Collections.singletonMap("role", Role.Member.name()))))
+            .concatWith(
+                service.addOrganizationApiKey(
+                    new AddOrganizationApiKeyRequest(
+                        userAToken,
+                        organizationId,
+                        Role.Admin.name() + "-api-key",
+                        Collections.singletonMap("role", Role.Admin.name()))))
             .map(OrganizationInfo::apiKeys)
             .flatMap(Flux::fromArray)
             .collectList()
@@ -103,15 +115,27 @@ public class GetOrganizationScenario extends BaseScenario {
 
     // user "A" creates API keys for the organization with roles: "owner", "admin" and "member"
     Set<ApiKey> apiKeys =
-        Flux.just(Role.Owner, Role.Member, Role.Admin)
-            .map(
-                role ->
+        service
+            .addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(
+                    userAToken,
+                    organizationId,
+                    Role.Owner.name() + "-api-key",
+                    Collections.singletonMap("role", Role.Owner.name())))
+            .concatWith(
+                service.addOrganizationApiKey(
                     new AddOrganizationApiKeyRequest(
                         userAToken,
                         organizationId,
-                        role.name() + "-api-key",
-                        Collections.singletonMap("role", role.name())))
-            .flatMap(service::addOrganizationApiKey)
+                        Role.Member.name() + "-api-key",
+                        Collections.singletonMap("role", Role.Member.name()))))
+            .concatWith(
+                service.addOrganizationApiKey(
+                    new AddOrganizationApiKeyRequest(
+                        userAToken,
+                        organizationId,
+                        Role.Admin.name() + "-api-key",
+                        Collections.singletonMap("role", Role.Admin.name()))))
             .map(OrganizationInfo::apiKeys)
             .flatMap(Flux::fromArray)
             // but we need to leave out only "admin" and "member" as the expected result
@@ -160,15 +184,27 @@ public class GetOrganizationScenario extends BaseScenario {
 
     // user "A" creates API keys for the organization with roles: "owner", "admin" and "member"
     Set<ApiKey> apiKeys =
-        Flux.just(Role.Owner, Role.Member, Role.Admin)
-            .map(
-                role ->
+        service
+            .addOrganizationApiKey(
+                new AddOrganizationApiKeyRequest(
+                    userAToken,
+                    organizationId,
+                    Role.Owner.name() + "-api-key",
+                    Collections.singletonMap("role", Role.Owner.name())))
+            .concatWith(
+                service.addOrganizationApiKey(
                     new AddOrganizationApiKeyRequest(
                         userAToken,
                         organizationId,
-                        role.name() + "-api-key",
-                        Collections.singletonMap("role", role.name())))
-            .flatMap(service::addOrganizationApiKey)
+                        Role.Member.name() + "-api-key",
+                        Collections.singletonMap("role", Role.Member.name()))))
+            .concatWith(
+                service.addOrganizationApiKey(
+                    new AddOrganizationApiKeyRequest(
+                        userAToken,
+                        organizationId,
+                        Role.Admin.name() + "-api-key",
+                        Collections.singletonMap("role", Role.Admin.name()))))
             .map(OrganizationInfo::apiKeys)
             .flatMap(Flux::fromArray)
             // but we need to leave out only "member" as the expected result
