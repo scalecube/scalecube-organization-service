@@ -3,10 +3,8 @@ package io.scalecube.organization.tokens;
 import io.scalecube.account.api.Token;
 import io.scalecube.security.api.Profile;
 import io.scalecube.security.jwt.DefaultJwtAuthenticator;
-import io.scalecube.security.jwt.JwtAuthenticator;
-import java.security.PublicKey;
-import java.time.Duration;
 import java.util.Objects;
+import reactor.core.publisher.Mono;
 
 public class TokenVerifierImpl implements TokenVerifier {
 
@@ -17,17 +15,16 @@ public class TokenVerifierImpl implements TokenVerifier {
   }
 
   @Override
-  public Profile verify(Token token) throws InvalidTokenException {
-    try {
-      Objects.requireNonNull(token, "token");
-      Objects.requireNonNull(token.token(), "token");
-      final PublicKey publicKey = publicKeyProvider.getPublicKey(token.token());
-      Objects.requireNonNull(publicKey, "Token signing key");
-      JwtAuthenticator authenticator = new DefaultJwtAuthenticator(map -> publicKey);
-
-      return authenticator.authenticate(token.token()).block(Duration.ofSeconds(10)); // todo
-    } catch (Exception e) {
-      throw new InvalidTokenException("Token verification failed", e);
-    }
+  public Mono<Profile> verify(Token token) throws InvalidTokenException {
+    return Mono.fromRunnable(
+        () -> {
+          Objects.requireNonNull(token, "token");
+          Objects.requireNonNull(token.token(), "token");
+        })
+        .then(Mono.fromCallable(() -> publicKeyProvider.getPublicKey(token.token())))
+        .doOnNext(publicKey -> Objects.requireNonNull(publicKey, "Token signing key"))
+        .map(publicKey -> new DefaultJwtAuthenticator(map -> publicKey))
+        .flatMap(authenticator -> authenticator.authenticate(token.token()))
+        .onErrorMap(th -> new InvalidTokenException("Token verification failed", th));
   }
 }

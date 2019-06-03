@@ -3,6 +3,9 @@ package io.scalecube.organization.fixtures;
 import static io.scalecube.organization.fixtures.EnvUtils.setEnv;
 import static io.scalecube.organization.scenario.BaseScenario.API_KEY_TTL_IN_SECONDS;
 
+import com.couchbase.client.java.AsyncBucket;
+import com.couchbase.client.java.Cluster;
+import com.couchbase.client.java.CouchbaseCluster;
 import com.couchbase.client.java.cluster.DefaultBucketSettings;
 import com.couchbase.client.java.cluster.UserRole;
 import com.couchbase.client.java.cluster.UserSettings;
@@ -10,7 +13,8 @@ import com.github.dockerjava.api.model.PortBinding;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.organization.OrganizationServiceImpl;
 import io.scalecube.organization.config.AppConfiguration;
-import io.scalecube.organization.repository.couchbase.CouchbaseRepositoryFactory;
+import io.scalecube.organization.repository.OrganizationsRepository;
+import io.scalecube.organization.repository.couchbase.CouchbaseOrganizationsRepository;
 import io.scalecube.organization.repository.couchbase.CouchbaseSettings;
 import io.scalecube.organization.tokens.TokenVerifier;
 import io.scalecube.organization.tokens.TokenVerifierImpl;
@@ -22,6 +26,7 @@ import io.scalecube.services.transport.rsocket.RSocketServiceTransport;
 import io.scalecube.services.transport.rsocket.RSocketTransportResources;
 import io.scalecube.transport.Address;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.couchbase.CouchbaseContainer;
 import org.testcontainers.vault.VaultContainer;
+import reactor.core.publisher.Mono;
 
 final class IntegrationEnvironment {
 
@@ -224,12 +230,23 @@ final class IntegrationEnvironment {
             .value()
             .orElseThrow(() -> new IllegalStateException("Couldn't load couchbase settings"));
 
+    Cluster cluster = CouchbaseCluster.create(settings.hosts());
+
+    AsyncBucket bucket =
+        Mono.fromCallable(
+                () ->
+                    cluster
+                        .authenticate(settings.username(), settings.password())
+                        .openBucket(settings.organizationsBucketName())
+                        .async())
+            .retryBackoff(3, Duration.ofSeconds(1))
+            .block(Duration.ofSeconds(30));
+
+    OrganizationsRepository repository = new CouchbaseOrganizationsRepository(bucket);
+
     TokenVerifier tokenVerifier = new TokenVerifierImpl(new InMemoryPublicKeyProvider());
 
-    return new OrganizationServiceImpl(
-        new CouchbaseRepositoryFactory(settings).organizations(),
-        new VaultKeyStore(),
-        tokenVerifier);
+    return new OrganizationServiceImpl(repository, new VaultKeyStore(), tokenVerifier);
   }
 
   private static Map<String, String> couchbaseSettingsBindingMap() {
