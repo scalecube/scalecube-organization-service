@@ -43,6 +43,8 @@
     <testcontainers.version>1.11.3</testcontainers.version>
 
     <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
+
+    <skipITests>true</skipITests>
   </properties>
 
   <modules>
@@ -226,6 +228,10 @@
               </goals>
             </execution>
           </executions>
+          <configuration>
+            <!-- TODO: disabled by default until it is stable on Travis CI -->
+            <skipITs>${skipITests}</skipITs>
+          </configuration>
         </plugin>
       </plugins>
     </pluginManagement>
