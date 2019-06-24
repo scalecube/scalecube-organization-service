@@ -26,19 +26,19 @@
   </scm>
 
   <properties>
-    <scalecube.config.version>0.3.9</scalecube.config.version>
-    <scalecube-services.version>2.6.0</scalecube-services.version>
-    <scalecube-services-gateway.version>2.7.0</scalecube-services-gateway.version>
+    <scalecube.config.version>0.3.11</scalecube.config.version>
+    <scalecube-services.version>2.7.1</scalecube-services.version>
+    <scalecube-services-gateway.version>2.7.4</scalecube-services-gateway.version>
     <scalecube-security-jwt.version>1.0.7</scalecube-security-jwt.version>
-    <junit-jupiter.version>5.4.2</junit-jupiter.version>
-    <jackson.version>2.9.8</jackson.version>
-    <vault-java-driver.version>3.1.0</vault-java-driver.version>
+    <reactor.version>Californium-SR8</reactor.version>
+    <jackson.version>2.9.9</jackson.version>
+    <netty.version>4.1.36.Final</netty.version>
     <couchbase-client.version>2.7.3</couchbase-client.version>
+    <vault-java-driver.version>3.1.0</vault-java-driver.version>
+    <auth0-jwks-rsa.version>0.6.0</auth0-jwks-rsa.version>
     <slf4j.version>1.7.7</slf4j.version>
     <log4j.version>2.11.1</log4j.version>
-    <netty.version>4.1.34.Final</netty.version>
-    <auth0-jwks-rsa.version>0.6.0</auth0-jwks-rsa.version>
-    <reactor.version>Californium-SR8</reactor.version>
+    <junit-jupiter.version>5.4.2</junit-jupiter.version>
     <scalecube-test-utils.version>0.0.5</scalecube-test-utils.version>
     <testcontainers.version>1.11.3</testcontainers.version>
 
