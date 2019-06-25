@@ -30,13 +30,36 @@ import io.scalecube.organization.repository.exception.DataRetrievalFailureExcept
 import io.scalecube.organization.repository.exception.DuplicateKeyException;
 import io.scalecube.organization.repository.exception.InvalidDataAccessResourceUsageException;
 import io.scalecube.organization.repository.exception.OperationCancellationException;
+import io.scalecube.organization.repository.exception.OperationInterruptedException;
 import io.scalecube.organization.repository.exception.QueryTimeoutException;
 import io.scalecube.organization.repository.exception.TransientDataAccessResourceException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 final class CouchbaseExceptionTranslator {
 
-  DataAccessException translateExceptionIfPossible(RuntimeException ex) {
+  static DataAccessException translateExceptionIfPossible(Throwable ex) {
+    if (ex instanceof DataAccessException) {
+      return (DataAccessException) ex;
+    }
+
+    if (ex instanceof RuntimeException) {
+      return translateRuntimeExceptionIfPossible((RuntimeException) ex);
+    }
+
+    if (ex instanceof TimeoutException) {
+      return new QueryTimeoutException(ex.getMessage(), ex);
+    }
+
+    if (ex instanceof InterruptedException || ex instanceof ExecutionException) {
+      return new OperationInterruptedException(ex.getMessage(), ex);
+    }
+
+    // Unable to translate exception, therefore just wrap in DataAccessException
+    throw new DataAccessException(ex);
+  }
+
+  private static DataAccessException translateRuntimeExceptionIfPossible(RuntimeException ex) {
     if (ex instanceof InvalidPasswordException
         || ex instanceof NotConnectedException
         || ex instanceof ConfigurationException

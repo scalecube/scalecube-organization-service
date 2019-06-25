@@ -17,6 +17,7 @@ import io.scalecube.organization.tokens.TokenVerifier;
 import io.scalecube.security.api.Profile;
 import java.util.Objects;
 import java.util.function.Predicate;
+import reactor.core.publisher.Mono;
 
 /**
  * Represents a service operation.
@@ -30,8 +31,8 @@ public abstract class ServiceOperation<I, O> {
   private final OrganizationsRepository repository;
 
   protected ServiceOperation(TokenVerifier tokenVerifier, OrganizationsRepository repository) {
-    this.tokenVerifier = tokenVerifier;
-    this.repository = repository;
+    this.tokenVerifier = Objects.requireNonNull(tokenVerifier, "tokenVerifier");
+    this.repository = Objects.requireNonNull(repository, "repository");
   }
 
   /**
@@ -41,47 +42,34 @@ public abstract class ServiceOperation<I, O> {
    * @return response as a result of the request execution
    * @throws ServiceOperationException in case of an error during request execution
    */
-  public O execute(I request) throws ServiceOperationException {
-    Objects.requireNonNull(repository, "repository");
-    Objects.requireNonNull(request, "request is a required argument");
-    try {
-      Token token = getToken(request);
-      Profile profile = verifyToken(token);
-      OperationServiceContext context = new OperationServiceContext(profile, repository);
-      validate(request, context);
-      return process(request, context);
-    } catch (Throwable throwable) {
-      throw new ServiceOperationException(request.toString(), throwable);
-    }
+  public Mono<O> execute(I request) throws ServiceOperationException {
+    return Mono.fromRunnable(
+        () -> Objects.requireNonNull(request, "request is a required argument"))
+        .then(Mono.fromCallable(() -> getToken(request)))
+        .flatMap(this::verifyToken)
+        .map(profile -> new OperationServiceContext(profile, repository))
+        .flatMap(context -> validate(request, context).then(process(request, context)))
+        .onErrorMap(th -> new ServiceOperationException(request.toString(), th));
   }
 
-  protected void validate(I request, OperationServiceContext context) throws Throwable {}
+  protected Mono<Void> validate(I request, OperationServiceContext context) {
+    return Mono.empty();
+  }
 
   protected abstract Token getToken(I request);
 
-  private Profile verifyToken(Token token) throws Throwable {
-    Objects.requireNonNull(tokenVerifier, "tokenVerifier");
-    Objects.requireNonNull(token, "token");
-    requireNonNullOrEmpty(token.token(), "token");
-
-    Profile profile = tokenVerifier.verify(token);
-
-    if (profile == null) {
-      throw new InvalidAuthenticationToken();
-    }
-    return profile;
+  private Mono<Profile> verifyToken(Token token) {
+    return tokenVerifier
+        .verify(token)
+        .switchIfEmpty(Mono.defer(() -> Mono.error(new InvalidAuthenticationToken())));
   }
 
-  protected abstract O process(I request, OperationServiceContext context) throws Throwable;
+  protected abstract Mono<O> process(I request, OperationServiceContext context);
 
-  protected Organization getOrganization(String id) throws OrganizationNotFoundException {
-    Objects.requireNonNull(repository, "repository");
-
-    try {
-      return repository.findById(id).orElseThrow(() -> new OrganizationNotFoundException(id));
-    } catch (EntityNotFoundException e) {
-      throw new OrganizationNotFoundException(id);
-    }
+  protected Mono<Organization> getOrganization(String id) throws OrganizationNotFoundException {
+    return Mono.fromRunnable(() -> Objects.requireNonNull(repository, "repository"))
+        .then(Mono.defer(() -> repository.findById(id)))
+        .switchIfEmpty(Mono.defer(() -> Mono.error(new OrganizationNotFoundException(id))));
   }
 
   protected GetOrganizationResponse getOrganizationResponse(
@@ -195,8 +183,7 @@ public abstract class ServiceOperation<I, O> {
       throws NotAnOrganizationMemberException {
     if (!organization.isMember(userId)) {
       throw new NotAnOrganizationMemberException(
-          String.format(
-              "user: %s is not a member of organization: %s", userId, organization.id()));
+          String.format("user: %s is not a member of organization: %s", userId, organization.id()));
     }
   }
 

@@ -6,7 +6,6 @@ import io.scalecube.account.api.GetOrganizationResponse;
 import io.scalecube.account.api.OrganizationServiceException;
 import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
-import io.scalecube.organization.domain.Organization;
 import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.repository.exception.AccessPermissionException;
 import io.scalecube.organization.tokens.TokenVerifier;
@@ -16,6 +15,8 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.util.EnumSet;
 import java.util.UUID;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public class AddOrganizationApiKey
     extends ServiceOperation<AddOrganizationApiKeyRequest, GetOrganizationResponse> {
@@ -30,59 +31,72 @@ public class AddOrganizationApiKey
   }
 
   @Override
-  protected GetOrganizationResponse process(
-      AddOrganizationApiKeyRequest request, OperationServiceContext context) throws Throwable {
-    Organization organization = getOrganization(request.organizationId());
+  protected Mono<GetOrganizationResponse> process(
+      AddOrganizationApiKeyRequest request, OperationServiceContext context) {
+    return getOrganization(request.organizationId())
+        .doOnNext(
+            organization -> {
+              checkSuperUserAccess(organization, context.profile());
 
-    checkSuperUserAccess(organization, context.profile());
+              Role callerRole = getRole(context.profile().userId(), organization);
 
-    Role callerRole = getRole(context.profile().userId(), organization);
+              if (request.claims() != null) {
+                String roleClaim = request.claims().get("role");
 
-    if (request.claims() != null) {
-      String roleClaim = request.claims().get("role");
+                if (roleClaim != null) {
+                  if (EnumSet.allOf(Role.class).stream()
+                      .noneMatch(role -> role.name().equals(roleClaim))) {
+                    throw new OrganizationServiceException(
+                        String.format("Role '%s' is invalid", roleClaim));
+                  }
 
-      if (roleClaim != null) {
-        if (EnumSet.allOf(Role.class).stream().noneMatch(role -> role.name().equals(roleClaim))) {
-          throw new OrganizationServiceException(String.format("Role '%s' is invalid", roleClaim));
-        }
+                  Role targetRole = Role.valueOf(roleClaim);
 
-        Role targetRole = Role.valueOf(roleClaim);
+                  if (targetRole.isHigherThan(callerRole)) {
+                    throw new AccessPermissionException(
+                        String.format(
+                            "user: '%s', name: '%s', role: '%s' "
+                                + "cannot add api key with higher role '%s'",
+                            context.profile().userId(),
+                            context.profile().name(),
+                            callerRole,
+                            targetRole));
+                  }
+                }
+              }
 
-        if (targetRole.isHigherThan(callerRole)) {
-          throw new AccessPermissionException(
-              String.format(
-                  "user: '%s', name: '%s', role: '%s' cannot add api key with higher role '%s'",
-                  context.profile().userId(), context.profile().name(), callerRole, targetRole));
-        }
-      }
-    }
+              String keyId = UUID.randomUUID().toString();
 
-    String keyId = UUID.randomUUID().toString();
-
-    KeyPair keyPair = generateKeyPair(keyId);
-    ApiKey apiKey = ApiKeyBuilder.build(keyPair.getPrivate(), organization.id(), keyId, request);
-    organization.addApiKey(apiKey);
-
-    context.repository().save(organization.id(), organization);
-
-    Role role = getRole(context.profile().userId(), organization);
-    return getOrganizationResponse(organization, apiKeyFilterBy(role));
+              KeyPair keyPair = generateKeyPair(keyId);
+              ApiKey apiKey =
+                  ApiKeyBuilder.build(keyPair.getPrivate(), organization.id(), keyId, request);
+              organization.addApiKey(apiKey);
+            })
+        .flatMap(organization -> context.repository().save(organization.id(), organization))
+        .map(
+            organization -> {
+              Role role = getRole(context.profile().userId(), organization);
+              return getOrganizationResponse(organization, apiKeyFilterBy(role));
+            });
   }
 
   @Override
-  protected void validate(AddOrganizationApiKeyRequest request, OperationServiceContext context)
-      throws Throwable {
-    super.validate(request, context);
-    requireNonNullOrEmpty(request.organizationId(), "organizationId is a required argument");
-    requireNonNullOrEmpty(request.apiKeyName(), "apiKeyName is a required argument");
-    Organization organization = getOrganization(request.organizationId());
-    boolean alreadyExists =
-        organization.apiKeys().stream()
-            .anyMatch(existingKey -> existingKey.name().equals(request.apiKeyName()));
-    if (alreadyExists) {
-      throw new IllegalArgumentException(
-          "apiKey name:'" + request.apiKeyName() + "' already exists");
-    }
+  protected Mono<Void> validate(
+      AddOrganizationApiKeyRequest request, OperationServiceContext context) {
+    return Mono.fromRunnable(
+        () -> {
+          requireNonNullOrEmpty(request.organizationId(), "organizationId is a required argument");
+          requireNonNullOrEmpty(request.apiKeyName(), "apiKeyName is a required argument");
+        })
+        .then(Mono.defer(() -> getOrganization(request.organizationId())))
+        .flatMapMany(organization -> Flux.fromIterable(organization.apiKeys()))
+        .filter(apiKey -> apiKey.name().equals(request.apiKeyName()))
+        .doOnNext(
+            apiKey -> {
+              throw new IllegalArgumentException(
+                  "apiKey name:'" + apiKey.name() + "' already exists");
+            })
+        .then();
   }
 
   private KeyPair generateKeyPair(String keyId) {

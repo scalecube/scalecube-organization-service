@@ -7,7 +7,8 @@ import io.scalecube.account.api.Role;
 import io.scalecube.account.api.Token;
 import io.scalecube.organization.repository.OrganizationsRepository;
 import io.scalecube.organization.tokens.TokenVerifier;
-import java.util.stream.StreamSupport;
+import java.util.stream.Collectors;
+import reactor.core.publisher.Mono;
 
 public class GetUserOrganizationsMembership
     extends ServiceOperation<GetMembershipRequest, GetMembershipResponse> {
@@ -18,17 +19,20 @@ public class GetUserOrganizationsMembership
   }
 
   @Override
-  protected GetMembershipResponse process(
+  protected Mono<GetMembershipResponse> process(
       GetMembershipRequest request, OperationServiceContext context) {
-    return new GetMembershipResponse(
-        StreamSupport.stream(context.repository().findAll().spliterator(), false)
-            .filter(organization -> organization.isMember(context.profile().userId()))
-            .map(
-                organization -> {
-                  Role role = getRole(context.profile().userId(), organization);
-                  return organizationInfo(organization, apiKeyFilterBy(role)).build();
-                })
-            .toArray(OrganizationInfo[]::new));
+    return context
+        .repository()
+        .findAll()
+        .filter(organization -> organization.isMember(context.profile().userId()))
+        .map(
+            organization -> {
+              Role role = getRole(context.profile().userId(), organization);
+              return organizationInfo(organization, apiKeyFilterBy(role)).build();
+            })
+        .collect(Collectors.toList())
+        .map(infos -> infos.toArray(new OrganizationInfo[0]))
+        .map(GetMembershipResponse::new);
   }
 
   @Override

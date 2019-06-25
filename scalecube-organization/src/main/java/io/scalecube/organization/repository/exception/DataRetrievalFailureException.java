@@ -6,7 +6,7 @@ public class DataRetrievalFailureException extends DataAccessException {
     super(message);
   }
 
-  public DataRetrievalFailureException(String message, RuntimeException ex) {
+  public DataRetrievalFailureException(String message, Throwable ex) {
     super(message, ex);
   }
 }

@@ -75,277 +75,245 @@ public class OrganizationServiceImpl implements OrganizationService {
 
   @Override
   public Mono<CreateOrganizationResponse> createOrganization(CreateOrganizationRequest request) {
-    return Mono.create(
-        result -> {
-          logger.debug("createOrganization: enter, request: {}", request);
-
-          try {
-            CreateOrganizationResponse response =
-                CreateOrganization.builder()
-                    .tokenVerifier(tokenVerifier)
-                    .repository(repository)
-                    .build()
-                    .execute(request);
-
-            logger.debug("createOrganization: exit, return: {}", response);
-            result.success(response);
-          } catch (ServiceOperationException ex) {
-            logger.error("createOrganization: ERROR", ex);
-            result.error(ex.getCause());
-          }
-        });
+    return Mono.fromRunnable(() -> logger.debug("createOrganization: enter, request: {}", request))
+        .then(
+            Mono.defer(
+                () ->
+                    CreateOrganization.builder()
+                        .tokenVerifier(tokenVerifier)
+                        .repository(repository)
+                        .build()
+                        .execute(request)))
+        .doOnSuccess(
+            response ->
+                logger.debug(
+                    "createOrganization: exit, response: {}, request: {}", response, request))
+        .doOnError(th -> logger.error("createOrganization: ERROR", th))
+        .onErrorMap(ServiceOperationException.class, Throwable::getCause);
   }
 
   @Override
   public Mono<GetMembershipResponse> getUserOrganizationsMembership(GetMembershipRequest request) {
-    return Mono.create(
-        result -> {
-          logger.debug("getUserOrganizationsMembership: enter, request: {}", request);
-
-          try {
-            GetMembershipResponse response =
-                GetUserOrganizationsMembership.builder()
-                    .tokenVerifier(tokenVerifier)
-                    .repository(repository)
-                    .build()
-                    .execute(request);
-            logger.debug(
-                "getUserOrganizationsMembership: exit, request: {}, return: {} memberships",
-                request,
-                response.organizations().length);
-            result.success(response);
-          } catch (ServiceOperationException ex) {
-            logger.error("getUserOrganizationsMembership: ERROR", ex);
-            result.error(ex.getCause());
-          }
-        });
+    return Mono.fromRunnable(
+        () -> logger.debug("getUserOrganizationsMembership: enter, request: {}", request))
+        .then(
+            Mono.defer(
+                () ->
+                    GetUserOrganizationsMembership.builder()
+                        .tokenVerifier(tokenVerifier)
+                        .repository(repository)
+                        .build()
+                        .execute(request)))
+        .doOnSuccess(
+            response ->
+                logger.debug(
+                    "getUserOrganizationsMembership: exit, request: {}, response: {} memberships",
+                    request,
+                    response.organizations().length))
+        .doOnError(th -> logger.error("getUserOrganizationsMembership: ERROR", th))
+        .onErrorMap(ServiceOperationException.class, Throwable::getCause);
   }
 
   @Override
   public Mono<DeleteOrganizationResponse> deleteOrganization(DeleteOrganizationRequest request) {
-    return Mono.create(
-        result -> {
-          logger.debug("deleteOrganization: enter, request: {}", request);
-
-          try {
-            DeleteOrganizationResponse response =
-                DeleteOrganization.builder()
-                    .tokenVerifier(tokenVerifier)
-                    .repository(repository)
-                    .keyStore(keyStore)
-                    .build()
-                    .execute(request);
-            logger.debug("deleteOrganization: exit, request: {}, response: {}", request, response);
-            result.success(response);
-          } catch (ServiceOperationException ex) {
-            logger.error("deleteOrganization: ERROR", ex);
-            result.error(ex.getCause());
-          }
-        });
+    return Mono.fromRunnable(() -> logger.debug("deleteOrganization: enter, request: {}", request))
+        .then(
+            Mono.defer(
+                () ->
+                    DeleteOrganization.builder()
+                        .tokenVerifier(tokenVerifier)
+                        .repository(repository)
+                        .keyStore(keyStore)
+                        .build()
+                        .execute(request)))
+        .doOnSuccess(
+            response ->
+                logger.debug(
+                    "deleteOrganization: exit, response: {}, request: {}", response, request))
+        .doOnError(th -> logger.error("deleteOrganization: ERROR", th))
+        .onErrorMap(ServiceOperationException.class, Throwable::getCause);
   }
 
   @Override
   public Mono<UpdateOrganizationResponse> updateOrganization(UpdateOrganizationRequest request) {
-    return Mono.create(
-        result -> {
-          logger.debug("updateOrganization: enter, request: {}", request);
-
-          try {
-            UpdateOrganizationResponse response =
-                UpdateOrganization.builder()
-                    .tokenVerifier(tokenVerifier)
-                    .repository(repository)
-                    .build()
-                    .execute(request);
-            logger.debug("updateOrganization: exit, response: {}, request: {}", response, request);
-            result.success(response);
-          } catch (ServiceOperationException ex) {
-            logger.error("updateOrganization: ERROR", ex);
-            result.error(ex.getCause());
-          }
-        });
+    return Mono.fromRunnable(() -> logger.debug("updateOrganization: enter, request: {}", request))
+        .then(
+            Mono.defer(
+                () ->
+                    UpdateOrganization.builder()
+                        .tokenVerifier(tokenVerifier)
+                        .repository(repository)
+                        .build()
+                        .execute(request)))
+        .doOnSuccess(
+            response ->
+                logger.debug(
+                    "updateOrganization: exit, response: {}, request: {}", response, request))
+        .doOnError(th -> logger.error("updateOrganization: ERROR", th))
+        .onErrorMap(ServiceOperationException.class, Throwable::getCause);
   }
 
   @Override
   public Mono<GetOrganizationMembersResponse> getOrganizationMembers(
       GetOrganizationMembersRequest request) {
-    return Mono.create(
-        result -> {
-          try {
-            GetOrganizationMembersResponse response =
-                GetOrganizationMembers.builder()
-                    .tokenVerifier(tokenVerifier)
-                    .repository(repository)
-                    .build()
-                    .execute(request);
-            logger.debug(
-                "getOrganizationMembers: exit, org id: {}, return {} members",
-                request.organizationId(),
-                response.members().length);
-            result.success(response);
-          } catch (ServiceOperationException ex) {
-            logger.error("getOrganizationMembers: ERROR", ex);
-            result.error(ex.getCause());
-          }
-        });
+    return Mono.fromRunnable(
+        () -> logger.debug("getOrganizationMembers: enter, request: {}", request))
+        .then(
+            Mono.defer(
+                () ->
+                    GetOrganizationMembers.builder()
+                        .tokenVerifier(tokenVerifier)
+                        .repository(repository)
+                        .build()
+                        .execute(request)))
+        .doOnSuccess(
+            response ->
+                logger.debug(
+                    "getOrganizationMembers: exit, response: {}, request: {}", response, request))
+        .doOnError(th -> logger.error("getOrganizationMembers: ERROR", th))
+        .onErrorMap(ServiceOperationException.class, Throwable::getCause);
   }
 
   @Override
   public Mono<InviteOrganizationMemberResponse> inviteMember(
       InviteOrganizationMemberRequest request) {
-    return Mono.create(
-        result -> {
-          try {
-            logger.debug("inviteMember: enter, request: {}", request);
-            InviteOrganizationMemberResponse response =
-                InviteMember.builder()
-                    .tokenVerifier(tokenVerifier)
-                    .repository(repository)
-                    .build()
-                    .execute(request);
-            logger.debug("inviteMember: return response: {}, request: {}", response, request);
-            result.success(response);
-          } catch (ServiceOperationException ex) {
-            logger.error("inviteMember: ERROR", ex);
-            result.error(ex.getCause());
-          }
-        });
+    return Mono.fromRunnable(() -> logger.debug("inviteMember: enter, request: {}", request))
+        .then(
+            Mono.defer(
+                () ->
+                    InviteMember.builder()
+                        .tokenVerifier(tokenVerifier)
+                        .repository(repository)
+                        .build()
+                        .execute(request)))
+        .doOnSuccess(
+            response ->
+                logger.debug("inviteMember: exit, response: {}, request: {}", response, request))
+        .doOnError(th -> logger.error("inviteMember: ERROR", th))
+        .onErrorMap(ServiceOperationException.class, Throwable::getCause);
   }
 
   @Override
   public Mono<KickoutOrganizationMemberResponse> kickoutMember(
       KickoutOrganizationMemberRequest request) {
-    return Mono.create(
-        result -> {
-          try {
-            logger.debug("kickoutMember: enter, request: {}", request);
-            KickoutOrganizationMemberResponse response =
-                KickoutMember.builder()
-                    .tokenVerifier(tokenVerifier)
-                    .repository(repository)
-                    .build()
-                    .execute(request);
-            logger.debug("kickoutMember: exit, response: {}, request: {}", response, request);
-            result.success(response);
-          } catch (ServiceOperationException ex) {
-            logger.error("kickoutMember: ERROR", ex);
-            result.error(ex.getCause());
-          }
-        });
+    return Mono.fromRunnable(() -> logger.debug("kickoutMember: enter, request: {}", request))
+        .then(
+            Mono.defer(
+                () ->
+                    KickoutMember.builder()
+                        .tokenVerifier(tokenVerifier)
+                        .repository(repository)
+                        .build()
+                        .execute(request)))
+        .doOnSuccess(
+            response ->
+                logger.debug("kickoutMember: exit, response: {}, request: {}", response, request))
+        .doOnError(th -> logger.error("kickoutMember: ERROR", th))
+        .onErrorMap(ServiceOperationException.class, Throwable::getCause);
   }
 
   @Override
   public Mono<LeaveOrganizationResponse> leaveOrganization(LeaveOrganizationRequest request) {
-    return Mono.create(
-        result -> {
-          try {
-            logger.debug("leaveOrganization: enter, request: {}", request);
-            LeaveOrganizationResponse response =
-                LeaveOrganization.builder()
-                    .tokenVerifier(tokenVerifier)
-                    .repository(repository)
-                    .build()
-                    .execute(request);
-            logger.debug("leaveOrganization: exit, response: {}, request: {}", response, request);
-            result.success(response);
-          } catch (ServiceOperationException ex) {
-            logger.error("leaveOrganization: ERROR", ex);
-            result.error(ex.getCause());
-          }
-        });
+    return Mono.fromRunnable(() -> logger.debug("leaveOrganization: enter, request: {}", request))
+        .then(
+            Mono.defer(
+                () ->
+                    LeaveOrganization.builder()
+                        .tokenVerifier(tokenVerifier)
+                        .repository(repository)
+                        .build()
+                        .execute(request)))
+        .doOnSuccess(
+            response ->
+                logger.debug(
+                    "leaveOrganization: exit, response: {}, request: {}", response, request))
+        .doOnError(th -> logger.error("leaveOrganization: ERROR", th))
+        .onErrorMap(ServiceOperationException.class, Throwable::getCause);
   }
 
   @Override
   public Mono<GetOrganizationResponse> addOrganizationApiKey(AddOrganizationApiKeyRequest request) {
-    return Mono.create(
-        result -> {
-          try {
-            logger.debug("addOrganizationApiKey: enter, request: {}", request);
-            GetOrganizationResponse response =
-                AddOrganizationApiKey.builder()
-                    .tokenVerifier(tokenVerifier)
-                    .repository(repository)
-                    .keyPairGenerator(keyPairGenerator)
-                    .keyStore(keyStore)
-                    .build()
-                    .execute(request);
-
-            logger.debug(
-                "addOrganizationApiKey: exit, response: {}, request: {}", response, request);
-            result.success(response);
-          } catch (ServiceOperationException ex) {
-            logger.error("addOrganizationApiKey: ERROR", ex);
-            result.error(ex.getCause());
-          }
-        });
+    return Mono.fromRunnable(
+        () -> logger.debug("addOrganizationApiKey: enter, request: {}", request))
+        .then(
+            Mono.defer(
+                () ->
+                    AddOrganizationApiKey.builder()
+                        .tokenVerifier(tokenVerifier)
+                        .repository(repository)
+                        .keyPairGenerator(keyPairGenerator)
+                        .keyStore(keyStore)
+                        .build()
+                        .execute(request)))
+        .doOnSuccess(
+            response ->
+                logger.debug(
+                    "addOrganizationApiKey: exit, response: {}, request: {}", response, request))
+        .doOnError(th -> logger.error("addOrganizationApiKey: ERROR", th))
+        .onErrorMap(ServiceOperationException.class, Throwable::getCause);
   }
 
   @Override
   public Mono<GetOrganizationResponse> deleteOrganizationApiKey(
       DeleteOrganizationApiKeyRequest request) {
-    return Mono.create(
-        result -> {
-          try {
-            logger.debug("deleteOrganizationApiKey: enter, request: {}", request);
-            GetOrganizationResponse response =
-                DeleteOrganizationApiKey.builder()
-                    .tokenVerifier(tokenVerifier)
-                    .repository(repository)
-                    .keyStore(keyStore)
-                    .build()
-                    .execute(request);
-            logger.debug(
-                "deleteOrganizationApiKey: exit, response: {}, request: {}", response, request);
-            result.success(response);
-          } catch (ServiceOperationException ex) {
-            logger.error("deleteOrganizationApiKey: ERROR", ex);
-            result.error(ex.getCause());
-          }
-        });
+    return Mono.fromRunnable(
+        () -> logger.debug("deleteOrganizationApiKey: enter, request: {}", request))
+        .then(
+            Mono.defer(
+                () ->
+                    DeleteOrganizationApiKey.builder()
+                        .tokenVerifier(tokenVerifier)
+                        .repository(repository)
+                        .keyStore(keyStore)
+                        .build()
+                        .execute(request)))
+        .doOnSuccess(
+            response ->
+                logger.debug(
+                    "deleteOrganizationApiKey: exit, response: {}, request: {}", response, request))
+        .doOnError(th -> logger.error("deleteOrganizationApiKey: ERROR", th))
+        .onErrorMap(ServiceOperationException.class, Throwable::getCause);
   }
 
   @Override
   public Mono<GetOrganizationResponse> getOrganization(GetOrganizationRequest request) {
-    return Mono.create(
-        result -> {
-          try {
-            logger.debug("getOrganization: enter, request: {}", request);
-            GetOrganizationResponse response =
-                GetOrganization.builder()
-                    .tokenVerifier(tokenVerifier)
-                    .repository(repository)
-                    .build()
-                    .execute(request);
-            logger.debug("getOrganization: exit, response: {}, request: {}", response, request);
-            result.success(response);
-          } catch (ServiceOperationException ex) {
-            logger.error("getOrganization: ERROR", ex);
-            result.error(ex.getCause());
-          }
-        });
+    return Mono.fromRunnable(() -> logger.debug("getOrganization: enter, request: {}", request))
+        .then(
+            Mono.defer(
+                () ->
+                    GetOrganization.builder()
+                        .tokenVerifier(tokenVerifier)
+                        .repository(repository)
+                        .build()
+                        .execute(request)))
+        .doOnSuccess(
+            response ->
+                logger.debug("getOrganization: exit, response: {}, request: {}", response, request))
+        .doOnError(th -> logger.error("getOrganization: ERROR", th))
+        .onErrorMap(ServiceOperationException.class, Throwable::getCause);
   }
 
   @Override
   public Mono<UpdateOrganizationMemberRoleResponse> updateOrganizationMemberRole(
       UpdateOrganizationMemberRoleRequest request) {
-    return Mono.create(
-        result -> {
-          try {
-            logger.debug("updateOrganizationMemberRole: enter, request: {}", request);
-            UpdateOrganizationMemberRoleResponse response =
-                UpdateOrganizationMemberRole.builder()
-                    .tokenVerifier(tokenVerifier)
-                    .repository(repository)
-                    .build()
-                    .execute(request);
-            logger.debug(
-                "updateOrganizationMemberRole: exit, response: {}, request: {}", response, request);
-            result.success(response);
-          } catch (ServiceOperationException ex) {
-            logger.error("updateOrganizationMemberRole: ERROR", ex);
-            result.error(ex.getCause());
-          }
-        });
+    return Mono.fromRunnable(
+        () -> logger.debug("updateOrganizationMemberRole: enter, request: {}", request))
+        .then(
+            Mono.defer(
+                () ->
+                    UpdateOrganizationMemberRole.builder()
+                        .tokenVerifier(tokenVerifier)
+                        .repository(repository)
+                        .build()
+                        .execute(request)))
+        .doOnSuccess(
+            response ->
+                logger.debug(
+                    "updateOrganizationMemberRole: exit, response: {}, request: {}",
+                    response,
+                    request))
+        .doOnError(th -> logger.error("updateOrganizationMemberRole: ERROR", th))
+        .onErrorMap(ServiceOperationException.class, Throwable::getCause);
   }
 
   @Override
@@ -362,7 +330,8 @@ public class OrganizationServiceImpl implements OrganizationService {
         .doOnSuccess(
             response ->
                 logger.debug("getPublicKey: exit: response: {}, request: {}", response, request))
-        .doOnError(th -> logger.error("getPublicKey: ERROR", th));
+        .doOnError(th -> logger.error("getPublicKey: ERROR", th))
+        .onErrorMap(ServiceOperationException.class, Throwable::getCause);
   }
 
   private KeyPairGenerator keyPairGenerator() {

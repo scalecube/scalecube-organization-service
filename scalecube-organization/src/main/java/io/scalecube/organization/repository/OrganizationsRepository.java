@@ -1,6 +1,7 @@
 package io.scalecube.organization.repository;
 
 import io.scalecube.organization.domain.Organization;
+import reactor.core.publisher.Mono;
 
 public interface OrganizationsRepository extends Repository<Organization, String> {
 
@@ -10,5 +11,5 @@ public interface OrganizationsRepository extends Repository<Organization, String
    * @param name organization name.
    * @return {@code true} if an entity with the given id exists, {@code false} otherwise.
    */
-  boolean existsByName(String name);
+  Mono<Boolean> existsByName(String name);
 }

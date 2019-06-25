@@ -23,7 +23,7 @@
  * @apiErrorExample {json} WebSocket
  * Request:
  *     {
- *         "q":"/organizations/create",
+ *         "q":"/organizations/createOrganization",
  *         "sid": 1,
  *         "d":{
  *               "token": {
@@ -36,7 +36,7 @@
  *
  * Response:
  *     {
- *         "q":"/organizations/create",
+ *         "q":"/organizations/createOrganization",
  *         "sid":1,
  *         "d":{
  *                "apiKeys":[],
@@ -68,7 +68,7 @@
  * Request:
  *     {
  *         "metadata":{
- *                      "q": "/organizations/create"
+ *                      "q": "/organizations/createOrganization"
  *         },
  *         "data":{
  *                   "token": {
@@ -89,7 +89,7 @@
  *                   "ownerId":"id@clients"
  *         },
  *         "metadata":{
- *           "q": "/organizations/create"
+ *           "q": "/organizations/createOrganization"
  *         }
  *     }
  *
@@ -106,7 +106,7 @@
  *
  * @apiErrorExample{json} HTTP
  * Request:
- * https://localhost:port/organizations/create (endpoint url)
+ * https://localhost:port/organizations/createOrganization (endpoint url)
  *
  * Body:
  *     {

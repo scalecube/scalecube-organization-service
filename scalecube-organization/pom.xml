@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -15,6 +17,7 @@
   <properties>
     <mainClass>io.scalecube.organization.server.OrganizationServiceRunner</mainClass>
     <!--<extratags>${env.TRAVIS_COMMIT}</extratags>-->
+    <rxjava-reactive-streams.version>1.2.1</rxjava-reactive-streams.version>
   </properties>
 
   <dependencies>
@@ -51,6 +54,13 @@
     <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>scalecube-services</artifactId>
+    </dependency>
+
+    <!-- ReactiveX -->
+    <dependency>
+      <groupId>io.reactivex</groupId>
+      <artifactId>rxjava-reactive-streams</artifactId>
+      <version>${rxjava-reactive-streams.version}</version>
     </dependency>
 
     <!-- Couchbase -->
@@ -102,11 +112,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest-library</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>io.scalecube</groupId>
       <artifactId>scalecube-test-utils</artifactId>
       <scope>test</scope>
@@ -115,6 +120,26 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
       <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>couchbase</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>vault</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.scalecube</groupId>
+      <artifactId>scalecube-services-gateway-clientsdk</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.scalecube</groupId>
+      <artifactId>scalecube-services-gateway-netty</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -130,6 +155,9 @@
       <plugin>
         <groupId>com.spotify</groupId>
         <artifactId>dockerfile-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
