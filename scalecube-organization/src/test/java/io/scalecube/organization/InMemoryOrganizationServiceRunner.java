@@ -20,7 +20,6 @@ import io.scalecube.security.api.Profile;
 import io.scalecube.services.Microservices;
 import io.scalecube.services.discovery.ScalecubeServiceDiscovery;
 import io.scalecube.services.transport.rsocket.RSocketServiceTransport;
-import io.scalecube.services.transport.rsocket.RSocketTransportResources;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -38,11 +37,7 @@ public class InMemoryOrganizationServiceRunner {
             (serviceEndpoint) ->
                 new ScalecubeServiceDiscovery(serviceEndpoint)
                     .options(opts -> opts.seedMembers(Address.from("localhost:4801"))))
-        .transport(
-            opts ->
-                opts.resources(RSocketTransportResources::new)
-                    .client(RSocketServiceTransport.INSTANCE::clientTransport)
-                    .server(RSocketServiceTransport.INSTANCE::serverTransport))
+        .transport(opts -> opts.serviceTransport(RSocketServiceTransport::new))
         .services(createOrganizationService())
         .startAwait()
         .onShutdown()

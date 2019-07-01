@@ -24,7 +24,6 @@ import io.scalecube.services.Microservices;
 import io.scalecube.services.discovery.ScalecubeServiceDiscovery;
 import io.scalecube.services.gateway.ws.WebsocketGateway;
 import io.scalecube.services.transport.rsocket.RSocketServiceTransport;
-import io.scalecube.services.transport.rsocket.RSocketTransportResources;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Collections;
@@ -190,10 +189,7 @@ final class IntegrationEnvironment {
                     .options(opts -> opts.port(GATEWAY_DISCOVERY_PORT)))
         .transport(
             opts ->
-                opts.resources(RSocketTransportResources::new)
-                    .client(RSocketServiceTransport.INSTANCE::clientTransport)
-                    .server(RSocketServiceTransport.INSTANCE::serverTransport)
-                    .port(GATEWAY_TRANSPORT_PORT))
+                opts.serviceTransport(RSocketServiceTransport::new).port(GATEWAY_TRANSPORT_PORT))
         .gateway(options -> new WebsocketGateway(options.port(GATEWAY_WS_PORT)))
         .startAwait();
   }
@@ -215,9 +211,7 @@ final class IntegrationEnvironment {
                                 .port(ORG_SERVICE_DISCOVERY_PORT)))
         .transport(
             opts ->
-                opts.resources(RSocketTransportResources::new)
-                    .client(RSocketServiceTransport.INSTANCE::clientTransport)
-                    .server(RSocketServiceTransport.INSTANCE::serverTransport)
+                opts.serviceTransport(RSocketServiceTransport::new)
                     .port(ORG_SERVICE_TRANSPORT_PORT))
         .services(createOrganizationService())
         .startAwait();

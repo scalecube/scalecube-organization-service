@@ -23,7 +23,7 @@ public class TokenVerifierImpl implements TokenVerifier {
         })
         .then(Mono.fromCallable(() -> publicKeyProvider.getPublicKey(token.token())))
         .doOnNext(publicKey -> Objects.requireNonNull(publicKey, "Token signing key"))
-        .map(publicKey -> new DefaultJwtAuthenticator(map -> publicKey))
+        .map(publicKey -> new DefaultJwtAuthenticator(map -> Mono.just(publicKey)))
         .flatMap(authenticator -> authenticator.authenticate(token.token()))
         .onErrorMap(th -> new InvalidTokenException("Token verification failed", th));
   }
