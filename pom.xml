@@ -25,9 +25,9 @@
 
   <properties>
     <scalecube.config.version>0.3.11</scalecube.config.version>
-    <scalecube-services.version>2.7.1</scalecube-services.version>
-    <scalecube-services-gateway.version>2.7.4</scalecube-services-gateway.version>
-    <scalecube-security-jwt.version>1.0.7</scalecube-security-jwt.version>
+    <scalecube-services.version>2.7.2</scalecube-services.version>
+    <scalecube-services-gateway.version>2.7.6</scalecube-services-gateway.version>
+    <scalecube-security-jwt.version>1.0.8</scalecube-security-jwt.version>
     <reactor.version>Californium-SR8</reactor.version>
     <jackson.version>2.9.9</jackson.version>
     <netty.version>4.1.36.Final</netty.version>

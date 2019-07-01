@@ -17,7 +17,6 @@ import io.scalecube.organization.tokens.store.VaultKeyStore;
 import io.scalecube.services.Microservices;
 import io.scalecube.services.discovery.ScalecubeServiceDiscovery;
 import io.scalecube.services.transport.rsocket.RSocketServiceTransport;
-import io.scalecube.services.transport.rsocket.RSocketTransportResources;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,9 +60,7 @@ public class OrganizationServiceRunner {
                                 .memberPort(discoveryOptions.memberPort())))
         .transport(
             opts ->
-                opts.resources(RSocketTransportResources::new)
-                    .client(RSocketServiceTransport.INSTANCE::clientTransport)
-                    .server(RSocketServiceTransport.INSTANCE::serverTransport)
+                opts.serviceTransport(RSocketServiceTransport::new)
                     .port(discoveryOptions.servicePort()))
         .services(createOrganizationService())
         .startAwait();
