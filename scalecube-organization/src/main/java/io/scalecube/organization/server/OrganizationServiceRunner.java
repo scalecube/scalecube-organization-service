@@ -23,6 +23,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
+import reactor.netty.tcp.TcpClient;
+import reactor.netty.tcp.TcpServer;
 
 /** Service runner main entry point. */
 public class OrganizationServiceRunner {
@@ -50,18 +52,31 @@ public class OrganizationServiceRunner {
 
     Microservices.builder()
         .discovery(
-            (serviceEndpoint) ->
+            serviceEndpoint ->
                 new ScalecubeServiceDiscovery(serviceEndpoint)
                     .options(
                         opts ->
-                            opts.seedMembers(discoveryOptions.seeds())
-                                .port(discoveryOptions.discoveryPort())
+                            opts.membership(cfg -> cfg.seedMembers(discoveryOptions.seeds()))
+                                .transport(cfg -> cfg.port(discoveryOptions.discoveryPort()))
                                 .memberHost(discoveryOptions.memberHost())
                                 .memberPort(discoveryOptions.memberPort())))
         .transport(
-            opts ->
-                opts.serviceTransport(RSocketServiceTransport::new)
-                    .port(discoveryOptions.servicePort()))
+            () ->
+                new RSocketServiceTransport()
+                    .tcpClient(
+                        loopResources ->
+                            TcpClient.newConnection()
+                                .runOn(loopResources)
+                                .wiretap(false)
+                                .noProxy()
+                                .noSSL())
+                    .tcpServer(
+                        loopResources ->
+                            TcpServer.create()
+                                .wiretap(false)
+                                .port(discoveryOptions.servicePort())
+                                .runOn(loopResources)
+                                .noSSL()))
         .services(createOrganizationService())
         .startAwait();
   }
@@ -77,11 +92,11 @@ public class OrganizationServiceRunner {
 
     AsyncBucket bucket =
         Mono.fromCallable(
-            () ->
-                cluster
-                    .authenticate(settings.username(), settings.password())
-                    .openBucket(settings.organizationsBucketName())
-                    .async())
+                () ->
+                    cluster
+                        .authenticate(settings.username(), settings.password())
+                        .openBucket(settings.organizationsBucketName())
+                        .async())
             .retryBackoff(3, Duration.ofSeconds(1))
             .block(Duration.ofSeconds(30));
 
