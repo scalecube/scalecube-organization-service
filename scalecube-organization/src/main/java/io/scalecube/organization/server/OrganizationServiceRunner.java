@@ -100,11 +100,11 @@ public class OrganizationServiceRunner {
 
     AsyncBucket bucket =
         Mono.fromCallable(
-                () ->
-                    cluster
-                        .authenticate(settings.username(), settings.password())
-                        .openBucket(settings.organizationsBucketName())
-                        .async())
+            () ->
+                cluster
+                    .authenticate(settings.username(), settings.password())
+                    .openBucket(settings.organizationsBucketName())
+                    .async())
             .retryBackoff(3, Duration.ofSeconds(1))
             .block(Duration.ofSeconds(30));
 

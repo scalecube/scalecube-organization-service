@@ -36,7 +36,7 @@ public class InMemoryOrganizationServiceRunner {
   public static void main(String[] args) {
     Microservices.builder()
         .discovery(
-            (serviceEndpoint) ->
+            serviceEndpoint ->
                 new ScalecubeServiceDiscovery(serviceEndpoint)
                     .options(
                         opts ->
