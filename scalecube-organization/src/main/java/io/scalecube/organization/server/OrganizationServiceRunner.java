@@ -4,6 +4,8 @@ import com.couchbase.client.java.AsyncBucket;
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseCluster;
 import io.scalecube.account.api.OrganizationService;
+import io.scalecube.app.decoration.Logo;
+import io.scalecube.app.packages.PackageInfo;
 import io.scalecube.organization.OrganizationServiceImpl;
 import io.scalecube.organization.config.AppConfiguration;
 import io.scalecube.organization.repository.OrganizationsRepository;
@@ -50,35 +52,41 @@ public class OrganizationServiceRunner {
 
     LOGGER.info("Starting organization service on {}", discoveryOptions);
 
-    Microservices.builder()
-        .discovery(
-            serviceEndpoint ->
-                new ScalecubeServiceDiscovery(serviceEndpoint)
-                    .options(
-                        opts ->
-                            opts.membership(cfg -> cfg.seedMembers(discoveryOptions.seeds()))
-                                .transport(cfg -> cfg.port(discoveryOptions.discoveryPort()))
-                                .memberHost(discoveryOptions.memberHost())
-                                .memberPort(discoveryOptions.memberPort())))
-        .transport(
-            () ->
-                new RSocketServiceTransport()
-                    .tcpClient(
-                        loopResources ->
-                            TcpClient.newConnection()
-                                .runOn(loopResources)
-                                .wiretap(false)
-                                .noProxy()
-                                .noSSL())
-                    .tcpServer(
-                        loopResources ->
-                            TcpServer.create()
-                                .wiretap(false)
-                                .port(discoveryOptions.servicePort())
-                                .runOn(loopResources)
-                                .noSSL()))
-        .services(createOrganizationService())
-        .startAwait();
+    Microservices microservices =
+        Microservices.builder()
+            .discovery(
+                serviceEndpoint ->
+                    new ScalecubeServiceDiscovery(serviceEndpoint)
+                        .options(
+                            opts ->
+                                opts.membership(cfg -> cfg.seedMembers(discoveryOptions.seeds()))
+                                    .transport(cfg -> cfg.port(discoveryOptions.discoveryPort()))
+                                    .memberHost(discoveryOptions.memberHost())
+                                    .memberPort(discoveryOptions.memberPort())))
+            .transport(
+                () ->
+                    new RSocketServiceTransport()
+                        .tcpClient(
+                            loopResources ->
+                                TcpClient.newConnection()
+                                    .runOn(loopResources)
+                                    .wiretap(false)
+                                    .noProxy()
+                                    .noSSL())
+                        .tcpServer(
+                            loopResources ->
+                                TcpServer.create()
+                                    .wiretap(false)
+                                    .port(discoveryOptions.servicePort())
+                                    .runOn(loopResources)
+                                    .noSSL()))
+            .services(createOrganizationService())
+            .startAwait();
+
+    Logo.from(new PackageInfo())
+        .ip(microservices.serviceAddress().host())
+        .port(microservices.serviceAddress().port() + "")
+        .draw();
   }
 
   private static OrganizationService createOrganizationService() {
