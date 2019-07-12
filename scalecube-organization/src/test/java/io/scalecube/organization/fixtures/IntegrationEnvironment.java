@@ -37,7 +37,6 @@ import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.couchbase.CouchbaseContainer;
 import org.testcontainers.vault.VaultContainer;
 import reactor.core.publisher.Mono;
-import reactor.netty.tcp.TcpClient;
 import reactor.netty.tcp.TcpServer;
 
 final class IntegrationEnvironment {
@@ -192,20 +191,9 @@ final class IntegrationEnvironment {
         .transport(
             () ->
                 new RSocketServiceTransport()
-                    .tcpClient(
-                        loopResources ->
-                            TcpClient.newConnection()
-                                .runOn(loopResources)
-                                .wiretap(false)
-                                .noProxy()
-                                .noSSL())
                     .tcpServer(
                         loopResources ->
-                            TcpServer.create()
-                                .wiretap(false)
-                                .port(GATEWAY_TRANSPORT_PORT)
-                                .runOn(loopResources)
-                                .noSSL()))
+                            TcpServer.create().port(GATEWAY_TRANSPORT_PORT).runOn(loopResources)))
         .gateway(options -> new WebsocketGateway(options.port(GATEWAY_WS_PORT)))
         .startAwait();
   }
@@ -231,20 +219,11 @@ final class IntegrationEnvironment {
         .transport(
             () ->
                 new RSocketServiceTransport()
-                    .tcpClient(
-                        loopResources ->
-                            TcpClient.newConnection()
-                                .runOn(loopResources)
-                                .wiretap(false)
-                                .noProxy()
-                                .noSSL())
                     .tcpServer(
                         loopResources ->
                             TcpServer.create()
-                                .wiretap(false)
                                 .port(ORG_SERVICE_TRANSPORT_PORT)
-                                .runOn(loopResources)
-                                .noSSL()))
+                                .runOn(loopResources)))
         .services(createOrganizationService())
         .startAwait();
   }

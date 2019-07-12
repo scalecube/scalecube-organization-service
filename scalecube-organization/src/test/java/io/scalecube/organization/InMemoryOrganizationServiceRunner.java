@@ -22,8 +22,6 @@ import io.scalecube.services.discovery.ScalecubeServiceDiscovery;
 import io.scalecube.services.transport.rsocket.RSocketServiceTransport;
 import java.util.Arrays;
 import java.util.Collections;
-import reactor.netty.tcp.TcpClient;
-import reactor.netty.tcp.TcpServer;
 
 /** Service runner main entry point. */
 public class InMemoryOrganizationServiceRunner {
@@ -42,19 +40,7 @@ public class InMemoryOrganizationServiceRunner {
                         opts ->
                             opts.membership(
                                 cfg -> cfg.seedMembers(Address.from("localhost:4801")))))
-        .transport(
-            () ->
-                new RSocketServiceTransport()
-                    .tcpClient(
-                        loopResources ->
-                            TcpClient.newConnection()
-                                .runOn(loopResources)
-                                .wiretap(false)
-                                .noProxy()
-                                .noSSL())
-                    .tcpServer(
-                        loopResources ->
-                            TcpServer.create().wiretap(false).runOn(loopResources).noSSL()))
+        .transport(RSocketServiceTransport::new)
         .services(createOrganizationService())
         .startAwait()
         .onShutdown()

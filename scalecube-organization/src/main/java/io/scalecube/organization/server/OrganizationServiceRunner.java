@@ -1,7 +1,6 @@
 package io.scalecube.organization.server;
 
 import com.couchbase.client.java.AsyncBucket;
-import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseCluster;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.app.decoration.Logo;
@@ -25,7 +24,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
-import reactor.netty.tcp.TcpClient;
 import reactor.netty.tcp.TcpServer;
 
 /** Service runner main entry point. */
@@ -66,20 +64,11 @@ public class OrganizationServiceRunner {
             .transport(
                 () ->
                     new RSocketServiceTransport()
-                        .tcpClient(
-                            loopResources ->
-                                TcpClient.newConnection()
-                                    .runOn(loopResources)
-                                    .wiretap(false)
-                                    .noProxy()
-                                    .noSSL())
                         .tcpServer(
                             loopResources ->
                                 TcpServer.create()
-                                    .wiretap(false)
                                     .port(discoveryOptions.servicePort())
-                                    .runOn(loopResources)
-                                    .noSSL()))
+                                    .runOn(loopResources)))
             .services(createOrganizationService())
             .startAwait();
 
@@ -96,15 +85,10 @@ public class OrganizationServiceRunner {
             .value()
             .orElseThrow(() -> new IllegalStateException("Couldn't load couchbase settings"));
 
-    Cluster cluster = CouchbaseCluster.create(settings.hosts());
+    CouchbaseCluster couchbaseCluster = CouchbaseCluster.create(settings.hosts());
 
     AsyncBucket bucket =
-        Mono.fromCallable(
-            () ->
-                cluster
-                    .authenticate(settings.username(), settings.password())
-                    .openBucket(settings.organizationsBucketName())
-                    .async())
+        Mono.fromCallable(() -> newAsyncBucket(settings, couchbaseCluster))
             .retryBackoff(3, Duration.ofSeconds(1))
             .block(Duration.ofSeconds(30));
 
@@ -113,6 +97,14 @@ public class OrganizationServiceRunner {
     TokenVerifier tokenVerifier = new TokenVerifierImpl(new Auth0PublicKeyProvider());
 
     return new OrganizationServiceImpl(repository, keyStore, tokenVerifier);
+  }
+
+  private static AsyncBucket newAsyncBucket(
+      CouchbaseSettings settings, CouchbaseCluster couchbaseCluster) {
+    return couchbaseCluster
+        .authenticate(settings.username(), settings.password())
+        .openBucket(settings.organizationsBucketName())
+        .async();
   }
 
   private static Map<String, String> couchbaseSettingsBindingMap() {
