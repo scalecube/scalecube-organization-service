@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -25,8 +27,8 @@
 
   <properties>
     <scalecube.config.version>0.3.11</scalecube.config.version>
-    <scalecube-services.version>2.7.2</scalecube-services.version>
-    <scalecube-services-gateway.version>2.7.6</scalecube-services-gateway.version>
+    <scalecube-services.version>2.8.0</scalecube-services.version>
+    <scalecube-services-gateway.version>2.8.0</scalecube-services-gateway.version>
     <scalecube-security-jwt.version>1.0.8</scalecube-security-jwt.version>
     <reactor.version>Californium-SR8</reactor.version>
     <jackson.version>2.9.9</jackson.version>
@@ -34,6 +36,7 @@
     <couchbase-client.version>2.7.3</couchbase-client.version>
     <vault-java-driver.version>3.1.0</vault-java-driver.version>
     <auth0-jwks-rsa.version>0.6.0</auth0-jwks-rsa.version>
+    <scalecube-app-utils.version>0.0.4</scalecube-app-utils.version>
     <slf4j.version>1.7.7</slf4j.version>
     <log4j.version>2.11.1</log4j.version>
     <junit-jupiter.version>5.4.2</junit-jupiter.version>
@@ -53,6 +56,11 @@
   <dependencyManagement>
     <dependencies>
       <!-- Scalecube -->
+      <dependency>
+        <groupId>io.scalecube</groupId>
+        <artifactId>scalecube-app-utils</artifactId>
+        <version>${scalecube-app-utils.version}</version>
+      </dependency>
       <dependency>
         <groupId>io.scalecube</groupId>
         <artifactId>config</artifactId>
