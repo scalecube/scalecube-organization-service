@@ -1,43 +1,52 @@
 package io.scalecube.organization.fixtures;
 
-import io.scalecube.services.gateway.clientsdk.Client;
-import io.scalecube.services.gateway.clientsdk.ClientSettings;
+import static io.scalecube.services.gateway.transport.GatewayClientTransports.WEBSOCKET_CLIENT_CODEC;
+
+import io.scalecube.net.Address;
+import io.scalecube.services.ServiceCall;
+import io.scalecube.services.gateway.transport.GatewayClient;
+import io.scalecube.services.gateway.transport.GatewayClientSettings;
+import io.scalecube.services.gateway.transport.GatewayClientTransport;
+import io.scalecube.services.gateway.transport.StaticAddressRouter;
+import io.scalecube.services.gateway.transport.websocket.WebsocketGatewayClient;
 import io.scalecube.test.fixtures.Fixture;
 import java.time.Duration;
 import org.opentest4j.TestAbortedException;
-import reactor.netty.resources.LoopResources;
 
 public final class IntegrationEnvironmentFixture implements Fixture {
 
   private static final IntegrationEnvironment environment = new IntegrationEnvironment();
 
+  private static final int GATEWAY_WS_PORT = 7070;
+  private static final String GATEWAY_HOST = "localhost";
+
   static {
     environment.start();
   }
 
-  private Client client;
+  private GatewayClient client;
 
   @Override
   public void setUp() throws TestAbortedException {
-    ClientSettings settings =
-        ClientSettings.builder()
-            .host("localhost")
-            .port(7070)
-            .loopResources(LoopResources.create("integration-tests-client"))
-            .build();
+    GatewayClientSettings settings =
+        GatewayClientSettings.builder().host(GATEWAY_HOST).port(GATEWAY_WS_PORT).build();
 
-    client = Client.websocket(settings);
+    client = new WebsocketGatewayClient(settings, WEBSOCKET_CLIENT_CODEC);
   }
 
   @Override
   public <T> T proxyFor(Class<? extends T> clazz) {
-    return client.forService(clazz);
+    return new ServiceCall()
+        .transport(new GatewayClientTransport(client))
+        .router(new StaticAddressRouter(Address.create(GATEWAY_HOST, GATEWAY_WS_PORT)))
+        .api(clazz);
   }
 
   @Override
   public void tearDown() {
     if (client != null) {
-      client.close().block(Duration.ofSeconds(10));
+      client.close();
+      client.onClose().block(Duration.ofSeconds(10));
     }
   }
 }
