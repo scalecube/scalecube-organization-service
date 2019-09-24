@@ -1,6 +1,7 @@
 package io.scalecube.organization.server;
 
 import com.couchbase.client.java.AsyncBucket;
+import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseCluster;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.app.decoration.Logo;
@@ -51,7 +52,14 @@ public class OrganizationServiceRunner {
         .discovery((serviceEndpoint) -> serviceDiscovery(discoveryOptions, serviceEndpoint))
         .transport(() -> serviceTransport(discoveryOptions))
         .services(createOrganizationService())
-        .startAwait()
+        .start()
+        .doOnNext(
+            microservices ->
+                Logo.from(new PackageInfo())
+                    .ip(microservices.discovery().address().host())
+                    .port("" + microservices.discovery().address().port())
+                    .draw())
+        .block()
         .onShutdown()
         .block();
   }
@@ -83,7 +91,7 @@ public class OrganizationServiceRunner {
     CouchbaseCluster couchbaseCluster = CouchbaseCluster.create(settings.hosts());
 
     AsyncBucket bucket =
-        Mono.fromCallable(() -> newSsyncBucket(settings, couchbaseCluster))
+        Mono.fromCallable(() -> newAsyncBucket(settings, couchbaseCluster))
             .retryBackoff(3, Duration.ofSeconds(1))
             .block(Duration.ofSeconds(30));
 
@@ -105,7 +113,7 @@ public class OrganizationServiceRunner {
     return bindingMap;
   }
 
-  private static AsyncBucket getAsyncBucket(CouchbaseSettings settings, Cluster couchbaseCluster) {
+  private static AsyncBucket newAsyncBucket(CouchbaseSettings settings, Cluster couchbaseCluster) {
     return couchbaseCluster
         .authenticate(settings.username(), settings.password())
         .openBucket(settings.organizationsBucketName())
