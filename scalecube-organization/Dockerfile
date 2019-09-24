@@ -34,6 +34,5 @@ $DEFAULT_JAVA_OPTS \
 $JAVA_OPTS \
 $DEFAULT_JMX_OPTS \
 $DEFAULT_OOM_OPTS \
-$YOURKIT_AGENT \
 -Dlog4j.configurationFile=log4j2.xml \
 -jar app.jar $PROGRAM_ARGS

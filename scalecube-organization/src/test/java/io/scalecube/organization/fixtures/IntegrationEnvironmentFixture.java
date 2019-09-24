@@ -9,6 +9,7 @@ import io.scalecube.services.gateway.transport.GatewayClientTransports;
 import io.scalecube.services.gateway.transport.StaticAddressRouter;
 import io.scalecube.services.gateway.transport.websocket.WebsocketGatewayClient;
 import io.scalecube.test.fixtures.Fixture;
+import java.time.Duration;
 import org.opentest4j.TestAbortedException;
 
 public final class IntegrationEnvironmentFixture implements Fixture {
@@ -28,7 +29,7 @@ public final class IntegrationEnvironmentFixture implements Fixture {
   @Override
   public void setUp() throws TestAbortedException {
     GatewayClientSettings settings =
-        GatewayClientSettings.builder().address(Address.create("localhost", 7070)).build();
+        GatewayClientSettings.builder().host(GATEWAY_HOST).port(GATEWAY_WS_PORT).build();
 
     client = new WebsocketGatewayClient(settings, GatewayClientTransports.WEBSOCKET_CLIENT_CODEC);
     serviceCall =
@@ -38,15 +39,15 @@ public final class IntegrationEnvironmentFixture implements Fixture {
   }
 
   @Override
-  public <T> T proxyFor(Class<? extends T> clasz) {
-    return serviceCall.api(clasz);
+  public <T> T proxyFor(Class<? extends T> clazz) {
+    return serviceCall.api(clazz);
   }
 
   @Override
   public void tearDown() {
     if (client != null) {
       client.close();
-      client.onClose().block();
+      client.onClose().block(Duration.ofSeconds(10));
     }
   }
 }
