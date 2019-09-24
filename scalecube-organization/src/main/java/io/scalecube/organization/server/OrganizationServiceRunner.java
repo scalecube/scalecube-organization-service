@@ -1,7 +1,6 @@
 package io.scalecube.organization.server;
 
 import com.couchbase.client.java.AsyncBucket;
-import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseCluster;
 import io.scalecube.account.api.OrganizationService;
 import io.scalecube.app.decoration.Logo;
@@ -102,6 +101,14 @@ public class OrganizationServiceRunner {
     return new OrganizationServiceImpl(repository, keyStore, tokenVerifier);
   }
 
+  private static AsyncBucket newAsyncBucket(
+      CouchbaseSettings settings, CouchbaseCluster couchbaseCluster) {
+    return couchbaseCluster
+        .authenticate(settings.username(), settings.password())
+        .openBucket(settings.organizationsBucketName())
+        .async();
+  }
+
   private static Map<String, String> couchbaseSettingsBindingMap() {
     Map<String, String> bindingMap = new HashMap<>();
 
@@ -111,12 +118,5 @@ public class OrganizationServiceRunner {
     bindingMap.put("organizationsBucketName", "organizations.bucket");
 
     return bindingMap;
-  }
-
-  private static AsyncBucket newAsyncBucket(CouchbaseSettings settings, Cluster couchbaseCluster) {
-    return couchbaseCluster
-        .authenticate(settings.username(), settings.password())
-        .openBucket(settings.organizationsBucketName())
-        .async();
   }
 }
