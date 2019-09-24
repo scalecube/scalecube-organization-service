@@ -11,6 +11,7 @@ import com.couchbase.client.java.cluster.UserRole;
 import com.couchbase.client.java.cluster.UserSettings;
 import com.github.dockerjava.api.model.PortBinding;
 import io.scalecube.account.api.OrganizationService;
+import io.scalecube.net.Address;
 import io.scalecube.organization.OrganizationServiceImpl;
 import io.scalecube.organization.config.AppConfiguration;
 import io.scalecube.organization.repository.OrganizationsRepository;
@@ -20,11 +21,10 @@ import io.scalecube.organization.tokens.TokenVerifier;
 import io.scalecube.organization.tokens.TokenVerifierImpl;
 import io.scalecube.organization.tokens.store.VaultKeyStore;
 import io.scalecube.services.Microservices;
+import io.scalecube.services.ServiceEndpoint;
 import io.scalecube.services.discovery.ScalecubeServiceDiscovery;
 import io.scalecube.services.gateway.ws.WebsocketGateway;
 import io.scalecube.services.transport.rsocket.RSocketServiceTransport;
-import io.scalecube.services.transport.rsocket.RSocketTransportResources;
-import io.scalecube.transport.Address;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Collections;
@@ -38,6 +38,8 @@ import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.couchbase.CouchbaseContainer;
 import org.testcontainers.vault.VaultContainer;
 import reactor.core.publisher.Mono;
+import reactor.netty.tcp.TcpClient;
+import reactor.netty.tcp.TcpServer;
 
 final class IntegrationEnvironment {
 
@@ -184,16 +186,8 @@ final class IntegrationEnvironment {
     LOGGER.info("### Start gateway");
 
     return Microservices.builder()
-        .discovery(
-            serviceEndpoint ->
-                new ScalecubeServiceDiscovery(serviceEndpoint)
-                    .options(opts -> opts.port(GATEWAY_DISCOVERY_PORT)))
-        .transport(
-            opts ->
-                opts.resources(RSocketTransportResources::new)
-                    .client(RSocketServiceTransport.INSTANCE::clientTransport)
-                    .server(RSocketServiceTransport.INSTANCE::serverTransport)
-                    .port(GATEWAY_TRANSPORT_PORT))
+        .discovery(serviceEndpoint -> serviceDiscovery(serviceEndpoint, GATEWAY_DISCOVERY_PORT))
+        .transport(() -> serviceTransport(GATEWAY_TRANSPORT_PORT))
         .gateway(options -> new WebsocketGateway(options.port(GATEWAY_WS_PORT)))
         .startAwait();
   }
@@ -208,17 +202,11 @@ final class IntegrationEnvironment {
     return Microservices.builder()
         .discovery(
             serviceEndpoint ->
-                new ScalecubeServiceDiscovery(serviceEndpoint)
-                    .options(
-                        opts ->
-                            opts.seedMembers(Address.create("localhost", GATEWAY_DISCOVERY_PORT))
-                                .port(ORG_SERVICE_DISCOVERY_PORT)))
-        .transport(
-            opts ->
-                opts.resources(RSocketTransportResources::new)
-                    .client(RSocketServiceTransport.INSTANCE::clientTransport)
-                    .server(RSocketServiceTransport.INSTANCE::serverTransport)
-                    .port(ORG_SERVICE_TRANSPORT_PORT))
+                serviceDiscovery(
+                    serviceEndpoint,
+                    ORG_SERVICE_DISCOVERY_PORT,
+                    Address.create("localhost", GATEWAY_DISCOVERY_PORT)))
+        .transport(() -> serviceTransport(ORG_SERVICE_TRANSPORT_PORT))
         .services(createOrganizationService())
         .startAwait();
   }
@@ -258,5 +246,18 @@ final class IntegrationEnvironment {
     bindingMap.put("organizationsBucketName", "organizations.bucket");
 
     return bindingMap;
+  }
+
+  private RSocketServiceTransport serviceTransport(int transportPort) {
+    return new RSocketServiceTransport()
+        .tcpClient(resources -> TcpClient.newConnection().runOn(resources))
+        .tcpServer(resources -> TcpServer.create().port(transportPort).runOn(resources));
+  }
+
+  private ScalecubeServiceDiscovery serviceDiscovery(
+      ServiceEndpoint serviceEndpoint, int discoveryPort, Address... seeds) {
+    ScalecubeServiceDiscovery serviceDiscovery = new ScalecubeServiceDiscovery(serviceEndpoint);
+    return serviceDiscovery.options(
+        opts -> opts.transport(t -> t.port(discoveryPort)).membership(m -> m.seedMembers(seeds)));
   }
 }

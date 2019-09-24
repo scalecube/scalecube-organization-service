@@ -1,11 +1,15 @@
 package io.scalecube.organization.fixtures;
 
-import io.scalecube.services.gateway.clientsdk.Client;
-import io.scalecube.services.gateway.clientsdk.ClientSettings;
+import io.scalecube.net.Address;
+import io.scalecube.services.ServiceCall;
+import io.scalecube.services.gateway.transport.GatewayClient;
+import io.scalecube.services.gateway.transport.GatewayClientSettings;
+import io.scalecube.services.gateway.transport.GatewayClientTransport;
+import io.scalecube.services.gateway.transport.GatewayClientTransports;
+import io.scalecube.services.gateway.transport.StaticAddressRouter;
+import io.scalecube.services.gateway.transport.websocket.WebsocketGatewayClient;
 import io.scalecube.test.fixtures.Fixture;
-import java.time.Duration;
 import org.opentest4j.TestAbortedException;
-import reactor.netty.resources.LoopResources;
 
 public final class IntegrationEnvironmentFixture implements Fixture {
 
@@ -15,29 +19,31 @@ public final class IntegrationEnvironmentFixture implements Fixture {
     environment.start();
   }
 
-  private Client client;
+  private GatewayClient client;
+  private ServiceCall serviceCall;
 
   @Override
   public void setUp() throws TestAbortedException {
-    ClientSettings settings =
-        ClientSettings.builder()
-            .host("localhost")
-            .port(7070)
-            .loopResources(LoopResources.create("integration-tests-client"))
-            .build();
+    GatewayClientSettings settings =
+        GatewayClientSettings.builder().address(Address.create("localhost", 7070)).build();
 
-    client = Client.websocket(settings);
+    client = new WebsocketGatewayClient(settings, GatewayClientTransports.WEBSOCKET_CLIENT_CODEC);
+    serviceCall =
+        new ServiceCall()
+            .transport(new GatewayClientTransport(client))
+            .router(new StaticAddressRouter(Address.create(settings.host(), settings.port())));
   }
 
   @Override
-  public <T> T proxyFor(Class<? extends T> clazz) {
-    return client.forService(clazz);
+  public <T> T proxyFor(Class<? extends T> clasz) {
+    return serviceCall.api(clasz);
   }
 
   @Override
   public void tearDown() {
     if (client != null) {
-      client.close().block(Duration.ofSeconds(10));
+      client.close();
+      client.onClose().block();
     }
   }
 }

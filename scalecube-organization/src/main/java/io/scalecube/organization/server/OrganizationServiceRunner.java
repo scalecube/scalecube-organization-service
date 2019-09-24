@@ -15,15 +15,17 @@ import io.scalecube.organization.tokens.TokenVerifierImpl;
 import io.scalecube.organization.tokens.store.KeyStore;
 import io.scalecube.organization.tokens.store.VaultKeyStore;
 import io.scalecube.services.Microservices;
+import io.scalecube.services.ServiceEndpoint;
 import io.scalecube.services.discovery.ScalecubeServiceDiscovery;
 import io.scalecube.services.transport.rsocket.RSocketServiceTransport;
-import io.scalecube.services.transport.rsocket.RSocketTransportResources;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
+import reactor.netty.tcp.TcpClient;
+import reactor.netty.tcp.TcpServer;
 
 /** Service runner main entry point. */
 public class OrganizationServiceRunner {
@@ -35,12 +37,7 @@ public class OrganizationServiceRunner {
    *
    * @param args application params.
    */
-  public static void main(String[] args) throws Exception {
-    start();
-    Thread.currentThread().join();
-  }
-
-  private static void start() {
+  public static void main(String[] args) {
     DiscoveryOptions discoveryOptions =
         AppConfiguration.configRegistry()
             .objectProperty("io.scalecube.organization", DiscoveryOptions.class)
@@ -50,23 +47,29 @@ public class OrganizationServiceRunner {
     LOGGER.info("Starting organization service on {}", discoveryOptions);
 
     Microservices.builder()
-        .discovery(
-            (serviceEndpoint) ->
-                new ScalecubeServiceDiscovery(serviceEndpoint)
-                    .options(
-                        opts ->
-                            opts.seedMembers(discoveryOptions.seeds())
-                                .port(discoveryOptions.discoveryPort())
-                                .memberHost(discoveryOptions.memberHost())
-                                .memberPort(discoveryOptions.memberPort())))
-        .transport(
-            opts ->
-                opts.resources(RSocketTransportResources::new)
-                    .client(RSocketServiceTransport.INSTANCE::clientTransport)
-                    .server(RSocketServiceTransport.INSTANCE::serverTransport)
-                    .port(discoveryOptions.servicePort()))
+        .discovery((serviceEndpoint) -> serviceDiscovery(discoveryOptions, serviceEndpoint))
+        .transport(() -> serviceTransport(discoveryOptions))
         .services(createOrganizationService())
-        .startAwait();
+        .startAwait()
+        .onShutdown()
+        .block();
+  }
+
+  private static RSocketServiceTransport serviceTransport(DiscoveryOptions options) {
+    return new RSocketServiceTransport()
+        .tcpClient(resources -> TcpClient.newConnection().runOn(resources))
+        .tcpServer(resources -> TcpServer.create().port(options.servicePort()).runOn(resources));
+  }
+
+  private static ScalecubeServiceDiscovery serviceDiscovery(
+      DiscoveryOptions discoveryOptions, ServiceEndpoint serviceEndpoint) {
+    return new ScalecubeServiceDiscovery(serviceEndpoint)
+        .options(
+            opts ->
+                opts.membership(m -> m.seedMembers(discoveryOptions.seeds()))
+                    .transport(t -> t.port(discoveryOptions.discoveryPort()))
+                    .memberHost(discoveryOptions.memberHost())
+                    .memberPort(discoveryOptions.memberPort()));
   }
 
   private static OrganizationService createOrganizationService() {
@@ -79,12 +82,7 @@ public class OrganizationServiceRunner {
     Cluster cluster = CouchbaseCluster.create(settings.hosts());
 
     AsyncBucket bucket =
-        Mono.fromCallable(
-            () ->
-                cluster
-                    .authenticate(settings.username(), settings.password())
-                    .openBucket(settings.organizationsBucketName())
-                    .async())
+        Mono.fromCallable(() -> getAsyncBucket(settings, cluster))
             .retryBackoff(3, Duration.ofSeconds(1))
             .block(Duration.ofSeconds(30));
 
@@ -104,5 +102,12 @@ public class OrganizationServiceRunner {
     bindingMap.put("organizationsBucketName", "organizations.bucket");
 
     return bindingMap;
+  }
+
+  private static AsyncBucket getAsyncBucket(CouchbaseSettings settings, Cluster cluster) {
+    return cluster
+        .authenticate(settings.username(), settings.password())
+        .openBucket(settings.organizationsBucketName())
+        .async();
   }
 }
