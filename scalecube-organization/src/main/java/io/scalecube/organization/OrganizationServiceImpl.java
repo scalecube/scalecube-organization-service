@@ -45,9 +45,12 @@ import io.scalecube.organization.tokens.TokenVerifier;
 import io.scalecube.organization.tokens.store.KeyStore;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 public class OrganizationServiceImpl implements OrganizationService {
 
@@ -57,6 +60,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   private final OrganizationsRepository repository;
   private final KeyStore keyStore;
   private final KeyPairGenerator keyPairGenerator;
+  private final Scheduler scheduler;
 
   /**
    * Create instance of organization service.
@@ -71,11 +75,15 @@ public class OrganizationServiceImpl implements OrganizationService {
     this.keyStore = keyStore;
     this.tokenVerifier = tokenVerifier;
     this.keyPairGenerator = keyPairGenerator();
+    this.scheduler =
+        Schedulers.fromExecutor(
+            Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()));
   }
 
   @Override
   public Mono<CreateOrganizationResponse> createOrganization(CreateOrganizationRequest request) {
     return Mono.fromRunnable(() -> logger.debug("createOrganization: enter, request: {}", request))
+        .subscribeOn(scheduler)
         .then(
             Mono.defer(
                 () ->
@@ -96,6 +104,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   public Mono<GetMembershipResponse> getUserOrganizationsMembership(GetMembershipRequest request) {
     return Mono.fromRunnable(
         () -> logger.debug("getUserOrganizationsMembership: enter, request: {}", request))
+        .subscribeOn(scheduler)
         .then(
             Mono.defer(
                 () ->
@@ -117,6 +126,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   @Override
   public Mono<DeleteOrganizationResponse> deleteOrganization(DeleteOrganizationRequest request) {
     return Mono.fromRunnable(() -> logger.debug("deleteOrganization: enter, request: {}", request))
+        .subscribeOn(scheduler)
         .then(
             Mono.defer(
                 () ->
@@ -137,6 +147,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   @Override
   public Mono<UpdateOrganizationResponse> updateOrganization(UpdateOrganizationRequest request) {
     return Mono.fromRunnable(() -> logger.debug("updateOrganization: enter, request: {}", request))
+        .subscribeOn(scheduler)
         .then(
             Mono.defer(
                 () ->
@@ -158,6 +169,7 @@ public class OrganizationServiceImpl implements OrganizationService {
       GetOrganizationMembersRequest request) {
     return Mono.fromRunnable(
         () -> logger.debug("getOrganizationMembers: enter, request: {}", request))
+        .subscribeOn(scheduler)
         .then(
             Mono.defer(
                 () ->
@@ -178,6 +190,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   public Mono<InviteOrganizationMemberResponse> inviteMember(
       InviteOrganizationMemberRequest request) {
     return Mono.fromRunnable(() -> logger.debug("inviteMember: enter, request: {}", request))
+        .subscribeOn(scheduler)
         .then(
             Mono.defer(
                 () ->
@@ -197,6 +210,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   public Mono<KickoutOrganizationMemberResponse> kickoutMember(
       KickoutOrganizationMemberRequest request) {
     return Mono.fromRunnable(() -> logger.debug("kickoutMember: enter, request: {}", request))
+        .subscribeOn(scheduler)
         .then(
             Mono.defer(
                 () ->
@@ -215,6 +229,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   @Override
   public Mono<LeaveOrganizationResponse> leaveOrganization(LeaveOrganizationRequest request) {
     return Mono.fromRunnable(() -> logger.debug("leaveOrganization: enter, request: {}", request))
+        .subscribeOn(scheduler)
         .then(
             Mono.defer(
                 () ->
@@ -235,6 +250,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   public Mono<GetOrganizationResponse> addOrganizationApiKey(AddOrganizationApiKeyRequest request) {
     return Mono.fromRunnable(
         () -> logger.debug("addOrganizationApiKey: enter, request: {}", request))
+        .subscribeOn(scheduler)
         .then(
             Mono.defer(
                 () ->
@@ -258,6 +274,7 @@ public class OrganizationServiceImpl implements OrganizationService {
       DeleteOrganizationApiKeyRequest request) {
     return Mono.fromRunnable(
         () -> logger.debug("deleteOrganizationApiKey: enter, request: {}", request))
+        .subscribeOn(scheduler)
         .then(
             Mono.defer(
                 () ->
@@ -278,6 +295,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   @Override
   public Mono<GetOrganizationResponse> getOrganization(GetOrganizationRequest request) {
     return Mono.fromRunnable(() -> logger.debug("getOrganization: enter, request: {}", request))
+        .subscribeOn(scheduler)
         .then(
             Mono.defer(
                 () ->
@@ -298,6 +316,7 @@ public class OrganizationServiceImpl implements OrganizationService {
       UpdateOrganizationMemberRoleRequest request) {
     return Mono.fromRunnable(
         () -> logger.debug("updateOrganizationMemberRole: enter, request: {}", request))
+        .subscribeOn(scheduler)
         .then(
             Mono.defer(
                 () ->
@@ -319,6 +338,7 @@ public class OrganizationServiceImpl implements OrganizationService {
   @Override
   public Mono<GetPublicKeyResponse> getPublicKey(GetPublicKeyRequest request) {
     return Mono.fromRunnable(() -> logger.debug("getPublicKey: enter, request: {}", request))
+        .subscribeOn(scheduler)
         .then(Mono.fromCallable(() -> keyStore.getPublicKey(request.keyId())))
         .map(
             publicKey ->

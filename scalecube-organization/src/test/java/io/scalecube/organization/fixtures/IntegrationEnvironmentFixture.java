@@ -15,6 +15,9 @@ public final class IntegrationEnvironmentFixture implements Fixture {
 
   private static final IntegrationEnvironment environment = new IntegrationEnvironment();
 
+  private static final int GATEWAY_WS_PORT = 7070;
+  private static final String GATEWAY_HOST = "localhost";
+
   static {
     environment.start();
   }

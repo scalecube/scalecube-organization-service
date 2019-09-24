@@ -1,6 +1,7 @@
 package io.scalecube.account.api;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class ApiKey {
 
@@ -35,17 +36,10 @@ public class ApiKey {
     }
 
     ApiKey apiKey = (ApiKey) o;
-
-    if (keyId != null ? !keyId.equals(apiKey.keyId) : apiKey.keyId != null) {
-      return false;
-    }
-    if (name != null ? !name.equals(apiKey.name) : apiKey.name != null) {
-      return false;
-    }
-    if (claims != null ? !claims.equals(apiKey.claims) : apiKey.claims != null) {
-      return false;
-    }
-    return key != null ? key.equals(apiKey.key) : apiKey.key == null;
+    return Objects.equals(keyId, apiKey.keyId)
+        && Objects.equals(name, apiKey.name)
+        && Objects.equals(claims, apiKey.claims)
+        && Objects.equals(key, apiKey.key);
   }
 
   @Override
@@ -55,5 +49,19 @@ public class ApiKey {
     result = 31 * result + (claims != null ? claims.hashCode() : 0);
     result = 31 * result + (key != null ? key.hashCode() : 0);
     return result;
+  }
+
+  @Override
+  public String toString() {
+    return "ApiKey{"
+        + "keyId='"
+        + keyId
+        + "\', name='"
+        + name
+        + "\', claims="
+        + claims
+        + ", key='"
+        + key
+        + "\'}";
   }
 }

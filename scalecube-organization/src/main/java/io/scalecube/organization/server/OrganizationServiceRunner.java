@@ -1,9 +1,10 @@
 package io.scalecube.organization.server;
 
 import com.couchbase.client.java.AsyncBucket;
-import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseCluster;
 import io.scalecube.account.api.OrganizationService;
+import io.scalecube.app.decoration.Logo;
+import io.scalecube.app.packages.PackageInfo;
 import io.scalecube.organization.OrganizationServiceImpl;
 import io.scalecube.organization.config.AppConfiguration;
 import io.scalecube.organization.repository.OrganizationsRepository;
@@ -79,10 +80,10 @@ public class OrganizationServiceRunner {
             .value()
             .orElseThrow(() -> new IllegalStateException("Couldn't load couchbase settings"));
 
-    Cluster cluster = CouchbaseCluster.create(settings.hosts());
+    CouchbaseCluster couchbaseCluster = CouchbaseCluster.create(settings.hosts());
 
     AsyncBucket bucket =
-        Mono.fromCallable(() -> getAsyncBucket(settings, cluster))
+        Mono.fromCallable(() -> newSsyncBucket(settings, couchbaseCluster))
             .retryBackoff(3, Duration.ofSeconds(1))
             .block(Duration.ofSeconds(30));
 
@@ -104,8 +105,8 @@ public class OrganizationServiceRunner {
     return bindingMap;
   }
 
-  private static AsyncBucket getAsyncBucket(CouchbaseSettings settings, Cluster cluster) {
-    return cluster
+  private static AsyncBucket getAsyncBucket(CouchbaseSettings settings, Cluster couchbaseCluster) {
+    return couchbaseCluster
         .authenticate(settings.username(), settings.password())
         .openBucket(settings.organizationsBucketName())
         .async();

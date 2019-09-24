@@ -1,5 +1,7 @@
 FROM openjdk:8
 
+LABEL maintainer="info@scalecube.io"
+
 ARG EXECUTABLE_JAR
 
 WORKDIR /opt/scalecube
