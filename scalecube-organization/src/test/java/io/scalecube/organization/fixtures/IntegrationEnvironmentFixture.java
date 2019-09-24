@@ -1,12 +1,11 @@
 package io.scalecube.organization.fixtures;
 
-import static io.scalecube.services.gateway.transport.GatewayClientTransports.WEBSOCKET_CLIENT_CODEC;
-
 import io.scalecube.net.Address;
 import io.scalecube.services.ServiceCall;
 import io.scalecube.services.gateway.transport.GatewayClient;
 import io.scalecube.services.gateway.transport.GatewayClientSettings;
 import io.scalecube.services.gateway.transport.GatewayClientTransport;
+import io.scalecube.services.gateway.transport.GatewayClientTransports;
 import io.scalecube.services.gateway.transport.StaticAddressRouter;
 import io.scalecube.services.gateway.transport.websocket.WebsocketGatewayClient;
 import io.scalecube.test.fixtures.Fixture;
@@ -25,21 +24,23 @@ public final class IntegrationEnvironmentFixture implements Fixture {
   }
 
   private GatewayClient client;
+  private ServiceCall serviceCall;
 
   @Override
   public void setUp() throws TestAbortedException {
     GatewayClientSettings settings =
         GatewayClientSettings.builder().host(GATEWAY_HOST).port(GATEWAY_WS_PORT).build();
 
-    client = new WebsocketGatewayClient(settings, WEBSOCKET_CLIENT_CODEC);
+    client = new WebsocketGatewayClient(settings, GatewayClientTransports.WEBSOCKET_CLIENT_CODEC);
+    serviceCall =
+        new ServiceCall()
+            .transport(new GatewayClientTransport(client))
+            .router(new StaticAddressRouter(Address.create(settings.host(), settings.port())));
   }
 
   @Override
   public <T> T proxyFor(Class<? extends T> clazz) {
-    return new ServiceCall()
-        .transport(new GatewayClientTransport(client))
-        .router(new StaticAddressRouter(Address.create(GATEWAY_HOST, GATEWAY_WS_PORT)))
-        .api(clazz);
+    return serviceCall.api(clazz);
   }
 
   @Override

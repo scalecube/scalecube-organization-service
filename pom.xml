@@ -25,8 +25,8 @@
 
   <properties>
     <scalecube.config.version>0.3.12</scalecube.config.version>
-    <scalecube-services.version>2.8.4</scalecube-services.version>
-    <scalecube-services-gateway.version>2.8.6</scalecube-services-gateway.version>
+    <scalecube-services.version>2.8.7</scalecube-services.version>
+    <scalecube-services-gateway.version>2.8.8</scalecube-services-gateway.version>
     <scalecube-security-jwt.version>1.0.8</scalecube-security-jwt.version>
     <reactor.version>Californium-SR8</reactor.version>
     <jackson.version>2.10.0.pr1</jackson.version>
@@ -38,7 +38,7 @@
     <slf4j.version>1.7.7</slf4j.version>
     <log4j.version>2.11.1</log4j.version>
     <junit-jupiter.version>5.4.2</junit-jupiter.version>
-    <scalecube-test-utils.version>0.0.5</scalecube-test-utils.version>
+    <scalecube-test-utils.version>0.0.7</scalecube-test-utils.version>
     <testcontainers.version>1.11.3</testcontainers.version>
 
     <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
@@ -200,6 +200,12 @@
         <groupId>org.testcontainers</groupId>
         <artifactId>vault</artifactId>
         <version>${testcontainers.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.scalecube</groupId>
+        <artifactId>scalecube-services-bytebuf-codec</artifactId>
+        <version>${scalecube-services.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
