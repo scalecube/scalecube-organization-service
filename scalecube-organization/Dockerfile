@@ -20,7 +20,7 @@ ENV DEFAULT_JMX_OPTS="-Dcom.sun.management.jmxremote \
 -Djava.rmi.server.hostname=127.0.0.1"
 
 ENV DEFAULT_OOM_OPTS="-XX:+HeapDumpOnOutOfMemoryError \
--XX:HeapDumpPath=dumps/oom_pid<pid>_`date`.hprof \
+-XX:HeapDumpPath=organization-service-oom.hprof \
 -XX:+UseGCOverheadLimit"
 
 COPY target/lib lib

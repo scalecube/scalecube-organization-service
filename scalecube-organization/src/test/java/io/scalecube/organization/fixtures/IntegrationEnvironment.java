@@ -21,6 +21,7 @@ import io.scalecube.organization.tokens.TokenVerifier;
 import io.scalecube.organization.tokens.TokenVerifierImpl;
 import io.scalecube.organization.tokens.store.VaultKeyStore;
 import io.scalecube.services.Microservices;
+import io.scalecube.services.ServiceEndpoint;
 import io.scalecube.services.discovery.ScalecubeServiceDiscovery;
 import io.scalecube.services.gateway.ws.WebsocketGateway;
 import io.scalecube.services.transport.rsocket.RSocketServiceTransport;
@@ -37,6 +38,7 @@ import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 import org.testcontainers.couchbase.CouchbaseContainer;
 import org.testcontainers.vault.VaultContainer;
 import reactor.core.publisher.Mono;
+import reactor.netty.tcp.TcpClient;
 import reactor.netty.tcp.TcpServer;
 
 final class IntegrationEnvironment {
@@ -184,16 +186,8 @@ final class IntegrationEnvironment {
     LOGGER.info("### Start gateway");
 
     return Microservices.builder()
-        .discovery(
-            serviceEndpoint ->
-                new ScalecubeServiceDiscovery(serviceEndpoint)
-                    .options(opts -> opts.transport(cgf -> cgf.port(GATEWAY_DISCOVERY_PORT))))
-        .transport(
-            () ->
-                new RSocketServiceTransport()
-                    .tcpServer(
-                        loopResources ->
-                            TcpServer.create().port(GATEWAY_TRANSPORT_PORT).runOn(loopResources)))
+        .discovery(serviceEndpoint -> serviceDiscovery(serviceEndpoint, GATEWAY_DISCOVERY_PORT))
+        .transport(() -> serviceTransport(GATEWAY_TRANSPORT_PORT))
         .gateway(options -> new WebsocketGateway(options.port(GATEWAY_WS_PORT)))
         .startAwait();
   }
@@ -208,22 +202,11 @@ final class IntegrationEnvironment {
     return Microservices.builder()
         .discovery(
             serviceEndpoint ->
-                new ScalecubeServiceDiscovery(serviceEndpoint)
-                    .options(
-                        opts ->
-                            opts.membership(
-                                    cfg ->
-                                        cfg.seedMembers(
-                                            Address.create("localhost", GATEWAY_DISCOVERY_PORT)))
-                                .transport(cfg -> cfg.port(ORG_SERVICE_DISCOVERY_PORT))))
-        .transport(
-            () ->
-                new RSocketServiceTransport()
-                    .tcpServer(
-                        loopResources ->
-                            TcpServer.create()
-                                .port(ORG_SERVICE_TRANSPORT_PORT)
-                                .runOn(loopResources)))
+                serviceDiscovery(
+                    serviceEndpoint,
+                    ORG_SERVICE_DISCOVERY_PORT,
+                    Address.create("localhost", GATEWAY_DISCOVERY_PORT)))
+        .transport(() -> serviceTransport(ORG_SERVICE_TRANSPORT_PORT))
         .services(createOrganizationService())
         .startAwait();
   }
@@ -263,5 +246,18 @@ final class IntegrationEnvironment {
     bindingMap.put("organizationsBucketName", "organizations.bucket");
 
     return bindingMap;
+  }
+
+  private RSocketServiceTransport serviceTransport(int transportPort) {
+    return new RSocketServiceTransport()
+        .tcpClient(resources -> TcpClient.newConnection().runOn(resources))
+        .tcpServer(resources -> TcpServer.create().port(transportPort).runOn(resources));
+  }
+
+  private ScalecubeServiceDiscovery serviceDiscovery(
+      ServiceEndpoint serviceEndpoint, int discoveryPort, Address... seeds) {
+    ScalecubeServiceDiscovery serviceDiscovery = new ScalecubeServiceDiscovery(serviceEndpoint);
+    return serviceDiscovery.options(
+        opts -> opts.transport(t -> t.port(discoveryPort)).membership(m -> m.seedMembers(seeds)));
   }
 }
