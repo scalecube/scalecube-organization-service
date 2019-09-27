@@ -86,6 +86,11 @@
       </dependency>
       <dependency>
         <groupId>io.scalecube</groupId>
+        <artifactId>scalecube-services-bytebuf-codec</artifactId>
+        <version>${scalecube-services.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.scalecube</groupId>
         <artifactId>scalecube-services-transport-jackson</artifactId>
         <version>${scalecube-services.version}</version>
       </dependency>
@@ -200,12 +205,6 @@
         <groupId>org.testcontainers</groupId>
         <artifactId>vault</artifactId>
         <version>${testcontainers.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>io.scalecube</groupId>
-        <artifactId>scalecube-services-bytebuf-codec</artifactId>
-        <version>${scalecube-services.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
