@@ -24,7 +24,7 @@
   </scm>
 
   <properties>
-    <scalecube.config.version>0.3.12</scalecube.config.version>
+    <scalecube.config.version>0.3.13</scalecube.config.version>
     <scalecube-services.version>2.8.7</scalecube-services.version>
     <scalecube-services-gateway.version>2.8.8</scalecube-services-gateway.version>
     <scalecube-security-jwt.version>1.0.8</scalecube-security-jwt.version>
