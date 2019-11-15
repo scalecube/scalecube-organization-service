@@ -1,5 +1,7 @@
 package io.scalecube.organization.tokens.store;
 
+import static io.scalecube.organization.config.AppConfiguration.VAULT_ENGINE_VERSION;
+
 import com.bettercloud.vault.Vault;
 import com.bettercloud.vault.VaultConfig;
 import com.bettercloud.vault.VaultException;
@@ -54,12 +56,10 @@ public class VaultKeyStore implements KeyStore {
 
   private final Vault vault;
 
-  /**
-   * Constructor.
-   */
+  /** Constructor. */
   public VaultKeyStore() {
     try {
-      vault = new Vault(new VaultConfig().build());
+      vault = new Vault(new VaultConfig().engineVersion(VAULT_ENGINE_VERSION).build());
     } catch (VaultException ex) {
       throw new OrganizationServiceException("Error during vault initialization", ex);
     }

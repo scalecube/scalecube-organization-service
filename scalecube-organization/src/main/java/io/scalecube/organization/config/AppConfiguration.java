@@ -17,7 +17,8 @@ import java.util.regex.Pattern;
 /** Configures the ConfigRegistry with sources. */
 public class AppConfiguration {
 
-  private static final int VAULT_ENGINE_VERSION = 1;
+  public static final int VAULT_ENGINE_VERSION = 1;
+
   private static final String VAULT_ADDR_PROP_NAME = "VAULT_ADDR";
   private static final String VAULT_TOKEN_PROP_NAME = "VAULT_TOKEN";
   private static final String KUBERNETES_VAULT_ROLE_PROP_NAME = "VAULT_ROLE";
