@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 /** Configures the ConfigRegistry with sources. */
 public class AppConfiguration {
 
+  private static final int VAULT_ENGINE_VERSION = 1;
   private static final String VAULT_ADDR_PROP_NAME = "VAULT_ADDR";
   private static final String VAULT_TOKEN_PROP_NAME = "VAULT_TOKEN";
   private static final String KUBERNETES_VAULT_ROLE_PROP_NAME = "VAULT_ROLE";
@@ -39,7 +40,8 @@ public class AppConfiguration {
     String secretsPath = System.getenv().get(VAULT_SECRETS_PATH_PROP_NAME);
     // for test purposes without vault access
     if (vaultAddr != null && secretsPath != null) {
-      VaultConfigSource.Builder vaultBuilder = VaultConfigSource.builder();
+      VaultConfigSource.Builder vaultBuilder =
+          VaultConfigSource.builder().config(c -> c.engineVersion(VAULT_ENGINE_VERSION));
 
       String vaultToken = System.getenv().get(VAULT_TOKEN_PROP_NAME);
       String kubernetesVaultRolePropName = System.getenv().get(KUBERNETES_VAULT_ROLE_PROP_NAME);
