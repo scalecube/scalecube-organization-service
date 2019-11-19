@@ -1,7 +1,13 @@
 package io.scalecube.organization.tokens.store;
 
+import static io.scalecube.organization.config.AppConfiguration.KUBERNETES_VAULT_ROLE_PROP_NAME;
+import static io.scalecube.organization.config.AppConfiguration.VAULT_ADDR_PROP_NAME;
 import static io.scalecube.organization.config.AppConfiguration.VAULT_ENGINE_VERSION;
+import static io.scalecube.organization.config.AppConfiguration.VAULT_RENEW_PERIOD_PROP_NAME;
+import static io.scalecube.organization.config.AppConfiguration.VAULT_SECRETS_PATH_PROP_NAME;
+import static io.scalecube.organization.config.AppConfiguration.VAULT_TOKEN_PROP_NAME;
 
+import com.bettercloud.vault.EnvironmentLoader;
 import com.bettercloud.vault.Vault;
 import com.bettercloud.vault.VaultConfig;
 import com.bettercloud.vault.VaultException;
@@ -11,6 +17,7 @@ import io.scalecube.account.api.OrganizationServiceException;
 import io.scalecube.config.ConfigRegistry;
 import io.scalecube.config.IntConfigProperty;
 import io.scalecube.config.StringConfigProperty;
+import io.scalecube.config.vault.KubernetesVaultTokenSupplier;
 import io.scalecube.organization.config.AppConfiguration;
 import io.scalecube.organization.tokens.KeyStoreException;
 import java.security.Key;
@@ -26,8 +33,11 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * HshiCorp Vault based KeyStore implementation. Vault access is done via
@@ -50,7 +60,7 @@ public class VaultKeyStore implements KeyStore {
   private final IntConfigProperty retryInterval =
       configRegistry.intProperty("vault.retry.interval.milliseconds");
   private StringConfigProperty vaultSecretsPath =
-      configRegistry.stringProperty("VAULT_SECRETS_PATH");
+      configRegistry.stringProperty(VAULT_SECRETS_PATH_PROP_NAME);
   private StringConfigProperty apiKeysPathPattern =
       configRegistry.stringProperty("api.keys.path.pattern");
 
@@ -59,7 +69,52 @@ public class VaultKeyStore implements KeyStore {
   /** Constructor. */
   public VaultKeyStore() {
     try {
-      vault = new Vault(new VaultConfig().engineVersion(VAULT_ENGINE_VERSION).build());
+      Optional<String> vaultToken = configRegistry.stringProperty(VAULT_TOKEN_PROP_NAME).value();
+      Optional<String> kubernetesVaultRole =
+          configRegistry.stringProperty(KUBERNETES_VAULT_ROLE_PROP_NAME).value();
+
+      if (!vaultToken.isPresent() && !kubernetesVaultRole.isPresent()) {
+        throw new IllegalArgumentException("Vault auth scheme is required");
+      }
+
+      if (vaultToken.isPresent() && kubernetesVaultRole.isPresent()) {
+        throw new IllegalArgumentException("Vault auth scheme is unclear");
+      }
+
+      VaultConfig vaultConfig =
+          new VaultConfig()
+              .address(configRegistry.stringProperty(VAULT_ADDR_PROP_NAME).valueOrThrow())
+              .engineVersion(VAULT_ENGINE_VERSION)
+              .build();
+
+      String token =
+          vaultToken.orElseGet(
+              () ->
+                  new KubernetesVaultTokenSupplier()
+                      .getToken(new EnvironmentLoader(), vaultConfig));
+
+      vault = new Vault(vaultConfig.token(token));
+
+      configRegistry
+          .durationProperty(VAULT_RENEW_PERIOD_PROP_NAME)
+          .value()
+          .ifPresent(
+              renewInterval ->
+                  Schedulers.newSingle(
+                          VaultKeyStore.class.getSimpleName().toLowerCase() + "-token-renewer",
+                          true)
+                      .schedulePeriodically(
+                          () -> {
+                            try {
+                              vault.auth().renewSelf();
+                              LOGGER.info("renew token success");
+                            } catch (VaultException vaultException) {
+                              LOGGER.error("failed to renew token", vaultException);
+                            }
+                          },
+                          renewInterval.getSeconds(),
+                          renewInterval.getSeconds(),
+                          TimeUnit.SECONDS));
     } catch (VaultException ex) {
       throw new OrganizationServiceException("Error during vault initialization", ex);
     }
@@ -104,7 +159,7 @@ public class VaultKeyStore implements KeyStore {
       LOGGER.error("Error reading public key from Vault path={}", path, e);
       throw new KeyStoreException(e);
     } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-      LOGGER.error("Error reconstructing public key", path, e);
+      LOGGER.error("Error reconstructing public key from Vault path={}", path, e);
       throw new KeyStoreException(e);
     }
   }
@@ -124,7 +179,7 @@ public class VaultKeyStore implements KeyStore {
       LOGGER.error("Error reading private key from Vault path={}", path, e);
       throw new KeyStoreException(e);
     } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-      LOGGER.error("Error reconstructing private key", path, e);
+      LOGGER.error("Error reconstructing private key from Vault path={}", path, e);
       throw new KeyStoreException(e);
     }
   }

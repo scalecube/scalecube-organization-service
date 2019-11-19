@@ -18,11 +18,11 @@ import java.util.regex.Pattern;
 public class AppConfiguration {
 
   public static final int VAULT_ENGINE_VERSION = 1;
-
-  private static final String VAULT_ADDR_PROP_NAME = "VAULT_ADDR";
-  private static final String VAULT_TOKEN_PROP_NAME = "VAULT_TOKEN";
-  private static final String KUBERNETES_VAULT_ROLE_PROP_NAME = "VAULT_ROLE";
-  private static final String VAULT_SECRETS_PATH_PROP_NAME = "VAULT_SECRETS_PATH";
+  public static final String VAULT_ADDR_PROP_NAME = "VAULT_ADDR";
+  public static final String VAULT_TOKEN_PROP_NAME = "VAULT_TOKEN";
+  public static final String KUBERNETES_VAULT_ROLE_PROP_NAME = "VAULT_ROLE";
+  public static final String VAULT_SECRETS_PATH_PROP_NAME = "VAULT_SECRETS_PATH";
+  public static final String VAULT_RENEW_PERIOD_PROP_NAME = "VAULT_RENEW_PERIOD";
 
   private static final int RELOAD_INTERVAL_SEC = 300;
   private static final Pattern CONFIG_PATTERN = Pattern.compile("(.*)\\.config\\.properties");
