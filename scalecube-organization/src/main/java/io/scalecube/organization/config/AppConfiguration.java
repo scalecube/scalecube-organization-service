@@ -7,9 +7,10 @@ import io.scalecube.config.audit.Slf4JConfigEventListener;
 import io.scalecube.config.source.ClassPathConfigSource;
 import io.scalecube.config.source.SystemEnvironmentConfigSource;
 import io.scalecube.config.source.SystemPropertiesConfigSource;
+import io.scalecube.config.vault.EnvironmentVaultTokenSupplier;
 import io.scalecube.config.vault.KubernetesVaultTokenSupplier;
 import io.scalecube.config.vault.VaultConfigSource;
-import io.scalecube.config.vault.VaultTokenSupplier;
+import io.scalecube.config.vault.VaultInvoker;
 import java.nio.file.Path;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -30,6 +31,7 @@ public class AppConfiguration {
       path -> CONFIG_PATTERN.matcher(path.toString()).matches();
 
   private static final ConfigRegistry configRegistry;
+  private static VaultInvoker vaultInvoker;
 
   static {
     Builder builder =
@@ -41,9 +43,6 @@ public class AppConfiguration {
     String secretsPath = System.getenv().get(VAULT_SECRETS_PATH_PROP_NAME);
     // for test purposes without vault access
     if (vaultAddr != null && secretsPath != null) {
-      VaultConfigSource.Builder vaultBuilder =
-          VaultConfigSource.builder().config(c -> c.engineVersion(VAULT_ENGINE_VERSION));
-
       String vaultToken = System.getenv().get(VAULT_TOKEN_PROP_NAME);
       String kubernetesVaultRolePropName = System.getenv().get(KUBERNETES_VAULT_ROLE_PROP_NAME);
       if (vaultToken == null && kubernetesVaultRolePropName == null) {
@@ -52,14 +51,20 @@ public class AppConfiguration {
       if (vaultToken != null && kubernetesVaultRolePropName != null) {
         throw new IllegalArgumentException("Vault auth scheme is unclear");
       }
+      VaultInvoker.Builder vaultInvokerBuilder = VaultInvoker.builder();
+
       if (vaultToken != null) {
-        vaultBuilder.tokenSupplier(new VaultTokenSupplier() {});
+        vaultInvokerBuilder.tokenSupplier(new EnvironmentVaultTokenSupplier());
       }
       if (kubernetesVaultRolePropName != null) {
-        vaultBuilder.tokenSupplier(new KubernetesVaultTokenSupplier());
+        vaultInvokerBuilder.tokenSupplier(new KubernetesVaultTokenSupplier());
       }
+      vaultInvoker =
+          vaultInvokerBuilder.options(c -> c.engineVersion(VAULT_ENGINE_VERSION)).build();
 
-      builder.addLastSource("vault", vaultBuilder.secretsPath(secretsPath).build());
+      builder.addLastSource(
+          "vault",
+          VaultConfigSource.builder().secretsPath(secretsPath).invoker(vaultInvoker).build());
     }
     builder.addLastSource("sys_prop", new SystemPropertiesConfigSource());
     builder.addLastSource("env_var", new SystemEnvironmentConfigSource());
@@ -70,5 +75,9 @@ public class AppConfiguration {
 
   public static ConfigRegistry configRegistry() {
     return configRegistry;
+  }
+
+  public static VaultInvoker vaultInvoker() {
+    return vaultInvoker;
   }
 }
