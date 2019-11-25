@@ -18,12 +18,11 @@ import java.util.regex.Pattern;
 /** Configures the ConfigRegistry with sources. */
 public class AppConfiguration {
 
-  public static final int VAULT_ENGINE_VERSION = 1;
-  public static final String VAULT_ADDR_PROP_NAME = "VAULT_ADDR";
-  public static final String VAULT_TOKEN_PROP_NAME = "VAULT_TOKEN";
-  public static final String KUBERNETES_VAULT_ROLE_PROP_NAME = "VAULT_ROLE";
-  public static final String VAULT_SECRETS_PATH_PROP_NAME = "VAULT_SECRETS_PATH";
-  public static final String VAULT_RENEW_PERIOD_PROP_NAME = "VAULT_RENEW_PERIOD";
+  private static final String VAULT_ADDR_PROP_NAME = "VAULT_ADDR";
+  private static final String VAULT_TOKEN_PROP_NAME = "VAULT_TOKEN";
+  private static final String KUBERNETES_VAULT_ROLE_PROP_NAME = "VAULT_ROLE";
+  private static final String VAULT_SECRETS_PATH_PROP_NAME = "VAULT_SECRETS_PATH";
+  private static final String VAULT_ENGINE_VERSION_PROP_NAME = "VAULT_ENGINE_VERSION";
 
   private static final int RELOAD_INTERVAL_SEC = 300;
   private static final Pattern CONFIG_PATTERN = Pattern.compile("(.*)\\.config\\.properties");
@@ -41,6 +40,8 @@ public class AppConfiguration {
 
     String vaultAddr = System.getenv().get(VAULT_ADDR_PROP_NAME);
     String secretsPath = System.getenv().get(VAULT_SECRETS_PATH_PROP_NAME);
+    int vaultEngineVersion =
+        Integer.parseInt(System.getenv().getOrDefault(VAULT_ENGINE_VERSION_PROP_NAME, "1"));
     // for test purposes without vault access
     if (vaultAddr != null && secretsPath != null) {
       String vaultToken = System.getenv().get(VAULT_TOKEN_PROP_NAME);
@@ -59,8 +60,7 @@ public class AppConfiguration {
       if (kubernetesVaultRolePropName != null) {
         vaultInvokerBuilder.tokenSupplier(new KubernetesVaultTokenSupplier());
       }
-      vaultInvoker =
-          vaultInvokerBuilder.options(c -> c.engineVersion(VAULT_ENGINE_VERSION)).build();
+      vaultInvoker = vaultInvokerBuilder.options(c -> c.engineVersion(vaultEngineVersion)).build();
 
       builder.addLastSource(
           "vault",
