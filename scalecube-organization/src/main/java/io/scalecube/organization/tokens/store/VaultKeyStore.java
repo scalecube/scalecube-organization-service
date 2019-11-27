@@ -1,14 +1,13 @@
 package io.scalecube.organization.tokens.store;
 
 import com.bettercloud.vault.Vault;
-import com.bettercloud.vault.VaultConfig;
 import com.bettercloud.vault.VaultException;
 import com.bettercloud.vault.api.Logical;
 import com.bettercloud.vault.response.LogicalResponse;
-import io.scalecube.account.api.OrganizationServiceException;
 import io.scalecube.config.ConfigRegistry;
 import io.scalecube.config.IntConfigProperty;
 import io.scalecube.config.StringConfigProperty;
+import io.scalecube.config.vault.VaultInvoker;
 import io.scalecube.organization.config.AppConfiguration;
 import io.scalecube.organization.tokens.KeyStoreException;
 import java.security.Key;
@@ -52,25 +51,17 @@ public class VaultKeyStore implements KeyStore {
   private StringConfigProperty apiKeysPathPattern =
       configRegistry.stringProperty("api.keys.path.pattern");
 
-  private final Vault vault;
+  private final VaultInvoker vaultInvoker;
 
-  /**
-   * Constructor.
-   */
+  /** Constructor. */
   public VaultKeyStore() {
-    try {
-      vault = new Vault(new VaultConfig().build());
-    } catch (VaultException ex) {
-      throw new OrganizationServiceException("Error during vault initialization", ex);
-    }
+    vaultInvoker = AppConfiguration.vaultInvoker();
   }
 
   @Override
   public void store(String alias, KeyPair keyPair) throws KeyStoreException {
-    String path = null;
+    String path = getPath(alias);
     try {
-      path = getPath(alias);
-
       LOGGER.debug("Writing key to Vault path: '{}'", path);
 
       Map<String, Object> keys = new HashMap<>();
@@ -78,7 +69,7 @@ public class VaultKeyStore implements KeyStore {
       keys.put(PUBLIC_KEY, encodeKey(keyPair.getPublic()));
       keys.put(PRIVATE_KEY, encodeKey(keyPair.getPrivate()));
 
-      LogicalResponse write = vaultLogical().write(path, keys);
+      LogicalResponse write = vaultInvoker.invoke(vault -> logical(vault).write(path, keys));
 
       LOGGER.debug(
           "Key written to Vault path: '{}' REST response code: '{}' ",
@@ -95,7 +86,8 @@ public class VaultKeyStore implements KeyStore {
     String path = getPath(keyId);
 
     try {
-      String publicKeyEncoded = vaultLogical().read(path).getData().get(PUBLIC_KEY);
+      String publicKeyEncoded =
+          vaultInvoker.invoke(vault -> logical(vault).read(path)).getData().get(PUBLIC_KEY);
 
       KeySpec publicKeySpec = new X509EncodedKeySpec(Base64.getDecoder().decode(publicKeyEncoded));
 
@@ -104,7 +96,7 @@ public class VaultKeyStore implements KeyStore {
       LOGGER.error("Error reading public key from Vault path={}", path, e);
       throw new KeyStoreException(e);
     } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-      LOGGER.error("Error reconstructing public key", path, e);
+      LOGGER.error("Error reconstructing public key from Vault path={}", path, e);
       throw new KeyStoreException(e);
     }
   }
@@ -114,7 +106,8 @@ public class VaultKeyStore implements KeyStore {
     String path = getPath(keyId);
 
     try {
-      String privateKeyEncoded = vaultLogical().read(path).getData().get(PRIVATE_KEY);
+      String privateKeyEncoded =
+          vaultInvoker.invoke(vault -> logical(vault).read(path)).getData().get(PRIVATE_KEY);
 
       KeySpec privateKeySpec =
           new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyEncoded));
@@ -124,7 +117,7 @@ public class VaultKeyStore implements KeyStore {
       LOGGER.error("Error reading private key from Vault path={}", path, e);
       throw new KeyStoreException(e);
     } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-      LOGGER.error("Error reconstructing private key", path, e);
+      LOGGER.error("Error reconstructing private key from Vault path={}", path, e);
       throw new KeyStoreException(e);
     }
   }
@@ -134,14 +127,14 @@ public class VaultKeyStore implements KeyStore {
     String path = getPath(keyId);
 
     try {
-      vaultLogical().delete(path);
+      vaultInvoker.invoke(vault -> logical(vault).delete(path));
     } catch (VaultException e) {
       LOGGER.error("Error deleting key pair from Vault path={}", path, e);
       throw new KeyStoreException(e);
     }
   }
 
-  private Logical vaultLogical() {
+  private Logical logical(Vault vault) {
     return vault
         .withRetries(
             maxRetries.value().orElse(DEFAULT_MAX_RETRIES),
