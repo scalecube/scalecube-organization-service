@@ -36,7 +36,7 @@
     <auth0-jwks-rsa.version>0.6.0</auth0-jwks-rsa.version>
     <scalecube-app-utils.version>0.0.4</scalecube-app-utils.version>
     <slf4j.version>1.7.7</slf4j.version>
-    <log4j.version>2.11.1</log4j.version>
+    <log4j.version>2.15.0</log4j.version>
     <junit-jupiter.version>5.4.2</junit-jupiter.version>
     <scalecube-test-utils.version>0.0.13</scalecube-test-utils.version>
     <testcontainers.version>1.11.3</testcontainers.version>
